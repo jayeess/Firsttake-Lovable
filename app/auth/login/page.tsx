@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { login } from '@/app/lib/auth-service';
 import { useAuth } from '@/context/auth-context';
@@ -11,13 +11,15 @@ export default function Login() {
   const { user } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Redirect if already logged in
-  if (user) {
-    router.push('/dashboard');
-  }
+  useEffect(() => {
+    if (user) {
+      router.replace('/dashboard');
+    }
+  }, [router, user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,7 +33,7 @@ export default function Login() {
     }
 
     try {
-      await login({ email, password });
+      await login({ email, password, rememberMe });
 
       // Redirect to dashboard
       router.push('/dashboard');
@@ -68,6 +70,15 @@ export default function Login() {
               required
             />
           </div>
+
+          <label className="flex min-h-11 items-center gap-3 text-sm text-gray-300">
+            <input
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(event) => setRememberMe(event.target.checked)}
+            />
+            Remember me on this device
+          </label>
 
           {/* Password */}
           <div>

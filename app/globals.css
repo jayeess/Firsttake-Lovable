@@ -24,3 +24,27 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+button,
+a,
+input,
+select,
+textarea {
+  border-radius: 4px;
+}
+
+.field {
+  min-height: 48px;
+  width: 100%;
+  border: 1px solid #bcc5ce;
+  background: #ffffff;
+  padding-left: 12px;
+  padding-right: 12px;
+  font-weight: 400;
+  outline: none;
+}
+
+.field:focus {
+  border-color: #2e75b6;
+  box-shadow: 0 0 0 1px #2e75b6;
+}

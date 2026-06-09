@@ -1,0 +1,104 @@
+import type { Timestamp } from 'firebase/firestore';
+
+export type UserType = 'TALENT' | 'RECRUITER' | 'ADMIN';
+export type TalentCategory =
+  | 'ACTOR'
+  | 'MODEL'
+  | 'DANCER'
+  | 'VOICE_ARTIST'
+  | 'ANCHOR';
+export type ExperienceLevel =
+  | 'FRESHER'
+  | '1_3_YRS'
+  | '3_5_YRS'
+  | '5_PLUS_YRS';
+export type AuditionStatus = 'ACTIVE' | 'CLOSED' | 'CANCELLED' | 'DRAFT';
+export type ApplicationStatus =
+  | 'APPLIED'
+  | 'VIEWED'
+  | 'SHORTLISTED'
+  | 'REJECTED';
+
+export interface TalentProfile {
+  firstName: string;
+  lastName: string;
+  age: number;
+  gender: 'MALE' | 'FEMALE' | 'OTHER';
+  height: string;
+  bio: string;
+  category: TalentCategory;
+  experienceLevel: ExperienceLevel;
+  location: string;
+  instagramUrl?: string;
+  youtubeUrl?: string;
+  websiteUrl?: string;
+  isPublic: boolean;
+}
+
+export interface RecruiterProfile {
+  companyName: string;
+  phone: string;
+  address: string;
+  website?: string;
+  bio?: string;
+  companyLogo?: string;
+  isVerified?: boolean;
+}
+
+export interface Audition {
+  id: string;
+  recruiterId: string;
+  recruiterName?: string;
+  title: string;
+  description: string;
+  category: TalentCategory;
+  experienceLevel: ExperienceLevel;
+  location: string;
+  duration: string;
+  requirements: string;
+  numberOfPositions: number;
+  payInfo?: string;
+  deadline: Date | Timestamp;
+  status: AuditionStatus;
+  applicantCount: number;
+  createdAt?: Date | Timestamp;
+}
+
+export interface Application {
+  id: string;
+  auditionId: string;
+  talentId: string;
+  coverMessage?: string;
+  status: ApplicationStatus;
+  createdAt?: Date | Timestamp;
+  lastStatusChange?: Date | Timestamp;
+  audition?: Audition | null;
+}
+
+export const CATEGORY_LABELS: Record<TalentCategory, string> = {
+  ACTOR: 'Actor',
+  MODEL: 'Model',
+  DANCER: 'Dancer',
+  VOICE_ARTIST: 'Voice artist',
+  ANCHOR: 'Anchor',
+};
+
+export const EXPERIENCE_LABELS: Record<ExperienceLevel, string> = {
+  FRESHER: 'Fresher',
+  '1_3_YRS': '1-3 years',
+  '3_5_YRS': '3-5 years',
+  '5_PLUS_YRS': '5+ years',
+};
+
+export const formatDate = (value?: Date | Timestamp): string => {
+  if (!value) {
+    return 'Not specified';
+  }
+
+  const date = value instanceof Date ? value : value.toDate();
+  return new Intl.DateTimeFormat('en', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  }).format(date);
+};

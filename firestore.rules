@@ -1,0 +1,73 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function ownsUser(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function currentUserType() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.userType;
+    }
+
+    function isTalent() {
+      return signedIn() && currentUserType() == 'TALENT';
+    }
+
+    function isRecruiter() {
+      return signedIn() && currentUserType() == 'RECRUITER';
+    }
+
+    match /users/{uid} {
+      allow create, read, update: if ownsUser(uid);
+      allow delete: if ownsUser(uid);
+
+      match /talentProfiles/{profileId} {
+        allow read: if signedIn();
+        allow write: if ownsUser(uid);
+      }
+
+      match /recruiterProfiles/{profileId} {
+        allow read: if signedIn();
+        allow write: if ownsUser(uid);
+      }
+
+      match /notifications/{notificationId} {
+        allow read, update: if ownsUser(uid);
+        allow create: if signedIn();
+      }
+    }
+
+    match /auditions/{auditionId} {
+      allow read: if signedIn();
+      allow create: if isRecruiter()
+        && request.resource.data.recruiterId == request.auth.uid;
+      allow update: if (
+          isRecruiter() && resource.data.recruiterId == request.auth.uid
+        ) || (
+          isTalent()
+          && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['applicantCount'])
+          && request.resource.data.applicantCount == resource.data.applicantCount + 1
+        );
+      allow delete: if isRecruiter()
+        && resource.data.recruiterId == request.auth.uid;
+
+      match /applications/{talentId} {
+        allow create: if isTalent()
+          && talentId == request.auth.uid
+          && request.resource.data.talentId == request.auth.uid;
+        allow read: if signedIn()
+          && (talentId == request.auth.uid
+            || get(/databases/$(database)/documents/auditions/$(auditionId)).data.recruiterId == request.auth.uid);
+        allow update: if isRecruiter()
+          && get(/databases/$(database)/documents/auditions/$(auditionId)).data.recruiterId == request.auth.uid;
+        allow delete: if talentId == request.auth.uid;
+      }
+    }
+  }
+}

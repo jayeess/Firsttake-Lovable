@@ -4,14 +4,15 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User } from 'firebase/auth';
 import { onAuthStateChange } from '@/app/lib/auth-service';
 import {
-  getRecruiterProfile,
-  getTalentProfile,
+  ensureUserAccount,
+  getUserAccount,
 } from '@/app/lib/firestore-service';
+import type { UserType } from '@/app/lib/types';
 import { getErrorMessage } from '@/app/lib/error-utils';
 
 interface AuthContextType {
   user: User | null;
-  userType: string | null;
+  userType: UserType | null;
   loading: boolean;
   error: string | null;
 }
@@ -20,7 +21,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [userType, setUserType] = useState<string | null>(null);
+  const [userType, setUserType] = useState<UserType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -37,28 +38,36 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             const storedUserType = localStorage.getItem(
               `userType_${currentUser.uid}`
             );
-            if (storedUserType) {
+            if (
+              storedUserType === 'TALENT' ||
+              storedUserType === 'RECRUITER'
+            ) {
               setUserType(storedUserType);
+              await ensureUserAccount(
+                currentUser.uid,
+                currentUser.email,
+                storedUserType
+              );
             } else {
-              const talentProfile = await getTalentProfile(currentUser.uid);
-              if (talentProfile) {
-                setUserType('TALENT');
-                localStorage.setItem(`userType_${currentUser.uid}`, 'TALENT');
-              } else {
-                const recruiterProfile = await getRecruiterProfile(
-                  currentUser.uid
+              const account = await getUserAccount(currentUser.uid);
+              if (account) {
+                setUserType(account.userType);
+                localStorage.setItem(
+                  `userType_${currentUser.uid}`,
+                  account.userType
                 );
-                if (recruiterProfile) {
-                  setUserType('RECRUITER');
-                  localStorage.setItem(
-                    `userType_${currentUser.uid}`,
-                    'RECRUITER'
-                  );
-                }
               }
             }
           } catch (err: unknown) {
-            setError(getErrorMessage(err, 'Failed to load user profile'));
+            const message = getErrorMessage(
+              err,
+              'Failed to load user account'
+            );
+            setError(
+              message.includes('client is offline')
+                ? 'Authentication is working, but Firestore is unavailable. Create the Firestore database in Firebase Console and check its security rules.'
+                : message
+            );
           }
         } else {
           setUserType(null);

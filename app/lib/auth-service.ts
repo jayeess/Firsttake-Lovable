@@ -7,16 +7,36 @@ import {
   User,
   setPersistence,
   browserLocalPersistence,
+  browserSessionPersistence,
+  sendEmailVerification,
 } from 'firebase/auth';
 import { getFirebaseAuth, getFirestoreDb } from './firebase';
 import { doc, setDoc } from 'firebase/firestore';
 import { getErrorMessage } from './error-utils';
 
-// Set persistence to LOCAL (remember user across browser restarts)
 const getAuth = () => {
-  const auth = getFirebaseAuth();
-  void setPersistence(auth, browserLocalPersistence);
-  return auth;
+  return getFirebaseAuth();
+};
+
+const withTimeout = async <T>(
+  promise: Promise<T>,
+  timeoutMessage: string
+): Promise<T> => {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => {
+      reject(new Error(timeoutMessage));
+    }, 20000);
+  });
+
+  try {
+    return await Promise.race([promise, timeout]);
+  } finally {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+  }
 };
 
 export interface SignUpData {
@@ -28,28 +48,35 @@ export interface SignUpData {
 export interface LoginData {
   email: string;
   password: string;
+  rememberMe?: boolean;
 }
 
 // Sign up with email and password
 export const signUp = async (data: SignUpData) => {
   try {
-    const { user } = await createUserWithEmailAndPassword(
-      getAuth(),
-      data.email,
-      data.password
+    const { user } = await withTimeout(
+      createUserWithEmailAndPassword(getAuth(), data.email, data.password),
+      'Firebase sign up timed out. Check Email/Password auth and network access.'
     );
 
+    localStorage.setItem(`userType_${user.uid}`, data.userType);
+    await setPersistence(getAuth(), browserLocalPersistence);
+    await sendEmailVerification(user);
+
     // Create user document in Firestore
-    await setDoc(doc(getFirestoreDb(), 'users', user.uid), {
-      uid: user.uid,
-      email: user.email,
-      userType: data.userType,
-      emailVerified: user.emailVerified,
-      accountStatus: 'ACTIVE',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      lastLogin: new Date(),
-    });
+    await withTimeout(
+      setDoc(doc(getFirestoreDb(), 'users', user.uid), {
+        uid: user.uid,
+        email: user.email,
+        userType: data.userType,
+        emailVerified: user.emailVerified,
+        accountStatus: 'ACTIVE',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        lastLogin: new Date(),
+      }),
+      'Firestore profile creation timed out. Check Firestore setup and rules.'
+    );
 
     return user;
   } catch (error: unknown) {
@@ -60,18 +87,24 @@ export const signUp = async (data: SignUpData) => {
 // Login with email and password
 export const login = async (data: LoginData) => {
   try {
-    const { user } = await signInWithEmailAndPassword(
+    await setPersistence(
       getAuth(),
-      data.email,
-      data.password
+      data.rememberMe ? browserLocalPersistence : browserSessionPersistence
+    );
+    const { user } = await withTimeout(
+      signInWithEmailAndPassword(getAuth(), data.email, data.password),
+      'Firebase login timed out. Check Email/Password auth and network access.'
     );
 
-    // Update last login timestamp
-    await setDoc(
-      doc(getFirestoreDb(), 'users', user.uid),
-      { lastLogin: new Date() },
-      { merge: true }
-    );
+    // Authentication should still succeed if this optional audit write fails.
+    void withTimeout(
+      setDoc(
+        doc(getFirestoreDb(), 'users', user.uid),
+        { lastLogin: new Date() },
+        { merge: true }
+      ),
+      'Firestore login update timed out. Check Firestore setup and rules.'
+    ).catch(() => undefined);
 
     return user;
   } catch (error: unknown) {

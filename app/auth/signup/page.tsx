@@ -38,6 +38,12 @@ export default function SignUp() {
       return;
     }
 
+    if (!/[A-Z]/.test(password) || !/\d/.test(password)) {
+      setError('Password must include one uppercase letter and one number');
+      setLoading(false);
+      return;
+    }
+
     try {
       const user = await signUp({
         email,
