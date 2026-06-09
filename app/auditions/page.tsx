@@ -51,17 +51,20 @@ export default function AuditionsPage() {
 
   return (
     <AppShell>
-      <div className="flex flex-wrap items-end justify-between gap-4">
+      <div className="flex flex-wrap items-end justify-between gap-5">
         <div>
-          <p className="text-sm font-bold uppercase text-[#2e75b6]">
+          <p className="eyebrow">
             Opportunity board
           </p>
-          <h1 className="mt-1 text-3xl font-bold">Browse auditions</h1>
+          <h1 className="mt-2 text-4xl font-black">Roles worth showing up for.</h1>
+          <p className="mt-3 max-w-2xl leading-7 text-[#657176]">
+            Search active casting calls, compare the brief, and apply with one professional profile.
+          </p>
         </div>
-        <p className="text-sm text-[#65707b]">{filtered.length} opportunities</p>
+        <p className="border-l-2 border-[#d8a843] pl-4 text-sm font-bold text-[#65707b]">{filtered.length} open opportunities</p>
       </div>
 
-      <section className="mt-6 grid gap-4 border border-[#d9dee5] bg-white p-4 md:grid-cols-4">
+      <section className="surface mt-7 grid gap-4 p-4 md:grid-cols-4">
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -83,7 +86,7 @@ export default function AuditionsPage() {
       {loading ? (
         <p className="mt-8 text-[#65707b]">Loading auditions...</p>
       ) : filtered.length === 0 ? (
-        <div className="mt-8 border border-dashed border-[#b8c1ca] bg-white p-10 text-center">
+        <div className="surface mt-8 border-dashed p-10 text-center">
           <h2 className="text-xl font-bold">No matching auditions</h2>
           <p className="mt-2 text-[#68727c]">Try changing your filters or ask a recruiter to publish the first opportunity.</p>
         </div>

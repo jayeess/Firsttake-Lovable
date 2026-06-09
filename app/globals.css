@@ -1,27 +1,30 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --ink: #182126;
+  --ink-soft: #536066;
+  --paper: #f7f6f2;
+  --surface: #ffffff;
+  --line: #dfe3e1;
+  --teal: #0d766e;
+  --teal-dark: #095b55;
+  --coral: #ef6a57;
+  --coral-dark: #d95242;
+  --gold: #d8a843;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+* {
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  background: var(--paper);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
   font-family: Arial, Helvetica, sans-serif;
 }
 
@@ -33,18 +36,91 @@ textarea {
   border-radius: 4px;
 }
 
+button,
+a {
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+button:active,
+a:active {
+  transform: translateY(1px);
+}
+
 .field {
   min-height: 48px;
   width: 100%;
-  border: 1px solid #bcc5ce;
+  border: 1px solid #cbd2cf;
   background: #ffffff;
-  padding-left: 12px;
-  padding-right: 12px;
+  padding: 0 14px;
+  color: var(--ink);
   font-weight: 400;
   outline: none;
 }
 
+textarea.field {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+.field::placeholder {
+  color: #8a9697;
+}
+
 .field:focus {
-  border-color: #2e75b6;
-  box-shadow: 0 0 0 1px #2e75b6;
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px rgba(13, 118, 110, 0.12);
+}
+
+.eyebrow {
+  color: var(--teal);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.surface {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  box-shadow: 0 10px 30px rgba(24, 33, 38, 0.04);
+}
+
+.primary-button {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  background: var(--coral);
+  padding: 0 20px;
+  color: white;
+  font-weight: 700;
+}
+
+.primary-button:hover {
+  background: var(--coral-dark);
+}
+
+.secondary-button {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #aeb8b7;
+  background: white;
+  padding: 0 20px;
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.secondary-button:hover {
+  border-color: var(--teal);
+  color: var(--teal);
+}
+
+::selection {
+  background: rgba(239, 106, 87, 0.24);
 }

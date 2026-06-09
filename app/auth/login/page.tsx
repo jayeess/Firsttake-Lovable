@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { login } from '@/app/lib/auth-service';
 import { useAuth } from '@/context/auth-context';
 import { getErrorMessage } from '@/app/lib/error-utils';
+import { AuthFrame } from '@/components/auth-frame';
 
 export default function Login() {
   const router = useRouter();
@@ -45,81 +46,71 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center p-4">
-      <div className="bg-gray-900 border border-gray-800 rounded-lg p-8 w-full max-w-md">
-        <h1 className="text-3xl font-bold text-white mb-6">Welcome Back</h1>
-
+    <AuthFrame
+      eyebrow="Welcome back"
+      title="Continue your casting journey."
+      description="Sign in to manage your profile, opportunities, and applications."
+    >
         {error && (
-          <div className="bg-red-500/10 border border-red-500 text-red-400 p-3 rounded mb-4">
+          <div className="mb-5 border border-red-300 bg-red-50 p-3 text-sm text-red-800">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Email */}
-          <div>
-            <label className="block text-gray-300 text-sm font-medium mb-2">
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <label className="block text-sm font-bold">
               Email
-            </label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-4 py-2 text-white focus:border-red-500 focus:outline-none"
+              className="field mt-2"
               placeholder="your@email.com"
               required
             />
-          </div>
-
-          <label className="flex min-h-11 items-center gap-3 text-sm text-gray-300">
-            <input
-              type="checkbox"
-              checked={rememberMe}
-              onChange={(event) => setRememberMe(event.target.checked)}
-            />
-            Remember me on this device
           </label>
 
-          {/* Password */}
-          <div>
-            <label className="block text-gray-300 text-sm font-medium mb-2">
+          <label className="block text-sm font-bold">
               Password
-            </label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-4 py-2 text-white focus:border-red-500 focus:outline-none"
+              className="field mt-2"
               placeholder="Your password"
               required
             />
+          </label>
+
+          <div className="flex items-center justify-between gap-4">
+            <label className="flex min-h-11 items-center gap-3 text-sm text-[#59666b]">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(event) => setRememberMe(event.target.checked)}
+              />
+              Remember me
+            </label>
+            <a href="/auth/forgot-password" className="text-sm font-bold text-[#0d766e]">
+              Forgot password?
+            </a>
           </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white font-semibold py-2 rounded mt-6 transition"
+            className="primary-button w-full disabled:opacity-50"
           >
-            {loading ? 'Logging in...' : 'Log In'}
+            {loading ? 'Opening workspace...' : 'Log in'}
           </button>
         </form>
 
-        <div className="space-y-2 text-sm mt-4">
-          <a
-            href="/auth/forgot-password"
-            className="block text-red-500 hover:underline"
-          >
-            Forgot password?
-          </a>
-          <p className="text-gray-400">
+          <p className="mt-6 text-sm text-[#657176]">
             Don&apos;t have an account?{' '}
-            <a href="/auth/signup" className="text-red-500 hover:underline">
-              Sign up
+            <a href="/auth/signup" className="font-bold text-[#0d766e]">
+              Create one
             </a>
           </p>
-        </div>
-      </div>
-    </div>
+    </AuthFrame>
   );
 }

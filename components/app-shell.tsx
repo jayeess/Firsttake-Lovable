@@ -7,23 +7,23 @@ import { logout } from '@/app/lib/auth-service';
 import { useAuth } from '@/context/auth-context';
 
 const talentLinks = [
-  { href: '/dashboard', label: 'Dashboard' },
-  { href: '/auditions', label: 'Browse auditions' },
-  { href: '/applications', label: 'My applications' },
-  { href: '/talent/profile', label: 'Profile' },
+  { href: '/dashboard', label: 'Overview', mark: '01' },
+  { href: '/auditions', label: 'Discover roles', mark: '02' },
+  { href: '/applications', label: 'Applications', mark: '03' },
+  { href: '/talent/profile', label: 'My portfolio', mark: '04' },
 ];
 
 const recruiterLinks = [
-  { href: '/dashboard', label: 'Dashboard' },
-  { href: '/recruiter/auditions/new', label: 'Post audition' },
-  { href: '/recruiter/auditions', label: 'My auditions' },
-  { href: '/recruiter/profile', label: 'Company profile' },
+  { href: '/dashboard', label: 'Overview', mark: '01' },
+  { href: '/recruiter/auditions/new', label: 'Create audition', mark: '02' },
+  { href: '/recruiter/auditions', label: 'Casting calls', mark: '03' },
+  { href: '/recruiter/profile', label: 'Company profile', mark: '04' },
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { userType } = useAuth();
+  const { user, userType } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const links = userType === 'RECRUITER' ? recruiterLinks : talentLinks;
 
@@ -33,68 +33,95 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#f4f6f8] text-[#20252b]">
-      <header className="sticky top-0 z-20 border-b border-[#d9dee5] bg-white">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
-          <Link href="/dashboard" className="text-xl font-bold text-[#1f5f91]">
-            FirstTake
+    <div className="min-h-screen bg-[#f7f6f2] text-[#182126] lg:grid lg:grid-cols-[260px_1fr]">
+      <aside className="hidden min-h-screen border-r border-[#263237] bg-[#182126] text-white lg:sticky lg:top-0 lg:flex lg:h-screen lg:flex-col">
+        <div className="border-b border-white/10 px-7 py-7">
+          <Link href="/dashboard" className="text-2xl font-black">
+            First<span className="text-[#ef6a57]">Take</span>
           </Link>
-          <button
-            type="button"
-            className="h-11 px-3 text-sm font-semibold md:hidden"
-            onClick={() => setMenuOpen((open) => !open)}
-            aria-expanded={menuOpen}
-          >
-            Menu
-          </button>
-          <nav className="hidden items-center gap-1 md:flex">
-            {links.map((link) => (
+          <p className="mt-2 text-xs uppercase text-white/45">
+            Casting workspace
+          </p>
+        </div>
+        <nav className="flex-1 px-3 py-6">
+          {links.map((link) => {
+            const active =
+              pathname === link.href ||
+              (link.href !== '/dashboard' && pathname.startsWith(link.href));
+            return (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`px-3 py-2 text-sm font-medium ${
-                  pathname === link.href
-                    ? 'text-[#1f5f91]'
-                    : 'text-[#505861] hover:text-[#1f5f91]'
+                className={`mb-1 flex min-h-12 items-center gap-4 px-4 text-sm font-semibold ${
+                  active
+                    ? 'bg-white text-[#182126]'
+                    : 'text-white/65 hover:bg-white/8 hover:text-white'
                 }`}
               >
+                <span className={`text-[10px] ${active ? 'text-[#0d766e]' : 'text-white/35'}`}>
+                  {link.mark}
+                </span>
                 {link.label}
               </Link>
-            ))}
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="ml-3 h-10 border border-[#cbd2da] px-4 text-sm font-semibold hover:bg-[#f4f6f8]"
-            >
-              Log out
-            </button>
-          </nav>
+            );
+          })}
+        </nav>
+        <div className="border-t border-white/10 p-5">
+          <p className="truncate text-sm font-semibold">{user?.email}</p>
+          <p className="mt-1 text-xs text-white/45">
+            {userType === 'RECRUITER' ? 'Recruiter account' : 'Talent account'}
+          </p>
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="mt-4 min-h-11 w-full border border-white/20 text-sm font-semibold hover:bg-white hover:text-[#182126]"
+          >
+            Log out
+          </button>
         </div>
-        {menuOpen && (
-          <nav className="border-t border-[#e2e6eb] bg-white px-4 py-3 md:hidden">
-            {links.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setMenuOpen(false)}
-                className="block min-h-11 py-3 text-sm font-semibold"
-              >
-                {link.label}
-              </Link>
-            ))}
+      </aside>
+
+      <div className="min-w-0">
+        <header className="sticky top-0 z-30 border-b border-[#dfe3e1] bg-[#f7f6f2]/95 backdrop-blur lg:hidden">
+          <div className="flex h-16 items-center justify-between px-4">
+            <Link href="/dashboard" className="text-xl font-black">
+              First<span className="text-[#ef6a57]">Take</span>
+            </Link>
             <button
               type="button"
-              onClick={handleLogout}
-              className="min-h-11 py-3 text-sm font-semibold text-red-600"
+              className="min-h-11 px-3 text-sm font-bold"
+              onClick={() => setMenuOpen((open) => !open)}
+              aria-expanded={menuOpen}
             >
-              Log out
+              {menuOpen ? 'Close' : 'Menu'}
             </button>
-          </nav>
-        )}
-      </header>
-      <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:py-8">
-        {children}
-      </main>
+          </div>
+          {menuOpen && (
+            <nav className="border-t border-[#dfe3e1] bg-white px-4 py-3">
+              {links.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMenuOpen(false)}
+                  className="block min-h-11 py-3 text-sm font-semibold"
+                >
+                  {link.label}
+                </Link>
+              ))}
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="min-h-11 py-3 text-sm font-semibold text-[#d95242]"
+              >
+                Log out
+              </button>
+            </nav>
+          )}
+        </header>
+        <main className="mx-auto w-full max-w-[1440px] px-4 py-6 sm:px-7 lg:px-10 lg:py-9">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }

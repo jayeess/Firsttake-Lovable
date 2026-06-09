@@ -73,25 +73,84 @@ export default function NewAuditionPage() {
 
   return (
     <AppShell>
-      <div className="max-w-4xl">
-        <p className="text-sm font-bold uppercase text-[#2e75b6]">Recruiter tools</p>
-        <h1 className="mt-1 text-3xl font-bold">Post an audition</h1>
-        {error && <p className="mt-5 border border-red-300 bg-red-50 p-3 text-red-800">{error}</p>}
-        <form onSubmit={(e) => { e.preventDefault(); void publish('ACTIVE'); }} className="mt-6 grid gap-5 border border-[#d9dee5] bg-white p-6 sm:grid-cols-2">
-          <Input label="Audition title" value={form.title} onChange={(v) => update('title', v)} />
-          <label className="block text-sm font-semibold">Category<select value={form.category} onChange={(e) => update('category', e.target.value)} className="field mt-2">{Object.entries(CATEGORY_LABELS).map(([v,l]) => <option key={v} value={v}>{l}</option>)}</select></label>
-          <label className="block text-sm font-semibold">Experience level<select value={form.experienceLevel} onChange={(e) => update('experienceLevel', e.target.value)} className="field mt-2">{Object.entries(EXPERIENCE_LABELS).map(([v,l]) => <option key={v} value={v}>{l}</option>)}</select></label>
-          <Input label="Location" value={form.location} onChange={(v) => update('location', v)} />
-          <Input label="Duration" value={form.duration} onChange={(v) => update('duration', v)} placeholder="e.g. 3 shooting days" />
-          <Input label="Number of positions" type="number" value={String(form.numberOfPositions)} onChange={(v) => update('numberOfPositions', Number(v))} />
-          <Input label="Deadline" type="date" value={form.deadline} onChange={(v) => update('deadline', v)} />
-          <Input label="Pay information" value={form.payInfo} onChange={(v) => update('payInfo', v)} required={false} />
-          <label className="block text-sm font-semibold sm:col-span-2">Description<textarea required rows={6} value={form.description} onChange={(e) => update('description', e.target.value)} className="field mt-2 py-3" /></label>
-          <label className="block text-sm font-semibold sm:col-span-2">Requirements<textarea required rows={5} value={form.requirements} onChange={(e) => update('requirements', e.target.value)} className="field mt-2 py-3" /></label>
-          <div className="flex flex-wrap gap-3 sm:col-span-2">
-            <button type="button" disabled={saving} onClick={() => void publish('DRAFT')} className="h-12 border border-[#9ba7b2] px-5 font-semibold">Save draft</button>
-            <button disabled={saving} className="h-12 bg-[#2e75b6] px-6 font-semibold text-white">{saving ? 'Saving...' : 'Publish audition'}</button>
+      <div className="max-w-6xl">
+        <div className="flex flex-wrap items-end justify-between gap-5">
+          <div>
+            <p className="eyebrow">Create casting call</p>
+            <h1 className="mt-2 text-4xl font-black">Shape the opportunity clearly.</h1>
+            <p className="mt-3 max-w-2xl leading-7 text-[#657176]">
+              Strong briefs attract stronger applicants. Give talent enough
+              context to know whether the role truly fits.
+            </p>
           </div>
+          <div className="border-l-2 border-[#d8a843] pl-4 text-sm">
+            <p className="font-bold">Recruiter access</p>
+            <p className="mt-1 text-[#657176]">
+              {userType === 'RECRUITER' ? 'Ready to publish' : 'Role not detected'}
+            </p>
+          </div>
+        </div>
+
+        {error && (
+          <div className="mt-6 border border-red-300 bg-red-50 p-4 text-sm leading-6 text-red-800">
+            <p className="font-bold">The audition was not saved</p>
+            <p className="mt-1">{error}</p>
+          </div>
+        )}
+
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            void publish('ACTIVE');
+          }}
+          className="mt-7 grid gap-6 lg:grid-cols-[1fr_290px]"
+        >
+          <div className="space-y-5">
+            <section className="surface p-6">
+              <p className="eyebrow">01 · Role basics</p>
+              <div className="mt-5 grid gap-5 sm:grid-cols-2">
+                <div className="sm:col-span-2">
+                  <Input label="Audition title" value={form.title} onChange={(v) => update('title', v)} placeholder="e.g. Lead actor for regional drama" />
+                </div>
+                <label className="block text-sm font-bold">Category<select value={form.category} onChange={(e) => update('category', e.target.value)} className="field mt-2">{Object.entries(CATEGORY_LABELS).map(([v,l]) => <option key={v} value={v}>{l}</option>)}</select></label>
+                <label className="block text-sm font-bold">Experience level<select value={form.experienceLevel} onChange={(e) => update('experienceLevel', e.target.value)} className="field mt-2">{Object.entries(EXPERIENCE_LABELS).map(([v,l]) => <option key={v} value={v}>{l}</option>)}</select></label>
+                <Input label="Location" value={form.location} onChange={(v) => update('location', v)} placeholder="City or remote" />
+                <Input label="Project duration" value={form.duration} onChange={(v) => update('duration', v)} placeholder="e.g. 3 shooting days" />
+              </div>
+            </section>
+
+            <section className="surface p-6">
+              <p className="eyebrow">02 · Creative brief</p>
+              <label className="mt-5 block text-sm font-bold">Role description<textarea required rows={7} value={form.description} onChange={(e) => update('description', e.target.value)} className="field mt-2" placeholder="Describe the project, character, tone, and what makes this role distinctive." /></label>
+              <label className="mt-5 block text-sm font-bold">Requirements<textarea required rows={6} value={form.requirements} onChange={(e) => update('requirements', e.target.value)} className="field mt-2" placeholder="Skills, language, age range, availability, and portfolio expectations." /></label>
+            </section>
+          </div>
+
+          <aside className="space-y-5">
+            <section className="surface p-5">
+              <p className="eyebrow">03 · Publishing</p>
+              <div className="mt-5 space-y-5">
+                <Input label="Positions" type="number" value={String(form.numberOfPositions)} onChange={(v) => update('numberOfPositions', Number(v))} />
+                <Input label="Application deadline" type="date" value={form.deadline} onChange={(v) => update('deadline', v)} />
+                <Input label="Pay information" value={form.payInfo} onChange={(v) => update('payInfo', v)} required={false} placeholder="Optional, but recommended" />
+              </div>
+            </section>
+            <section className="border border-[#bad7d3] bg-[#edf7f5] p-5 text-sm leading-6 text-[#234b47]">
+              <p className="font-bold">Before you publish</p>
+              <p className="mt-2">
+                Review the deadline, location, pay details, and requirements.
+                Published auditions become visible to talent immediately.
+              </p>
+            </section>
+            <div className="grid gap-3">
+              <button type="submit" disabled={saving} className="primary-button w-full disabled:opacity-50">
+                {saving ? 'Publishing...' : 'Publish audition'}
+              </button>
+              <button type="button" disabled={saving} onClick={() => void publish('DRAFT')} className="secondary-button w-full">
+                Save as draft
+              </button>
+            </div>
+          </aside>
         </form>
       </div>
     </AppShell>
@@ -99,5 +158,5 @@ export default function NewAuditionPage() {
 }
 
 function Input({ label, value, onChange, type = 'text', placeholder, required = true }: { label: string; value: string; onChange: (value: string) => void; type?: string; placeholder?: string; required?: boolean }) {
-  return <label className="block text-sm font-semibold">{label}<input type={type} required={required} min={type === 'number' ? 1 : undefined} value={value} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} className="field mt-2" /></label>;
+  return <label className="block text-sm font-bold">{label}<input type={type} required={required} min={type === 'number' ? 1 : undefined} value={value} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} className="field mt-2" /></label>;
 }

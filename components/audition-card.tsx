@@ -9,32 +9,33 @@ import { StatusBadge } from './status-badge';
 
 export function AuditionCard({ audition }: { audition: Audition }) {
   return (
-    <article className="border border-[#d9dee5] bg-white p-5">
+    <article className="surface group p-5 hover:border-[#8dbbb6]">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-sm font-semibold text-[#1f5f91]">
+          <p className="text-sm font-bold text-[#0d766e]">
             {audition.recruiterName ?? 'Verified recruiter'}
           </p>
           <h2 className="mt-1 text-xl font-bold">{audition.title}</h2>
         </div>
         <StatusBadge status={audition.status} />
       </div>
-      <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm text-[#5d6670]">
-        <span>{CATEGORY_LABELS[audition.category]}</span>
-        <span>{EXPERIENCE_LABELS[audition.experienceLevel]}</span>
-        <span>{audition.location}</span>
-        <span>Deadline {formatDate(audition.deadline)}</span>
+      <div className="mt-4 flex flex-wrap gap-2 text-xs font-semibold text-[#536066]">
+        <span className="bg-[#edf7f5] px-2.5 py-1 text-[#0d766e]">{CATEGORY_LABELS[audition.category]}</span>
+        <span className="bg-[#f0f1ee] px-2.5 py-1">{EXPERIENCE_LABELS[audition.experienceLevel]}</span>
+        <span className="bg-[#f0f1ee] px-2.5 py-1">{audition.location}</span>
       </div>
       <p className="mt-4 line-clamp-2 text-sm leading-6 text-[#4b535c]">
         {audition.description}
       </p>
-      <div className="mt-5 flex items-center justify-between">
-        <span className="text-sm text-[#69727c]">
-          {audition.applicantCount ?? 0} applicants
-        </span>
+      <div className="mt-5 flex items-center justify-between border-t border-[#e5e8e5] pt-4">
+        <div className="text-sm text-[#69727c]">
+          <span>{audition.applicantCount ?? 0} applicants</span>
+          <span className="mx-2">·</span>
+          <span>Closes {formatDate(audition.deadline)}</span>
+        </div>
         <Link
           href={`/auditions/${audition.id}`}
-          className="bg-[#2e75b6] px-4 py-2 text-sm font-semibold text-white hover:bg-[#245f95]"
+          className="bg-[#182126] px-4 py-2 text-sm font-bold text-white group-hover:bg-[#0d766e]"
         >
           View details
         </Link>

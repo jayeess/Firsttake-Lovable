@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { signUp } from '@/app/lib/auth-service';
 import { getErrorMessage } from '@/app/lib/error-utils';
+import { AuthFrame } from '@/components/auth-frame';
 
 export default function SignUp() {
   const router = useRouter();
@@ -68,69 +69,58 @@ export default function SignUp() {
   };
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center p-4">
-      <div className="bg-gray-900 border border-gray-800 rounded-lg p-8 w-full max-w-md">
-        <h1 className="text-3xl font-bold text-white mb-6">Join FirstTake</h1>
-
+    <AuthFrame
+      eyebrow="Create your account"
+      title="Your next opportunity starts here."
+      description="Choose how you use FirstTake, then build the profile that represents your work."
+    >
         {error && (
-          <div className="bg-red-500/10 border border-red-500 text-red-400 p-3 rounded mb-4">
+          <div className="mb-5 border border-red-300 bg-red-50 p-3 text-sm text-red-800">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Email */}
-          <div>
-            <label className="block text-gray-300 text-sm font-medium mb-2">
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <label className="block text-sm font-bold">
               Email
-            </label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-4 py-2 text-white"
+              className="field mt-2"
               placeholder="your@email.com"
               required
             />
-          </div>
-
-          {/* Password */}
-          <div>
-            <label className="block text-gray-300 text-sm font-medium mb-2">
+          </label>
+          <div className="grid gap-5 sm:grid-cols-2">
+            <label className="block text-sm font-bold">
               Password
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="field mt-2"
+                placeholder="8+ chars, A-Z, 0-9"
+                required
+              />
             </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-4 py-2 text-white"
-              placeholder="Min 8 characters"
-              required
-            />
-          </div>
-
-          {/* Confirm Password */}
-          <div>
-            <label className="block text-gray-300 text-sm font-medium mb-2">
+            <label className="block text-sm font-bold">
               Confirm Password
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="field mt-2"
+                placeholder="Repeat password"
+                required
+              />
             </label>
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full bg-gray-800 border border-gray-700 rounded px-4 py-2 text-white"
-              placeholder="Confirm password"
-              required
-            />
           </div>
 
-          {/* User Type */}
           <div>
-            <label className="block text-gray-300 text-sm font-medium mb-2">
-              I am a...
-            </label>
-            <div className="space-y-2">
-              <label className="flex items-center">
+            <p className="text-sm font-bold">I am joining as</p>
+            <div className="mt-2 grid gap-3 sm:grid-cols-2">
+              <label className={`border p-4 ${userType === 'TALENT' ? 'border-[#0d766e] bg-[#edf7f5]' : 'border-[#d5dcda] bg-white'}`}>
                 <input
                   type="radio"
                   value="TALENT"
@@ -138,11 +128,12 @@ export default function SignUp() {
                   onChange={(e) =>
                     setUserType(e.target.value as 'TALENT' | 'RECRUITER')
                   }
-                  className="mr-2"
+                  className="mr-3"
                 />
-                <span className="text-gray-300">Talent (Actor, Model, Dancer, etc.)</span>
+                <span className="font-bold">Talent</span>
+                <span className="mt-2 block text-sm leading-6 text-[#657176]">Actors, models, dancers, anchors, and voice artists.</span>
               </label>
-              <label className="flex items-center">
+              <label className={`border p-4 ${userType === 'RECRUITER' ? 'border-[#0d766e] bg-[#edf7f5]' : 'border-[#d5dcda] bg-white'}`}>
                 <input
                   type="radio"
                   value="RECRUITER"
@@ -150,30 +141,29 @@ export default function SignUp() {
                   onChange={(e) =>
                     setUserType(e.target.value as 'TALENT' | 'RECRUITER')
                   }
-                  className="mr-2"
+                  className="mr-3"
                 />
-                <span className="text-gray-300">Recruiter (Casting Director, Producer)</span>
+                <span className="font-bold">Recruiter</span>
+                <span className="mt-2 block text-sm leading-6 text-[#657176]">Casting directors, producers, and production teams.</span>
               </label>
             </div>
           </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white font-semibold py-2 rounded mt-6"
+            className="primary-button w-full disabled:opacity-50"
           >
-            {loading ? 'Creating account...' : 'Sign Up'}
+            {loading ? 'Creating your account...' : 'Create account'}
           </button>
         </form>
 
-        <p className="text-gray-400 text-sm mt-4">
+        <p className="mt-6 text-sm text-[#657176]">
           Already have an account?{' '}
-          <a href="/auth/login" className="text-red-500 hover:underline">
+          <a href="/auth/login" className="font-bold text-[#0d766e]">
             Log in
           </a>
         </p>
-      </div>
-    </div>
+    </AuthFrame>
   );
 }
