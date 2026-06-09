@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { AppShell } from '@/components/app-shell';
 import { useAuth } from '@/context/auth-context';
 import {
@@ -9,6 +10,7 @@ import {
 } from '@/app/lib/firestore-service';
 import type { RecruiterProfile } from '@/app/lib/types';
 import { getErrorMessage } from '@/app/lib/error-utils';
+import { DevFormPresets } from '@/components/dev-form-presets';
 
 const initialProfile: RecruiterProfile = {
   companyName: '',
@@ -20,7 +22,80 @@ const initialProfile: RecruiterProfile = {
   isVerified: false,
 };
 
+const recruiterPresets: Array<{
+  label: string;
+  description: string;
+  data: RecruiterProfile;
+}> = [
+  {
+    label: 'Production studio',
+    description: 'Film and branded-content production company.',
+    data: {
+      companyName: 'Northstar Motion Pictures',
+      phone: '+91 98765 41020',
+      address: 'Andheri West, Mumbai, Maharashtra',
+      website: 'https://northstar-motion.example.com',
+      bio: 'Independent production studio developing regional films, digital series, and branded stories. We work with emerging performers and transparent casting briefs.',
+      companyLogo: '',
+      isVerified: false,
+    },
+  },
+  {
+    label: 'Casting agency',
+    description: 'Boutique casting team for screen and advertising.',
+    data: {
+      companyName: 'Open Frame Casting',
+      phone: '+91 98450 22119',
+      address: 'Indiranagar, Bengaluru, Karnataka',
+      website: 'https://openframe.example.com',
+      bio: 'Boutique casting agency connecting directors with distinctive actors, models, dancers, and voice talent for commercials, films, and streaming productions.',
+      companyLogo: '',
+      isVerified: false,
+    },
+  },
+  {
+    label: 'Theatre company',
+    description: 'Touring theatre and live-performance organisation.',
+    data: {
+      companyName: 'Juniper Stage Collective',
+      phone: '+91 98102 77341',
+      address: 'Mandi House, New Delhi',
+      website: 'https://juniper-stage.example.com',
+      bio: 'Contemporary theatre collective producing original plays and touring performances. Our casting process values preparation, accessibility, and diverse stage experience.',
+      companyLogo: '',
+      isVerified: false,
+    },
+  },
+  {
+    label: 'Advertising agency',
+    description: 'Creative agency casting lifestyle and digital campaigns.',
+    data: {
+      companyName: 'Signal House Creative',
+      phone: '+91 98201 44782',
+      address: 'Lower Parel, Mumbai, Maharashtra',
+      website: 'https://signalhouse.example.com',
+      bio: 'Integrated creative agency producing national digital, lifestyle, and product campaigns. Our casting briefs include clear usage, rates, schedules, and callback expectations.',
+      companyLogo: '',
+      isVerified: false,
+    },
+  },
+  {
+    label: 'Audio studio',
+    description: 'Remote-first studio for voice-over and dubbing projects.',
+    data: {
+      companyName: 'Clearwave Audio Works',
+      phone: '+91 80471 99221',
+      address: 'Koramangala, Bengaluru, Karnataka',
+      website: 'https://clearwave-audio.example.com',
+      bio: 'Audio production and localisation studio casting voice talent for commercials, animation, explainers, dubbing, and multilingual digital products.',
+      companyLogo: '',
+      isVerified: false,
+    },
+  },
+];
+
 export default function RecruiterProfilePage() {
+  const router = useRouter();
   const { user } = useAuth();
   const [profile, setProfile] = useState(initialProfile);
   const [message, setMessage] = useState('');
@@ -46,7 +121,8 @@ export default function RecruiterProfilePage() {
     setError('');
     try {
       await createRecruiterProfile(user.uid, profile);
-      setMessage('Company profile saved. Verification remains pending.');
+      setMessage('Company profile saved. Opening verification status...');
+      router.push('/recruiter/verification');
     } catch (err: unknown) {
       setError(getErrorMessage(err, 'Unable to save company profile'));
     } finally {
@@ -55,15 +131,31 @@ export default function RecruiterProfilePage() {
   };
 
   return (
-    <AppShell>
+    <AppShell requiredRole="RECRUITER">
       <div className="max-w-3xl">
-        <p className="text-sm font-bold uppercase text-[#2e75b6]">
+        <p className="text-sm font-bold uppercase text-[#008ca6]">
           Recruiter onboarding
         </p>
         <h1 className="mt-1 text-3xl font-bold">Company profile</h1>
         <p className="mt-2 text-[#68727c]">
           Complete company details before publishing auditions.
         </p>
+        <div className="mt-6">
+          <DevFormPresets
+            title="Choose a company type to fill a realistic recruiter profile."
+            presets={recruiterPresets}
+            onSelect={(data) => {
+              setProfile(data);
+              setError('');
+              setMessage('');
+            }}
+            onClear={() => {
+              setProfile(initialProfile);
+              setError('');
+              setMessage('');
+            }}
+          />
+        </div>
         {(message || error) && (
           <p className={`mt-5 border p-3 text-sm ${error ? 'border-red-300 bg-red-50 text-red-800' : 'border-green-300 bg-green-50 text-green-800'}`}>
             {error || message}
@@ -96,7 +188,7 @@ export default function RecruiterProfilePage() {
             phase. Your profile currently remains pending verification.
           </div>
           <div className="sm:col-span-2">
-            <button disabled={saving} className="h-12 bg-[#2e75b6] px-6 font-semibold text-white disabled:opacity-50">
+            <button disabled={saving} className="h-12 bg-[#008ca6] px-6 font-semibold text-white disabled:opacity-50">
               {saving ? 'Saving...' : 'Save company profile'}
             </button>
           </div>

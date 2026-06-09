@@ -1,18 +1,22 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { AppShell } from '@/components/app-shell';
 import { StatusBadge } from '@/components/status-badge';
 import {
   getRecruiterAuditions,
+  getRecruiterProfile,
   getTalentApplications,
   getTalentProfile,
 } from '@/app/lib/firestore-service';
 import type { Application, Audition } from '@/app/lib/types';
 import { useAuth } from '@/context/auth-context';
+import { hasRecruiterApproval } from '@/app/lib/recruiter-access';
 
 export default function Dashboard() {
+  const router = useRouter();
   const { user, userType, loading, error } = useAuth();
   const [applications, setApplications] = useState<Application[]>([]);
   const [auditions, setAuditions] = useState<Audition[]>([]);
@@ -29,11 +33,22 @@ export default function Dashboard() {
         setFirstName(profile?.firstName ?? '');
       });
     } else if (userType === 'RECRUITER') {
-      void getRecruiterAuditions(user.uid)
-        .then(setAuditions)
-        .catch(() => setAuditions([]));
+      void Promise.all([
+        getRecruiterProfile(user.uid).catch(() => null),
+        getRecruiterAuditions(user.uid).catch(() => []),
+      ]).then(([profile, items]) => {
+        if (!profile) {
+          router.replace('/recruiter/profile');
+          return;
+        }
+        if (!hasRecruiterApproval(user.uid, profile)) {
+          router.replace('/recruiter/verification');
+          return;
+        }
+        setAuditions(items);
+      });
     }
-  }, [user, userType]);
+  }, [router, user, userType]);
 
   const talentStats = useMemo(
     () => [
@@ -59,27 +74,33 @@ export default function Dashboard() {
 
   return (
     <AppShell>
-      <div className="flex flex-wrap items-end justify-between gap-5">
-        <div>
-          <p className="eyebrow">
+      <section
+        className="relative overflow-hidden bg-[#07111f] bg-cover bg-center p-6 text-white sm:p-8"
+        style={{ backgroundImage: "url('/nata-connect-brand-poster.png')" }}
+      >
+        <div className="absolute inset-0 bg-[#10191d]/70" />
+        <div className="relative z-10 flex flex-wrap items-end justify-between gap-6">
+          <div>
+          <p className="text-xs font-black uppercase text-[#7fd0c7]">
             {userType === 'RECRUITER' ? 'Recruiter workspace' : 'Talent workspace'}
           </p>
           <h1 className="mt-2 text-4xl font-black">
             Welcome{firstName ? `, ${firstName}` : ''}
           </h1>
-          <p className="mt-3 text-[#657176]">
+          <p className="mt-3 max-w-2xl text-white/75">
             {userType === 'RECRUITER'
               ? 'Keep your casting pipeline moving and your briefs current.'
               : 'Track momentum, discover roles, and keep your portfolio ready.'}
           </p>
+          </div>
+          <Link
+            href={userType === 'RECRUITER' ? '/recruiter/auditions/new' : '/auditions'}
+            className="primary-button"
+          >
+            {userType === 'RECRUITER' ? 'Post an audition' : 'Browse auditions'}
+          </Link>
         </div>
-        <Link
-          href={userType === 'RECRUITER' ? '/recruiter/auditions/new' : '/auditions'}
-          className="primary-button"
-        >
-          {userType === 'RECRUITER' ? 'Post an audition' : 'Browse auditions'}
-        </Link>
-      </div>
+      </section>
 
       {error && (
         <p className="mt-6 border border-amber-300 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
@@ -90,7 +111,7 @@ export default function Dashboard() {
       {!user?.emailVerified && (
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border border-[#bad7d3] bg-[#edf7f5] p-4 text-sm text-[#234b47]">
           <p><span className="font-bold">Email verification pending.</span> Open the Firebase message in your inbox to strengthen account trust.</p>
-          <span className="font-bold text-[#0d766e]">{user?.email}</span>
+          <span className="font-bold text-[#008ca6]">{user?.email}</span>
         </div>
       )}
 
@@ -98,9 +119,9 @@ export default function Dashboard() {
         {(userType === 'RECRUITER' ? recruiterStats : talentStats).map(
           ([label, value], index) => (
             <article key={label} className="surface relative overflow-hidden p-6">
-              <div className={`absolute inset-x-0 top-0 h-1 ${index === 0 ? 'bg-[#0d766e]' : index === 1 ? 'bg-[#d8a843]' : 'bg-[#ef6a57]'}`} />
+              <div className={`absolute inset-x-0 top-0 h-1 ${index === 0 ? 'bg-[#008ca6]' : index === 1 ? 'bg-[#d8a843]' : 'bg-[#e7ad2d]'}`} />
               <p className="text-sm font-bold text-[#657176]">{label}</p>
-              <p className="mt-4 text-4xl font-black text-[#182126]">{value}</p>
+              <p className="mt-4 text-4xl font-black text-[#07111f]">{value}</p>
               <p className="mt-2 text-xs uppercase text-[#8a9697]">Live workspace total</p>
             </article>
           )
@@ -117,7 +138,7 @@ export default function Dashboard() {
           </div>
           <Link
             href={userType === 'RECRUITER' ? '/recruiter/auditions' : '/applications'}
-            className="text-sm font-bold text-[#0d766e]"
+            className="text-sm font-bold text-[#008ca6]"
           >
             View all
           </Link>

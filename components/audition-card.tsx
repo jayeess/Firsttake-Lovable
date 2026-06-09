@@ -12,7 +12,7 @@ export function AuditionCard({ audition }: { audition: Audition }) {
     <article className="surface group p-5 hover:border-[#8dbbb6]">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-sm font-bold text-[#0d766e]">
+          <p className="text-sm font-bold text-[#008ca6]">
             {audition.recruiterName ?? 'Verified recruiter'}
           </p>
           <h2 className="mt-1 text-xl font-bold">{audition.title}</h2>
@@ -20,7 +20,7 @@ export function AuditionCard({ audition }: { audition: Audition }) {
         <StatusBadge status={audition.status} />
       </div>
       <div className="mt-4 flex flex-wrap gap-2 text-xs font-semibold text-[#536066]">
-        <span className="bg-[#edf7f5] px-2.5 py-1 text-[#0d766e]">{CATEGORY_LABELS[audition.category]}</span>
+        <span className="bg-[#edf7f5] px-2.5 py-1 text-[#008ca6]">{CATEGORY_LABELS[audition.category]}</span>
         <span className="bg-[#f0f1ee] px-2.5 py-1">{EXPERIENCE_LABELS[audition.experienceLevel]}</span>
         <span className="bg-[#f0f1ee] px-2.5 py-1">{audition.location}</span>
       </div>
@@ -35,7 +35,7 @@ export function AuditionCard({ audition }: { audition: Audition }) {
         </div>
         <Link
           href={`/auditions/${audition.id}`}
-          className="bg-[#182126] px-4 py-2 text-sm font-bold text-white group-hover:bg-[#0d766e]"
+          className="bg-[#07111f] px-4 py-2 text-sm font-bold text-white group-hover:bg-[#008ca6]"
         >
           View details
         </Link>

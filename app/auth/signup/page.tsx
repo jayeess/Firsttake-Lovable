@@ -5,6 +5,10 @@ import { useRouter } from 'next/navigation';
 import { signUp } from '@/app/lib/auth-service';
 import { getErrorMessage } from '@/app/lib/error-utils';
 import { AuthFrame } from '@/components/auth-frame';
+import {
+  DevTestCases,
+  type TestCredentials,
+} from '@/components/dev-test-cases';
 
 export default function SignUp() {
   const router = useRouter();
@@ -14,6 +18,14 @@ export default function SignUp() {
   const [userType, setUserType] = useState<'TALENT' | 'RECRUITER'>('TALENT');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const applyTestCase = (credentials: TestCredentials) => {
+    setEmail(credentials.email);
+    setPassword(credentials.password);
+    setConfirmPassword(credentials.confirmPassword ?? credentials.password);
+    setUserType(credentials.userType ?? 'TALENT');
+    setError('');
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,8 +84,9 @@ export default function SignUp() {
     <AuthFrame
       eyebrow="Create your account"
       title="Your next opportunity starts here."
-      description="Choose how you use FirstTake, then build the profile that represents your work."
+      description="Choose how you use Nata Connect, then build the profile that represents your work."
     >
+        <DevTestCases mode="signup" onSelect={applyTestCase} />
         {error && (
           <div className="mb-5 border border-red-300 bg-red-50 p-3 text-sm text-red-800">
             {error}
@@ -120,7 +133,7 @@ export default function SignUp() {
           <div>
             <p className="text-sm font-bold">I am joining as</p>
             <div className="mt-2 grid gap-3 sm:grid-cols-2">
-              <label className={`border p-4 ${userType === 'TALENT' ? 'border-[#0d766e] bg-[#edf7f5]' : 'border-[#d5dcda] bg-white'}`}>
+              <label className={`border p-4 ${userType === 'TALENT' ? 'border-[#008ca6] bg-[#edf7f5]' : 'border-[#d5dcda] bg-white'}`}>
                 <input
                   type="radio"
                   value="TALENT"
@@ -133,7 +146,7 @@ export default function SignUp() {
                 <span className="font-bold">Talent</span>
                 <span className="mt-2 block text-sm leading-6 text-[#657176]">Actors, models, dancers, anchors, and voice artists.</span>
               </label>
-              <label className={`border p-4 ${userType === 'RECRUITER' ? 'border-[#0d766e] bg-[#edf7f5]' : 'border-[#d5dcda] bg-white'}`}>
+              <label className={`border p-4 ${userType === 'RECRUITER' ? 'border-[#008ca6] bg-[#edf7f5]' : 'border-[#d5dcda] bg-white'}`}>
                 <input
                   type="radio"
                   value="RECRUITER"
@@ -160,7 +173,7 @@ export default function SignUp() {
 
         <p className="mt-6 text-sm text-[#657176]">
           Already have an account?{' '}
-          <a href="/auth/login" className="font-bold text-[#0d766e]">
+          <a href="/auth/login" className="font-bold text-[#008ca6]">
             Log in
           </a>
         </p>

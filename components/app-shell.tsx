@@ -2,79 +2,149 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { logout } from '@/app/lib/auth-service';
 import { useAuth } from '@/context/auth-context';
+import type { UserType } from '@/app/lib/types';
+import { BrandLogo } from '@/components/brand-logo';
 
-const talentLinks = [
-  { href: '/dashboard', label: 'Overview', mark: '01' },
-  { href: '/auditions', label: 'Discover roles', mark: '02' },
-  { href: '/applications', label: 'Applications', mark: '03' },
-  { href: '/talent/profile', label: 'My portfolio', mark: '04' },
+type NavLink = {
+  href: string;
+  label: string;
+  shortLabel: string;
+  mark: string;
+};
+
+const talentLinks: NavLink[] = [
+  { href: '/dashboard', label: 'Workspace', shortLabel: 'Home', mark: '01' },
+  { href: '/auditions', label: 'Find auditions', shortLabel: 'Auditions', mark: '02' },
+  { href: '/applications', label: 'My applications', shortLabel: 'Applications', mark: '03' },
+  { href: '/talent/profile', label: 'Talent profile', shortLabel: 'Profile', mark: '04' },
 ];
 
-const recruiterLinks = [
-  { href: '/dashboard', label: 'Overview', mark: '01' },
-  { href: '/recruiter/auditions/new', label: 'Create audition', mark: '02' },
-  { href: '/recruiter/auditions', label: 'Casting calls', mark: '03' },
-  { href: '/recruiter/profile', label: 'Company profile', mark: '04' },
+const recruiterLinks: NavLink[] = [
+  { href: '/dashboard', label: 'Workspace', shortLabel: 'Home', mark: '01' },
+  { href: '/recruiter/auditions', label: 'Casting pipeline', shortLabel: 'Pipeline', mark: '02' },
+  { href: '/recruiter/auditions/new', label: 'Post an audition', shortLabel: 'Post', mark: '03' },
+  { href: '/recruiter/profile', label: 'Company profile', shortLabel: 'Company', mark: '04' },
+  { href: '/recruiter/verification', label: 'Verification', shortLabel: 'Verify', mark: '05' },
 ];
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({
+  children,
+  requiredRole,
+}: {
+  children: React.ReactNode;
+  requiredRole?: Extract<UserType, 'TALENT' | 'RECRUITER'>;
+}) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, userType } = useAuth();
+  const { user, userType, loading } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const links = userType === 'RECRUITER' ? recruiterLinks : talentLinks;
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.replace('/auth/login');
+      return;
+    }
+
+    if (!loading && requiredRole && userType && userType !== requiredRole) {
+      router.replace('/dashboard');
+    }
+  }, [loading, requiredRole, router, user, userType]);
 
   const handleLogout = async () => {
     await logout();
     router.replace('/auth/login');
   };
 
+  if (loading) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-[#07111f] font-bold text-white/70">
+        Preparing Nata Connect...
+      </main>
+    );
+  }
+
+  if (!user || !userType || (requiredRole && userType !== requiredRole)) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-[#eef4f7] p-6">
+        <div className="surface max-w-md p-7 text-center">
+          <p className="eyebrow">
+            {!userType && user ? 'Account setup required' : 'Checking access'}
+          </p>
+          <h1 className="mt-3 text-2xl font-black">
+            {!userType && user
+              ? 'This account does not have a valid role yet'
+              : 'Opening the right workspace'}
+          </h1>
+        </div>
+      </main>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-[#f7f6f2] text-[#182126] lg:grid lg:grid-cols-[260px_1fr]">
-      <aside className="hidden min-h-screen border-r border-[#263237] bg-[#182126] text-white lg:sticky lg:top-0 lg:flex lg:h-screen lg:flex-col">
-        <div className="border-b border-white/10 px-7 py-7">
-          <Link href="/dashboard" className="text-2xl font-black">
-            First<span className="text-[#ef6a57]">Take</span>
+    <div className="min-h-screen bg-[#eef4f7] text-[#07111f] lg:grid lg:grid-cols-[280px_1fr]">
+      <aside className="hidden min-h-screen border-r border-white/8 bg-[#07111f] text-white lg:sticky lg:top-0 lg:flex lg:h-screen lg:flex-col">
+        <div className="border-b border-white/8 px-6 py-6">
+          <Link href="/dashboard" aria-label="Nata Connect workspace">
+            <BrandLogo light />
           </Link>
-          <p className="mt-2 text-xs uppercase text-white/45">
-            Casting workspace
+          <p className="mt-4 border-l-2 border-[#e7ad2d] pl-3 text-[11px] font-bold uppercase text-white/45">
+            Talent and casting network
           </p>
         </div>
-        <nav className="flex-1 px-3 py-6">
-          {links.map((link) => {
-            const active =
-              pathname === link.href ||
-              (link.href !== '/dashboard' && pathname.startsWith(link.href));
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`mb-1 flex min-h-12 items-center gap-4 px-4 text-sm font-semibold ${
-                  active
-                    ? 'bg-white text-[#182126]'
-                    : 'text-white/65 hover:bg-white/8 hover:text-white'
-                }`}
-              >
-                <span className={`text-[10px] ${active ? 'text-[#0d766e]' : 'text-white/35'}`}>
-                  {link.mark}
-                </span>
-                {link.label}
-              </Link>
-            );
-          })}
-        </nav>
-        <div className="border-t border-white/10 p-5">
-          <p className="truncate text-sm font-semibold">{user?.email}</p>
-          <p className="mt-1 text-xs text-white/45">
-            {userType === 'RECRUITER' ? 'Recruiter account' : 'Talent account'}
+
+        <nav className="flex-1 px-3 py-5" aria-label="Workspace navigation">
+          <p className="px-4 pb-3 text-[10px] font-black uppercase text-white/30">
+            {userType === 'RECRUITER' ? 'Recruiter tools' : 'Talent tools'}
           </p>
+          <div className="space-y-1">
+            {links.map((link) => {
+              const active =
+                pathname === link.href ||
+                (link.href !== '/dashboard' && pathname.startsWith(link.href));
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`group grid min-h-12 grid-cols-[32px_1fr_16px] items-center gap-2 rounded-md px-3 text-sm font-bold ${
+                    active
+                      ? 'bg-[#102438] text-white shadow-[inset_3px_0_0_#00c2e0]'
+                      : 'text-white/58 hover:bg-white/5 hover:text-white'
+                  }`}
+                >
+                  <span
+                    className={`flex size-7 items-center justify-center rounded border text-[10px] ${
+                      active
+                        ? 'border-[#00c2e0]/50 bg-[#00c2e0]/10 text-[#55e6f7]'
+                        : 'border-white/10 text-white/30'
+                    }`}
+                  >
+                    {link.mark}
+                  </span>
+                  <span>{link.label}</span>
+                  <span className={active ? 'text-[#e7ad2d]' : 'text-white/15'}>
+                    ›
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        </nav>
+
+        <div className="border-t border-white/8 p-5">
+          <div className="rounded-md bg-white/5 p-3">
+            <p className="truncate text-sm font-bold">{user.email}</p>
+            <p className="mt-1 text-xs text-white/42">
+              {userType === 'RECRUITER' ? 'Recruiter account' : 'Talent account'}
+            </p>
+          </div>
           <button
             type="button"
             onClick={handleLogout}
-            className="mt-4 min-h-11 w-full border border-white/20 text-sm font-semibold hover:bg-white hover:text-[#182126]"
+            className="mt-3 min-h-11 w-full rounded-md border border-white/12 text-sm font-bold text-white/70 hover:border-[#e7ad2d]/60 hover:text-[#ffd66d]"
           >
             Log out
           </button>
@@ -82,45 +152,85 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </aside>
 
       <div className="min-w-0">
-        <header className="sticky top-0 z-30 border-b border-[#dfe3e1] bg-[#f7f6f2]/95 backdrop-blur lg:hidden">
-          <div className="flex h-16 items-center justify-between px-4">
-            <Link href="/dashboard" className="text-xl font-black">
-              First<span className="text-[#ef6a57]">Take</span>
+        <header className="sticky top-0 z-30 border-b border-[#cad7dd] bg-[#f7fbfc]/95 backdrop-blur lg:hidden">
+          <div className="flex h-[72px] items-center justify-between px-4">
+            <Link href="/dashboard">
+              <BrandLogo />
             </Link>
             <button
               type="button"
-              className="min-h-11 px-3 text-sm font-bold"
+              className="flex size-11 items-center justify-center rounded-md border border-[#c8d6dc] bg-white text-xl font-bold"
               onClick={() => setMenuOpen((open) => !open)}
               aria-expanded={menuOpen}
+              aria-label={menuOpen ? 'Close menu' : 'Open menu'}
             >
-              {menuOpen ? 'Close' : 'Menu'}
+              {menuOpen ? '×' : '≡'}
             </button>
           </div>
           {menuOpen && (
-            <nav className="border-t border-[#dfe3e1] bg-white px-4 py-3">
-              {links.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setMenuOpen(false)}
-                  className="block min-h-11 py-3 text-sm font-semibold"
-                >
-                  {link.label}
-                </Link>
-              ))}
+            <nav className="border-t border-[#d5e0e4] bg-[#07111f] p-3 text-white">
+              <div className="grid gap-1">
+                {links.map((link) => {
+                  const active =
+                    pathname === link.href ||
+                    (link.href !== '/dashboard' &&
+                      pathname.startsWith(link.href));
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => setMenuOpen(false)}
+                      className={`grid min-h-12 grid-cols-[32px_1fr] items-center gap-3 rounded-md px-3 text-sm font-bold ${
+                        active
+                          ? 'bg-[#102438] text-[#55e6f7]'
+                          : 'text-white/70'
+                      }`}
+                    >
+                      <span className="text-[10px] text-[#e7ad2d]">
+                        {link.mark}
+                      </span>
+                      {link.label}
+                    </Link>
+                  );
+                })}
+              </div>
               <button
                 type="button"
                 onClick={handleLogout}
-                className="min-h-11 py-3 text-sm font-semibold text-[#d95242]"
+                className="mt-2 min-h-12 w-full rounded-md border border-white/12 text-sm font-bold text-[#ffd66d]"
               >
                 Log out
               </button>
             </nav>
           )}
         </header>
+
         <main className="mx-auto w-full max-w-[1440px] px-4 py-6 sm:px-7 lg:px-10 lg:py-9">
           {children}
         </main>
+
+        <nav className="fixed inset-x-0 bottom-0 z-20 grid border-t border-[#cad7dd] bg-white/96 px-2 pb-[max(8px,env(safe-area-inset-bottom))] pt-2 shadow-[0_-8px_24px_rgba(7,17,31,0.08)] backdrop-blur lg:hidden" style={{ gridTemplateColumns: `repeat(${Math.min(links.length, 5)}, minmax(0, 1fr))` }}>
+          {links.slice(0, 5).map((link) => {
+            const active =
+              pathname === link.href ||
+              (link.href !== '/dashboard' && pathname.startsWith(link.href));
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`flex min-h-12 flex-col items-center justify-center gap-1 rounded text-[10px] font-bold ${
+                  active ? 'text-[#008ca6]' : 'text-[#6d7e87]'
+                }`}
+              >
+                <span className={active ? 'text-[#e0a01c]' : 'text-[#9bacb4]'}>
+                  {link.mark}
+                </span>
+                <span className="max-w-full truncate px-1">{link.shortLabel}</span>
+              </Link>
+            );
+          })}
+        </nav>
+        <div className="h-20 lg:hidden" />
       </div>
     </div>
   );

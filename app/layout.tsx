@@ -3,8 +3,9 @@ import { AuthProvider } from '@/context/auth-context';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'FirstTake - Where talent meets opportunity',
-  description: 'Digital talent discovery and casting platform',
+  title: 'Nata Connect | నట కనెక్ట్',
+  description:
+    'A professional talent discovery and casting network for artists and recruiters.',
 };
 
 export default function RootLayout({

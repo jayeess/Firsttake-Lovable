@@ -50,7 +50,7 @@ export default function AuditionsPage() {
   }, [auditions, category, experience, location, search]);
 
   return (
-    <AppShell>
+    <AppShell requiredRole="TALENT">
       <div className="flex flex-wrap items-end justify-between gap-5">
         <div>
           <p className="eyebrow">

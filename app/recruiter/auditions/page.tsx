@@ -24,10 +24,10 @@ export default function RecruiterAuditionsPage() {
   }, [user]);
 
   return (
-    <AppShell>
+    <AppShell requiredRole="RECRUITER">
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <div><p className="text-sm font-bold uppercase text-[#2e75b6]">Recruiter tools</p><h1 className="mt-1 text-3xl font-bold">My auditions</h1></div>
-        <Link href="/recruiter/auditions/new" className="bg-[#2e75b6] px-5 py-3 font-semibold text-white">Post audition</Link>
+        <div><p className="text-sm font-bold uppercase text-[#008ca6]">Recruiter tools</p><h1 className="mt-1 text-3xl font-bold">My auditions</h1></div>
+        <Link href="/recruiter/auditions/new" className="bg-[#008ca6] px-5 py-3 font-semibold text-white">Post audition</Link>
       </div>
       {error && <p className="mt-5 border border-red-300 bg-red-50 p-4 text-red-800">{error}</p>}
       <div className="mt-6 overflow-x-auto border border-[#d9dee5] bg-white">
@@ -41,8 +41,16 @@ export default function RecruiterAuditionsPage() {
                 <td className="p-4 font-semibold">{audition.title}</td>
                 <td className="p-4"><StatusBadge status={audition.status} /></td>
                 <td className="p-4 text-sm">{formatDate(audition.deadline)}</td>
-                <td className="p-4 text-sm">{audition.applicantCount}</td>
-                <td className="p-4"><Link href={`/auditions/${audition.id}`} className="text-sm font-semibold text-[#1f5f91]">View</Link></td>
+                <td className="p-4 text-sm">
+                  <Link
+                    href={`/recruiter/auditions/${audition.id}/applicants`}
+                    className="font-semibold text-[#008ca6]"
+                  >
+                    {audition.applicantCount}{' '}
+                    {audition.applicantCount === 1 ? 'applicant' : 'applicants'}
+                  </Link>
+                </td>
+                <td className="p-4"><Link href={`/auditions/${audition.id}`} className="text-sm font-semibold text-[#1f5f91]">View brief</Link></td>
               </tr>
             ))}
           </tbody>

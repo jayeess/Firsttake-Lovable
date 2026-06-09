@@ -91,9 +91,24 @@ export default function AuditionDetailPage() {
         <aside className="h-fit border border-[#d9dee5] bg-white p-5">
           <h2 className="text-xl font-bold">Apply for this role</h2>
           {userType === 'RECRUITER' ? (
-            <p className="mt-3 text-sm leading-6 text-[#68727c]">
-              Recruiter accounts cannot apply to auditions.
-            </p>
+            audition.recruiterId === user?.uid ? (
+              <>
+                <p className="mt-3 text-sm leading-6 text-[#68727c]">
+                  This is your casting call. Open the applicant pipeline to
+                  review profiles and update decisions.
+                </p>
+                <Link
+                  href={`/recruiter/auditions/${audition.id}/applicants`}
+                  className="primary-button mt-5 w-full"
+                >
+                  Review applicants
+                </Link>
+              </>
+            ) : (
+              <p className="mt-3 text-sm leading-6 text-[#68727c]">
+                Recruiter accounts cannot apply to auditions.
+              </p>
+            )
           ) : (
             <>
               <label className="mt-5 block text-sm font-semibold">
@@ -112,7 +127,7 @@ export default function AuditionDetailPage() {
                 type="button"
                 disabled={applying || audition.status !== 'ACTIVE'}
                 onClick={handleApply}
-                className="mt-4 h-12 w-full bg-[#2e75b6] font-semibold text-white disabled:opacity-50"
+                className="mt-4 h-12 w-full bg-[#008ca6] font-semibold text-white disabled:opacity-50"
               >
                 {applying ? 'Submitting...' : 'Submit application'}
               </button>

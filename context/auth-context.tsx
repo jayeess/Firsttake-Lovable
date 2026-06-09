@@ -31,32 +31,37 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       unsubscribe = onAuthStateChange(async (currentUser) => {
         setUser(currentUser);
+        setUserType(null);
         setError(null);
 
         if (currentUser) {
           try {
+            const account = await getUserAccount(currentUser.uid);
             const storedUserType = localStorage.getItem(
               `userType_${currentUser.uid}`
             );
-            if (
+
+            if (account) {
+              setUserType(account.userType);
+              localStorage.setItem(
+                `userType_${currentUser.uid}`,
+                account.userType
+              );
+            } else if (
               storedUserType === 'TALENT' ||
               storedUserType === 'RECRUITER'
             ) {
-              setUserType(storedUserType);
               await ensureUserAccount(
                 currentUser.uid,
                 currentUser.email,
                 storedUserType
               );
+              setUserType(storedUserType);
             } else {
-              const account = await getUserAccount(currentUser.uid);
-              if (account) {
-                setUserType(account.userType);
-                localStorage.setItem(
-                  `userType_${currentUser.uid}`,
-                  account.userType
-                );
-              }
+              setUserType(null);
+              setError(
+                'This account has no role assigned. Create a new Talent or Recruiter account.'
+              );
             }
           } catch (err: unknown) {
             const message = getErrorMessage(

@@ -1,79 +1,99 @@
+import Image from 'next/image';
 import Link from 'next/link';
+import { BrandLogo } from '@/components/brand-logo';
 
 export default function Home() {
   return (
-    <main className="bg-[#f7f6f2] text-[#182126]">
+    <main className="bg-[#eef4f7] text-[#07111f]">
       <header className="absolute inset-x-0 top-0 z-20">
-        <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 text-white">
-          <span className="text-2xl font-black">
-            First<span className="text-[#ef6a57]">Take</span>
-          </span>
+        <div className="mx-auto flex h-24 max-w-7xl items-center justify-between px-5">
+          <BrandLogo light />
           <nav className="flex items-center gap-2">
-            <Link href="/auth/login" className="min-h-11 px-4 py-3 text-sm font-bold">
+            <Link
+              href="/auth/login"
+              className="min-h-11 px-4 py-3 text-sm font-bold text-white/80 hover:text-white"
+            >
               Log in
             </Link>
-            <Link href="/auth/signup" className="bg-white px-4 py-3 text-sm font-bold text-[#182126]">
-              Join the platform
+            <Link
+              href="/auth/signup"
+              className="rounded-md bg-[#e7ad2d] px-4 py-3 text-sm font-black text-[#07111f] hover:bg-[#ffd062]"
+            >
+              Join Nata Connect
             </Link>
           </nav>
         </div>
       </header>
 
-      <section
-        className="relative flex min-h-[88vh] items-center bg-cover bg-center"
-        style={{ backgroundImage: "url('/firsttake-casting-hero.png')" }}
-      >
-        <div className="absolute inset-0 bg-[#10191d]/70" />
-        <div className="relative z-10 mx-auto w-full max-w-7xl px-5 pb-16 pt-28 text-white">
-          <p className="text-sm font-bold uppercase text-[#7fd0c7]">
-            The casting network built for serious work
+      <section className="relative flex min-h-[88vh] items-center overflow-hidden bg-[#07111f]">
+        <Image
+          src="/nata-connect-brand-poster.png"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-center opacity-48"
+        />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(7,17,31,0.98)_0%,rgba(7,17,31,0.88)_42%,rgba(7,17,31,0.28)_100%)]" />
+        <div className="relative z-10 mx-auto w-full max-w-7xl px-5 pb-16 pt-32 text-white">
+          <p className="text-sm font-black uppercase text-[#55e6f7]">
+            Cinema craft meets connected opportunity
           </p>
-          <h1 className="mt-5 max-w-4xl text-5xl font-black leading-[1.02] sm:text-6xl lg:text-7xl">
-            Find the role.
+          <h1 className="mt-5 max-w-3xl text-5xl font-black leading-[1.03] sm:text-6xl lg:text-7xl">
+            Talent finds its stage.
             <br />
-            Find the person.
-            <br />
-            Make the first take count.
+            Casting finds its people.
           </h1>
-          <p className="mt-7 max-w-xl text-lg leading-8 text-white/75">
-            FirstTake gives emerging talent and verified casting teams one
-            professional place to discover, apply, review, and move forward.
+          <p lang="te" className="mt-5 text-2xl font-bold text-[#ffd66d]">
+            నట కనెక్ట్
+          </p>
+          <p className="mt-6 max-w-xl text-lg leading-8 text-white/72">
+            One professional network for artists, production teams, auditions,
+            applications, and casting decisions.
           </p>
           <div className="mt-9 flex flex-wrap gap-3">
             <Link href="/auth/signup" className="primary-button px-7">
-              Start your profile
+              Create your profile
             </Link>
-            <Link href="/auth/login" className="min-h-12 border border-white/45 px-7 py-3 font-bold hover:bg-white hover:text-[#182126]">
+            <Link
+              href="/auth/login"
+              className="min-h-12 rounded-md border border-[#00c2e0]/55 px-7 py-3 font-bold text-[#8cebf6] hover:bg-[#00c2e0]/10"
+            >
               Open workspace
             </Link>
           </div>
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-7xl gap-0 px-5 py-16 lg:grid-cols-3">
+      <section className="mx-auto grid max-w-7xl px-5 py-16 lg:grid-cols-3">
         {[
-          ['01', 'Real opportunities', 'Structured casting calls with deadlines, role requirements, and transparent status.'],
-          ['02', 'Profiles that perform', 'A polished portfolio for talent and a credible company presence for recruiters.'],
-          ['03', 'One clear workflow', 'Move from discovery to application and shortlist without scattered messages.'],
+          ['01', 'Discover the right work', 'Explore structured casting calls with clear requirements, deadlines, and project context.'],
+          ['02', 'Present real capability', 'Build a professional talent portfolio or a credible production-company profile.'],
+          ['03', 'Move casting forward', 'Track applications and manage talent through review, shortlist, and decision stages.'],
         ].map(([number, title, body]) => (
-          <article key={number} className="border-t border-[#bdc7c5] py-7 lg:border-l lg:border-t-0 lg:px-8 first:lg:border-l-0">
-            <p className="text-xs font-bold text-[#0d766e]">{number}</p>
+          <article
+            key={number}
+            className="border-t border-[#bfcfd6] py-7 lg:border-l lg:border-t-0 lg:px-8 first:lg:border-l-0"
+          >
+            <p className="text-xs font-black text-[#008ca6]">{number}</p>
             <h2 className="mt-4 text-2xl font-black">{title}</h2>
-            <p className="mt-3 max-w-sm leading-7 text-[#5f6c70]">{body}</p>
+            <p className="mt-3 max-w-sm leading-7 text-[#5b6e78]">{body}</p>
           </article>
         ))}
       </section>
 
-      <section className="bg-[#182126] px-5 py-16 text-white">
+      <section className="bg-[#07111f] px-5 py-16 text-white">
         <div className="mx-auto flex max-w-7xl flex-col justify-between gap-8 md:flex-row md:items-end">
           <div>
-            <p className="text-sm font-bold uppercase text-[#62b5ad]">Built for the work</p>
+            <p className="text-sm font-black uppercase text-[#55e6f7]">
+              Built for Telugu cinema and beyond
+            </p>
             <h2 className="mt-3 max-w-3xl text-4xl font-black">
-              Less noise. Better profiles. Faster casting decisions.
+              Professional profiles. Clear auditions. Better connections.
             </h2>
           </div>
           <Link href="/auth/signup" className="primary-button shrink-0">
-            Create free account
+            Join the network
           </Link>
         </div>
       </section>

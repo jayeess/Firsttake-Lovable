@@ -17,22 +17,148 @@ import {
 } from '@/app/lib/types';
 import { getErrorMessage } from '@/app/lib/error-utils';
 import { useAuth } from '@/context/auth-context';
+import { DevFormPresets } from '@/components/dev-form-presets';
+import { hasRecruiterApproval } from '@/app/lib/recruiter-access';
+
+type AuditionForm = {
+  title: string;
+  description: string;
+  category: TalentCategory;
+  experienceLevel: ExperienceLevel;
+  location: string;
+  duration: string;
+  requirements: string;
+  numberOfPositions: number;
+  payInfo: string;
+  deadline: string;
+};
+
+const emptyAudition: AuditionForm = {
+  title: '',
+  description: '',
+  category: 'ACTOR',
+  experienceLevel: 'FRESHER',
+  location: '',
+  duration: '',
+  requirements: '',
+  numberOfPositions: 1,
+  payInfo: '',
+  deadline: '',
+};
+
+const dateFromToday = (days: number) => {
+  const date = new Date();
+  date.setDate(date.getDate() + days);
+  return date.toISOString().slice(0, 10);
+};
+
+const auditionPresets: Array<{
+  label: string;
+  description: string;
+  data: AuditionForm;
+}> = [
+  {
+    label: 'Streaming drama',
+    description: 'Lead actor casting call for a character-driven series.',
+    data: {
+      title: 'Lead actor for bilingual streaming drama',
+      description: 'Casting a grounded lead performer for a six-episode Hindi-English drama about friendship, ambition, and family expectations in contemporary Mumbai.',
+      category: 'ACTOR',
+      experienceLevel: '1_3_YRS',
+      location: 'Mumbai, Maharashtra',
+      duration: '12 shooting days across 3 weeks',
+      requirements: 'Playing age 22-28. Strong Hindi and conversational English. Natural screen presence, emotional range, and availability for an in-person callback.',
+      numberOfPositions: 1,
+      payInfo: 'Paid role. Final rate based on experience and production schedule.',
+      deadline: dateFromToday(21),
+    },
+  },
+  {
+    label: 'Fashion campaign',
+    description: 'Commercial model brief for a national lifestyle brand.',
+    data: {
+      title: 'Models for national lifestyle campaign',
+      description: 'Seeking expressive models for a warm, documentary-style campaign featuring everyday movement, friendship, and city life.',
+      category: 'MODEL',
+      experienceLevel: 'FRESHER',
+      location: 'Bengaluru, Karnataka',
+      duration: '2 shoot days plus fitting',
+      requirements: 'Ages 20-35. All looks encouraged. Must submit current natural-light photographs and be comfortable with movement-led direction.',
+      numberOfPositions: 6,
+      payInfo: 'INR 18,000 per shoot day plus travel within the city.',
+      deadline: dateFromToday(14),
+    },
+  },
+  {
+    label: 'Voice campaign',
+    description: 'Hindi-English commercial voice-over opportunity.',
+    data: {
+      title: 'Warm bilingual voice for fintech campaign',
+      description: 'A series of short digital commercials needs a reassuring, modern voice that feels informed without sounding formal.',
+      category: 'VOICE_ARTIST',
+      experienceLevel: '3_5_YRS',
+      location: 'Remote',
+      duration: 'One remote recording session, up to 3 hours',
+      requirements: 'Fluent Hindi and English, broadcast-quality home setup, clean commercial demo, and availability for one directed online session.',
+      numberOfPositions: 2,
+      payInfo: 'INR 25,000 inclusive of digital usage for 6 months.',
+      deadline: dateFromToday(10),
+    },
+  },
+  {
+    label: 'Dance film',
+    description: 'Movement-led casting call for a music performance film.',
+    data: {
+      title: 'Contemporary dancers for urban music film',
+      description: 'Casting expressive movement performers for a cinematic music film built around rhythm, city spaces, and ensemble storytelling.',
+      category: 'DANCER',
+      experienceLevel: '1_3_YRS',
+      location: 'Hyderabad, Telangana',
+      duration: '4 rehearsal days and 2 shoot days',
+      requirements: 'Ages 18-30. Contemporary or commercial training, strong musicality, comfort with improvisation, and a recent movement reel.',
+      numberOfPositions: 8,
+      payInfo: 'INR 12,000 per shoot day. Rehearsals and local travel included.',
+      deadline: dateFromToday(18),
+    },
+  },
+  {
+    label: 'Live presenter',
+    description: 'Confident anchor for a technology launch event.',
+    data: {
+      title: 'Bilingual anchor for technology launch',
+      description: 'Seeking a polished presenter to host a live product launch, conduct short founder interviews, and guide audience transitions.',
+      category: 'ANCHOR',
+      experienceLevel: '3_5_YRS',
+      location: 'Gurugram, Haryana',
+      duration: '1 rehearsal and 1 event day',
+      requirements: 'Fluent English and Hindi, live-event experience, strong improvisation, professional showreel, and availability for an evening event.',
+      numberOfPositions: 1,
+      payInfo: 'INR 35,000 including rehearsal and event day.',
+      deadline: dateFromToday(12),
+    },
+  },
+  {
+    label: 'Student short film',
+    description: 'Entry-level acting opportunity for testing fresher matching.',
+    data: {
+      title: 'Ensemble cast for coming-of-age short film',
+      description: 'A warm 15-minute college film following four friends through their final day on campus. Seeking natural performers with strong ensemble instincts.',
+      category: 'ACTOR',
+      experienceLevel: 'FRESHER',
+      location: 'Pune, Maharashtra',
+      duration: '3 weekend shoot days',
+      requirements: 'Playing age 18-24. Hindi or Marathi fluency preferred. No professional credits required; self-tape instructions will be provided.',
+      numberOfPositions: 4,
+      payInfo: 'Travel, meals, footage, and a modest honorarium provided.',
+      deadline: dateFromToday(9),
+    },
+  },
+];
 
 export default function NewAuditionPage() {
   const router = useRouter();
   const { user, userType } = useAuth();
-  const [form, setForm] = useState({
-    title: '',
-    description: '',
-    category: 'ACTOR' as TalentCategory,
-    experienceLevel: 'FRESHER' as ExperienceLevel,
-    location: '',
-    duration: '',
-    requirements: '',
-    numberOfPositions: 1,
-    payInfo: '',
-    deadline: '',
-  });
+  const [form, setForm] = useState<AuditionForm>(emptyAudition);
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
 
@@ -54,6 +180,14 @@ export default function NewAuditionPage() {
     try {
       await ensureUserAccount(user.uid, user.email, 'RECRUITER');
       const profile = await getRecruiterProfile(user.uid).catch(() => null);
+      if (!profile) {
+        router.push('/recruiter/profile');
+        return;
+      }
+      if (!hasRecruiterApproval(user.uid, profile)) {
+        router.push('/recruiter/verification');
+        return;
+      }
       await createAudition(user.uid, {
         ...form,
         recruiterName: profile?.companyName ?? user.email ?? 'Recruiter',
@@ -72,7 +206,7 @@ export default function NewAuditionPage() {
     setForm((current) => ({ ...current, [key]: value }));
 
   return (
-    <AppShell>
+    <AppShell requiredRole="RECRUITER">
       <div className="max-w-6xl">
         <div className="flex flex-wrap items-end justify-between gap-5">
           <div>
@@ -89,6 +223,21 @@ export default function NewAuditionPage() {
               {userType === 'RECRUITER' ? 'Ready to publish' : 'Role not detected'}
             </p>
           </div>
+        </div>
+
+        <div className="mt-6">
+          <DevFormPresets
+            title="Fill a realistic casting brief, review it, then save as a draft or publish."
+            presets={auditionPresets}
+            onSelect={(data) => {
+              setForm(data);
+              setError('');
+            }}
+            onClear={() => {
+              setForm(emptyAudition);
+              setError('');
+            }}
+          />
         </div>
 
         {error && (

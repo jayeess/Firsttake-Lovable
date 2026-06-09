@@ -68,11 +68,19 @@ export interface Application {
   id: string;
   auditionId: string;
   talentId: string;
+  talentEmail?: string;
   coverMessage?: string;
   status: ApplicationStatus;
+  recruiterNotes?: string;
+  rejectionReason?: string;
   createdAt?: Date | Timestamp;
   lastStatusChange?: Date | Timestamp;
   audition?: Audition | null;
+}
+
+export interface AuditionApplicant {
+  application: Application;
+  talent: TalentProfile | null;
 }
 
 export const CATEGORY_LABELS: Record<TalentCategory, string> = {

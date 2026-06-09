@@ -23,7 +23,13 @@ service cloud.firestore {
     }
 
     match /users/{uid} {
-      allow create, read, update: if ownsUser(uid);
+      allow create: if ownsUser(uid)
+        && request.resource.data.userType in ['TALENT', 'RECRUITER'];
+      allow read: if ownsUser(uid);
+      allow update: if ownsUser(uid)
+        && request.resource.data.userType == resource.data.userType
+        && request.resource.data.get('isAdmin', false)
+          == resource.data.get('isAdmin', false);
       allow delete: if ownsUser(uid);
 
       match /talentProfiles/{profileId} {
@@ -33,7 +39,10 @@ service cloud.firestore {
 
       match /recruiterProfiles/{profileId} {
         allow read: if signedIn();
-        allow write: if ownsUser(uid);
+        allow create: if ownsUser(uid)
+          && request.resource.data.isVerified == false;
+        allow update: if ownsUser(uid)
+          && request.resource.data.isVerified == resource.data.isVerified;
       }
 
       match /notifications/{notificationId} {

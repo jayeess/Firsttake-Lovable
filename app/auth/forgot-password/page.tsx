@@ -30,7 +30,9 @@ export default function ForgotPasswordPage() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#f4f6f8] p-4">
       <section className="w-full max-w-md border border-[#d9dee5] bg-white p-7">
-        <p className="text-sm font-bold uppercase text-[#2e75b6]">FirstTake</p>
+        <p className="text-sm font-bold uppercase text-[#008ca6]">
+          Nata Connect | నట కనెక్ట్
+        </p>
         <h1 className="mt-2 text-3xl font-bold">Reset your password</h1>
         <p className="mt-3 text-sm leading-6 text-[#606a74]">
           Enter the email connected to your account. Firebase will send a
@@ -56,12 +58,12 @@ export default function ForgotPasswordPage() {
             required
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            className="mt-2 h-12 w-full border border-[#bcc5ce] px-3 outline-none focus:border-[#2e75b6]"
+            className="mt-2 h-12 w-full border border-[#bcc5ce] px-3 outline-none focus:border-[#008ca6]"
           />
           <button
             type="submit"
             disabled={loading}
-            className="mt-5 h-12 w-full bg-[#2e75b6] font-semibold text-white disabled:opacity-50"
+            className="mt-5 h-12 w-full bg-[#008ca6] font-semibold text-white disabled:opacity-50"
           >
             {loading ? 'Sending...' : 'Send reset link'}
           </button>
