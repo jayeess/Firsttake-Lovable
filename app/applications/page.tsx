@@ -26,6 +26,7 @@ export default function ApplicationsPage() {
   const [tab, setTab] = useState<ApplicationStatus | 'ALL'>('ALL');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     if (!user || userType !== 'TALENT') {
@@ -38,7 +39,7 @@ export default function ApplicationsPage() {
         setError(getErrorMessage(err, 'Unable to load applications'))
       )
       .finally(() => setLoading(false));
-  }, [user, userType]);
+  }, [reloadKey, user, userType]);
 
   const filtered = useMemo(
     () => applications.filter((item) => tab === 'ALL' || item.status === tab),
@@ -75,9 +76,20 @@ export default function ApplicationsPage() {
           <p className="font-bold">Applications could not be loaded</p>
           <p className="mt-1">
             {error.includes('index')
-              ? 'Please refresh once. This workflow no longer requires a custom Firestore index.'
+              ? 'The Firestore application index or security rules have not finished deploying.'
               : error}
           </p>
+          <button
+            type="button"
+            onClick={() => {
+              setLoading(true);
+              setError('');
+              setReloadKey((current) => current + 1);
+            }}
+            className="mt-3 border border-amber-500 px-4 py-2 font-bold transition hover:bg-amber-100"
+          >
+            Try again
+          </button>
         </div>
       )}
 
@@ -86,7 +98,7 @@ export default function ApplicationsPage() {
           <p className="text-sm font-semibold text-[#657176]">
             Loading your applications...
           </p>
-        ) : filtered.length === 0 ? (
+        ) : error ? null : filtered.length === 0 ? (
           <div className="surface border-dashed p-10 text-center">
             <h2 className="text-xl font-black">No applications here yet</h2>
             <p className="mt-2 text-[#68727c]">

@@ -84,7 +84,7 @@ service cloud.firestore {
           && getAfter(/databases/$(database)/documents/auditions/$(auditionId)).data.applicantCount
             == get(/databases/$(database)/documents/auditions/$(auditionId)).data.applicantCount + 1;
         allow read: if signedIn()
-          && (talentId == request.auth.uid
+          && (resource.data.talentId == request.auth.uid
             || get(/databases/$(database)/documents/auditions/$(auditionId)).data.recruiterId == request.auth.uid);
         allow update: if isRecruiter()
           && get(/databases/$(database)/documents/auditions/$(auditionId)).data.recruiterId == request.auth.uid
@@ -107,6 +107,11 @@ service cloud.firestore {
           && getAfter(/databases/$(database)/documents/auditions/$(auditionId)).data.applicantCount
             == get(/databases/$(database)/documents/auditions/$(auditionId)).data.applicantCount - 1;
       }
+    }
+
+    match /{path=**}/applications/{applicationId} {
+      allow read: if isTalent()
+        && resource.data.talentId == request.auth.uid;
     }
   }
 }
