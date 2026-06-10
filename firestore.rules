@@ -60,8 +60,18 @@ service cloud.firestore {
         ) || (
           isTalent()
           && request.resource.data.diff(resource.data).affectedKeys()
-            .hasOnly(['applicantCount'])
-          && request.resource.data.applicantCount == resource.data.applicantCount + 1
+            .hasOnly(['applicantCount', 'updatedAt'])
+          && (
+            (
+              request.resource.data.applicantCount == resource.data.applicantCount + 1
+              && !exists(/databases/$(database)/documents/auditions/$(auditionId)/applications/$(request.auth.uid))
+              && existsAfter(/databases/$(database)/documents/auditions/$(auditionId)/applications/$(request.auth.uid))
+            ) || (
+              request.resource.data.applicantCount == resource.data.applicantCount - 1
+              && exists(/databases/$(database)/documents/auditions/$(auditionId)/applications/$(request.auth.uid))
+              && !existsAfter(/databases/$(database)/documents/auditions/$(auditionId)/applications/$(request.auth.uid))
+            )
+          )
         );
       allow delete: if isRecruiter()
         && resource.data.recruiterId == request.auth.uid;
@@ -69,13 +79,33 @@ service cloud.firestore {
       match /applications/{talentId} {
         allow create: if isTalent()
           && talentId == request.auth.uid
-          && request.resource.data.talentId == request.auth.uid;
+          && request.resource.data.talentId == request.auth.uid
+          && request.resource.data.status == 'APPLIED'
+          && getAfter(/databases/$(database)/documents/auditions/$(auditionId)).data.applicantCount
+            == get(/databases/$(database)/documents/auditions/$(auditionId)).data.applicantCount + 1;
         allow read: if signedIn()
           && (talentId == request.auth.uid
             || get(/databases/$(database)/documents/auditions/$(auditionId)).data.recruiterId == request.auth.uid);
         allow update: if isRecruiter()
-          && get(/databases/$(database)/documents/auditions/$(auditionId)).data.recruiterId == request.auth.uid;
-        allow delete: if talentId == request.auth.uid;
+          && get(/databases/$(database)/documents/auditions/$(auditionId)).data.recruiterId == request.auth.uid
+          && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly([
+              'status',
+              'lastStatusChange',
+              'updatedAt',
+              'recruiterNotes',
+              'rejectionReason'
+            ])
+          && request.resource.data.status in [
+            'APPLIED',
+            'VIEWED',
+            'SHORTLISTED',
+            'REJECTED'
+          ];
+        allow delete: if isTalent()
+          && talentId == request.auth.uid
+          && getAfter(/databases/$(database)/documents/auditions/$(auditionId)).data.applicantCount
+            == get(/databases/$(database)/documents/auditions/$(auditionId)).data.applicantCount - 1;
       }
     }
   }

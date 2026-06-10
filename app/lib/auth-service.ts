@@ -6,7 +6,6 @@ import {
   confirmPasswordReset,
   User,
   setPersistence,
-  browserLocalPersistence,
   browserSessionPersistence,
   sendEmailVerification,
 } from 'firebase/auth';
@@ -48,19 +47,22 @@ export interface SignUpData {
 export interface LoginData {
   email: string;
   password: string;
-  rememberMe?: boolean;
 }
+
+const prepareTabSession = async () => {
+  await setPersistence(getAuth(), browserSessionPersistence);
+};
 
 // Sign up with email and password
 export const signUp = async (data: SignUpData) => {
   try {
+    await prepareTabSession();
     const { user } = await withTimeout(
       createUserWithEmailAndPassword(getAuth(), data.email, data.password),
       'Firebase sign up timed out. Check Email/Password auth and network access.'
     );
 
     localStorage.setItem(`userType_${user.uid}`, data.userType);
-    await setPersistence(getAuth(), browserLocalPersistence);
     await sendEmailVerification(user);
 
     // Create user document in Firestore
@@ -87,10 +89,7 @@ export const signUp = async (data: SignUpData) => {
 // Login with email and password
 export const login = async (data: LoginData) => {
   try {
-    await setPersistence(
-      getAuth(),
-      data.rememberMe ? browserLocalPersistence : browserSessionPersistence
-    );
+    await prepareTabSession();
     const { user } = await withTimeout(
       signInWithEmailAndPassword(getAuth(), data.email, data.password),
       'Firebase login timed out. Check Email/Password auth and network access.'

@@ -126,7 +126,7 @@ export function AppShell({
                   </span>
                   <span>{link.label}</span>
                   <span className={active ? 'text-[#e7ad2d]' : 'text-white/15'}>
-                    ›
+                    &gt;
                   </span>
                 </Link>
               );
@@ -164,7 +164,7 @@ export function AppShell({
               aria-expanded={menuOpen}
               aria-label={menuOpen ? 'Close menu' : 'Open menu'}
             >
-              {menuOpen ? '×' : '≡'}
+              {menuOpen ? 'x' : 'Menu'}
             </button>
           </div>
           {menuOpen && (

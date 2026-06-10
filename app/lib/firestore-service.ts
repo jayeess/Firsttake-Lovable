@@ -3,21 +3,27 @@ import {
   setDoc,
   getDoc,
   collection,
+  collectionGroup,
   query,
   where,
+  orderBy,
   getDocs,
   updateDoc,
   deleteDoc,
   addDoc,
   increment,
+  runTransaction,
+  serverTimestamp,
   QueryConstraint,
   type DocumentData,
   type UpdateData,
 } from 'firebase/firestore';
 import { getFirestoreDb } from './firebase';
 import { getErrorMessage } from './error-utils';
+import { getApplicationPolicyError } from './application-policy';
 import type {
   Application,
+  ApplicationStatus,
   AuditionApplicant,
   Audition,
   ExperienceLevel,
@@ -334,31 +340,55 @@ export const submitApplication = async (
       throw new Error('Only talent accounts can apply to auditions.');
     }
 
-    const applicationDoc = doc(
-      getFirestoreDb(),
+    const db = getFirestoreDb();
+    const auditionRef = doc(db, 'auditions', auditionId);
+    const applicationRef = doc(
+      db,
       'auditions',
       auditionId,
       'applications',
       talentId
     );
-    const existing = await getDoc(applicationDoc);
 
-    if (existing.exists()) {
-      throw new Error('You have already applied for this audition');
-    }
+    await runTransaction(db, async (transaction) => {
+      const [auditionSnapshot, applicationSnapshot] = await Promise.all([
+        transaction.get(auditionRef),
+        transaction.get(applicationRef),
+      ]);
 
-    await setDoc(applicationDoc, {
-      talentId,
-      talentEmail: account.email,
-      coverMessage: coverMessage || '',
-      status: 'APPLIED',
-      lastStatusChange: new Date(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
+      const audition = auditionSnapshot.exists()
+        ? (auditionSnapshot.data() as Omit<Audition, 'id'>)
+        : null;
+      const deadline = audition
+        ? audition.deadline instanceof Date
+          ? audition.deadline
+          : audition.deadline.toDate()
+        : undefined;
+      const policyError = getApplicationPolicyError({
+        auditionExists: auditionSnapshot.exists(),
+        alreadyApplied: applicationSnapshot.exists(),
+        status: audition?.status,
+        deadline,
+      });
 
-    await updateDoc(doc(getFirestoreDb(), 'auditions', auditionId), {
-      applicantCount: increment(1),
+      if (policyError) {
+        throw new Error(policyError);
+      }
+
+      const now = new Date();
+      transaction.set(applicationRef, {
+        talentId,
+        talentEmail: account.email,
+        coverMessage: coverMessage || '',
+        status: 'APPLIED',
+        lastStatusChange: now,
+        createdAt: now,
+        updatedAt: now,
+      });
+      transaction.update(auditionRef, {
+        applicantCount: increment(1),
+        updatedAt: now,
+      });
     });
 
     return talentId;
@@ -371,33 +401,25 @@ export const getTalentApplications = async (
   talentId: string
 ): Promise<Application[]> => {
   try {
-    const auditionSnapshot = await getDocs(
-      collection(getFirestoreDb(), 'auditions')
+    const applicationsQuery = query(
+      collectionGroup(getFirestoreDb(), 'applications'),
+      where('talentId', '==', talentId),
+      orderBy('createdAt', 'desc')
     );
+    const applicationSnapshot = await getDocs(applicationsQuery);
 
     const applicationResults = await Promise.all(
-      auditionSnapshot.docs.map(async (auditionDoc) => {
-        const applicationDoc = await getDoc(
-          doc(
-            getFirestoreDb(),
-            'auditions',
-            auditionDoc.id,
-            'applications',
-            talentId
-          )
-        );
-
-        if (!applicationDoc.exists()) {
+      applicationSnapshot.docs.map(async (applicationDoc) => {
+        const auditionId = applicationDoc.ref.parent.parent?.id;
+        if (!auditionId) {
           return null;
         }
 
+        const audition = await getAuditionById(auditionId);
         return {
           id: applicationDoc.id,
-          auditionId: auditionDoc.id,
-          audition: {
-            id: auditionDoc.id,
-            ...auditionDoc.data(),
-          } as Audition,
+          auditionId,
+          audition,
           ...applicationDoc.data(),
         } as Application;
       })
@@ -435,7 +457,7 @@ export const getAuditionApplications = async (
 export const updateApplicationStatus = async (
   auditionId: string,
   applicationId: string,
-  newStatus: string,
+  newStatus: ApplicationStatus,
   recruiterNotes?: string,
   rejectionReason?: string
 ) => {
@@ -468,9 +490,37 @@ export const deleteApplication = async (
   applicationId: string
 ) => {
   try {
-    await deleteDoc(
-      doc(getFirestoreDb(), 'auditions', auditionId, 'applications', applicationId)
+    const db = getFirestoreDb();
+    const auditionRef = doc(db, 'auditions', auditionId);
+    const applicationRef = doc(
+      db,
+      'auditions',
+      auditionId,
+      'applications',
+      applicationId
     );
+
+    await runTransaction(db, async (transaction) => {
+      const [auditionSnapshot, applicationSnapshot] = await Promise.all([
+        transaction.get(auditionRef),
+        transaction.get(applicationRef),
+      ]);
+
+      if (!applicationSnapshot.exists()) {
+        return;
+      }
+
+      if (!auditionSnapshot.exists()) {
+        throw new Error('The audition linked to this application no longer exists.');
+      }
+
+      const applicantCount = auditionSnapshot.data().applicantCount ?? 0;
+      transaction.delete(applicationRef);
+      transaction.update(auditionRef, {
+        applicantCount: Math.max(0, applicantCount - 1),
+        updatedAt: serverTimestamp(),
+      });
+    });
   } catch (error: unknown) {
     throw new Error(getErrorMessage(error, 'Failed to delete application'));
   }

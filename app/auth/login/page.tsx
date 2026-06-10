@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { login } from '@/app/lib/auth-service';
 import {
@@ -18,10 +18,9 @@ import {
 
 export default function Login() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -29,7 +28,13 @@ export default function Login() {
     async (uid: string) => {
       const account = await getUserAccount(uid);
 
-      if (account?.userType !== 'RECRUITER') {
+      if (!account) {
+        throw new Error(
+          'This Firebase user has no Nata Connect role. Create the account again as Talent or Recruiter.'
+        );
+      }
+
+      if (account.userType === 'TALENT') {
         router.replace('/dashboard');
         return;
       }
@@ -52,15 +57,8 @@ export default function Login() {
   const applyTestCase = (credentials: TestCredentials) => {
     setEmail(credentials.email);
     setPassword(credentials.password);
-    setRememberMe(false);
     setError('');
   };
-
-  useEffect(() => {
-    if (user) {
-      void openCorrectWorkspace(user.uid);
-    }
-  }, [openCorrectWorkspace, user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,7 +72,7 @@ export default function Login() {
     }
 
     try {
-      const signedInUser = await login({ email, password, rememberMe });
+      const signedInUser = await login({ email, password });
       await openCorrectWorkspace(signedInUser.uid);
     } catch (err: unknown) {
       setError(getErrorMessage(err, 'Login failed'));
@@ -93,6 +91,22 @@ export default function Login() {
         {error && (
           <div className="mb-5 border border-red-300 bg-red-50 p-3 text-sm text-red-800">
             {error}
+          </div>
+        )}
+
+        {!authLoading && user && (
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border border-[#b8dce3] bg-[#edf9fb] p-4 text-sm">
+            <div className="min-w-0">
+              <p className="font-black text-[#07111f]">Current tab session</p>
+              <p className="mt-1 truncate text-[#526874]">{user.email}</p>
+            </div>
+            <button
+              type="button"
+              className="secondary-button min-h-10 px-4 text-sm"
+              onClick={() => void openCorrectWorkspace(user.uid)}
+            >
+              Continue
+            </button>
           </div>
         )}
 
@@ -121,15 +135,7 @@ export default function Login() {
             />
           </label>
 
-          <div className="flex items-center justify-between gap-4">
-            <label className="flex min-h-11 items-center gap-3 text-sm text-[#59666b]">
-              <input
-                type="checkbox"
-                checked={rememberMe}
-                onChange={(event) => setRememberMe(event.target.checked)}
-              />
-              Remember me
-            </label>
+          <div className="flex items-center justify-end">
             <a href="/auth/forgot-password" className="text-sm font-bold text-[#008ca6]">
               Forgot password?
             </a>
@@ -140,7 +146,11 @@ export default function Login() {
             disabled={loading}
             className="primary-button w-full disabled:opacity-50"
           >
-            {loading ? 'Opening workspace...' : 'Log in'}
+            {loading
+              ? 'Opening workspace...'
+              : user
+                ? 'Use this account in this tab'
+                : 'Log in'}
           </button>
         </form>
 

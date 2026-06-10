@@ -1,6 +1,12 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { User } from 'firebase/auth';
 import { onAuthStateChange } from '@/app/lib/auth-service';
 import {
@@ -24,12 +30,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [userType, setUserType] = useState<UserType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const authChangeId = useRef(0);
 
   useEffect(() => {
     let unsubscribe: (() => void) | undefined;
 
     try {
       unsubscribe = onAuthStateChange(async (currentUser) => {
+        const changeId = ++authChangeId.current;
+        setLoading(true);
         setUser(currentUser);
         setUserType(null);
         setError(null);
@@ -42,6 +51,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             );
 
             if (account) {
+              if (changeId !== authChangeId.current) return;
               setUserType(account.userType);
               localStorage.setItem(
                 `userType_${currentUser.uid}`,
@@ -56,14 +66,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 currentUser.email,
                 storedUserType
               );
+              if (changeId !== authChangeId.current) return;
               setUserType(storedUserType);
             } else {
+              if (changeId !== authChangeId.current) return;
               setUserType(null);
               setError(
                 'This account has no role assigned. Create a new Talent or Recruiter account.'
               );
             }
           } catch (err: unknown) {
+            if (changeId !== authChangeId.current) return;
             const message = getErrorMessage(
               err,
               'Failed to load user account'
@@ -75,9 +88,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             );
           }
         } else {
+          if (changeId !== authChangeId.current) return;
           setUserType(null);
         }
 
+        if (changeId !== authChangeId.current) return;
         setLoading(false);
       });
     } catch (err: unknown) {
