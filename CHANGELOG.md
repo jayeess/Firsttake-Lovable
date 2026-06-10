@@ -4,6 +4,21 @@ All notable changes to Nata Connect are recorded here.
 
 ## Unreleased
 
+### Phase 1: Trust and Administration
+
+- Added Firebase custom-claim admin foundation and first-admin bootstrap script
+- Added secure Next.js admin route handlers backed by Firebase Admin SDK
+- Added admin overview, verification, users, auditions, and audit-log routes
+- Added text-based recruiter verification with pending, approved, rejected,
+  suspended, and resubmission states
+- Added trusted recruiter approval, rejection, suspension, and restoration
+- Added user suspension/restoration and audition removal/restoration
+- Added server-written audit logs for all privileged actions
+- Added verified recruiter badges and approved-only audition publishing
+- Added optional disabled document-upload section while Storage is unavailable
+- Added four trust-policy tests, bringing the suite to nine tests
+- Hardened Firestore rules and added Phase 1 indexes
+
 ### Added
 
 - Tab-scoped Firebase authentication for concurrent Talent and Recruiter tests

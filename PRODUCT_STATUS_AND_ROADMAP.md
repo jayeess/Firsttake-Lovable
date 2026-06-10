@@ -3,7 +3,7 @@
 **Telugu name:** నట కనెక్ట్  
 **Document date:** June 10, 2026  
 **Repository:** `jayeess/Firsttake-Lovable`  
-**Current stage:** Stabilized functional MVP / controlled private testing
+**Current stage:** Phase 1 trust-layer implementation / controlled private testing
 
 ## 1. Product Summary
 
@@ -43,7 +43,7 @@ Nata Connect is no longer a static demonstration. It is a working Firebase-backe
 | Authentication | Working, recently improved | Tab-scoped sessions support different accounts |
 | Security rules | MVP-level | Good role foundations, requires production review |
 | Automated testing | Missing | Primary launch risk |
-| Admin operations | Missing | Required before public recruiter onboarding |
+| Admin operations | Implemented, setup pending | Requires Admin SDK credentials and first admin claim |
 | Notifications | Missing | Important for retention and workflow completion |
 | Media portfolio | Not implemented | Required for a serious casting product |
 | Deployment operations | Partial | Build passes, production process is undocumented |
@@ -403,16 +403,18 @@ Before public launch, prepare:
 
 **Priority: required before public recruiter acquisition**
 
-1. Create an Admin role backed by Firebase custom claims.
-2. Build an admin dashboard.
-3. Add recruiter document upload.
-4. Add approve, reject, suspend, and review-note actions.
-5. Move approval writes to a secure server environment.
-6. Add moderation and audit logs.
-7. Add verified recruiter badges.
-8. Add report audition and report user workflows.
+1. Completed: Admin role backed by Firebase custom claims.
+2. Completed: Admin dashboard and operational queues.
+3. Deferred: recruiter document upload until Firebase Storage is enabled.
+4. Completed: approve, reject, suspend, restore, and review-note actions.
+5. Completed: privileged writes moved to Firebase Admin route handlers.
+6. Completed: audition moderation and audit logs.
+7. Completed: verified recruiter badges.
+8. Pending: report audition and report user workflows.
 
-**Definition of done:** no recruiter can self-approve, and all privileged actions are auditable.
+**Definition of done:** code complete; operational verification requires Admin
+SDK credentials, first-admin setup, deployed rules/indexes, and the manual
+checklist in `TESTING.md`.
 
 ## Phase 2: Make Talent Profiles Market-Ready
 

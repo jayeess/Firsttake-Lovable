@@ -8,9 +8,10 @@ import {
   setPersistence,
   browserSessionPersistence,
   sendEmailVerification,
+  deleteUser,
 } from 'firebase/auth';
 import { getFirebaseAuth, getFirestoreDb } from './firebase';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, updateDoc } from 'firebase/firestore';
 import { getErrorMessage } from './error-utils';
 
 const getAuth = () => {
@@ -62,23 +63,27 @@ export const signUp = async (data: SignUpData) => {
       'Firebase sign up timed out. Check Email/Password auth and network access.'
     );
 
-    localStorage.setItem(`userType_${user.uid}`, data.userType);
-    await sendEmailVerification(user);
+    try {
+      await withTimeout(
+        setDoc(doc(getFirestoreDb(), 'users', user.uid), {
+          uid: user.uid,
+          email: user.email,
+          userType: data.userType,
+          emailVerified: user.emailVerified,
+          accountStatus: 'ACTIVE',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          lastLogin: new Date(),
+        }),
+        'Firestore profile creation timed out. Check Firestore setup and rules.'
+      );
+    } catch (profileError: unknown) {
+      await deleteUser(user).catch(() => undefined);
+      throw profileError;
+    }
 
-    // Create user document in Firestore
-    await withTimeout(
-      setDoc(doc(getFirestoreDb(), 'users', user.uid), {
-        uid: user.uid,
-        email: user.email,
-        userType: data.userType,
-        emailVerified: user.emailVerified,
-        accountStatus: 'ACTIVE',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        lastLogin: new Date(),
-      }),
-      'Firestore profile creation timed out. Check Firestore setup and rules.'
-    );
+    localStorage.setItem(`userType_${user.uid}`, data.userType);
+    void sendEmailVerification(user).catch(() => undefined);
 
     return user;
   } catch (error: unknown) {
@@ -95,13 +100,12 @@ export const login = async (data: LoginData) => {
       'Firebase login timed out. Check Email/Password auth and network access.'
     );
 
-    // Authentication should still succeed if this optional audit write fails.
+    // Never create a partial user record during login. Missing account records
+    // are repaired by the auth context using the locally stored signup role.
     void withTimeout(
-      setDoc(
-        doc(getFirestoreDb(), 'users', user.uid),
-        { lastLogin: new Date() },
-        { merge: true }
-      ),
+      updateDoc(doc(getFirestoreDb(), 'users', user.uid), {
+        lastLogin: new Date(),
+      }),
       'Firestore login update timed out. Check Firestore setup and rules.'
     ).catch(() => undefined);
 

@@ -18,6 +18,14 @@ export type ApplicationStatus =
   | 'VIEWED'
   | 'SHORTLISTED'
   | 'REJECTED';
+export type AccountStatus = 'ACTIVE' | 'SUSPENDED';
+export type VerificationStatus =
+  | 'not_submitted'
+  | 'pending'
+  | 'approved'
+  | 'rejected'
+  | 'suspended';
+export type ModerationStatus = 'VISIBLE' | 'REMOVED';
 
 export interface TalentProfile {
   firstName: string;
@@ -43,6 +51,40 @@ export interface RecruiterProfile {
   bio?: string;
   companyLogo?: string;
   isVerified?: boolean;
+  verificationStatus?: VerificationStatus;
+}
+
+export interface RecruiterVerification {
+  recruiterId: string;
+  recruiterEmail?: string | null;
+  legalName: string;
+  contactPerson: string;
+  phone: string;
+  website?: string;
+  socialProofUrl?: string;
+  businessType: string;
+  workDescription: string;
+  verificationNotes?: string;
+  status: VerificationStatus;
+  adminNote?: string;
+  reviewedBy?: string;
+  submittedAt?: Date | Timestamp;
+  reviewedAt?: Date | Timestamp;
+  updatedAt?: Date | Timestamp;
+}
+
+export interface AuditLog {
+  id: string;
+  action: string;
+  actorUid: string;
+  actorEmail?: string | null;
+  targetUid?: string;
+  targetId?: string;
+  targetType: 'recruiter' | 'user' | 'audition';
+  reason?: string;
+  note?: string;
+  timestamp?: Date | Timestamp;
+  metadata?: Record<string, unknown>;
 }
 
 export interface Audition {
@@ -60,6 +102,9 @@ export interface Audition {
   payInfo?: string;
   deadline: Date | Timestamp;
   status: AuditionStatus;
+  moderationStatus?: ModerationStatus;
+  moderationReason?: string;
+  recruiterVerified?: boolean;
   applicantCount: number;
   createdAt?: Date | Timestamp;
 }

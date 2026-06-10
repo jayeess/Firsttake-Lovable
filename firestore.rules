@@ -10,31 +10,51 @@ service cloud.firestore {
       return signedIn() && request.auth.uid == uid;
     }
 
+    function isAdmin() {
+      return signedIn() && request.auth.token.admin == true;
+    }
+
+    function userDoc(uid) {
+      return get(/databases/$(database)/documents/users/$(uid));
+    }
+
     function currentUserType() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.userType;
+      return userDoc(request.auth.uid).data.userType;
+    }
+
+    function accountActive() {
+      return userDoc(request.auth.uid).data.accountStatus != 'SUSPENDED';
     }
 
     function isTalent() {
-      return signedIn() && currentUserType() == 'TALENT';
+      return signedIn() && currentUserType() == 'TALENT' && accountActive();
     }
 
     function isRecruiter() {
-      return signedIn() && currentUserType() == 'RECRUITER';
+      return signedIn() && currentUserType() == 'RECRUITER' && accountActive();
+    }
+
+    function recruiterApproved(uid) {
+      return get(/databases/$(database)/documents/recruiterVerifications/$(uid)).data.status
+        == 'approved';
     }
 
     match /users/{uid} {
       allow create: if ownsUser(uid)
         && request.resource.data.userType in ['TALENT', 'RECRUITER'];
-      allow read: if ownsUser(uid);
+      allow read: if ownsUser(uid) || isAdmin();
       allow update: if ownsUser(uid)
         && request.resource.data.userType == resource.data.userType
+        && request.resource.data.accountStatus == resource.data.accountStatus
+        && request.resource.data.get('verificationStatus', 'not_submitted')
+          == resource.data.get('verificationStatus', 'not_submitted')
         && request.resource.data.get('isAdmin', false)
           == resource.data.get('isAdmin', false);
       allow delete: if ownsUser(uid);
 
       match /talentProfiles/{profileId} {
         allow read: if signedIn();
-        allow write: if ownsUser(uid);
+        allow write: if ownsUser(uid) && accountActive();
       }
 
       match /recruiterProfiles/{profileId} {
@@ -42,7 +62,9 @@ service cloud.firestore {
         allow create: if ownsUser(uid)
           && request.resource.data.isVerified == false;
         allow update: if ownsUser(uid)
-          && request.resource.data.isVerified == resource.data.isVerified;
+          && request.resource.data.isVerified == resource.data.isVerified
+          && request.resource.data.get('verificationStatus', 'not_submitted')
+            == resource.data.get('verificationStatus', 'not_submitted');
       }
 
       match /notifications/{notificationId} {
@@ -51,41 +73,73 @@ service cloud.firestore {
       }
     }
 
+    match /recruiterVerifications/{uid} {
+      allow read: if ownsUser(uid) || isAdmin();
+      allow create: if ownsUser(uid)
+        && currentUserType() == 'RECRUITER'
+        && request.resource.data.recruiterId == request.auth.uid
+        && request.resource.data.status == 'pending'
+        && request.resource.data.keys().hasOnly([
+          'recruiterId',
+          'recruiterEmail',
+          'legalName',
+          'contactPerson',
+          'phone',
+          'website',
+          'socialProofUrl',
+          'businessType',
+          'workDescription',
+          'verificationNotes',
+          'status',
+          'submittedAt',
+          'updatedAt'
+        ]);
+      allow update: if ownsUser(uid)
+        && currentUserType() == 'RECRUITER'
+        && resource.data.status in ['not_submitted', 'rejected']
+        && request.resource.data.status == 'pending'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'legalName',
+          'contactPerson',
+          'phone',
+          'website',
+          'socialProofUrl',
+          'businessType',
+          'workDescription',
+          'verificationNotes',
+          'status',
+          'submittedAt',
+          'updatedAt'
+        ]);
+      allow delete: if false;
+    }
+
     match /auditions/{auditionId} {
       allow read: if signedIn();
       allow create: if isRecruiter()
-        && request.resource.data.recruiterId == request.auth.uid;
-      allow update: if (
-          isRecruiter() && resource.data.recruiterId == request.auth.uid
-        ) || (
-          isTalent()
-          && request.resource.data.diff(resource.data).affectedKeys()
-            .hasOnly(['applicantCount', 'updatedAt'])
-          && (
-            (
-              request.resource.data.applicantCount == resource.data.applicantCount + 1
-              && !exists(/databases/$(database)/documents/auditions/$(auditionId)/applications/$(request.auth.uid))
-              && existsAfter(/databases/$(database)/documents/auditions/$(auditionId)/applications/$(request.auth.uid))
-            ) || (
-              request.resource.data.applicantCount == resource.data.applicantCount - 1
-              && exists(/databases/$(database)/documents/auditions/$(auditionId)/applications/$(request.auth.uid))
-              && !existsAfter(/databases/$(database)/documents/auditions/$(auditionId)/applications/$(request.auth.uid))
-            )
-          )
-        );
-      allow delete: if isRecruiter()
-        && resource.data.recruiterId == request.auth.uid;
+        && recruiterApproved(request.auth.uid)
+        && request.resource.data.recruiterId == request.auth.uid
+        && request.resource.data.moderationStatus == 'VISIBLE';
+      allow update: if isRecruiter()
+        && recruiterApproved(request.auth.uid)
+        && resource.data.recruiterId == request.auth.uid
+        && request.resource.data.get('moderationStatus', 'VISIBLE')
+          == resource.data.get('moderationStatus', 'VISIBLE')
+        && request.resource.data.get('moderationReason', '')
+          == resource.data.get('moderationReason', '');
+      allow delete: if false;
 
       match /applications/{talentId} {
         allow create: if isTalent()
           && talentId == request.auth.uid
           && request.resource.data.talentId == request.auth.uid
           && request.resource.data.status == 'APPLIED'
-          && getAfter(/databases/$(database)/documents/auditions/$(auditionId)).data.applicantCount
-            == get(/databases/$(database)/documents/auditions/$(auditionId)).data.applicantCount + 1;
+          && get(/databases/$(database)/documents/auditions/$(auditionId)).data
+            .get('moderationStatus', 'VISIBLE') != 'REMOVED';
         allow read: if signedIn()
-          && (resource.data.talentId == request.auth.uid
-            || get(/databases/$(database)/documents/auditions/$(auditionId)).data.recruiterId == request.auth.uid);
+          && (talentId == request.auth.uid
+            || get(/databases/$(database)/documents/auditions/$(auditionId)).data.recruiterId == request.auth.uid
+            || isAdmin());
         allow update: if isRecruiter()
           && get(/databases/$(database)/documents/auditions/$(auditionId)).data.recruiterId == request.auth.uid
           && request.resource.data.diff(resource.data).affectedKeys()
@@ -102,16 +156,18 @@ service cloud.firestore {
             'SHORTLISTED',
             'REJECTED'
           ];
-        allow delete: if isTalent()
-          && talentId == request.auth.uid
-          && getAfter(/databases/$(database)/documents/auditions/$(auditionId)).data.applicantCount
-            == get(/databases/$(database)/documents/auditions/$(auditionId)).data.applicantCount - 1;
+        allow delete: if isTalent() && talentId == request.auth.uid;
       }
     }
 
+    match /auditLogs/{logId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
     match /{path=**}/applications/{applicationId} {
-      allow read: if isTalent()
-        && resource.data.talentId == request.auth.uid;
+      allow read: if isAdmin()
+        || (isTalent() && resource.data.talentId == request.auth.uid);
     }
   }
 }

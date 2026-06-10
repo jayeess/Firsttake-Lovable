@@ -1,111 +1,164 @@
 'use client';
 
-import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { AppShell } from '@/components/app-shell';
-import { getRecruiterProfile } from '@/app/lib/firestore-service';
 import {
-  hasRecruiterApproval,
-  setDemoRecruiterApproval,
-} from '@/app/lib/recruiter-access';
-import type { RecruiterProfile } from '@/app/lib/types';
+  getRecruiterProfile,
+  getRecruiterVerification,
+  submitRecruiterVerification,
+} from '@/app/lib/firestore-service';
+import type { RecruiterVerification } from '@/app/lib/types';
 import { useAuth } from '@/context/auth-context';
+import { getErrorMessage } from '@/app/lib/error-utils';
+
+type FormData = Pick<
+  RecruiterVerification,
+  | 'legalName'
+  | 'contactPerson'
+  | 'phone'
+  | 'website'
+  | 'socialProofUrl'
+  | 'businessType'
+  | 'workDescription'
+  | 'verificationNotes'
+>;
+
+const emptyForm: FormData = {
+  legalName: '',
+  contactPerson: '',
+  phone: '',
+  website: '',
+  socialProofUrl: '',
+  businessType: '',
+  workDescription: '',
+  verificationNotes: '',
+};
 
 export default function RecruiterVerificationPage() {
-  const router = useRouter();
   const { user } = useAuth();
-  const [profile, setProfile] = useState<RecruiterProfile | null>(null);
+  const [form, setForm] = useState(emptyForm);
+  const [verification, setVerification] =
+    useState<RecruiterVerification | null>(null);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
 
   useEffect(() => {
     if (!user) return;
+    void Promise.all([
+      getRecruiterProfile(user.uid),
+      getRecruiterVerification(user.uid),
+    ])
+      .then(([profile, existing]) => {
+        setVerification(existing);
+        setForm({
+          ...emptyForm,
+          legalName: existing?.legalName ?? profile?.companyName ?? '',
+          phone: existing?.phone ?? profile?.phone ?? '',
+          website: existing?.website ?? profile?.website ?? '',
+          contactPerson: existing?.contactPerson ?? '',
+          socialProofUrl: existing?.socialProofUrl ?? '',
+          businessType: existing?.businessType ?? '',
+          workDescription: existing?.workDescription ?? profile?.bio ?? '',
+          verificationNotes: existing?.verificationNotes ?? '',
+        });
+      })
+      .catch((err) => setError(getErrorMessage(err, 'Unable to load verification')))
+      .finally(() => setLoading(false));
+  }, [user]);
 
-    void getRecruiterProfile(user.uid).then((data) => {
-      if (!data) {
-        router.replace('/recruiter/profile');
-        return;
-      }
-      setProfile(data);
-      setLoading(false);
-    });
-  }, [router, user]);
+  const canSubmit =
+    !verification ||
+    verification.status === 'not_submitted' ||
+    verification.status === 'rejected';
 
-  const approved = Boolean(
-    user && profile && hasRecruiterApproval(user.uid, profile)
-  );
+  const update = (key: keyof FormData, value: string) =>
+    setForm((current) => ({ ...current, [key]: value }));
+
+  const submit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!user || !canSubmit) return;
+    setSaving(true);
+    setError('');
+    setMessage('');
+    try {
+      await submitRecruiterVerification(user.uid, user.email, form);
+      const updated = await getRecruiterVerification(user.uid);
+      setVerification(updated);
+      setMessage('Verification submitted for private-beta admin review.');
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Unable to submit verification'));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const status = verification?.status ?? 'not_submitted';
 
   return (
     <AppShell requiredRole="RECRUITER">
-      <div className="mx-auto max-w-3xl">
-        <p className="eyebrow">Recruiter verification</p>
-        <h1 className="mt-2 text-4xl font-black">
-          {approved ? 'Your workspace is approved.' : 'Approval is pending.'}
-        </h1>
-        <p className="mt-3 max-w-2xl leading-7 text-[#657176]">
-          {approved
-            ? 'You can publish casting calls and manage applicants from your recruiter workspace.'
-            : 'Your company profile is saved. An administrator must verify the organisation before publishing new auditions.'}
-        </p>
-
-        <section className="surface mt-7 p-6">
-          <div className="grid gap-5 sm:grid-cols-3">
-            <StatusStep
-              label="Company profile"
-              complete={!loading && Boolean(profile)}
-            />
-            <StatusStep label="Admin review" complete={approved} />
-            <StatusStep label="Recruiter access" complete={approved} />
+      <div className="max-w-4xl">
+        <p className="eyebrow">Recruiter trust</p>
+        <div className="mt-2 flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1 className="text-4xl font-black">Private-beta verification</h1>
+            <p className="mt-3 max-w-2xl leading-7 text-[#657176]">
+              Tell the review team who you are, what you produce, and where your
+              professional work can be verified.
+            </p>
           </div>
+          <span className="border border-[#b9cdd4] bg-white px-4 py-2 text-sm font-black uppercase text-[#008ca6]">
+            {status.replace('_', ' ')}
+          </span>
+        </div>
 
-          <div className="mt-7 flex flex-wrap gap-3 border-t border-[#e1e5ea] pt-6">
-            {approved ? (
-              <Link href="/dashboard" className="primary-button">
-                Open recruiter workspace
-              </Link>
-            ) : (
-              <>
-                <Link href="/recruiter/profile" className="secondary-button">
-                  Review company profile
-                </Link>
-                {process.env.NODE_ENV === 'development' && user && (
-                  <button
-                    type="button"
-                    className="primary-button"
-                    onClick={() => {
-                      setDemoRecruiterApproval(user.uid);
-                      router.replace('/dashboard');
-                    }}
-                  >
-                    Simulate admin approval
-                  </button>
-                )}
-              </>
-            )}
+        {loading ? <p className="mt-7 font-bold">Loading verification...</p> : null}
+        {error && <p className="mt-6 border border-red-300 bg-red-50 p-4 text-red-800">{error}</p>}
+        {message && <p className="mt-6 border border-green-300 bg-green-50 p-4 text-green-800">{message}</p>}
+        {verification?.adminNote && (
+          <div className="mt-6 border-l-4 border-[#e7ad2d] bg-[#fff8e8] p-4">
+            <p className="font-black">Review note</p>
+            <p className="mt-2 text-sm leading-6">{verification.adminNote}</p>
           </div>
-        </section>
+        )}
+
+        <form onSubmit={submit} className="surface mt-7 grid gap-5 p-6 sm:grid-cols-2">
+          <Field label="Legal/company name" value={form.legalName} onChange={(value) => update('legalName', value)} disabled={!canSubmit} />
+          <Field label="Contact person" value={form.contactPerson} onChange={(value) => update('contactPerson', value)} disabled={!canSubmit} />
+          <Field label="Phone" value={form.phone} onChange={(value) => update('phone', value)} disabled={!canSubmit} />
+          <Field label="Business type" value={form.businessType} onChange={(value) => update('businessType', value)} disabled={!canSubmit} placeholder="Studio, agency, production house..." />
+          <Field label="Website" value={form.website ?? ''} onChange={(value) => update('website', value)} disabled={!canSubmit} required={false} type="url" />
+          <Field label="Social proof link" value={form.socialProofUrl ?? ''} onChange={(value) => update('socialProofUrl', value)} disabled={!canSubmit} required={false} type="url" />
+          <label className="block text-sm font-bold sm:col-span-2">
+            Work and production description
+            <textarea className="field mt-2" rows={6} required disabled={!canSubmit} value={form.workDescription} onChange={(e) => update('workDescription', e.target.value)} />
+          </label>
+          <label className="block text-sm font-bold sm:col-span-2">
+            Notes for the verification team
+            <textarea className="field mt-2" rows={4} disabled={!canSubmit} value={form.verificationNotes ?? ''} onChange={(e) => update('verificationNotes', e.target.value)} />
+          </label>
+          <section className="border border-dashed border-[#9fb6bf] bg-[#f2f7f9] p-5 sm:col-span-2">
+            <p className="font-black">Verification documents</p>
+            <p className="mt-2 text-sm leading-6 text-[#657176]">
+              Document upload is coming soon. It remains optional and disabled
+              until Firebase Storage billing is enabled.
+            </p>
+            <button type="button" disabled className="secondary-button mt-4 opacity-45">
+              Upload documents unavailable
+            </button>
+          </section>
+          {canSubmit && (
+            <button disabled={saving} className="primary-button sm:col-span-2 sm:w-fit disabled:opacity-50">
+              {saving ? 'Submitting...' : status === 'rejected' ? 'Resubmit verification' : 'Submit for review'}
+            </button>
+          )}
+        </form>
       </div>
     </AppShell>
   );
 }
 
-function StatusStep({
-  label,
-  complete,
-}: {
-  label: string;
-  complete: boolean;
-}) {
-  return (
-    <div className="border border-[#dfe3e1] p-4">
-      <p className="text-xs font-bold uppercase text-[#778287]">{label}</p>
-      <p
-        className={`mt-3 font-bold ${
-          complete ? 'text-[#008ca6]' : 'text-[#9a6a15]'
-        }`}
-      >
-        {complete ? 'Complete' : 'Pending'}
-      </p>
-    </div>
-  );
+function Field({ label, value, onChange, disabled, required = true, type = 'text', placeholder }: { label: string; value: string; onChange: (value: string) => void; disabled: boolean; required?: boolean; type?: string; placeholder?: string }) {
+  return <label className="block text-sm font-bold">{label}<input className="field mt-2" type={type} required={required} disabled={disabled} value={value} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} /></label>;
 }

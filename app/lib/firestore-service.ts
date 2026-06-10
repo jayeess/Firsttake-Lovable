@@ -11,14 +11,13 @@ import {
   updateDoc,
   deleteDoc,
   addDoc,
-  increment,
   runTransaction,
-  serverTimestamp,
   QueryConstraint,
   type DocumentData,
   type UpdateData,
 } from 'firebase/firestore';
 import { getFirestoreDb } from './firebase';
+import { getFirebaseAuth } from './firebase';
 import { getErrorMessage } from './error-utils';
 import { getApplicationPolicyError } from './application-policy';
 import type {
@@ -31,12 +30,14 @@ import type {
   TalentCategory,
   TalentProfile,
   UserType,
+  RecruiterVerification,
 } from './types';
 
 export interface UserAccount {
   uid: string;
   email: string | null;
   userType: Exclude<UserType, 'ADMIN'>;
+  accountStatus: 'ACTIVE' | 'SUSPENDED';
 }
 
 export const ensureUserAccount = async (
@@ -47,29 +48,44 @@ export const ensureUserAccount = async (
   try {
     const userRef = doc(getFirestoreDb(), 'users', uid);
     const snapshot = await getDoc(userRef);
+    const accountData = {
+      uid,
+      email,
+      userType,
+      emailVerified: false,
+      phoneVerified: false,
+      accountStatus: 'ACTIVE',
+      isAdmin: false,
+      updatedAt: new Date(),
+    };
 
     if (!snapshot.exists()) {
       await setDoc(
         userRef,
         {
-          uid,
-          email,
-          userType,
-          emailVerified: false,
-          phoneVerified: false,
-          accountStatus: 'ACTIVE',
-          isAdmin: false,
-          updatedAt: new Date(),
-          ...(snapshot.exists() ? {} : { createdAt: new Date() }),
+          ...accountData,
+          createdAt: new Date(),
         },
         { merge: true }
       );
       return;
     }
 
-    if (snapshot.data().userType !== userType) {
+    const existingUserType = snapshot.data().userType;
+    if (existingUserType !== 'TALENT' && existingUserType !== 'RECRUITER') {
+      // Older login code could create a document containing only lastLogin.
+      // Recreate that incomplete parent record with the role chosen at signup.
+      await deleteDoc(userRef);
+      await setDoc(userRef, {
+        ...accountData,
+        createdAt: snapshot.data().createdAt ?? new Date(),
+      });
+      return;
+    }
+
+    if (existingUserType !== userType) {
       throw new Error(
-        `This account is registered as ${String(snapshot.data().userType).toLowerCase()}, not ${userType.toLowerCase()}.`
+        `This account is registered as ${existingUserType.toLowerCase()}, not ${userType.toLowerCase()}.`
       );
     }
   } catch (error: unknown) {
@@ -96,9 +112,52 @@ export const getUserAccount = async (
       uid,
       email: typeof data.email === 'string' ? data.email : null,
       userType: data.userType,
+      accountStatus: data.accountStatus === 'SUSPENDED' ? 'SUSPENDED' : 'ACTIVE',
     };
   } catch (error: unknown) {
     throw new Error(getErrorMessage(error, 'Failed to load user account'));
+  }
+};
+
+export const getRecruiterVerification = async (
+  uid: string
+): Promise<RecruiterVerification | null> => {
+  const snapshot = await getDoc(
+    doc(getFirestoreDb(), 'recruiterVerifications', uid)
+  );
+  return snapshot.exists()
+    ? (snapshot.data() as RecruiterVerification)
+    : null;
+};
+
+export const submitRecruiterVerification = async (
+  uid: string,
+  email: string | null,
+  data: Omit<
+    RecruiterVerification,
+    | 'recruiterId'
+    | 'recruiterEmail'
+    | 'status'
+    | 'adminNote'
+    | 'reviewedBy'
+    | 'submittedAt'
+    | 'reviewedAt'
+    | 'updatedAt'
+  >
+) => {
+  const user = getFirebaseAuth().currentUser;
+  if (!user || user.uid !== uid) throw new Error('Please sign in again.');
+  const response = await fetch('/api/recruiter/verification', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${await user.getIdToken()}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ ...data, recruiterEmail: email }),
+  });
+  const payload = await response.json();
+  if (!response.ok) {
+    throw new Error(payload.error ?? 'Unable to submit verification.');
   }
 };
 
@@ -229,11 +288,21 @@ export const createAudition = async (
     if (account?.userType !== 'RECRUITER') {
       throw new Error('Only recruiter accounts can create auditions.');
     }
+    if (account.accountStatus === 'SUSPENDED') {
+      throw new Error('This recruiter account is suspended.');
+    }
+
+    const verification = await getRecruiterVerification(recruiterId);
+    if (verification?.status !== 'approved') {
+      throw new Error('Recruiter verification approval is required.');
+    }
 
     const docRef = await addDoc(collection(getFirestoreDb(), 'auditions'), {
       recruiterId,
       ...auditionData,
       applicantCount: 0,
+      moderationStatus: 'VISIBLE',
+      recruiterVerified: true,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -259,13 +328,16 @@ export const getAuditions = async (
       ...constraints
     );
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(
-      (snapshot) =>
-        ({
-          id: snapshot.id,
-          ...snapshot.data(),
-        }) as Audition
-    );
+    const auditions = querySnapshot.docs
+      .map(
+        (snapshot) =>
+          ({
+            id: snapshot.id,
+            ...snapshot.data(),
+          }) as Audition
+      )
+      .filter((audition) => audition.moderationStatus !== 'REMOVED');
+    return Promise.all(auditions.map(addRecruiterTrust));
   } catch (error: unknown) {
     throw new Error(getErrorMessage(error, 'Failed to load auditions'));
   }
@@ -276,9 +348,11 @@ export const getAuditionById = async (
 ): Promise<Audition | null> => {
   try {
     const auditionDoc = await getDoc(doc(getFirestoreDb(), 'auditions', auditionId));
-    return auditionDoc.exists()
-      ? ({ id: auditionDoc.id, ...auditionDoc.data() } as Audition)
-      : null;
+    if (!auditionDoc.exists()) return null;
+    return addRecruiterTrust({
+      id: auditionDoc.id,
+      ...auditionDoc.data(),
+    } as Audition);
   } catch (error: unknown) {
     throw new Error(getErrorMessage(error, 'Failed to load audition'));
   }
@@ -293,12 +367,18 @@ export const getRecruiterAuditions = async (
       where('recruiterId', '==', recruiterId)
     );
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(
-      (snapshot) =>
-        ({
+    return Promise.all(
+      querySnapshot.docs.map(async (snapshot) => {
+        const applicationsSnapshot = await getDocs(
+          collection(getFirestoreDb(), 'auditions', snapshot.id, 'applications')
+        );
+
+        return {
           id: snapshot.id,
           ...snapshot.data(),
-        }) as Audition
+          applicantCount: applicationsSnapshot.size,
+        } as Audition;
+      })
     );
   } catch (error: unknown) {
     throw new Error(getErrorMessage(error, 'Failed to load recruiter auditions'));
@@ -385,16 +465,31 @@ export const submitApplication = async (
         createdAt: now,
         updatedAt: now,
       });
-      transaction.update(auditionRef, {
-        applicantCount: increment(1),
-        updatedAt: now,
-      });
     });
 
     return talentId;
   } catch (error: unknown) {
-    throw new Error(getErrorMessage(error, 'Failed to submit application'));
+    const message = getErrorMessage(error, 'Failed to submit application');
+    if (
+      message.includes('permission') ||
+      message.includes('permission-denied')
+    ) {
+      throw new Error(
+        'Firebase could not confirm this account as Talent. Log out, log in again, and retry. If it continues, the account role document or deployed Firestore rules need repair.'
+      );
+    }
+    throw new Error(message);
   }
+};
+
+const addRecruiterTrust = async (audition: Audition): Promise<Audition> => {
+  const verification = await getRecruiterVerification(audition.recruiterId).catch(
+    () => null
+  );
+  return {
+    ...audition,
+    recruiterVerified: verification?.status === 'approved',
+  };
 };
 
 export const getTalentApplications = async (
@@ -544,37 +639,15 @@ export const deleteApplication = async (
   applicationId: string
 ) => {
   try {
-    const db = getFirestoreDb();
-    const auditionRef = doc(db, 'auditions', auditionId);
-    const applicationRef = doc(
-      db,
+    await deleteDoc(
+      doc(
+        getFirestoreDb(),
       'auditions',
       auditionId,
       'applications',
       applicationId
+      )
     );
-
-    await runTransaction(db, async (transaction) => {
-      const [auditionSnapshot, applicationSnapshot] = await Promise.all([
-        transaction.get(auditionRef),
-        transaction.get(applicationRef),
-      ]);
-
-      if (!applicationSnapshot.exists()) {
-        return;
-      }
-
-      if (!auditionSnapshot.exists()) {
-        throw new Error('The audition linked to this application no longer exists.');
-      }
-
-      const applicantCount = auditionSnapshot.data().applicantCount ?? 0;
-      transaction.delete(applicationRef);
-      transaction.update(auditionRef, {
-        applicantCount: Math.max(0, applicantCount - 1),
-        updatedAt: serverTimestamp(),
-      });
-    });
   } catch (error: unknown) {
     throw new Error(getErrorMessage(error, 'Failed to delete application'));
   }

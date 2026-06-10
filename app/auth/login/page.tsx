@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { login } from '@/app/lib/auth-service';
 import {
+  ensureUserAccount,
   getRecruiterProfile,
   getUserAccount,
 } from '@/app/lib/firestore-service';
@@ -25,31 +26,59 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
 
   const openCorrectWorkspace = useCallback(
-    async (uid: string) => {
-      const account = await getUserAccount(uid);
+    async (uid: string, accountEmail: string | null) => {
+      let account = await getUserAccount(uid);
+      let repairedAccount = false;
+
+      if (!account) {
+        const storedUserType = localStorage.getItem(`userType_${uid}`);
+        if (
+          storedUserType === 'TALENT' ||
+          storedUserType === 'RECRUITER'
+        ) {
+          await ensureUserAccount(
+            uid,
+            accountEmail,
+            storedUserType
+          );
+          account = await getUserAccount(uid);
+          repairedAccount = Boolean(account);
+        }
+      }
 
       if (!account) {
         throw new Error(
-          'This Firebase user has no Nata Connect role. Create the account again as Talent or Recruiter.'
+          'Your login exists, but its Talent or Recruiter role is missing. Use the same browser where you created this account, or create the account again.'
         );
       }
 
       if (account.userType === 'TALENT') {
-        router.replace('/dashboard');
+        if (repairedAccount) {
+          window.location.assign('/dashboard');
+        } else {
+          router.replace('/dashboard');
+        }
         return;
       }
 
       const profile = await getRecruiterProfile(uid);
       if (!profile) {
-        router.replace('/recruiter/profile');
+        if (repairedAccount) {
+          window.location.assign('/recruiter/profile');
+        } else {
+          router.replace('/recruiter/profile');
+        }
         return;
       }
 
-      router.replace(
-        hasRecruiterApproval(uid, profile)
-          ? '/dashboard'
-          : '/recruiter/verification'
-      );
+      const destination = hasRecruiterApproval(uid, profile)
+        ? '/dashboard'
+        : '/recruiter/verification';
+      if (repairedAccount) {
+        window.location.assign(destination);
+      } else {
+        router.replace(destination);
+      }
     },
     [router]
   );
@@ -73,9 +102,27 @@ export default function Login() {
 
     try {
       const signedInUser = await login({ email, password });
-      await openCorrectWorkspace(signedInUser.uid);
+      const token = await signedInUser.getIdTokenResult(true);
+      if (token.claims.admin === true) {
+        router.replace('/admin');
+        return;
+      }
+      await openCorrectWorkspace(signedInUser.uid, signedInUser.email);
     } catch (err: unknown) {
       setError(getErrorMessage(err, 'Login failed'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleContinue = async () => {
+    if (!user) return;
+    setError('');
+    setLoading(true);
+    try {
+      await openCorrectWorkspace(user.uid, user.email);
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Unable to open this account'));
     } finally {
       setLoading(false);
     }
@@ -103,7 +150,8 @@ export default function Login() {
             <button
               type="button"
               className="secondary-button min-h-10 px-4 text-sm"
-              onClick={() => void openCorrectWorkspace(user.uid)}
+              disabled={loading}
+              onClick={() => void handleContinue()}
             >
               Continue
             </button>
@@ -148,9 +196,7 @@ export default function Login() {
           >
             {loading
               ? 'Opening workspace...'
-              : user
-                ? 'Use this account in this tab'
-                : 'Log in'}
+              : 'Log in'}
           </button>
         </form>
 

@@ -11,6 +11,7 @@ import {
 import type { RecruiterProfile } from '@/app/lib/types';
 import { getErrorMessage } from '@/app/lib/error-utils';
 import { DevFormPresets } from '@/components/dev-form-presets';
+import { VerifiedBadge } from '@/components/verified-badge';
 
 const initialProfile: RecruiterProfile = {
   companyName: '',
@@ -136,7 +137,10 @@ export default function RecruiterProfilePage() {
         <p className="text-sm font-bold uppercase text-[#008ca6]">
           Recruiter onboarding
         </p>
-        <h1 className="mt-1 text-3xl font-bold">Company profile</h1>
+        <div className="mt-1 flex flex-wrap items-center gap-3">
+          <h1 className="text-3xl font-bold">Company profile</h1>
+          {profile.verificationStatus === 'approved' && <VerifiedBadge />}
+        </div>
         <p className="mt-2 text-[#68727c]">
           Complete company details before publishing auditions.
         </p>

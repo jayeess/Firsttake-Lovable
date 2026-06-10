@@ -15,6 +15,7 @@ controlled private testing. It is not ready for a public production launch.
 - Firebase Authentication
 - Cloud Firestore
 - Firebase Storage
+- Firebase Admin SDK for trusted moderation
 
 ## Current Capabilities
 
@@ -24,7 +25,10 @@ controlled private testing. It is not ready for a public production launch.
 - Talent and recruiter profile forms
 - Recruiter audition creation and applicant review
 - Talent audition discovery, application submission, and status tracking
-- Transactional application submission and applicant-count updates
+- Transactional duplicate-safe application submission
+- Text-based recruiter verification and admin review
+- Trusted custom-claim admin dashboard and moderation APIs
+- User suspension, audition removal, and immutable audit history
 - Development-only account personas and form presets
 - Firebase security rules, indexes, and Emulator Suite configuration
 
@@ -55,6 +59,11 @@ NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.firebasestorage.app
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
 NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
 NEXT_PUBLIC_SHOW_TEST_CASES=true
+
+# Server only. Never expose these with NEXT_PUBLIC.
+FIREBASE_ADMIN_PROJECT_ID=your_project_id
+FIREBASE_ADMIN_CLIENT_EMAIL=firebase-adminsdk-...@your_project.iam.gserviceaccount.com
+FIREBASE_ADMIN_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
 ```
 
 In Firebase Authentication, enable Email/Password and add `localhost` to the
@@ -92,6 +101,29 @@ npx firebase-tools use your_project_id
 npx firebase-tools deploy --only firestore:rules,firestore:indexes,storage
 ```
 
+Storage is currently optional. Until billing is enabled, deploy only Firestore:
+
+```powershell
+npx firebase-tools deploy --only firestore:rules,firestore:indexes
+```
+
+## First Administrator
+
+Create a dedicated Firebase Email/Password account for administration. Generate
+a Firebase service-account key, copy its project ID, client email, and private
+key into server-only environment variables, then run:
+
+```powershell
+npm run admin:set -- admin@example.com
+```
+
+Sign out and sign in again so Firebase refreshes the ID token. The account will
+then open `/admin`. Never commit a service-account JSON file; matching filenames
+are ignored by `.gitignore`.
+
+Admin routes verify the caller's Firebase ID token and `admin` custom claim in
+Next.js route handlers. Client UI state alone cannot grant admin access.
+
 Deploying `firestore.rules` is required for role enforcement. Deploying
 `firestore.indexes.json` is required for the talent application tracker's
 collection-group query. Index creation can take several minutes.
@@ -124,6 +156,11 @@ work.
 - `/recruiter/auditions/new`
 - `/recruiter/auditions/[id]/applicants`
 - `/recruiter/verification`
+- `/admin`
+- `/admin/verifications`
+- `/admin/users`
+- `/admin/auditions`
+- `/admin/audit-logs`
 
 ## Development Test Data
 
@@ -133,11 +170,9 @@ See [TESTING.md](TESTING.md) for accounts, workflows, and removal instructions.
 
 ## Known Launch Gaps
 
-- Recruiter approval is not backed by a trusted Admin SDK/custom-claims service
-- Verification document upload and review are incomplete
+- Verification document upload remains disabled until Storage is enabled
 - Profile and portfolio media upload UI is incomplete
-- Notifications, moderation, analytics, monitoring, and legal workflows are
-  not production-ready
+- Notifications, analytics, monitoring, and legal workflows are not production-ready
 - Automated coverage is currently limited to application eligibility policy
   tests; browser E2E and Firebase rule tests are still needed
 

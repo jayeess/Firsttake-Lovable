@@ -17,6 +17,7 @@ import {
 } from '@/app/lib/types';
 import { getErrorMessage } from '@/app/lib/error-utils';
 import { useAuth } from '@/context/auth-context';
+import { VerifiedBadge } from '@/components/verified-badge';
 
 export default function AuditionDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -69,8 +70,9 @@ export default function AuditionDetailPage() {
         <article className="border border-[#d9dee5] bg-white p-6">
           <div className="flex flex-wrap justify-between gap-4">
             <div>
-              <p className="font-semibold text-[#1f5f91]">
+              <p className="flex flex-wrap items-center gap-2 font-semibold text-[#1f5f91]">
                 {audition.recruiterName ?? 'Recruiter'}
+                {audition.recruiterVerified && <VerifiedBadge />}
               </p>
               <h1 className="mt-2 text-3xl font-bold">{audition.title}</h1>
             </div>

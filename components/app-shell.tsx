@@ -39,7 +39,7 @@ export function AppShell({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, userType, loading } = useAuth();
+  const { user, userType, loading, accountStatus } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const links = userType === 'RECRUITER' ? recruiterLinks : talentLinks;
 
@@ -80,6 +80,24 @@ export function AppShell({
               : 'Opening the right workspace'}
           </h1>
         </div>
+      </main>
+    );
+  }
+
+  if (accountStatus === 'SUSPENDED') {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-[#eef4f7] p-6">
+        <section className="surface max-w-lg p-8 text-center">
+          <p className="eyebrow">Account restricted</p>
+          <h1 className="mt-3 text-3xl font-black">This account is suspended</h1>
+          <p className="mt-3 leading-7 text-[#657176]">
+            Sensitive actions are unavailable while the trust and safety team
+            reviews this account.
+          </p>
+          <button type="button" onClick={handleLogout} className="primary-button mt-6">
+            Log out
+          </button>
+        </section>
       </main>
     );
   }

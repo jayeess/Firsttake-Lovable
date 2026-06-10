@@ -80,6 +80,10 @@ The dependency-free Node test suite currently covers application eligibility:
 - Draft, closed, and cancelled auditions are rejected
 - Expired auditions are rejected
 - Missing auditions are rejected
+- Rejected recruiter verification can be resubmitted
+- Suspended or unapproved recruiters cannot post
+- Removed auditions are hidden from discovery
+- Non-admin users fail the privileged-action policy
 
 These tests validate the shared policy used by the transactional Firestore
 submission path. They do not replace Firebase security-rule or browser E2E
@@ -118,3 +122,36 @@ required by My Applications.
 `firebase.json` contains Emulator Suite configuration. Automated emulator rule
 tests are not yet included because the repository does not currently include
 `firebase-tools` or `@firebase/rules-unit-testing` as development dependencies.
+
+## Phase 1 manual verification
+
+Before testing admin routes, configure the three `FIREBASE_ADMIN_*` environment
+variables and run:
+
+```powershell
+npm run admin:set -- admin@example.com
+```
+
+Then verify:
+
+1. Talent and Recruiter accounts see an unauthorized state at `/admin`.
+2. The claimed Admin account can enter all five `/admin` routes.
+3. Recruiter submits the text verification form.
+4. Admin sees the pending request and approves it with a note.
+5. Recruiter refreshes and sees approved status and the verified badge.
+6. Approved Recruiter can publish an audition.
+7. Admin suspends the Recruiter and posting becomes unavailable.
+8. Admin restores the Recruiter.
+9. Admin removes an audition and it disappears from Talent discovery.
+10. Admin restores the audition.
+11. Every privileged action appears in `/admin/audit-logs`.
+
+Document upload must remain disabled while Firebase Storage billing is
+unavailable.
+
+## Security-test limitation
+
+The nine current tests are policy/unit tests. They do not execute deployed
+Firestore rules or Firebase Admin route handlers. Add
+`@firebase/rules-unit-testing` and point the app at the Firebase emulators
+before treating role enforcement as fully automated.

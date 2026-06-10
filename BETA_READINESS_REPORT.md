@@ -2,7 +2,7 @@
 
 **Assessment date:** June 10, 2026  
 **Recommended stage:** Controlled internal/private testing only  
-**Readiness score:** 6/10
+**Readiness score:** 7/10
 
 ## Completed Features
 
@@ -25,6 +25,17 @@
 - Firestore rules restrict counter and review-status field updates
 - A dependency-free policy test suite and aggregate verification command exist
 - Emulator configuration and deployment documentation are present
+
+## Phase 1 Trust Improvements
+
+- Admin access is backed by Firebase custom claims
+- Privileged writes run through Firebase Admin SDK route handlers
+- Recruiter verification is a persisted text-based private-beta workflow
+- Recruiters cannot approve themselves or edit admin review fields
+- Suspended accounts are blocked from sensitive actions
+- Auditions can be removed/restored without deleting casting data
+- Every privileged action writes an audit log
+- Verified recruiter badges reflect approved verification state
 
 ## Files Changed
 
@@ -90,10 +101,10 @@ Run `npm run verify` again immediately before every deployment.
 
 ## Launch Blockers
 
-- Trusted Admin SDK backend and custom claims for recruiter approval
+- Configure production Firebase Admin credentials and claim the first admin
 - Firebase Emulator security-rule tests
 - End-to-end tests for signup, publishing, applying, and reviewing
-- Verification document workflow and privacy controls
+- Verification document workflow after Storage billing is available
 - Terms, privacy policy, consent, support, and deletion processes
 - Production observability and incident ownership
 

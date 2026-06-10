@@ -7,6 +7,7 @@ import {
   createAudition,
   ensureUserAccount,
   getRecruiterProfile,
+  getRecruiterVerification,
 } from '@/app/lib/firestore-service';
 import {
   CATEGORY_LABELS,
@@ -18,7 +19,6 @@ import {
 import { getErrorMessage } from '@/app/lib/error-utils';
 import { useAuth } from '@/context/auth-context';
 import { DevFormPresets } from '@/components/dev-form-presets';
-import { hasRecruiterApproval } from '@/app/lib/recruiter-access';
 
 type AuditionForm = {
   title: string;
@@ -184,7 +184,8 @@ export default function NewAuditionPage() {
         router.push('/recruiter/profile');
         return;
       }
-      if (!hasRecruiterApproval(user.uid, profile)) {
+      const verification = await getRecruiterVerification(user.uid);
+      if (verification?.status !== 'approved') {
         router.push('/recruiter/verification');
         return;
       }

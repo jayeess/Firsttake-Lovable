@@ -6,14 +6,16 @@ import {
   type Audition,
 } from '@/app/lib/types';
 import { StatusBadge } from './status-badge';
+import { VerifiedBadge } from './verified-badge';
 
 export function AuditionCard({ audition }: { audition: Audition }) {
   return (
     <article className="surface group p-5 hover:border-[#8dbbb6]">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-sm font-bold text-[#008ca6]">
-            {audition.recruiterName ?? 'Verified recruiter'}
+          <p className="flex flex-wrap items-center gap-2 text-sm font-bold text-[#008ca6]">
+            {audition.recruiterName ?? 'Recruiter'}
+            {audition.recruiterVerified && <VerifiedBadge />}
           </p>
           <h2 className="mt-1 text-xl font-bold">{audition.title}</h2>
         </div>

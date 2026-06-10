@@ -21,6 +21,8 @@ interface AuthContextType {
   userType: UserType | null;
   loading: boolean;
   error: string | null;
+  isAdmin: boolean;
+  accountStatus: 'ACTIVE' | 'SUSPENDED' | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -30,6 +32,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [userType, setUserType] = useState<UserType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [accountStatus, setAccountStatus] = useState<
+    'ACTIVE' | 'SUSPENDED' | null
+  >(null);
   const authChangeId = useRef(0);
 
   useEffect(() => {
@@ -42,9 +48,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(currentUser);
         setUserType(null);
         setError(null);
+        setIsAdmin(false);
+        setAccountStatus(null);
 
         if (currentUser) {
           try {
+            const token = await currentUser.getIdTokenResult();
+            if (changeId !== authChangeId.current) return;
+            setIsAdmin(token.claims.admin === true);
             const account = await getUserAccount(currentUser.uid);
             const storedUserType = localStorage.getItem(
               `userType_${currentUser.uid}`
@@ -53,6 +64,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             if (account) {
               if (changeId !== authChangeId.current) return;
               setUserType(account.userType);
+              setAccountStatus(account.accountStatus);
               localStorage.setItem(
                 `userType_${currentUser.uid}`,
                 account.userType
@@ -68,6 +80,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               );
               if (changeId !== authChangeId.current) return;
               setUserType(storedUserType);
+              setAccountStatus('ACTIVE');
             } else {
               if (changeId !== authChangeId.current) return;
               setUserType(null);
@@ -106,7 +119,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, userType, loading, error }}>
+    <AuthContext.Provider
+      value={{ user, userType, loading, error, isAdmin, accountStatus }}
+    >
       {children}
     </AuthContext.Provider>
   );
