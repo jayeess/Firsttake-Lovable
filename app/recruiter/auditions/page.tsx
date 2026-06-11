@@ -8,11 +8,14 @@ import { getRecruiterAuditions } from '@/app/lib/firestore-service';
 import { formatDate, type Audition } from '@/app/lib/types';
 import { getErrorMessage } from '@/app/lib/error-utils';
 import { useAuth } from '@/context/auth-context';
+import { EmptyState, ErrorState, LoadingState } from '@/components/async-state';
 
 export default function RecruiterAuditionsPage() {
   const { user } = useAuth();
   const [auditions, setAuditions] = useState<Audition[]>([]);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     if (!user) return;
@@ -20,8 +23,9 @@ export default function RecruiterAuditionsPage() {
       .then(setAuditions)
       .catch((err: unknown) =>
         setError(getErrorMessage(err, 'Unable to load your auditions'))
-      );
-  }, [user]);
+      )
+      .finally(() => setLoading(false));
+  }, [reloadKey, user]);
 
   return (
     <AppShell requiredRole="RECRUITER">
@@ -29,7 +33,27 @@ export default function RecruiterAuditionsPage() {
         <div><p className="text-sm font-bold uppercase text-[#008ca6]">Recruiter tools</p><h1 className="mt-1 text-3xl font-bold">My auditions</h1></div>
         <Link href="/recruiter/auditions/new" className="bg-[#008ca6] px-5 py-3 font-semibold text-white">Post audition</Link>
       </div>
-      {error && <p className="mt-5 border border-red-300 bg-red-50 p-4 text-red-800">{error}</p>}
+      {error && (
+        <ErrorState
+          title="Your casting calls could not be loaded"
+          message={error}
+          onRetry={() => {
+            setLoading(true);
+            setError('');
+            setReloadKey((current) => current + 1);
+          }}
+        />
+      )}
+      {loading ? (
+        <LoadingState label="Loading your casting pipeline..." />
+      ) : error ? null : auditions.length === 0 ? (
+        <EmptyState
+          title="No auditions posted yet"
+          message="Create a clear casting brief when your recruiter verification is approved."
+          actionHref="/recruiter/auditions/new"
+          actionLabel="Post an audition"
+        />
+      ) : (
       <div className="mt-6 overflow-x-auto border border-[#d9dee5] bg-white">
         <table className="w-full min-w-[720px] text-left">
           <thead className="bg-[#eef2f5] text-xs uppercase text-[#64707b]">
@@ -55,8 +79,8 @@ export default function RecruiterAuditionsPage() {
             ))}
           </tbody>
         </table>
-        {auditions.length === 0 && <p className="p-8 text-center text-[#68727c]">No auditions posted yet.</p>}
       </div>
+      )}
     </AppShell>
   );
 }

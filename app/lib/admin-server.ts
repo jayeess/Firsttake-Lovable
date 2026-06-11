@@ -61,7 +61,15 @@ export const writeAuditLog = async ({
 };
 
 export const adminErrorResponse = (error: unknown) => {
-  const message = error instanceof Error ? error.message : 'Admin action failed.';
-  const status = error instanceof AdminRequestError ? error.status : 500;
-  return Response.json({ error: message }, { status });
+  if (error instanceof AdminRequestError) {
+    return Response.json({ error: error.message }, { status: error.status });
+  }
+
+  console.error('Admin API request failed', {
+    name: error instanceof Error ? error.name : 'UnknownError',
+  });
+  return Response.json(
+    { error: 'The secure admin service could not complete this request.' },
+    { status: 500 }
+  );
 };

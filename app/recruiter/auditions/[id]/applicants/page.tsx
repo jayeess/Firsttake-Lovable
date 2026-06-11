@@ -20,6 +20,7 @@ import {
 } from '@/app/lib/types';
 import { getErrorMessage } from '@/app/lib/error-utils';
 import { useAuth } from '@/context/auth-context';
+import { EmptyState, ErrorState, LoadingState } from '@/components/async-state';
 
 const filters: Array<'ALL' | ApplicationStatus> = [
   'ALL',
@@ -38,6 +39,8 @@ export default function AuditionApplicantsPage() {
   const [filter, setFilter] = useState<(typeof filters)[number]>('ALL');
   const [busyId, setBusyId] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     if (!user) return;
@@ -53,8 +56,9 @@ export default function AuditionApplicantsPage() {
       })
       .catch((err: unknown) =>
         setError(getErrorMessage(err, 'Unable to load applicants'))
-      );
-  }, [id, router, user]);
+      )
+      .finally(() => setLoading(false));
+  }, [id, reloadKey, router, user]);
 
   const visibleApplicants = useMemo(
     () =>
@@ -151,12 +155,19 @@ export default function AuditionApplicantsPage() {
       </div>
 
       {error && (
-        <p className="mt-5 border border-red-300 bg-red-50 p-4 text-sm text-red-800">
-          {error}
-        </p>
+        <ErrorState
+          title="Applicants could not be loaded"
+          message={error}
+          onRetry={() => {
+            setLoading(true);
+            setError('');
+            setReloadKey((current) => current + 1);
+          }}
+        />
       )}
 
       <div className="mt-6 space-y-4">
+        {loading && <LoadingState label="Loading the applicant pipeline..." />}
         {visibleApplicants.map((applicant) => {
           const { application, talent } = applicant;
           const name = talent
@@ -279,13 +290,11 @@ export default function AuditionApplicantsPage() {
           );
         })}
 
-        {visibleApplicants.length === 0 && (
-          <div className="border border-dashed border-[#bcc6ca] bg-white p-10 text-center">
-            <h2 className="text-xl font-black">No applicants in this stage</h2>
-            <p className="mt-2 text-[#657176]">
-              New applications will appear here as soon as talent submits them.
-            </p>
-          </div>
+        {!loading && !error && visibleApplicants.length === 0 && (
+          <EmptyState
+            title="No applicants in this stage"
+            message="New applications will appear here as soon as talent submits them."
+          />
         )}
       </div>
     </AppShell>

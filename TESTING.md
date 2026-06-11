@@ -71,6 +71,8 @@ Individual commands:
 npm run lint
 npm test
 npm run build
+npm run test:e2e
+npm run test:e2e:ui
 ```
 
 The dependency-free Node test suite currently covers application eligibility:
@@ -86,8 +88,27 @@ The dependency-free Node test suite currently covers application eligibility:
 - Non-admin users fail the privileged-action policy
 
 These tests validate the shared policy used by the transactional Firestore
-submission path. They do not replace Firebase security-rule or browser E2E
-tests.
+submission path. Playwright additionally covers public pages and signed-out
+route gating.
+
+## Playwright E2E
+
+Install the Chromium browser once:
+
+```powershell
+npx playwright install chromium
+```
+
+Run the smoke suite:
+
+```powershell
+npm run test:e2e
+```
+
+Public and signed-out gating tests require no private credentials. To enable
+role-backed tests, set `E2E_TALENT_*`, `E2E_RECRUITER_*`, and `E2E_ADMIN_*` in
+the local environment using `.env.example` as the name reference. Never commit
+those passwords. Missing credential pairs cause only the related tests to skip.
 
 ## Critical manual workflow
 
@@ -120,8 +141,21 @@ workflow. The collection-group index on `applications.talentId + createdAt` is
 required by My Applications.
 
 `firebase.json` contains Emulator Suite configuration. Automated emulator rule
-tests are not yet included because the repository does not currently include
-`firebase-tools` or `@firebase/rules-unit-testing` as development dependencies.
+tests are not yet included. To add them:
+
+1. Install `firebase-tools` and `@firebase/rules-unit-testing` as dev dependencies.
+2. Add client emulator wiring guarded by `NEXT_PUBLIC_USE_FIREBASE_EMULATORS`.
+3. Start Auth and Firestore with `npx firebase-tools emulators:start`.
+4. Use `initializeTestEnvironment` with `firestore.rules`.
+5. Seed data only through `withSecurityRulesDisabled`.
+6. Verify Talent private-data isolation, recruiter self-approval denial,
+   audit-log write denial, suspended recruiter posting denial, active audition
+   reads, removed audition hiding, and application owner/audition owner access.
+7. Run the suite through `firebase emulators:exec` so CI starts and stops the
+   emulators reliably.
+
+Do not report Firestore rules as emulator-tested until this suite exists and
+passes.
 
 ## Phase 1 manual verification
 

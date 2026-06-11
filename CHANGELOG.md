@@ -4,6 +4,17 @@ All notable changes to Nata Connect are recorded here.
 
 ## Unreleased
 
+### Phase 1.5: Beta Quality and Safety
+
+- Added Playwright public, protected-route, and optional credential-backed role
+  smoke tests
+- Added GitHub Actions CI for install, lint, unit tests, and production build
+- Added a reusable loading/error/empty state system and retry actions across
+  Talent, Recruiter, and Admin workflows
+- Sanitized unexpected Admin API errors and tightened server-only Admin setup
+- Added the private-beta QA checklist and exact emulator test plan
+- Documented E2E credentials, CI behavior, Storage limitations, and manual QA
+
 ### Phase 1: Trust and Administration
 
 - Added Firebase custom-claim admin foundation and first-admin bootstrap script

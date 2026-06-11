@@ -7,11 +7,17 @@ const getAdminApp = () => {
     return getApps()[0];
   }
 
-  const projectId =
-    process.env.FIREBASE_ADMIN_PROJECT_ID ??
-    process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+  const projectId = process.env.FIREBASE_ADMIN_PROJECT_ID;
   const clientEmail = process.env.FIREBASE_ADMIN_CLIENT_EMAIL;
   const privateKey = process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, '\n');
+
+  if (!projectId) {
+    throw new Error('Firebase Admin server configuration is unavailable.');
+  }
+
+  if ((clientEmail && !privateKey) || (!clientEmail && privateKey)) {
+    throw new Error('Firebase Admin server configuration is incomplete.');
+  }
 
   if (clientEmail && privateKey && projectId) {
     return initializeApp({
@@ -20,6 +26,7 @@ const getAdminApp = () => {
     });
   }
 
+  // Supports Application Default Credentials on managed hosting.
   return initializeApp({ projectId });
 };
 

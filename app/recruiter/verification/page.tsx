@@ -10,6 +10,7 @@ import {
 import type { RecruiterVerification } from '@/app/lib/types';
 import { useAuth } from '@/context/auth-context';
 import { getErrorMessage } from '@/app/lib/error-utils';
+import { ErrorState, LoadingState } from '@/components/async-state';
 
 type FormData = Pick<
   RecruiterVerification,
@@ -43,6 +44,7 @@ export default function RecruiterVerificationPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     if (!user) return;
@@ -66,7 +68,7 @@ export default function RecruiterVerificationPage() {
       })
       .catch((err) => setError(getErrorMessage(err, 'Unable to load verification')))
       .finally(() => setLoading(false));
-  }, [user]);
+  }, [reloadKey, user]);
 
   const canSubmit =
     !verification ||
@@ -113,8 +115,18 @@ export default function RecruiterVerificationPage() {
           </span>
         </div>
 
-        {loading ? <p className="mt-7 font-bold">Loading verification...</p> : null}
-        {error && <p className="mt-6 border border-red-300 bg-red-50 p-4 text-red-800">{error}</p>}
+        {loading ? <LoadingState label="Loading verification status..." /> : null}
+        {error && (
+          <ErrorState
+            title="Verification details could not be loaded"
+            message={error}
+            onRetry={() => {
+              setLoading(true);
+              setError('');
+              setReloadKey((current) => current + 1);
+            }}
+          />
+        )}
         {message && <p className="mt-6 border border-green-300 bg-green-50 p-4 text-green-800">{message}</p>}
         {verification?.adminNote && (
           <div className="mt-6 border-l-4 border-[#e7ad2d] bg-[#fff8e8] p-4">

@@ -5,30 +5,34 @@ import { AdminShell } from '@/components/admin-shell';
 import { AdminActionButton } from '@/components/admin-action-button';
 import { fetchAdminData } from '@/app/lib/admin-client';
 import type { RecruiterVerification } from '@/app/lib/types';
+import { EmptyState, ErrorState, LoadingState } from '@/components/async-state';
 
 type Item = RecruiterVerification & { id: string };
 
 export default function AdminVerificationsPage() {
   const [items, setItems] = useState<Item[]>([]);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
   const load = useCallback(() => {
     void fetchAdminData<{ verifications: Item[] }>('verifications')
       .then((data) => setItems(data.verifications))
-      .catch((err) => setError(err.message));
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
   }, []);
-  useEffect(() => {
-    void fetchAdminData<{ verifications: Item[] }>('verifications')
-      .then((data) => setItems(data.verifications))
-      .catch((err) => setError(err.message));
-  }, []);
+  useEffect(load, [load]);
 
   return (
     <AdminShell>
       <p className="eyebrow">Recruiter trust</p>
       <h1 className="mt-2 text-4xl font-black">Verification queue</h1>
       <p className="mt-3 text-[#657176]">Approve only organisations with credible, consistent production details.</p>
-      {error && <p className="mt-6 border border-red-300 bg-red-50 p-4 text-red-800">{error}</p>}
+      {error && <ErrorState title="Verification queue could not be loaded" message={error} onRetry={() => {
+        setLoading(true);
+        setError('');
+        load();
+      }} />}
       <div className="mt-7 grid gap-4">
+        {loading && <LoadingState label="Loading recruiter verification requests..." />}
         {items.map((item) => (
           <article key={item.id} className="surface p-6">
             <div className="flex flex-wrap items-start justify-between gap-4">
@@ -58,7 +62,7 @@ export default function AdminVerificationsPage() {
             {item.adminNote && <p className="mt-3 border-l-2 border-[#e7ad2d] pl-3 text-sm">Admin note: {item.adminNote}</p>}
           </article>
         ))}
-        {items.length === 0 && !error && <p className="surface p-8 text-center text-[#657176]">No verification requests yet.</p>}
+        {!loading && items.length === 0 && !error && <EmptyState title="No verification requests" message="New recruiter submissions will appear here for review." />}
       </div>
     </AdminShell>
   );

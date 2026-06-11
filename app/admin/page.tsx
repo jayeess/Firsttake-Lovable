@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { AdminShell } from '@/components/admin-shell';
 import { fetchAdminData } from '@/app/lib/admin-client';
+import { EmptyState, ErrorState, LoadingState } from '@/components/async-state';
 
 type Overview = {
   stats: Record<string, number>;
@@ -23,10 +24,13 @@ const labels: Record<string, string> = {
 export default function AdminDashboardPage() {
   const [data, setData] = useState<Overview | null>(null);
   const [error, setError] = useState('');
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
-    void fetchAdminData<Overview>('overview').then(setData).catch((err) => setError(err.message));
-  }, []);
+    void fetchAdminData<Overview>('overview')
+      .then(setData)
+      .catch((err) => setError(err.message));
+  }, [reloadKey]);
 
   return (
     <AdminShell>
@@ -36,9 +40,19 @@ export default function AdminDashboardPage() {
         Review recruiter trust, account health, and casting activity from one
         controlled workspace.
       </p>
-      {error && <ErrorState message={error} />}
+      {error && (
+        <ErrorState
+          title="Admin data is unavailable"
+          message="The secure service could not load platform data. Confirm this account still has the admin claim, then retry."
+          onRetry={() => {
+            setError('');
+            setData(null);
+            setReloadKey((current) => current + 1);
+          }}
+        />
+      )}
       {!data && !error ? (
-        <p className="mt-8 font-bold text-[#657176]">Loading trust signals...</p>
+        <LoadingState label="Loading trust signals..." />
       ) : data ? (
         <>
           <section className="mt-7 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -54,7 +68,10 @@ export default function AdminDashboardPage() {
               <p className="eyebrow">Recent audit activity</p>
             </div>
             {data.logs.length === 0 ? (
-              <p className="p-8 text-[#657176]">No privileged actions recorded yet.</p>
+              <EmptyState
+                title="No privileged actions recorded"
+                message="Approval, suspension, restoration, and moderation activity will appear here."
+              />
             ) : (
               <div className="divide-y divide-[#e1e7ea]">
                 {data.logs.map((log) => (
@@ -71,15 +88,5 @@ export default function AdminDashboardPage() {
         </>
       ) : null}
     </AdminShell>
-  );
-}
-
-function ErrorState({ message }: { message: string }) {
-  return (
-    <div className="mt-7 border border-amber-300 bg-amber-50 p-5 text-amber-950">
-      <p className="font-black">Admin data is unavailable</p>
-      <p className="mt-2 text-sm leading-6">{message}</p>
-      <p className="mt-2 text-sm">Check Firebase Admin environment variables and the admin custom claim.</p>
-    </div>
   );
 }

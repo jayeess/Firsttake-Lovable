@@ -1,8 +1,8 @@
 # Nata Connect Beta Readiness Report
 
-**Assessment date:** June 10, 2026  
+**Assessment date:** June 11, 2026
 **Recommended stage:** Controlled internal/private testing only  
-**Readiness score:** 7/10
+**Readiness score:** 7.5/10
 
 ## Completed Features
 
@@ -36,6 +36,15 @@
 - Auditions can be removed/restored without deleting casting data
 - Every privileged action writes an audit log
 - Verified recruiter badges reflect approved verification state
+
+## Phase 1.5 Quality Improvements
+
+- Playwright covers public pages and unauthenticated route gating
+- Optional environment-backed tests cover Talent, Recruiter, and Admin routes
+- GitHub Actions runs install, lint, unit tests, and production build
+- Major workflows now provide distinct loading, empty, retry, and permission states
+- Unexpected Admin API failures are sanitized
+- A private-beta release checklist and exact emulator test plan are documented
 
 ## Files Changed
 
@@ -78,24 +87,23 @@ npx firebase-tools deploy --only firestore:rules,firestore:indexes,storage
 
 ## Test Results
 
-At the Phase 0 checkpoint:
+At the Phase 1.5 baseline:
 
 - ESLint: passing
 - Production build: passing
-- Application policy tests: 5 passing
-- Browser E2E tests: not implemented
+- Policy tests: 9 passing
+- Browser E2E smoke tests: implemented
 - Firebase Emulator rule tests: not implemented
 
 Run `npm run verify` again immediately before every deployment.
 
 ## Known Issues
 
-- Recruiter verification is represented in the UI but is not controlled by a
-  trusted server-side approval service
+- Credential-backed browser tests require dedicated local test accounts
 - Storage rules exist, but complete portfolio and verification upload flows do
   not
 - No email/in-app notifications for status changes
-- No moderation console, audit history, abuse handling, or account deletion
+- Report/abuse handling and account deletion are not implemented
 - No production analytics, error monitoring, uptime monitoring, or backups
 - Development mock accounts must be created manually in Firebase once
 

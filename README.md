@@ -14,7 +14,7 @@ controlled private testing. It is not ready for a public production launch.
 - Tailwind CSS 4
 - Firebase Authentication
 - Cloud Firestore
-- Firebase Storage
+- Firebase Storage SDK present, with uploads intentionally disabled
 - Firebase Admin SDK for trusted moderation
 
 ## Current Capabilities
@@ -84,10 +84,15 @@ Open `http://localhost:3000`.
 npm run lint
 npm test
 npm run build
+npm run test:e2e
+npm run test:e2e:ui
 npm run verify
 ```
 
 `npm run verify` runs lint, policy tests, and a production build.
+`npm run test:e2e` runs public and route-gating Playwright smoke tests. Optional
+credential-backed role tests use the `E2E_*` variables documented in
+`.env.example`.
 
 ## Firebase Deployment
 
@@ -98,14 +103,11 @@ and deploy the backend configuration:
 ```powershell
 npx firebase-tools login
 npx firebase-tools use your_project_id
-npx firebase-tools deploy --only firestore:rules,firestore:indexes,storage
-```
-
-Storage is currently optional. Until billing is enabled, deploy only Firestore:
-
-```powershell
 npx firebase-tools deploy --only firestore:rules,firestore:indexes
 ```
+
+Storage deployment and upload features remain out of scope until billing is
+available.
 
 ## First Administrator
 
@@ -140,9 +142,8 @@ The repository includes Emulator Suite ports in `firebase.json`.
 npx firebase-tools emulators:start
 ```
 
-The application does not automatically connect to emulators yet. Emulator
-connection wiring and security-rule integration tests remain Phase 0 follow-up
-work.
+The application does not automatically connect to emulators yet. Exact setup
+and the required security scenarios are documented in `TESTING.md`.
 
 ## Main Routes
 
@@ -173,8 +174,18 @@ See [TESTING.md](TESTING.md) for accounts, workflows, and removal instructions.
 - Verification document upload remains disabled until Storage is enabled
 - Profile and portfolio media upload UI is incomplete
 - Notifications, analytics, monitoring, and legal workflows are not production-ready
-- Automated coverage is currently limited to application eligibility policy
-  tests; browser E2E and Firebase rule tests are still needed
+- Browser smoke coverage exists; credential-backed role journeys need local
+  E2E account variables
+- Firebase Emulator security-rule tests are still needed
+
+## Production Safety
+
+- Keep `.env.local` and service-account files uncommitted.
+- Use `FIREBASE_ADMIN_*` only on the server; never rename them with
+  `NEXT_PUBLIC_`.
+- Admin routes verify Firebase ID tokens and the `admin` custom claim.
+- Unexpected admin API errors are sanitized before reaching the browser.
+- Run [BETA_QA_CHECKLIST.md](BETA_QA_CHECKLIST.md) before each beta release.
 
 See [BETA_READINESS_REPORT.md](BETA_READINESS_REPORT.md) before planning a beta
 release.

@@ -9,6 +9,8 @@
     "start": "next start",
     "lint": "eslint",
     "test": "node --test tests/*.test.mts",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
     "verify": "npm run lint && npm test && npm run build",
     "admin:set": "node scripts/set-admin.mjs"
   },
@@ -22,6 +24,7 @@
     "react-dom": "19.2.4"
   },
   "devDependencies": {
+    "@playwright/test": "^1.60.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

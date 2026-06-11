@@ -14,6 +14,7 @@ import {
 import type { Application, Audition } from '@/app/lib/types';
 import { useAuth } from '@/context/auth-context';
 import { hasRecruiterApproval } from '@/app/lib/recruiter-access';
+import { ErrorState, LoadingState } from '@/components/async-state';
 
 export default function Dashboard() {
   const router = useRouter();
@@ -21,21 +22,30 @@ export default function Dashboard() {
   const [applications, setApplications] = useState<Application[]>([]);
   const [auditions, setAuditions] = useState<Audition[]>([]);
   const [firstName, setFirstName] = useState('');
+  const [dataLoading, setDataLoading] = useState(true);
+  const [dataError, setDataError] = useState('');
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     if (!user || !userType) return;
     if (userType === 'TALENT') {
       void Promise.all([
-        getTalentApplications(user.uid).catch(() => []),
-        getTalentProfile(user.uid).catch(() => null),
+        getTalentApplications(user.uid),
+        getTalentProfile(user.uid),
       ]).then(([items, profile]) => {
         setApplications(items);
         setFirstName(profile?.firstName ?? '');
-      });
+      }).catch((loadError: unknown) => {
+        setDataError(
+          loadError instanceof Error
+            ? loadError.message
+            : 'Your workspace data could not be loaded.'
+        );
+      }).finally(() => setDataLoading(false));
     } else if (userType === 'RECRUITER') {
       void Promise.all([
-        getRecruiterProfile(user.uid).catch(() => null),
-        getRecruiterAuditions(user.uid).catch(() => []),
+        getRecruiterProfile(user.uid),
+        getRecruiterAuditions(user.uid),
       ]).then(([profile, items]) => {
         if (!profile) {
           router.replace('/recruiter/profile');
@@ -46,9 +56,15 @@ export default function Dashboard() {
           return;
         }
         setAuditions(items);
-      });
+      }).catch((loadError: unknown) => {
+        setDataError(
+          loadError instanceof Error
+            ? loadError.message
+            : 'Your workspace data could not be loaded.'
+        );
+      }).finally(() => setDataLoading(false));
     }
-  }, [router, user, userType]);
+  }, [reloadKey, router, user, userType]);
 
   const talentStats = useMemo(
     () => [
@@ -115,6 +131,21 @@ export default function Dashboard() {
         </div>
       )}
 
+      {dataError && (
+        <ErrorState
+          title="Workspace data is unavailable"
+          message={dataError}
+          onRetry={() => {
+            setDataLoading(true);
+            setDataError('');
+            setReloadKey((current) => current + 1);
+          }}
+        />
+      )}
+      {dataLoading && <LoadingState label="Loading your workspace activity..." />}
+
+      {!dataLoading && !dataError && (
+      <>
       <section className="mt-7 grid gap-4 sm:grid-cols-3">
         {(userType === 'RECRUITER' ? recruiterStats : talentStats).map(
           ([label, value], index) => (
@@ -164,6 +195,8 @@ export default function Dashboard() {
           )}
         </div>
       </section>
+      </>
+      )}
     </AppShell>
   );
 }

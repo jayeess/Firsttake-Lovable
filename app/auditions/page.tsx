@@ -12,6 +12,7 @@ import {
   type TalentCategory,
 } from '@/app/lib/types';
 import { getErrorMessage } from '@/app/lib/error-utils';
+import { EmptyState, ErrorState, LoadingState } from '@/components/async-state';
 
 export default function AuditionsPage() {
   const [auditions, setAuditions] = useState<Audition[]>([]);
@@ -21,6 +22,7 @@ export default function AuditionsPage() {
   const [location, setLocation] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     void getAuditions()
@@ -29,7 +31,7 @@ export default function AuditionsPage() {
         setError(getErrorMessage(err, 'Unable to load auditions'))
       )
       .finally(() => setLoading(false));
-  }, []);
+  }, [reloadKey]);
 
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -82,14 +84,24 @@ export default function AuditionsPage() {
         <input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Location" className="field" />
       </section>
 
-      {error && <p className="mt-5 border border-red-300 bg-red-50 p-4 text-red-800">{error}</p>}
+      {error && (
+        <ErrorState
+          title="Auditions could not be loaded"
+          message={error}
+          onRetry={() => {
+            setLoading(true);
+            setError('');
+            setReloadKey((current) => current + 1);
+          }}
+        />
+      )}
       {loading ? (
-        <p className="mt-8 text-[#65707b]">Loading auditions...</p>
-      ) : filtered.length === 0 ? (
-        <div className="surface mt-8 border-dashed p-10 text-center">
-          <h2 className="text-xl font-bold">No matching auditions</h2>
-          <p className="mt-2 text-[#68727c]">Try changing your filters or ask a recruiter to publish the first opportunity.</p>
-        </div>
+        <LoadingState label="Loading active auditions..." />
+      ) : error ? null : filtered.length === 0 ? (
+        <EmptyState
+          title="No matching auditions"
+          message="Try changing your filters. New verified casting calls will appear here when recruiters publish them."
+        />
       ) : (
         <div className="mt-6 grid gap-4 lg:grid-cols-2">
           {filtered.map((audition) => <AuditionCard key={audition.id} audition={audition} />)}

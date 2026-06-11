@@ -3,7 +3,7 @@
 **Telugu name:** నట కనెక్ట్  
 **Document date:** June 10, 2026  
 **Repository:** `jayeess/Firsttake-Lovable`  
-**Current stage:** Phase 1 trust-layer implementation / controlled private testing
+**Current stage:** Phase 1.5 beta quality and controlled private testing
 
 ## 1. Product Summary
 
@@ -42,8 +42,8 @@ Nata Connect is no longer a static demonstration. It is a working Firebase-backe
 | Role separation | Working | Talent and recruiter routes are guarded |
 | Authentication | Working, recently improved | Tab-scoped sessions support different accounts |
 | Security rules | MVP-level | Good role foundations, requires production review |
-| Automated testing | Missing | Primary launch risk |
-| Admin operations | Implemented, setup pending | Requires Admin SDK credentials and first admin claim |
+| Automated testing | Partial | Policy tests and browser smoke tests exist; emulator tests remain |
+| Admin operations | Implemented | Requires server credentials and an admin custom claim per environment |
 | Notifications | Missing | Important for retention and workflow completion |
 | Media portfolio | Not implemented | Required for a serious casting product |
 | Deployment operations | Partial | Build passes, production process is undocumented |
@@ -318,11 +318,14 @@ Remaining work is to add concurrent emulator integration tests and consider a tr
 
 The matching index already exists in `firestore.indexes.json` and must be deployed. Pagination remains a future scaling improvement.
 
-### 8.5 Automated coverage is still limited
+### 8.5 Automated coverage is improving
 
-The repository now includes five dependency-free unit tests for application eligibility and a `npm run verify` command that runs lint, tests, and a production build.
+The repository includes nine dependency-free policy tests, Playwright browser
+smoke tests, and a `npm run verify` command that runs lint, tests, and a
+production build.
 
-There are still no Firebase Emulator security-rule tests, browser end-to-end tests, or automated accessibility tests. This remains a major engineering quality gap.
+Credential-backed role journeys require local E2E account variables. Firebase
+Emulator security-rule tests and automated accessibility tests remain.
 
 ### 8.6 Media is not implemented
 

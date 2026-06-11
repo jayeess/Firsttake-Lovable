@@ -18,6 +18,7 @@ import {
 import { getErrorMessage } from '@/app/lib/error-utils';
 import { useAuth } from '@/context/auth-context';
 import { VerifiedBadge } from '@/components/verified-badge';
+import { EmptyState, ErrorState, LoadingState } from '@/components/async-state';
 
 export default function AuditionDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -27,14 +28,17 @@ export default function AuditionDetailPage() {
   const [coverMessage, setCoverMessage] = useState('');
   const [error, setError] = useState('');
   const [applying, setApplying] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     void getAuditionById(id)
       .then(setAudition)
       .catch((err: unknown) =>
         setError(getErrorMessage(err, 'Unable to load audition'))
-      );
-  }, [id]);
+      )
+      .finally(() => setLoading(false));
+  }, [id, reloadKey]);
 
   const handleApply = async () => {
     if (!user) {
@@ -56,7 +60,26 @@ export default function AuditionDetailPage() {
   if (!audition) {
     return (
       <AppShell>
-        <p>{error || 'Loading audition...'}</p>
+        {loading ? (
+          <LoadingState label="Loading the casting brief..." />
+        ) : error ? (
+          <ErrorState
+            title="This audition could not be loaded"
+            message={error}
+            onRetry={() => {
+              setLoading(true);
+              setError('');
+              setReloadKey((current) => current + 1);
+            }}
+          />
+        ) : (
+          <EmptyState
+            title="This audition is no longer available"
+            message="It may have been closed, removed by moderation, or deleted by its recruiter."
+            actionHref="/auditions"
+            actionLabel="Browse active auditions"
+          />
+        )}
       </AppShell>
     );
   }
