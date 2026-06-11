@@ -13,6 +13,7 @@
     "admin:set": "node scripts/set-admin.mjs"
   },
   "dependencies": {
+    "@next/env": "^16.2.7",
     "@opentelemetry/api": "^1.9.1",
     "firebase": "^12.14.0",
     "firebase-admin": "^14.0.0",
