@@ -86,13 +86,19 @@ npm test
 npm run build
 npm run test:e2e
 npm run test:e2e:ui
+npm run emulators:test
 npm run verify
 ```
 
 `npm run verify` runs lint, policy tests, and a production build.
-`npm run test:e2e` runs public and route-gating Playwright smoke tests. Optional
-credential-backed role tests use the `E2E_*` variables documented in
-`.env.example`.
+`npm run test:e2e` runs public and route-gating Playwright smoke tests. Copy
+`.env.e2e.example` to the ignored `.env.e2e.local` file to enable real Talent,
+Recruiter, and Admin route tests.
+
+Create three dedicated Email/Password accounts in Firebase Authentication. Give
+their Firestore user documents the matching `TALENT` or `RECRUITER` role, and
+grant only the dedicated Admin account the `{ admin: true }` custom claim. Do
+not use personal accounts or production passwords.
 
 ## Firebase Deployment
 
@@ -140,10 +146,12 @@ The repository includes Emulator Suite ports in `firebase.json`.
 
 ```powershell
 npx firebase-tools emulators:start
+npm run emulators:test
 ```
 
-The application does not automatically connect to emulators yet. Exact setup
-and the required security scenarios are documented in `TESTING.md`.
+Rules tests use only the local Firestore emulator and the demo project ID. They
+require Java 21 on `PATH`; they never connect to the production Firebase
+project. Exact setup is documented in `TESTING.md`.
 
 ## Main Routes
 
@@ -174,9 +182,9 @@ See [TESTING.md](TESTING.md) for accounts, workflows, and removal instructions.
 - Verification document upload remains disabled until Storage is enabled
 - Profile and portfolio media upload UI is incomplete
 - Notifications, analytics, monitoring, and legal workflows are not production-ready
-- Browser smoke coverage exists; credential-backed role journeys need local
-  E2E account variables
-- Firebase Emulator security-rule tests are still needed
+- Credential-backed browser tests require dedicated accounts in
+  `.env.e2e.local`
+- Firestore rule tests require Java 21 locally
 
 ## Production Safety
 

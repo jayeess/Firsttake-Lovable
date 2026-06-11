@@ -1,9 +1,16 @@
 import { defineConfig, devices } from '@playwright/test';
 import nextEnv from '@next/env';
+import { config as loadDotenv } from 'dotenv';
+import { resolve } from 'node:path';
 
 const { loadEnvConfig } = nextEnv;
 loadEnvConfig(process.cwd());
-const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:3000';
+loadDotenv({
+  path: resolve(process.cwd(), '.env.e2e.local'),
+  override: false,
+  quiet: true,
+});
+const baseURL = process.env.E2E_BASE_URL ?? 'http://127.0.0.1:3000';
 
 export default defineConfig({
   testDir: './e2e',

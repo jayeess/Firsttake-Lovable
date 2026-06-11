@@ -325,6 +325,7 @@ export const getAuditions = async (
     const q = query(
       collection(getFirestoreDb(), 'auditions'),
       where('status', '==', 'ACTIVE'),
+      where('moderationStatus', '==', 'VISIBLE'),
       ...constraints
     );
     const querySnapshot = await getDocs(q);

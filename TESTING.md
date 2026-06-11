@@ -73,6 +73,7 @@ npm test
 npm run build
 npm run test:e2e
 npm run test:e2e:ui
+npm run emulators:test
 ```
 
 The dependency-free Node test suite currently covers application eligibility:
@@ -105,10 +106,24 @@ Run the smoke suite:
 npm run test:e2e
 ```
 
-Public and signed-out gating tests require no private credentials. To enable
-role-backed tests, set `E2E_TALENT_*`, `E2E_RECRUITER_*`, and `E2E_ADMIN_*` in
-the local environment using `.env.example` as the name reference. Never commit
-those passwords. Missing credential pairs cause only the related tests to skip.
+Public and signed-out gating tests require no private credentials.
+
+1. Copy `.env.e2e.example` to `.env.e2e.local`.
+2. Create three dedicated Firebase Authentication Email/Password users.
+3. Create `users/{uid}` documents for Talent and Recruiter with the matching
+   role and `accountStatus: ACTIVE`.
+4. Run `npm run admin:set -- e2e.admin@example.com` for the dedicated Admin.
+5. Put only those private test credentials in `.env.e2e.local`.
+
+Process environment variables override `.env.e2e.local`. Missing credential
+pairs skip only their related tests with a clear reason. The file is ignored by
+Git and must never contain personal or shared production credentials.
+
+The credential-backed suite is read-only: it logs in and opens role routes.
+Verification approval/rejection remains manual because it changes persisted
+trust state. Use only data prefixed `E2E_TEST_`, then delete its audition,
+application, verification, and audit-log records from the Firebase Console
+after the run.
 
 ## Critical manual workflow
 
@@ -133,29 +148,30 @@ new application.
 After changing rules or indexes:
 
 ```powershell
-npx firebase-tools deploy --only firestore:rules,firestore:indexes,storage
+npx firebase-tools deploy --only firestore:rules,firestore:indexes
 ```
 
 Wait for Firestore indexes to finish building, then repeat the critical
 workflow. The collection-group index on `applications.talentId + createdAt` is
 required by My Applications.
 
-`firebase.json` contains Emulator Suite configuration. Automated emulator rule
-tests are not yet included. To add them:
+## Firestore Emulator Rules Tests
 
-1. Install `firebase-tools` and `@firebase/rules-unit-testing` as dev dependencies.
-2. Add client emulator wiring guarded by `NEXT_PUBLIC_USE_FIREBASE_EMULATORS`.
-3. Start Auth and Firestore with `npx firebase-tools emulators:start`.
-4. Use `initializeTestEnvironment` with `firestore.rules`.
-5. Seed data only through `withSecurityRulesDisabled`.
-6. Verify Talent private-data isolation, recruiter self-approval denial,
-   audit-log write denial, suspended recruiter posting denial, active audition
-   reads, removed audition hiding, and application owner/audition owner access.
-7. Run the suite through `firebase emulators:exec` so CI starts and stops the
-   emulators reliably.
+Install a Java 21 JDK and confirm `java -version` works. Dependencies are
+already in `package.json`. Then run:
 
-Do not report Firestore rules as emulator-tested until this suite exists and
-passes.
+```powershell
+npm run emulators:test
+```
+
+This starts a local Firestore emulator for project `demo-nata-connect`, runs
+`tests/firestore.rules.mts`, and shuts the emulator down. It tests signed-out
+writes, visible/removed audition reads, Talent applications, recruiter
+ownership, recruiter self-approval, suspended recruiters, audit logs, admin
+queue reads, and application-owner permissions.
+
+The suite seeds data only with `withSecurityRulesDisabled` inside the emulator.
+It does not use `.env.local`, Admin credentials, or production Firebase data.
 
 ## Phase 1 manual verification
 
@@ -185,7 +201,6 @@ unavailable.
 
 ## Security-test limitation
 
-The nine current tests are policy/unit tests. They do not execute deployed
-Firestore rules or Firebase Admin route handlers. Add
-`@firebase/rules-unit-testing` and point the app at the Firebase emulators
-before treating role enforcement as fully automated.
+The rules suite exercises local Firestore rules, not deployed production rules
+or Firebase Admin route handlers. After deployment, complete the manual Admin
+workflow above in the controlled beta project.

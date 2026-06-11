@@ -115,7 +115,10 @@ service cloud.firestore {
     }
 
     match /auditions/{auditionId} {
-      allow read: if signedIn();
+      allow read: if signedIn()
+        && (resource.data.get('moderationStatus', 'VISIBLE') != 'REMOVED'
+          || resource.data.recruiterId == request.auth.uid
+          || isAdmin());
       allow create: if isRecruiter()
         && recruiterApproved(request.auth.uid)
         && request.resource.data.recruiterId == request.auth.uid
@@ -123,6 +126,9 @@ service cloud.firestore {
       allow update: if isRecruiter()
         && recruiterApproved(request.auth.uid)
         && resource.data.recruiterId == request.auth.uid
+        && request.resource.data.recruiterId == resource.data.recruiterId
+        && request.resource.data.get('applicantCount', 0)
+          == resource.data.get('applicantCount', 0)
         && request.resource.data.get('moderationStatus', 'VISIBLE')
           == resource.data.get('moderationStatus', 'VISIBLE')
         && request.resource.data.get('moderationReason', '')
@@ -135,7 +141,11 @@ service cloud.firestore {
           && request.resource.data.talentId == request.auth.uid
           && request.resource.data.status == 'APPLIED'
           && get(/databases/$(database)/documents/auditions/$(auditionId)).data
-            .get('moderationStatus', 'VISIBLE') != 'REMOVED';
+            .get('moderationStatus', 'VISIBLE') != 'REMOVED'
+          && get(/databases/$(database)/documents/auditions/$(auditionId)).data
+            .status == 'ACTIVE'
+          && get(/databases/$(database)/documents/auditions/$(auditionId)).data
+            .deadline > request.time;
         allow read: if signedIn()
           && (talentId == request.auth.uid
             || get(/databases/$(database)/documents/auditions/$(auditionId)).data.recruiterId == request.auth.uid

@@ -46,6 +46,15 @@
 - Unexpected Admin API failures are sanitized
 - A private-beta release checklist and exact emulator test plan are documented
 
+## Phase 1.6 Security Automation
+
+- Dedicated `.env.e2e.local` loading keeps browser credentials out of Git
+- Credential-backed tests assert real Talent, Recruiter, and Admin navigation
+- Talent and Recruiter accounts are both checked against the Admin boundary
+- Firestore Emulator tests cover ten role and ownership scenarios
+- Removed auditions are now denied by rules to normal users, not only hidden in UI
+- CI provisions Java 21 and runs local emulator and browser smoke suites
+
 ## Files Changed
 
 - Authentication: `app/lib/auth-service.ts`, `app/lib/error-utils.ts`,
@@ -93,7 +102,7 @@ At the Phase 1.5 baseline:
 - Production build: passing
 - Policy tests: 9 passing
 - Browser E2E smoke tests: implemented
-- Firebase Emulator rule tests: not implemented
+- Firebase Emulator rule tests: implemented; local execution requires Java 21
 
 Run `npm run verify` again immediately before every deployment.
 
@@ -110,7 +119,7 @@ Run `npm run verify` again immediately before every deployment.
 ## Launch Blockers
 
 - Configure production Firebase Admin credentials and claim the first admin
-- Firebase Emulator security-rule tests
+- Confirm the emulator suite in CI and on a Java 21 development machine
 - End-to-end tests for signup, publishing, applying, and reviewing
 - Verification document workflow after Storage billing is available
 - Terms, privacy policy, consent, support, and deletion processes

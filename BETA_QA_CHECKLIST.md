@@ -19,6 +19,7 @@ browser, Firebase project, commit, and result for every run.
 - [ ] Recruiter test account exists and has a `RECRUITER` user document.
 - [ ] Admin account exists and has the Firebase custom claim `{ admin: true }`.
 - [ ] Test passwords exist only in local/host environment variables.
+- [ ] `.env.e2e.local` contains only dedicated test accounts and is ignored.
 - [ ] Test-case panels are disabled outside development.
 
 ## Firebase Deployment
@@ -76,6 +77,7 @@ browser, Firebase project, commit, and result for every run.
 - [ ] Admin endpoints verify an ID token and the `admin` custom claim.
 - [ ] No credentials, ID tokens, or private keys appear in browser/server logs.
 - [ ] Firestore Emulator rule tests are run when the emulator suite is available.
+- [ ] Java 21 is installed and `npm run emulators:test` passes.
 
 ## Manual Regression
 
@@ -98,9 +100,9 @@ browser, Firebase project, commit, and result for every run.
 ## Known Blockers
 
 - Firebase Storage billing is unavailable; media/document uploads stay disabled.
-- Firestore Emulator security tests are documented but not yet automated.
+- Local rules tests exist; this machine still needs Java 21 to execute them.
 - Notifications, analytics, monitoring, and legal workflows are outside Phase 1.5.
-- Credential-backed E2E tests skip when E2E account variables are absent.
+- Credential-backed E2E tests skip when `.env.e2e.local` credentials are absent.
 
 ## Failure Record
 

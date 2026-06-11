@@ -4,6 +4,14 @@ All notable changes to Nata Connect are recorded here.
 
 ## Unreleased
 
+### Phase 1.6: Security and Credential-backed QA
+
+- Added ignored `.env.e2e.local` credential loading and a safe example file
+- Strengthened Playwright role assertions for Talent, Recruiter, and Admin
+- Added local Firestore Emulator security-rule tests
+- Enforced removed-audition visibility and active-deadline application rules
+- Added Java 21, emulator rules testing, and secret-free Playwright smoke to CI
+
 ### Phase 1.5: Beta Quality and Safety
 
 - Added Playwright public, protected-route, and optional credential-backed role

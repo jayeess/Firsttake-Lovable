@@ -9,6 +9,8 @@
     "start": "next start",
     "lint": "eslint",
     "test": "node --test tests/*.test.mts",
+    "test:rules": "node --test tests/firestore.rules.mts",
+    "emulators:test": "firebase emulators:exec --only firestore --project demo-nata-connect \"npm run test:rules\"",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "verify": "npm run lint && npm test && npm run build",
@@ -24,13 +26,16 @@
     "react-dom": "19.2.4"
   },
   "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.1",
     "@playwright/test": "^1.60.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^17.4.2",
     "eslint": "^9",
     "eslint-config-next": "16.2.7",
+    "firebase-tools": "^15.20.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
