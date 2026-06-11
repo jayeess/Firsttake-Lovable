@@ -15,6 +15,7 @@ const labels: Record<string, string> = {
   talents: 'Talent accounts',
   recruiters: 'Recruiters',
   pendingVerifications: 'Pending verification',
+  pendingTalentVerifications: 'Pending Talent checks',
   approvedRecruiters: 'Approved recruiters',
   suspendedUsers: 'Suspended users',
   activeAuditions: 'Active auditions',

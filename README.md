@@ -23,11 +23,13 @@ controlled private testing. It is not ready for a public production launch.
 - Separate Talent and Recruiter account roles
 - Tab-scoped Firebase sessions for testing different accounts concurrently
 - Talent and recruiter profile forms
+- Talent profile completeness scoring and optional verification
 - Recruiter audition creation and applicant review
 - Talent audition discovery, application submission, and status tracking
 - Transactional duplicate-safe application submission
 - Text-based recruiter verification and admin review
 - Trusted custom-claim admin dashboard and moderation APIs
+- Admin Talent verification queue with approve, reject, suspend, and restore
 - User suspension, audition removal, and immutable audit history
 - Development-only account personas and form presets
 - Firebase security rules, indexes, and Emulator Suite configuration
@@ -167,6 +169,7 @@ project. Exact setup is documented in `TESTING.md`.
 - `/recruiter/verification`
 - `/admin`
 - `/admin/verifications`
+- `/admin/talents`
 - `/admin/users`
 - `/admin/auditions`
 - `/admin/audit-logs`
@@ -194,6 +197,18 @@ See [TESTING.md](TESTING.md) for accounts, workflows, and removal instructions.
 - Admin routes verify Firebase ID tokens and the `admin` custom claim.
 - Unexpected admin API errors are sanitized before reaching the browser.
 - Run [BETA_QA_CHECKLIST.md](BETA_QA_CHECKLIST.md) before each beta release.
+
+## Talent Trust Layer
+
+Talent verification is optional and never blocks profile editing, audition
+discovery, or applications. Saved profiles receive a completeness score based
+on core identity details, professional context, links, and any media/skills
+fields already present. At 70%, Talent can submit a review request.
+
+Private review details live in `talentVerifications/{uid}`. Only the public
+verification status is mirrored to `users/{uid}/talentProfiles/{uid}` so
+recruiters can see a verified Talent badge without seeing identity notes or
+rejection reasons.
 
 See [BETA_READINESS_REPORT.md](BETA_READINESS_REPORT.md) before planning a beta
 release.

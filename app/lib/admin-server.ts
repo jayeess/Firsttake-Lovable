@@ -41,7 +41,7 @@ export const writeAuditLog = async ({
   action: string;
   actor: DecodedIdToken;
   targetId: string;
-  targetType: 'recruiter' | 'user' | 'audition';
+  targetType: 'recruiter' | 'talent' | 'user' | 'audition';
   reason?: string;
   note?: string;
   metadata?: Record<string, unknown>;

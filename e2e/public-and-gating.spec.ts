@@ -28,6 +28,7 @@ test.describe('unauthenticated route protection', () => {
     '/recruiter/auditions/new',
     '/admin',
     '/admin/verifications',
+    '/admin/talents',
     '/admin/users',
     '/admin/auditions',
     '/admin/audit-logs',

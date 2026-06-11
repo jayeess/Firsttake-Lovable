@@ -29,9 +29,11 @@ import type {
   RecruiterProfile,
   TalentCategory,
   TalentProfile,
+  TalentVerification,
   UserType,
   RecruiterVerification,
 } from './types';
+import { calculateTalentProfileCompleteness } from './talent-trust-policy';
 
 export interface UserAccount {
   uid: string;
@@ -168,11 +170,28 @@ export const createTalentProfile = async (
   profileData: TalentProfile
 ) => {
   try {
-    await setDoc(doc(getFirestoreDb(), 'users', uid, 'talentProfiles', uid), {
-      ...profileData,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
+    const profileRef = doc(
+      getFirestoreDb(),
+      'users',
+      uid,
+      'talentProfiles',
+      uid
+    );
+    const existing = await getDoc(profileRef);
+    const completeness = calculateTalentProfileCompleteness(profileData);
+    await setDoc(
+      profileRef,
+      {
+        ...profileData,
+        profileCompletenessScore: completeness.score,
+        profileCompletenessChecklist: completeness.checklist,
+        talentVerificationStatus:
+          existing.data()?.talentVerificationStatus ?? 'not_submitted',
+        ...(existing.exists() ? {} : { createdAt: new Date() }),
+        updatedAt: new Date(),
+      },
+      { merge: true }
+    );
   } catch (error: unknown) {
     throw new Error(getErrorMessage(error, 'Failed to create talent profile'));
   }
@@ -315,6 +334,31 @@ export const createAudition = async (
       );
     }
     throw new Error(message);
+  }
+};
+
+export const getTalentVerification = async (
+  uid: string
+): Promise<TalentVerification | null> => {
+  const snapshot = await getDoc(
+    doc(getFirestoreDb(), 'talentVerifications', uid)
+  );
+  return snapshot.exists() ? (snapshot.data() as TalentVerification) : null;
+};
+
+export const submitTalentVerification = async (uid: string) => {
+  const user = getFirebaseAuth().currentUser;
+  if (!user || user.uid !== uid) throw new Error('Please sign in again.');
+  const response = await fetch('/api/talent/verification', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${await user.getIdToken()}`,
+      'Content-Type': 'application/json',
+    },
+  });
+  const payload = await response.json();
+  if (!response.ok) {
+    throw new Error(payload.error ?? 'Unable to submit talent verification.');
   }
 };
 

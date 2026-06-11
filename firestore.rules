@@ -54,7 +54,26 @@ service cloud.firestore {
 
       match /talentProfiles/{profileId} {
         allow read: if signedIn();
-        allow write: if ownsUser(uid) && accountActive();
+        allow create: if ownsUser(uid)
+          && profileId == uid
+          && accountActive()
+          && request.resource.data.get(
+            'talentVerificationStatus',
+            'not_submitted'
+          ) == 'not_submitted'
+          && request.resource.data.get('verifiedAt', null) == null;
+        allow update: if ownsUser(uid)
+          && profileId == uid
+          && accountActive()
+          && request.resource.data.get(
+            'talentVerificationStatus',
+            'not_submitted'
+          ) == resource.data.get(
+            'talentVerificationStatus',
+            'not_submitted'
+          )
+          && request.resource.data.get('verifiedAt', null)
+            == resource.data.get('verifiedAt', null);
       }
 
       match /recruiterProfiles/{profileId} {
@@ -108,6 +127,42 @@ service cloud.firestore {
           'workDescription',
           'verificationNotes',
           'status',
+          'submittedAt',
+          'updatedAt'
+        ]);
+      allow delete: if false;
+    }
+
+    match /talentVerifications/{uid} {
+      allow read: if ownsUser(uid) || isAdmin();
+      allow create: if ownsUser(uid)
+        && currentUserType() == 'TALENT'
+        && request.resource.data.talentId == request.auth.uid
+        && request.resource.data.talentVerificationStatus == 'pending'
+        && request.resource.data.profileCompletenessScore >= 0
+        && request.resource.data.profileCompletenessScore <= 100
+        && request.resource.data.keys().hasOnly([
+          'talentId',
+          'talentEmail',
+          'talentVerificationStatus',
+          'profileCompletenessScore',
+          'profileCompletenessChecklist',
+          'submittedAt',
+          'updatedAt'
+        ]);
+      allow update: if ownsUser(uid)
+        && currentUserType() == 'TALENT'
+        && resource.data.talentVerificationStatus in [
+          'not_submitted',
+          'rejected'
+        ]
+        && request.resource.data.talentVerificationStatus == 'pending'
+        && request.resource.data.profileCompletenessScore >= 0
+        && request.resource.data.profileCompletenessScore <= 100
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'talentVerificationStatus',
+          'profileCompletenessScore',
+          'profileCompletenessChecklist',
           'submittedAt',
           'updatedAt'
         ]);

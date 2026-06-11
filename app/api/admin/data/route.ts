@@ -24,6 +24,29 @@ export async function GET(request: Request) {
       const snapshot = await db.collection('users').limit(200).get();
       return Response.json({ users: serialize(snapshot) });
     }
+    if (view === 'talentVerifications') {
+      const snapshot = await db
+        .collection('talentVerifications')
+        .orderBy('updatedAt', 'desc')
+        .limit(100)
+        .get();
+      const talents = await Promise.all(
+        snapshot.docs.map(async (item) => {
+          const profile = await db
+            .collection('users')
+            .doc(item.id)
+            .collection('talentProfiles')
+            .doc(item.id)
+            .get();
+          return {
+            id: item.id,
+            ...item.data(),
+            profile: profile.exists ? profile.data() : null,
+          };
+        })
+      );
+      return Response.json({ talents });
+    }
     if (view === 'auditions') {
       const snapshot = await db
         .collection('auditions')
@@ -41,10 +64,18 @@ export async function GET(request: Request) {
       return Response.json({ logs: serialize(snapshot) });
     }
 
-    const [users, verifications, auditions, applications, logs] =
+    const [
+      users,
+      verifications,
+      talentVerifications,
+      auditions,
+      applications,
+      logs,
+    ] =
       await Promise.all([
         db.collection('users').get(),
         db.collection('recruiterVerifications').get(),
+        db.collection('talentVerifications').get(),
         db.collection('auditions').get(),
         db.collectionGroup('applications').get(),
         db.collection('auditLogs').orderBy('timestamp', 'desc').limit(8).get(),
@@ -60,6 +91,9 @@ export async function GET(request: Request) {
         recruiters: userData.filter((item) => item.userType === 'RECRUITER').length,
         pendingVerifications: verificationData.filter(
           (item) => item.status === 'pending'
+        ).length,
+        pendingTalentVerifications: talentVerifications.docs.filter(
+          (item) => item.data().talentVerificationStatus === 'pending'
         ).length,
         approvedRecruiters: verificationData.filter(
           (item) => item.status === 'approved'

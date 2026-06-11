@@ -1,19 +1,28 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { AppShell } from '@/components/app-shell';
 import { useAuth } from '@/context/auth-context';
 import {
   createTalentProfile,
   getTalentProfile,
+  getTalentVerification,
+  submitTalentVerification,
 } from '@/app/lib/firestore-service';
 import {
   CATEGORY_LABELS,
   EXPERIENCE_LABELS,
   type TalentProfile,
+  type TalentVerification,
 } from '@/app/lib/types';
 import { getErrorMessage } from '@/app/lib/error-utils';
 import { DevFormPresets } from '@/components/dev-form-presets';
+import {
+  calculateTalentProfileCompleteness,
+  canSubmitTalentVerification,
+  TALENT_VERIFICATION_MINIMUM_SCORE,
+} from '@/app/lib/talent-trust-policy';
+import { VerifiedBadge } from '@/components/verified-badge';
 
 const initialProfile: TalentProfile = {
   firstName: '',
@@ -158,15 +167,33 @@ export default function TalentProfilePage() {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
+  const [submittingVerification, setSubmittingVerification] = useState(false);
+  const [verification, setVerification] =
+    useState<TalentVerification | null>(null);
 
   useEffect(() => {
     if (!user) return;
-    void getTalentProfile(user.uid)
-      .then((data) => data && setProfile(data))
+    void Promise.all([
+      getTalentProfile(user.uid),
+      getTalentVerification(user.uid),
+    ])
+      .then(([data, verificationData]) => {
+        if (data) setProfile(data);
+        setVerification(verificationData);
+      })
       .catch((err: unknown) =>
         setError(getErrorMessage(err, 'Unable to load profile'))
       );
   }, [user]);
+
+  const completeness = useMemo(
+    () => calculateTalentProfileCompleteness(profile),
+    [profile]
+  );
+  const verificationStatus =
+    verification?.talentVerificationStatus ??
+    profile.talentVerificationStatus ??
+    'not_submitted';
 
   const update = <K extends keyof TalentProfile>(
     key: K,
@@ -181,11 +208,40 @@ export default function TalentProfilePage() {
     setMessage('');
     try {
       await createTalentProfile(user.uid, profile);
+      setProfile((current) => ({
+        ...current,
+        profileCompletenessScore: completeness.score,
+        profileCompletenessChecklist: completeness.checklist,
+      }));
       setMessage('Your talent profile has been saved.');
     } catch (err: unknown) {
       setError(getErrorMessage(err, 'Unable to save profile'));
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleVerificationSubmit = async () => {
+    if (!user) return;
+    setSubmittingVerification(true);
+    setError('');
+    setMessage('');
+    try {
+      await createTalentProfile(user.uid, profile);
+      await submitTalentVerification(user.uid);
+      const updated = await getTalentVerification(user.uid);
+      setVerification(updated);
+      setProfile((current) => ({
+        ...current,
+        talentVerificationStatus: 'pending',
+        profileCompletenessScore: completeness.score,
+        profileCompletenessChecklist: completeness.checklist,
+      }));
+      setMessage('Your Talent profile was submitted for verification.');
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Unable to submit verification'));
+    } finally {
+      setSubmittingVerification(false);
     }
   };
 
@@ -199,6 +255,84 @@ export default function TalentProfilePage() {
         <p className="mt-2 text-[#68727c]">
           This information is shown to recruiters when you apply.
         </p>
+        <section className="surface mt-6 p-6">
+          <div className="flex flex-wrap items-start justify-between gap-5">
+            <div>
+              <p className="eyebrow">Profile trust</p>
+              <div className="mt-2 flex flex-wrap items-center gap-3">
+                <h2 className="text-2xl font-black">
+                  {completeness.score}% complete
+                </h2>
+                {verificationStatus === 'verified' ? (
+                  <VerifiedBadge subject="talent" />
+                ) : (
+                  <span className="border border-[#c6d3d8] bg-[#f4f7f8] px-3 py-1 text-xs font-black uppercase text-[#526874]">
+                    {verificationStatus.replace('_', ' ')}
+                  </span>
+                )}
+              </div>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-[#657176]">
+                Verification is optional and does not block auditions or
+                applications. Reach {TALENT_VERIFICATION_MINIMUM_SCORE}% to
+                request a trust review.
+              </p>
+            </div>
+            {canSubmitTalentVerification(
+              verificationStatus,
+              completeness.score
+            ) && (
+              <button
+                type="button"
+                onClick={() => void handleVerificationSubmit()}
+                disabled={submittingVerification}
+                className="primary-button disabled:opacity-50"
+              >
+                {submittingVerification
+                  ? 'Submitting...'
+                  : verificationStatus === 'rejected'
+                    ? 'Resubmit for verification'
+                    : 'Submit for verification'}
+              </button>
+            )}
+          </div>
+          <div className="mt-5 h-2 overflow-hidden bg-[#dbe4e8]">
+            <div
+              className="h-full bg-[#008ca6]"
+              style={{ width: `${completeness.score}%` }}
+            />
+          </div>
+          {verificationStatus === 'pending' && (
+            <p className="mt-4 border-l-2 border-[#e7ad2d] pl-3 text-sm">
+              Your profile is in the private-beta review queue. You can keep
+              improving it while the review is pending.
+            </p>
+          )}
+          {verificationStatus === 'rejected' && (
+            <p className="mt-4 border-l-2 border-red-400 pl-3 text-sm text-red-800">
+              Review feedback:{' '}
+              {verification?.rejectedReason ||
+                'Improve the missing profile details, then resubmit.'}
+            </p>
+          )}
+          {verificationStatus === 'suspended' && (
+            <p className="mt-4 border-l-2 border-red-500 pl-3 text-sm text-red-800">
+              Talent verification is suspended. Contact the trust team before
+              resubmitting.
+            </p>
+          )}
+          {completeness.missingFields.length > 0 && (
+            <div className="mt-5">
+              <p className="text-sm font-black">Recommended next actions</p>
+              <ul className="mt-2 grid gap-2 text-sm text-[#657176] sm:grid-cols-2">
+                {completeness.missingFields.map((item) => (
+                  <li key={item} className="border-l-2 border-[#b8c7cd] pl-3">
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </section>
         <div className="mt-6">
           <DevFormPresets
             title="Choose a ready-made talent profile to preview the completed experience."

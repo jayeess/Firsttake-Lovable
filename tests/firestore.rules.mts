@@ -135,6 +135,48 @@ test('Talent cannot update recruiter-owned audition fields', async () => {
   await assertFails(updateDoc(doc(db, 'auditions/visible-a'), { title: 'Changed' }));
 });
 
+test('Talent can submit verification but cannot self-verify', async () => {
+  const db = environment.authenticatedContext('talent-a').firestore();
+  const verificationRef = doc(db, 'talentVerifications/talent-a');
+  await assertSucceeds(
+    setDoc(verificationRef, {
+      talentId: 'talent-a',
+      talentEmail: 'talent-a@example.test',
+      talentVerificationStatus: 'pending',
+      profileCompletenessScore: 80,
+      profileCompletenessChecklist: { basicInfo: true },
+      submittedAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    })
+  );
+  await assertFails(
+    updateDoc(verificationRef, {
+      talentVerificationStatus: 'verified',
+      verifiedAt: serverTimestamp(),
+    })
+  );
+});
+
+test('Talent cannot edit admin-owned verification fields on their profile', async () => {
+  await environment.withSecurityRulesDisabled(async (context) => {
+    await setDoc(
+      doc(context.firestore(), 'users/talent-a/talentProfiles/talent-a'),
+      {
+        firstName: 'E2E_TEST',
+        talentVerificationStatus: 'pending',
+        verifiedAt: null,
+      }
+    );
+  });
+  const db = environment.authenticatedContext('talent-a').firestore();
+  await assertFails(
+    updateDoc(doc(db, 'users/talent-a/talentProfiles/talent-a'), {
+      talentVerificationStatus: 'verified',
+      verifiedAt: serverTimestamp(),
+    })
+  );
+});
+
 test('Talent can create only their own application to an active audition', async () => {
   const db = environment.authenticatedContext('talent-a').firestore();
   const data = {

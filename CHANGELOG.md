@@ -4,6 +4,16 @@ All notable changes to Nata Connect are recorded here.
 
 ## Unreleased
 
+### Talent Trust Layer
+
+- Added optional Talent verification states: not submitted, pending, verified,
+  rejected, and suspended
+- Added weighted profile completeness scoring, missing fields, and next actions
+- Added secure Talent verification submission with server-written audit logs
+- Added `/admin/talents` for verify, reject, suspend, and restore actions
+- Added verified Talent badges to recruiter applicant review
+- Added Talent verification rules and five policy tests
+
 ### Phase 1.6: Security and Credential-backed QA
 
 - Added ignored `.env.e2e.local` credential loading and a safe example file

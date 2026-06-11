@@ -21,7 +21,17 @@ export function AdminActionButton({
 
   const execute = async () => {
     const reason = window.prompt(`Reason or review note for "${label}"`) ?? '';
-    if (!reason.trim() && ['reject_recruiter', 'suspend_recruiter', 'suspend_user', 'remove_audition'].includes(action)) {
+    if (
+      !reason.trim() &&
+      [
+        'reject_recruiter',
+        'suspend_recruiter',
+        'reject_talent',
+        'suspend_talent',
+        'suspend_user',
+        'remove_audition',
+      ].includes(action)
+    ) {
       setError('A reason is required for this action.');
       return;
     }

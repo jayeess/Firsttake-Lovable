@@ -25,7 +25,27 @@ export type VerificationStatus =
   | 'approved'
   | 'rejected'
   | 'suspended';
+export type TalentVerificationStatus =
+  | 'not_submitted'
+  | 'pending'
+  | 'verified'
+  | 'rejected'
+  | 'suspended';
 export type ModerationStatus = 'VISIBLE' | 'REMOVED';
+
+export type ProfileCompletenessChecklist = Record<
+  | 'basicInfo'
+  | 'demographics'
+  | 'category'
+  | 'experience'
+  | 'location'
+  | 'bio'
+  | 'professionalLinks'
+  | 'profilePhoto'
+  | 'portfolioMedia'
+  | 'skillsAndLanguages',
+  boolean
+>;
 
 export interface TalentProfile {
   firstName: string;
@@ -40,7 +60,31 @@ export interface TalentProfile {
   instagramUrl?: string;
   youtubeUrl?: string;
   websiteUrl?: string;
+  profilePhotoUrl?: string;
+  portfolioMediaUrls?: string[];
+  skills?: string[];
+  languages?: string[];
   isPublic: boolean;
+  talentVerificationStatus?: TalentVerificationStatus;
+  profileCompletenessScore?: number;
+  profileCompletenessChecklist?: ProfileCompletenessChecklist;
+  verifiedAt?: Date | Timestamp;
+}
+
+export interface TalentVerification {
+  talentId: string;
+  talentEmail?: string | null;
+  talentVerificationStatus: TalentVerificationStatus;
+  profileCompletenessScore: number;
+  profileCompletenessChecklist: ProfileCompletenessChecklist;
+  identityVerificationNote?: string;
+  portfolioReviewNote?: string;
+  verifiedAt?: Date | Timestamp;
+  rejectedReason?: string;
+  submittedAt?: Date | Timestamp;
+  reviewedAt?: Date | Timestamp;
+  reviewedBy?: string;
+  updatedAt?: Date | Timestamp;
 }
 
 export interface RecruiterProfile {
@@ -80,7 +124,7 @@ export interface AuditLog {
   actorEmail?: string | null;
   targetUid?: string;
   targetId?: string;
-  targetType: 'recruiter' | 'user' | 'audition';
+  targetType: 'recruiter' | 'talent' | 'user' | 'audition';
   reason?: string;
   note?: string;
   timestamp?: Date | Timestamp;

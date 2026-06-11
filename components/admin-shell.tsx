@@ -9,6 +9,7 @@ import { BrandLogo } from './brand-logo';
 const links = [
   ['/admin', 'Overview'],
   ['/admin/verifications', 'Verifications'],
+  ['/admin/talents', 'Talent trust'],
   ['/admin/users', 'Users'],
   ['/admin/auditions', 'Auditions'],
   ['/admin/audit-logs', 'Audit logs'],

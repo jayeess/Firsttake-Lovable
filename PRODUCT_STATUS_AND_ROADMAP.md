@@ -98,6 +98,9 @@ Nata Connect is no longer a static demonstration. It is a working Firebase-backe
   - Shortlisted
   - Rejected
 - Recruiter rejection feedback display
+- Weighted profile completeness score and recommended next actions
+- Optional Talent verification submission and review status
+- Verified Talent trust badge in recruiter applicant review
 
 ### Recruiter features
 
@@ -126,6 +129,7 @@ Nata Connect is no longer a static demonstration. It is a working Firebase-backe
 - Mark application as viewed
 - Shortlist talent
 - Reject with an optional reason
+- Verified Talent indicators in the applicant pipeline
 
 ### Dashboards and navigation
 
@@ -153,6 +157,15 @@ NEXT_PUBLIC_SHOW_TEST_CASES=false
 ```
 
 See `TESTING.md` for the complete testing guide.
+
+### Talent trust and administration
+
+- Private Talent verification records in `talentVerifications/{uid}`
+- Public verification status mirrored to the Talent profile
+- Admin Talent review queue
+- Talent verify, reject, suspend, and restore operations
+- Audit events for submission and every privileged decision
+- Verification remains optional and does not gate basic Talent usage
 
 ## 4. Technology and Architecture
 
@@ -430,7 +443,7 @@ checklist in `TESTING.md`.
 5. Languages, skills, availability, and work authorization.
 6. Physical attributes appropriate to the selected category.
 7. Public talent profile page with shareable URL.
-8. Profile completeness score.
+8. Completed: profile completeness score and verification-ready checklist.
 9. Recruiter-facing profile preview.
 
 **Definition of done:** a recruiter can make a meaningful initial casting decision without leaving Nata Connect.

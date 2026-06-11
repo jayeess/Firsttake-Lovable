@@ -55,6 +55,16 @@
 - Removed auditions are now denied by rules to normal users, not only hidden in UI
 - CI provisions Java 21 and runs local emulator and browser smoke suites
 
+## Talent Trust Layer
+
+- Talent profiles receive a weighted completeness score and missing-field list
+- Verification is optional and does not gate auditions or applications
+- Eligible Talent can submit or resubmit through a trusted server route
+- Admins can verify, reject, suspend, and restore Talent
+- Private review notes remain separate from recruiter-visible profile data
+- Recruiters see a badge only when status is exactly `verified`
+- Submission and Admin decisions are recorded in audit logs
+
 ## Files Changed
 
 - Authentication: `app/lib/auth-service.ts`, `app/lib/error-utils.ts`,
@@ -100,7 +110,7 @@ At the Phase 1.5 baseline:
 
 - ESLint: passing
 - Production build: passing
-- Policy tests: 9 passing
+- Policy tests: 14 passing
 - Browser E2E smoke tests: implemented
 - Firebase Emulator rule tests: implemented; local execution requires Java 21
 

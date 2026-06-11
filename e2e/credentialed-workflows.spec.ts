@@ -78,6 +78,7 @@ test.describe('credential-backed role smoke', () => {
 
     await expectWorkspacePage(page, '/admin', 'Platform integrity at a glance.');
     await expectWorkspacePage(page, '/admin/verifications', 'Verification queue');
+    await expectWorkspacePage(page, '/admin/talents', 'Talent verification');
     await expectWorkspacePage(page, '/admin/users', 'User management');
     await expectWorkspacePage(page, '/admin/auditions', 'Audition moderation');
     await expectWorkspacePage(page, '/admin/audit-logs', 'Audit logs');

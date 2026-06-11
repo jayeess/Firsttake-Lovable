@@ -43,6 +43,11 @@ browser, Firebase project, commit, and result for every run.
 ## Talent
 
 - [ ] Talent profile can be created and edited.
+- [ ] Completeness percentage and missing actions update correctly.
+- [ ] Verification submission appears only at 70% or higher.
+- [ ] Pending/rejected/verified/suspended states are clear.
+- [ ] Rejected Talent can fix the profile and resubmit.
+- [ ] Verification does not block discovery or applications.
 - [ ] Active visible auditions load and filters work.
 - [ ] Closed, expired, draft, or removed auditions cannot accept applications.
 - [ ] One application succeeds and a duplicate is rejected.
@@ -62,7 +67,9 @@ browser, Firebase project, commit, and result for every run.
 ## Admin
 
 - [ ] Non-admin users see the restricted workspace.
-- [ ] Overview, verifications, users, auditions, and audit logs load.
+- [ ] Overview, recruiter verification, Talent trust, users, auditions, and audit logs load.
+- [ ] Talent verify/reject/suspend/restore actions work.
+- [ ] Verified Talent badge appears only after approval.
 - [ ] Recruiter approval/rejection/suspension/restoration works.
 - [ ] User suspension/restoration works.
 - [ ] Audition removal/restoration works.
