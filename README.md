@@ -254,3 +254,25 @@ Application review fields include `recruiterStatus`, `recruiterNote`,
 ```powershell
 npx firebase-tools deploy --only firestore:rules,firestore:indexes --project nata-connect-prod
 ```
+
+## Search, Recommendations, and Saved Auditions
+
+Talent discovery at `/auditions` supports role/company search, category,
+experience, location, language, project type, compensation, work mode,
+verified-recruiter, recency, deadline, and saved-only filters. Sorting includes
+newest, deadline, text relevance, recently updated, and Recommended for you.
+
+Recommendations use a local rule-based score from Talent category, experience,
+location, skills, and languages. The active/visible audition set is queried
+from Firestore first, then flexible filters and scoring run locally for beta
+scale. No external search provider or new composite index is required.
+
+Bookmarks use:
+
+```text
+users/{uid}/savedAuditions/{auditionId}
+```
+
+Records contain `auditionId`, `savedAt`, `titleSnapshot`, `recruiterId`, and
+`deadlineSnapshot`. Save and remove actions use `/api/auditions/save`, which
+verifies the Firebase ID token and derives the owner UID from that token.

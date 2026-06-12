@@ -1,5 +1,6 @@
 'use client';
 
+import { Bookmark } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -7,6 +8,8 @@ import { AppShell } from '@/components/app-shell';
 import { StatusBadge } from '@/components/status-badge';
 import {
   getAuditionById,
+  getSavedAuditions,
+  setAuditionSaved,
   submitApplication,
 } from '@/app/lib/firestore-service';
 import {
@@ -29,6 +32,8 @@ export default function AuditionDetailPage() {
   const [error, setError] = useState('');
   const [applying, setApplying] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
@@ -39,6 +44,26 @@ export default function AuditionDetailPage() {
       )
       .finally(() => setLoading(false));
   }, [id, reloadKey]);
+
+  useEffect(() => {
+    if (!user || userType !== 'TALENT') return;
+    void getSavedAuditions(user.uid)
+      .then((items) => setSaved(items.some((item) => item.auditionId === id)))
+      .catch(() => undefined);
+  }, [id, user, userType]);
+
+  const toggleSaved = async () => {
+    setSaving(true);
+    setError('');
+    try {
+      await setAuditionSaved(id, !saved);
+      setSaved((current) => !current);
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Unable to update saved auditions'));
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const handleApply = async () => {
     if (!user) {
@@ -99,7 +124,26 @@ export default function AuditionDetailPage() {
               </p>
               <h1 className="mt-2 text-3xl font-bold">{audition.title}</h1>
             </div>
-            <StatusBadge status={audition.status} />
+            <div className="flex items-center gap-2">
+              <StatusBadge status={audition.status} />
+              {userType === 'TALENT' && (
+                <button
+                  type="button"
+                  onClick={() => void toggleSaved()}
+                  disabled={saving}
+                  aria-label={saved ? 'Remove saved audition' : 'Save audition'}
+                  className="flex size-10 items-center justify-center border border-[#cbd6db] bg-white disabled:opacity-50"
+                >
+                  <Bookmark
+                    className={`size-5 ${
+                      saved
+                        ? 'fill-[#008ca6] text-[#008ca6]'
+                        : 'text-[#526168]'
+                    }`}
+                  />
+                </button>
+              )}
+            </div>
           </div>
           <div className="mt-6 grid gap-4 border-y border-[#e1e5ea] py-5 sm:grid-cols-2">
             <Detail label="Category" value={CATEGORY_LABELS[audition.category]} />

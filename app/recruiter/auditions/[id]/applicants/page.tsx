@@ -48,6 +48,10 @@ const initialFilters: ApplicantFilters = {
   completenessAbove70: false,
   minimumRating: 0,
   search: '',
+  tag: '',
+  category: '',
+  location: '',
+  language: '',
 };
 
 const quickStatuses: ApplicationStatus[] = [
@@ -238,6 +242,8 @@ export default function AuditionApplicantsPage() {
               <option value="COMPLETENESS">Highest completeness</option>
               <option value="RATING">Highest rating</option>
               <option value="UPDATED">Recently updated</option>
+              <option value="VERIFIED">Verified first</option>
+              <option value="MEDIA">Has media first</option>
             </select>
             <ChevronDown
               aria-hidden="true"
@@ -302,6 +308,49 @@ export default function AuditionApplicantsPage() {
               <option value="5">5</option>
             </select>
           </label>
+        </div>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <input
+            value={filters.tag}
+            onChange={(event) =>
+              setFilters((current) => ({ ...current, tag: event.target.value }))
+            }
+            placeholder="Filter by internal tag"
+            className="min-h-10 border border-[#cbd6db] px-3 text-sm"
+          />
+          <input
+            value={filters.category}
+            onChange={(event) =>
+              setFilters((current) => ({
+                ...current,
+                category: event.target.value,
+              }))
+            }
+            placeholder="Category"
+            className="min-h-10 border border-[#cbd6db] px-3 text-sm"
+          />
+          <input
+            value={filters.location}
+            onChange={(event) =>
+              setFilters((current) => ({
+                ...current,
+                location: event.target.value,
+              }))
+            }
+            placeholder="Location"
+            className="min-h-10 border border-[#cbd6db] px-3 text-sm"
+          />
+          <input
+            value={filters.language}
+            onChange={(event) =>
+              setFilters((current) => ({
+                ...current,
+                language: event.target.value,
+              }))
+            }
+            placeholder="Language"
+            className="min-h-10 border border-[#cbd6db] px-3 text-sm"
+          />
         </div>
       </section>
 

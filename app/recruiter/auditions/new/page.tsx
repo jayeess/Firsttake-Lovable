@@ -13,8 +13,11 @@ import {
   CATEGORY_LABELS,
   EXPERIENCE_LABELS,
   type AuditionStatus,
+  type AuditionType,
   type ExperienceLevel,
   type TalentCategory,
+  type WorkMode,
+  type PaymentType,
 } from '@/app/lib/types';
 import { getErrorMessage } from '@/app/lib/error-utils';
 import { useAuth } from '@/context/auth-context';
@@ -30,6 +33,10 @@ type AuditionForm = {
   requirements: string;
   numberOfPositions: number;
   payInfo: string;
+  languages: string[];
+  auditionType: AuditionType;
+  workMode: WorkMode;
+  paymentType: PaymentType;
   deadline: string;
 };
 
@@ -43,6 +50,10 @@ const emptyAudition: AuditionForm = {
   requirements: '',
   numberOfPositions: 1,
   payInfo: '',
+  languages: [],
+  auditionType: 'OTHER',
+  workMode: 'ONSITE',
+  paymentType: 'UNSPECIFIED',
   deadline: '',
 };
 
@@ -70,6 +81,10 @@ const auditionPresets: Array<{
       requirements: 'Playing age 22-28. Strong Hindi and conversational English. Natural screen presence, emotional range, and availability for an in-person callback.',
       numberOfPositions: 1,
       payInfo: 'Paid role. Final rate based on experience and production schedule.',
+      languages: ['Hindi', 'English'],
+      auditionType: 'SERIES',
+      workMode: 'ONSITE',
+      paymentType: 'PAID',
       deadline: dateFromToday(21),
     },
   },
@@ -86,6 +101,10 @@ const auditionPresets: Array<{
       requirements: 'Ages 20-35. All looks encouraged. Must submit current natural-light photographs and be comfortable with movement-led direction.',
       numberOfPositions: 6,
       payInfo: 'INR 18,000 per shoot day plus travel within the city.',
+      languages: ['English'],
+      auditionType: 'COMMERCIAL',
+      workMode: 'ONSITE',
+      paymentType: 'PAID',
       deadline: dateFromToday(14),
     },
   },
@@ -102,6 +121,10 @@ const auditionPresets: Array<{
       requirements: 'Fluent Hindi and English, broadcast-quality home setup, clean commercial demo, and availability for one directed online session.',
       numberOfPositions: 2,
       payInfo: 'INR 25,000 inclusive of digital usage for 6 months.',
+      languages: ['Hindi', 'English'],
+      auditionType: 'VOICE_OVER',
+      workMode: 'REMOTE',
+      paymentType: 'PAID',
       deadline: dateFromToday(10),
     },
   },
@@ -118,6 +141,10 @@ const auditionPresets: Array<{
       requirements: 'Ages 18-30. Contemporary or commercial training, strong musicality, comfort with improvisation, and a recent movement reel.',
       numberOfPositions: 8,
       payInfo: 'INR 12,000 per shoot day. Rehearsals and local travel included.',
+      languages: [],
+      auditionType: 'FILM',
+      workMode: 'ONSITE',
+      paymentType: 'PAID',
       deadline: dateFromToday(18),
     },
   },
@@ -134,6 +161,10 @@ const auditionPresets: Array<{
       requirements: 'Fluent English and Hindi, live-event experience, strong improvisation, professional showreel, and availability for an evening event.',
       numberOfPositions: 1,
       payInfo: 'INR 35,000 including rehearsal and event day.',
+      languages: ['Hindi', 'English'],
+      auditionType: 'LIVE_EVENT',
+      workMode: 'ONSITE',
+      paymentType: 'PAID',
       deadline: dateFromToday(12),
     },
   },
@@ -150,6 +181,10 @@ const auditionPresets: Array<{
       requirements: 'Playing age 18-24. Hindi or Marathi fluency preferred. No professional credits required; self-tape instructions will be provided.',
       numberOfPositions: 4,
       payInfo: 'Travel, meals, footage, and a modest honorarium provided.',
+      languages: ['Hindi', 'Marathi'],
+      auditionType: 'FILM',
+      workMode: 'ONSITE',
+      paymentType: 'HONORARIUM',
       deadline: dateFromToday(9),
     },
   },
@@ -266,6 +301,11 @@ export default function NewAuditionPage() {
                 <label className="block text-sm font-bold">Experience level<select value={form.experienceLevel} onChange={(e) => update('experienceLevel', e.target.value)} className="field mt-2">{Object.entries(EXPERIENCE_LABELS).map(([v,l]) => <option key={v} value={v}>{l}</option>)}</select></label>
                 <Input label="Location" value={form.location} onChange={(v) => update('location', v)} placeholder="City or remote" />
                 <Input label="Project duration" value={form.duration} onChange={(v) => update('duration', v)} placeholder="e.g. 3 shooting days" />
+                <label className="block text-sm font-bold">Project type<select value={form.auditionType} onChange={(e) => update('auditionType', e.target.value)} className="field mt-2"><option value="FILM">Film</option><option value="SERIES">Series</option><option value="COMMERCIAL">Commercial</option><option value="THEATRE">Theatre</option><option value="VOICE_OVER">Voice over</option><option value="LIVE_EVENT">Live event</option><option value="OTHER">Other</option></select></label>
+                <label className="block text-sm font-bold">Work mode<select value={form.workMode} onChange={(e) => update('workMode', e.target.value)} className="field mt-2"><option value="ONSITE">Onsite</option><option value="REMOTE">Remote</option><option value="HYBRID">Hybrid</option></select></label>
+                <div className="sm:col-span-2">
+                  <Input label="Languages" value={form.languages.join(', ')} onChange={(v) => setForm((current) => ({ ...current, languages: v.split(',').map((item) => item.trim()).filter(Boolean) }))} required={false} placeholder="Hindi, Telugu, English" />
+                </div>
               </div>
             </section>
 
@@ -283,6 +323,7 @@ export default function NewAuditionPage() {
                 <Input label="Positions" type="number" value={String(form.numberOfPositions)} onChange={(v) => update('numberOfPositions', Number(v))} />
                 <Input label="Application deadline" type="date" value={form.deadline} onChange={(v) => update('deadline', v)} />
                 <Input label="Pay information" value={form.payInfo} onChange={(v) => update('payInfo', v)} required={false} placeholder="Optional, but recommended" />
+                <label className="block text-sm font-bold">Compensation type<select value={form.paymentType} onChange={(e) => update('paymentType', e.target.value)} className="field mt-2"><option value="PAID">Paid</option><option value="HONORARIUM">Honorarium</option><option value="UNPAID">Unpaid</option><option value="UNSPECIFIED">Not specified</option></select></label>
               </div>
             </section>
             <section className="border border-[#bad7d3] bg-[#edf7f5] p-5 text-sm leading-6 text-[#234b47]">

@@ -13,6 +13,16 @@ export type ExperienceLevel =
   | '3_5_YRS'
   | '5_PLUS_YRS';
 export type AuditionStatus = 'ACTIVE' | 'CLOSED' | 'CANCELLED' | 'DRAFT';
+export type AuditionType =
+  | 'FILM'
+  | 'SERIES'
+  | 'COMMERCIAL'
+  | 'THEATRE'
+  | 'VOICE_OVER'
+  | 'LIVE_EVENT'
+  | 'OTHER';
+export type WorkMode = 'ONSITE' | 'REMOTE' | 'HYBRID';
+export type PaymentType = 'PAID' | 'UNPAID' | 'HONORARIUM' | 'UNSPECIFIED';
 export type ApplicationStatus =
   | 'APPLIED'
   | 'VIEWED'
@@ -211,6 +221,15 @@ export interface Audition {
   requirements: string;
   numberOfPositions: number;
   payInfo?: string;
+  languages?: string[];
+  auditionType?: AuditionType;
+  workMode?: WorkMode;
+  paymentType?: PaymentType;
+  searchKeywords?: string[];
+  normalizedTitle?: string;
+  normalizedLocation?: string;
+  normalizedCategory?: string;
+  normalizedLanguages?: string[];
   deadline: Date | Timestamp;
   status: AuditionStatus;
   moderationStatus?: ModerationStatus;
@@ -218,6 +237,15 @@ export interface Audition {
   recruiterVerified?: boolean;
   applicantCount: number;
   createdAt?: Date | Timestamp;
+  updatedAt?: Date | Timestamp;
+}
+
+export interface SavedAudition {
+  auditionId: string;
+  savedAt?: Date | Timestamp;
+  titleSnapshot: string;
+  recruiterId: string;
+  deadlineSnapshot: Date | Timestamp;
 }
 
 export interface Application {

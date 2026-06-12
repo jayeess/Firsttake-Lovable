@@ -41,7 +41,9 @@ export type ApplicantSort =
   | 'OLDEST'
   | 'COMPLETENESS'
   | 'RATING'
-  | 'UPDATED';
+  | 'UPDATED'
+  | 'VERIFIED'
+  | 'MEDIA';
 
 export type ApplicantFilters = {
   status: ApplicationStatus | 'ALL';
@@ -51,6 +53,10 @@ export type ApplicantFilters = {
   completenessAbove70: boolean;
   minimumRating: number;
   search: string;
+  tag: string;
+  category: string;
+  location: string;
+  language: string;
 };
 
 export type RecruiterReviewInput = {
@@ -128,6 +134,10 @@ export const filterApplicants = (
   filters: ApplicantFilters
 ) => {
   const search = filters.search.trim().toLowerCase();
+  const tag = filters.tag.trim().toLowerCase();
+  const category = filters.category.trim().toLowerCase();
+  const location = filters.location.trim().toLowerCase();
+  const language = filters.language.trim().toLowerCase();
   return applicants.filter(({ application, talent, media }) => {
     const status = getApplicationStatus(application);
     const searchable = talent
@@ -151,6 +161,16 @@ export const filterApplicants = (
         (talent?.profileCompletenessScore ?? 0) >= 70) &&
       (!filters.minimumRating ||
         (application.recruiterRating ?? 0) >= filters.minimumRating) &&
+      (!tag ||
+        (application.internalTags ?? []).some((item) =>
+          item.toLowerCase().includes(tag)
+        )) &&
+      (!category || talent?.category.toLowerCase() === category) &&
+      (!location || talent?.location.toLowerCase().includes(location)) &&
+      (!language ||
+        (talent?.languages ?? []).some((item) =>
+          item.toLowerCase().includes(language)
+        )) &&
       (!search || searchable.includes(search))
     );
   });
@@ -189,6 +209,15 @@ export const sortApplicants = (
             left.application.updatedAt
         )
       );
+    }
+    if (sort === 'VERIFIED') {
+      return (
+        Number(right.talent?.talentVerificationStatus === 'verified') -
+        Number(left.talent?.talentVerificationStatus === 'verified')
+      );
+    }
+    if (sort === 'MEDIA') {
+      return right.media.length - left.media.length;
     }
     return toMillis(right.application.createdAt) - toMillis(left.application.createdAt);
   });

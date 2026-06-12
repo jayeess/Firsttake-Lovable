@@ -83,6 +83,7 @@ test('applicant filters cover verification, media, showreel, completeness, ratin
       talentId: 'Asha',
       status: 'SHORTLISTED',
       recruiterRating: 5,
+      internalTags: ['callback'],
       createdAt: new Date('2026-06-02T00:00:00Z'),
     },
     media: [
@@ -99,6 +100,10 @@ test('applicant filters cover verification, media, showreel, completeness, ratin
         moderationStatus: 'active',
       },
     ],
+    talent: {
+      ...applicant('Asha').talent!,
+      languages: ['Hindi', 'English'],
+    },
   });
   const basic = applicant('Ravi', {
     talent: {
@@ -116,6 +121,10 @@ test('applicant filters cover verification, media, showreel, completeness, ratin
     completenessAbove70: true,
     minimumRating: 4,
     search: 'dubai',
+    tag: 'callback',
+    category: 'actor',
+    location: 'dubai',
+    language: 'hindi',
   });
   assert.deepEqual(result.map((item) => item.application.id), ['Asha']);
 });

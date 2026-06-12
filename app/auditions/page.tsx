@@ -1,92 +1,364 @@
 'use client';
 
+import { ChevronDown, Search, SlidersHorizontal } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
-import { AppShell } from '@/components/app-shell';
-import { AuditionCard } from '@/components/audition-card';
-import { getAuditions } from '@/app/lib/firestore-service';
+import {
+  filterAuditions,
+  initialAuditionFilters,
+  scoreAuditionRecommendation,
+  sortAuditions,
+  type AuditionDiscoveryFilters,
+  type AuditionSort,
+} from '@/app/lib/audition-discovery';
+import { getErrorMessage } from '@/app/lib/error-utils';
+import {
+  getAuditions,
+  getSavedAuditions,
+  getTalentProfile,
+  setAuditionSaved,
+} from '@/app/lib/firestore-service';
 import {
   CATEGORY_LABELS,
   EXPERIENCE_LABELS,
   type Audition,
+  type AuditionType,
   type ExperienceLevel,
+  type PaymentType,
   type TalentCategory,
+  type TalentProfile,
+  type WorkMode,
 } from '@/app/lib/types';
-import { getErrorMessage } from '@/app/lib/error-utils';
+import { AppShell } from '@/components/app-shell';
 import { EmptyState, ErrorState, LoadingState } from '@/components/async-state';
+import { AuditionCard } from '@/components/audition-card';
+import { useAuth } from '@/context/auth-context';
+
+const getActiveFilters = (
+  filters: AuditionDiscoveryFilters
+): Array<{ key: keyof AuditionDiscoveryFilters; label: string }> => {
+  const labels: Array<{
+    key: keyof AuditionDiscoveryFilters;
+    label: string;
+  }> = [];
+  if (filters.category)
+    labels.push({ key: 'category', label: CATEGORY_LABELS[filters.category] });
+  if (filters.experience)
+    labels.push({
+      key: 'experience',
+      label: EXPERIENCE_LABELS[filters.experience],
+    });
+  if (filters.location)
+    labels.push({ key: 'location', label: filters.location });
+  if (filters.language)
+    labels.push({ key: 'language', label: filters.language });
+  if (filters.auditionType)
+    labels.push({
+      key: 'auditionType',
+      label: filters.auditionType.replace(/_/g, ' '),
+    });
+  if (filters.paymentType)
+    labels.push({
+      key: 'paymentType',
+      label: filters.paymentType.toLowerCase(),
+    });
+  if (filters.workMode)
+    labels.push({
+      key: 'workMode',
+      label: filters.workMode.toLowerCase(),
+    });
+  if (filters.verifiedOnly)
+    labels.push({ key: 'verifiedOnly', label: 'Verified recruiters' });
+  if (filters.recentlyPosted)
+    labels.push({ key: 'recentlyPosted', label: 'Recently posted' });
+  if (filters.deadlineSoon)
+    labels.push({ key: 'deadlineSoon', label: 'Deadline soon' });
+  if (filters.savedOnly)
+    labels.push({ key: 'savedOnly', label: 'Saved' });
+  return labels;
+};
 
 export default function AuditionsPage() {
+  const { user } = useAuth();
   const [auditions, setAuditions] = useState<Audition[]>([]);
-  const [search, setSearch] = useState('');
-  const [category, setCategory] = useState<TalentCategory | ''>('');
-  const [experience, setExperience] = useState<ExperienceLevel | ''>('');
-  const [location, setLocation] = useState('');
+  const [profile, setProfile] = useState<TalentProfile | null>(null);
+  const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
+  const [filters, setFilters] = useState(initialAuditionFilters);
+  const [sort, setSort] = useState<AuditionSort>('NEWEST');
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [savingId, setSavingId] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
-    void getAuditions()
-      .then(setAuditions)
+    if (!user) return;
+    void Promise.all([
+      getAuditions(),
+      getTalentProfile(user.uid).catch(() => null),
+      getSavedAuditions(user.uid).catch(() => []),
+    ])
+      .then(([auditionData, profileData, saved]) => {
+        setAuditions(auditionData);
+        setProfile(profileData);
+        setSavedIds(new Set(saved.map((item) => item.auditionId)));
+      })
       .catch((err: unknown) =>
         setError(getErrorMessage(err, 'Unable to load auditions'))
       )
       .finally(() => setLoading(false));
-  }, [reloadKey]);
+  }, [reloadKey, user]);
 
-  const filtered = useMemo(() => {
-    const query = search.trim().toLowerCase();
-    return auditions.filter((audition) => {
-      const matchesSearch =
-        !query ||
-        audition.title.toLowerCase().includes(query) ||
-        audition.description.toLowerCase().includes(query) ||
-        audition.recruiterName?.toLowerCase().includes(query);
-      return (
-        matchesSearch &&
-        (!category || audition.category === category) &&
-        (!experience || audition.experienceLevel === experience) &&
-        (!location ||
-          audition.location.toLowerCase().includes(location.toLowerCase()))
-      );
-    });
-  }, [auditions, category, experience, location, search]);
+  const activeFilters = getActiveFilters(filters);
+  const visible = useMemo(
+    () =>
+      sortAuditions(
+        filterAuditions(auditions, filters, savedIds),
+        sort,
+        profile,
+        filters.search
+      ),
+    [auditions, filters, profile, savedIds, sort]
+  );
+
+  const toggleSaved = async (auditionId: string) => {
+    const nextSaved = !savedIds.has(auditionId);
+    setSavingId(auditionId);
+    setError('');
+    try {
+      await setAuditionSaved(auditionId, nextSaved);
+      setSavedIds((current) => {
+        const next = new Set(current);
+        if (nextSaved) next.add(auditionId);
+        else next.delete(auditionId);
+        return next;
+      });
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Unable to update saved auditions'));
+    } finally {
+      setSavingId('');
+    }
+  };
+
+  const clearFilter = (key: keyof AuditionDiscoveryFilters) => {
+    setFilters((current) => ({
+      ...current,
+      [key]: typeof current[key] === 'boolean' ? false : '',
+    }));
+  };
 
   return (
     <AppShell requiredRole="TALENT">
-      <div className="flex flex-wrap items-end justify-between gap-5">
+      <header className="flex flex-wrap items-end justify-between gap-5">
         <div>
-          <p className="eyebrow">
-            Opportunity board
-          </p>
-          <h1 className="mt-2 text-4xl font-black">Roles worth showing up for.</h1>
+          <p className="eyebrow">Opportunity discovery</p>
+          <h1 className="mt-2 text-4xl font-black">Find the right next role.</h1>
           <p className="mt-3 max-w-2xl leading-7 text-[#657176]">
-            Search active casting calls, compare the brief, and apply with one professional profile.
+            Search verified casting calls, save promising briefs, and surface
+            opportunities that fit your profile.
           </p>
         </div>
-        <p className="border-l-2 border-[#d8a843] pl-4 text-sm font-bold text-[#65707b]">{filtered.length} open opportunities</p>
-      </div>
+        <div className="border-l-2 border-[#d8a843] pl-4">
+          <p className="text-2xl font-black">{visible.length}</p>
+          <p className="text-xs font-bold uppercase text-[#657176]">
+            Active opportunities
+          </p>
+        </div>
+      </header>
 
-      <section className="surface mt-7 grid gap-4 p-4 md:grid-cols-4">
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search title or company"
-          className="field"
-        />
-        <select value={category} onChange={(e) => setCategory(e.target.value as TalentCategory | '')} className="field">
-          <option value="">All categories</option>
-          {Object.entries(CATEGORY_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
-        </select>
-        <select value={experience} onChange={(e) => setExperience(e.target.value as ExperienceLevel | '')} className="field">
-          <option value="">All experience levels</option>
-          {Object.entries(EXPERIENCE_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
-        </select>
-        <input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Location" className="field" />
+      <section
+        aria-label="Audition search and filters"
+        className="mt-7 border border-[#d7e0e4] bg-white p-4"
+      >
+        <div className="grid gap-3 lg:grid-cols-[minmax(280px,1fr)_210px_auto]">
+          <label className="relative">
+            <span className="sr-only">Search auditions</span>
+            <Search className="absolute left-3 top-3.5 size-4 text-[#657176]" />
+            <input
+              value={filters.search}
+              onChange={(event) =>
+                setFilters((current) => ({
+                  ...current,
+                  search: event.target.value,
+                }))
+              }
+              placeholder="Search role, project, company, or location"
+              className="field pl-10"
+            />
+          </label>
+          <label className="relative">
+            <span className="sr-only">Sort auditions</span>
+            <select
+              value={sort}
+              onChange={(event) => setSort(event.target.value as AuditionSort)}
+              className="field appearance-none pr-9 font-bold"
+            >
+              <option value="NEWEST">Newest first</option>
+              <option value="DEADLINE">Deadline soon</option>
+              <option value="RELEVANCE">Most relevant</option>
+              <option value="RECOMMENDED">Recommended for you</option>
+              <option value="UPDATED">Recently updated</option>
+            </select>
+            <ChevronDown className="pointer-events-none absolute right-3 top-3.5 size-4" />
+          </label>
+          <button
+            type="button"
+            onClick={() => setFiltersOpen((current) => !current)}
+            className="secondary-button flex items-center justify-center gap-2"
+            aria-expanded={filtersOpen}
+          >
+            <SlidersHorizontal className="size-4" />
+            Filters
+            {activeFilters.length > 0 && ` (${activeFilters.length})`}
+          </button>
+        </div>
+
+        {filtersOpen && (
+          <div className="mt-4 grid gap-3 border-t border-[#e1e5ea] pt-4 sm:grid-cols-2 lg:grid-cols-4">
+            <SelectFilter
+              label="Category"
+              value={filters.category}
+              onChange={(value) =>
+                setFilters((current) => ({
+                  ...current,
+                  category: value as TalentCategory | '',
+                }))
+              }
+              options={CATEGORY_LABELS}
+            />
+            <SelectFilter
+              label="Experience"
+              value={filters.experience}
+              onChange={(value) =>
+                setFilters((current) => ({
+                  ...current,
+                  experience: value as ExperienceLevel | '',
+                }))
+              }
+              options={EXPERIENCE_LABELS}
+            />
+            <TextFilter
+              label="Location"
+              value={filters.location}
+              onChange={(location) =>
+                setFilters((current) => ({ ...current, location }))
+              }
+            />
+            <TextFilter
+              label="Language"
+              value={filters.language}
+              onChange={(language) =>
+                setFilters((current) => ({ ...current, language }))
+              }
+            />
+            <SelectFilter
+              label="Project type"
+              value={filters.auditionType}
+              onChange={(value) =>
+                setFilters((current) => ({
+                  ...current,
+                  auditionType: value as AuditionType | '',
+                }))
+              }
+              options={{
+                FILM: 'Film',
+                SERIES: 'Series',
+                COMMERCIAL: 'Commercial',
+                THEATRE: 'Theatre',
+                VOICE_OVER: 'Voice over',
+                LIVE_EVENT: 'Live event',
+                OTHER: 'Other',
+              }}
+            />
+            <SelectFilter
+              label="Compensation"
+              value={filters.paymentType}
+              onChange={(value) =>
+                setFilters((current) => ({
+                  ...current,
+                  paymentType: value as PaymentType | '',
+                }))
+              }
+              options={{
+                PAID: 'Paid',
+                HONORARIUM: 'Honorarium',
+                UNPAID: 'Unpaid',
+                UNSPECIFIED: 'Not specified',
+              }}
+            />
+            <SelectFilter
+              label="Work mode"
+              value={filters.workMode}
+              onChange={(value) =>
+                setFilters((current) => ({
+                  ...current,
+                  workMode: value as WorkMode | '',
+                }))
+              }
+              options={{
+                ONSITE: 'Onsite',
+                REMOTE: 'Remote',
+                HYBRID: 'Hybrid',
+              }}
+            />
+            <div className="grid gap-2">
+              <FilterToggle
+                label="Verified recruiter"
+                checked={filters.verifiedOnly}
+                onChange={(verifiedOnly) =>
+                  setFilters((current) => ({ ...current, verifiedOnly }))
+                }
+              />
+              <FilterToggle
+                label="Recently posted"
+                checked={filters.recentlyPosted}
+                onChange={(recentlyPosted) =>
+                  setFilters((current) => ({ ...current, recentlyPosted }))
+                }
+              />
+              <FilterToggle
+                label="Deadline within 7 days"
+                checked={filters.deadlineSoon}
+                onChange={(deadlineSoon) =>
+                  setFilters((current) => ({ ...current, deadlineSoon }))
+                }
+              />
+              <FilterToggle
+                label="Saved only"
+                checked={filters.savedOnly}
+                onChange={(savedOnly) =>
+                  setFilters((current) => ({ ...current, savedOnly }))
+                }
+              />
+            </div>
+          </div>
+        )}
+
+        {activeFilters.length > 0 && (
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            {activeFilters.map((item) => (
+              <button
+                key={item.key}
+                type="button"
+                onClick={() => clearFilter(item.key)}
+                className="border border-[#9fc9c4] bg-[#edf7f5] px-3 py-1.5 text-xs font-bold text-[#006d7f]"
+              >
+                {item.label} ×
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => setFilters(initialAuditionFilters)}
+              className="px-2 py-1.5 text-xs font-bold text-[#a33d35]"
+            >
+              Clear all
+            </button>
+          </div>
+        )}
       </section>
 
       {error && (
         <ErrorState
-          title="Auditions could not be loaded"
+          title="Audition discovery needs attention"
           message={error}
           onRetry={() => {
             setLoading(true);
@@ -95,18 +367,110 @@ export default function AuditionsPage() {
           }}
         />
       )}
+
       {loading ? (
-        <LoadingState label="Loading active auditions..." />
-      ) : error ? null : filtered.length === 0 ? (
+        <LoadingState label="Matching active auditions to your profile..." />
+      ) : error ? null : visible.length === 0 ? (
         <EmptyState
-          title="No matching auditions"
-          message="Try changing your filters. New verified casting calls will appear here when recruiters publish them."
+          title={filters.savedOnly ? 'No saved auditions yet' : 'No matching auditions'}
+          message={
+            filters.savedOnly
+              ? 'Save a promising casting call and it will appear here.'
+              : 'Try removing a filter or broadening your search.'
+          }
         />
       ) : (
         <div className="mt-6 grid gap-4 lg:grid-cols-2">
-          {filtered.map((audition) => <AuditionCard key={audition.id} audition={audition} />)}
+          {visible.map((audition) => (
+            <AuditionCard
+              key={audition.id}
+              audition={audition}
+              saved={savedIds.has(audition.id)}
+              saving={savingId === audition.id}
+              recommendationScore={
+                sort === 'RECOMMENDED'
+                  ? scoreAuditionRecommendation(audition, profile)
+                  : undefined
+              }
+              onToggleSaved={() => void toggleSaved(audition.id)}
+            />
+          ))}
         </div>
       )}
     </AppShell>
+  );
+}
+
+function SelectFilter({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  options: Record<string, string>;
+}) {
+  return (
+    <label className="text-sm font-bold">
+      {label}
+      <select
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="field mt-2 font-normal"
+      >
+        <option value="">All</option>
+        {Object.entries(options).map(([optionValue, optionLabel]) => (
+          <option key={optionValue} value={optionValue}>
+            {optionLabel}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+function TextFilter({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <label className="text-sm font-bold">
+      {label}
+      <input
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="field mt-2 font-normal"
+        placeholder={`Any ${label.toLowerCase()}`}
+      />
+    </label>
+  );
+}
+
+function FilterToggle({
+  label,
+  checked,
+  onChange,
+}: {
+  label: string;
+  checked: boolean;
+  onChange: (value: boolean) => void;
+}) {
+  return (
+    <label className="flex min-h-9 items-center gap-2 text-sm font-bold">
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(event) => onChange(event.target.checked)}
+        className="size-4 accent-[#008ca6]"
+      />
+      {label}
+    </label>
   );
 }

@@ -9,6 +9,7 @@ import {
 } from '@firebase/rules-unit-testing';
 import {
   collection,
+  deleteDoc,
   doc,
   getDoc,
   getDocs,
@@ -176,6 +177,17 @@ test('Talent can read visible active auditions but not removed auditions', async
     'pipeline-a',
     'visible-a',
   ]);
+});
+
+test('Talent cannot read draft auditions owned by a recruiter', async () => {
+  await environment.withSecurityRulesDisabled(async (context) => {
+    await setDoc(
+      doc(context.firestore(), 'auditions/draft-a'),
+      audition('recruiter-a', { status: 'DRAFT' })
+    );
+  });
+  const db = environment.authenticatedContext('talent-a').firestore();
+  await assertFails(getDoc(doc(db, 'auditions/draft-a')));
 });
 
 test('Talent cannot update recruiter-owned audition fields', async () => {
@@ -402,6 +414,61 @@ test('Talent can create only their own application to an active audition', async
   );
   await assertFails(
     setDoc(doc(db, 'auditions/closed-a/applications/talent-a'), data)
+  );
+});
+
+test('Talent can save and unsave their own active audition', async () => {
+  const db = environment.authenticatedContext('talent-a').firestore();
+  const ref = doc(db, 'users/talent-a/savedAuditions/visible-a');
+  await assertSucceeds(
+    setDoc(ref, {
+      auditionId: 'visible-a',
+      savedAt: serverTimestamp(),
+      titleSnapshot: 'E2E_TEST Casting Call',
+      recruiterId: 'recruiter-a',
+      deadlineSnapshot: new Date(Date.now() + 86_400_000),
+    })
+  );
+  await assertSucceeds(getDoc(ref));
+  await assertSucceeds(deleteDoc(ref));
+});
+
+test('Talent cannot save an audition under another user', async () => {
+  const db = environment.authenticatedContext('talent-a').firestore();
+  await assertFails(
+    setDoc(doc(db, 'users/talent-b/savedAuditions/visible-a'), {
+      auditionId: 'visible-a',
+      savedAt: serverTimestamp(),
+      titleSnapshot: 'Forged',
+      recruiterId: 'recruiter-a',
+      deadlineSnapshot: new Date(Date.now() + 86_400_000),
+    })
+  );
+});
+
+test('signed-out users cannot save auditions', async () => {
+  const db = environment.unauthenticatedContext().firestore();
+  await assertFails(
+    setDoc(doc(db, 'users/talent-a/savedAuditions/visible-a'), {
+      auditionId: 'visible-a',
+      savedAt: serverTimestamp(),
+    })
+  );
+});
+
+test('Recruiters cannot read Talent saved auditions', async () => {
+  await environment.withSecurityRulesDisabled(async (context) => {
+    await setDoc(
+      doc(
+        context.firestore(),
+        'users/talent-a/savedAuditions/visible-a'
+      ),
+      { auditionId: 'visible-a' }
+    );
+  });
+  const db = environment.authenticatedContext('recruiter-a').firestore();
+  await assertFails(
+    getDoc(doc(db, 'users/talent-a/savedAuditions/visible-a'))
   );
 });
 

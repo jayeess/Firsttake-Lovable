@@ -47,7 +47,12 @@ test.describe('credential-backed role smoke', () => {
       page.getByText('Add portfolio image', { exact: true })
     ).toBeVisible();
     await expect(page.getByRole('link', { name: /Notifications/ })).toBeVisible();
-    await expectWorkspacePage(page, '/auditions', 'Roles worth showing up for.');
+    await expectWorkspacePage(page, '/auditions', 'Find the right next role.');
+    await expect(
+      page.getByRole('region', { name: 'Audition search and filters' })
+    ).toBeVisible();
+    await expect(page.getByPlaceholder(/Search role, project/)).toBeVisible();
+    await expect(page.getByRole('button', { name: /Filters/ })).toBeVisible();
     await expectWorkspacePage(page, '/applications', 'My applications');
     await expectWorkspacePage(page, '/notifications', 'Notifications');
 
@@ -97,9 +102,28 @@ test.describe('credential-backed role smoke', () => {
       page.getByRole('region', { name: 'Applicant status filters' })
     ).toBeVisible();
     await expect(page.getByPlaceholder(/Search name, category/)).toBeVisible();
+    await expect(page.getByPlaceholder('Filter by internal tag')).toBeVisible();
+    await expect(page.getByPlaceholder('Language')).toBeVisible();
     await page.getByRole('button', { name: 'Review profile' }).first().click();
     await expect(page.getByText('Private casting notes')).toBeVisible();
     await expect(page.getByLabel('Rate 5 stars')).toBeVisible();
+    await expect(page.getByRole('link', { name: /Notifications/ })).toBeVisible();
+  });
+
+  test('Talent saved audition control renders', async ({ page }) => {
+    const account = credentials('TALENT');
+    const auditionId = process.env.E2E_TALENT_AUDITION_ID;
+    test.skip(
+      !account || !auditionId,
+      'Set Talent E2E credentials and E2E_TALENT_AUDITION_ID.'
+    );
+    await login(page, account!.email, account!.password);
+    await page.goto(`/auditions/${auditionId}`);
+    await expect(
+      page.getByRole('button', {
+        name: /Save audition|Remove saved audition/,
+      })
+    ).toBeVisible({ timeout: 15_000 });
     await expect(page.getByRole('link', { name: /Notifications/ })).toBeVisible();
   });
 

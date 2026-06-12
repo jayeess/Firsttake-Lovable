@@ -310,6 +310,26 @@ Deploy Phase 2C Firestore changes with:
 npx firebase-tools deploy --only firestore:rules,firestore:indexes --project nata-connect-prod
 ```
 
+## Phase 2D discovery verification
+
+1. Log in as Talent and open `/auditions`.
+2. Search by title, company, and location.
+3. Exercise category, experience, language, project type, compensation, work
+   mode, verified, recent, and deadline filters.
+4. Confirm active-filter chips clear individually and **Clear all** resets them.
+5. Compare newest, deadline, relevance, updated, and recommendation sorting.
+6. Confirm Recommended for you prioritizes category/profile matches.
+7. Save from a card and detail page, then confirm **Saved only** returns it.
+8. Remove the bookmark and confirm it disappears from Saved only.
+9. Confirm draft, closed, expired, and removed auditions are absent for Talent.
+10. Confirm a Recruiter cannot read another user's saved audition records.
+11. In the applicant pipeline, test tag, category, location, language,
+    verified-first, and media-first controls.
+12. Confirm notification navigation and all Phase 2C status actions still work.
+
+Optional browser fixtures use `E2E_TALENT_AUDITION_ID` and
+`E2E_RECRUITER_AUDITION_ID`.
+
 ## Security-test limitation
 
 The rules suite exercises local Firestore rules, not deployed production rules

@@ -1,5 +1,18 @@
 # Changelog
 
+### Phase 2D: Search, Filters, and Discovery
+
+- Added responsive audition search, advanced filters, active chips, result
+  counts, saved-only discovery, and five sort modes
+- Added rule-based Talent recommendations using category, experience,
+  location, skills, and languages
+- Added secure owner-only saved auditions through an authenticated API route
+- Added structured language, project type, work mode, compensation, and
+  normalized search fields for new casting calls with legacy fallbacks
+- Extended recruiter applicant discovery with tag, category, location,
+  language, verified-first, and media-first controls
+- Added discovery policy tests, bookmark security tests, and Playwright checks
+
 ### Phase 2C: Recruiter Applicant Pipeline
 
 - Expanded application workflow with Under review, Maybe, Selected, and

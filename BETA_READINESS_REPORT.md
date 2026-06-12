@@ -107,6 +107,20 @@
 - Server-written audit events for status decisions and recruiter note updates
 - Firestore rule coverage for owner updates, cross-recruiter denial, Talent
   denial, and immutable application fields
+
+## Phase 2D Search and Discovery
+
+- Active/visible Firestore audition query with local beta-scale search,
+  filtering, sorting, and recommendation scoring
+- Search by role, project/company, category, experience, location, language,
+  project type, compensation, work mode, recruiter trust, recency, and deadline
+- Owner-only bookmarks stored in `users/{uid}/savedAuditions/{auditionId}`
+- Firebase-token-verified save/remove API with no client-provided owner UID
+- New auditions receive normalized search fields; legacy auditions use safe
+  inferred values without requiring a migration
+- Recruiter applicant discovery now includes tags, category, location,
+  language, verified-first, and media-first controls
+- No paid search service and no new composite Firestore index required
 - Firebase: `firestore.rules`, `firebase.json`, `.firebaserc.example`
 - Testing: `tests/application-policy.test.mts`, `TESTING.md`, `package.json`
 - Product documentation: `README.md`, `CHANGELOG.md`,

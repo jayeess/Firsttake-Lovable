@@ -24,6 +24,7 @@ import type {
   ApplicationStatus,
   AuditionApplicant,
   Audition,
+  AuditionType,
   ExperienceLevel,
   RecruiterProfile,
   TalentCategory,
@@ -34,9 +35,13 @@ import type {
   TalentVerification,
   UserType,
   RecruiterVerification,
+  SavedAudition,
+  WorkMode,
+  PaymentType,
 } from './types';
 import type { RecruiterReviewInput } from './application-pipeline';
 import { calculateTalentProfileCompleteness } from './talent-trust-policy';
+import { buildAuditionSearchFields } from './audition-discovery';
 
 export interface UserAccount {
   uid: string;
@@ -301,6 +306,10 @@ export const createAudition = async (
     requirements: string;
     numberOfPositions: number;
     payInfo?: string;
+    languages?: string[];
+    auditionType?: AuditionType;
+    workMode?: WorkMode;
+    paymentType?: PaymentType;
     deadline: Date;
     status: 'ACTIVE' | 'DRAFT';
   }
@@ -322,6 +331,7 @@ export const createAudition = async (
     const docRef = await addDoc(collection(getFirestoreDb(), 'auditions'), {
       recruiterId,
       ...auditionData,
+      ...buildAuditionSearchFields(auditionData),
       applicantCount: 0,
       moderationStatus: 'VISIBLE',
       recruiterVerified: true,
@@ -664,6 +674,39 @@ export const submitApplication = async (
       );
     }
     throw new Error(message);
+  }
+};
+
+export const getSavedAuditions = async (
+  talentId: string
+): Promise<SavedAudition[]> => {
+  try {
+    const snapshot = await getDocs(
+      collection(getFirestoreDb(), 'users', talentId, 'savedAuditions')
+    );
+    return snapshot.docs.map((item) => item.data() as SavedAudition);
+  } catch (error: unknown) {
+    throw new Error(getErrorMessage(error, 'Failed to load saved auditions'));
+  }
+};
+
+export const setAuditionSaved = async (
+  auditionId: string,
+  saved: boolean
+) => {
+  const user = getFirebaseAuth().currentUser;
+  if (!user) throw new Error('Please sign in again.');
+  const response = await fetch('/api/auditions/save', {
+    method: saved ? 'POST' : 'DELETE',
+    headers: {
+      Authorization: `Bearer ${await user.getIdToken()}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ auditionId }),
+  });
+  const payload = await response.json();
+  if (!response.ok) {
+    throw new Error(payload.error ?? 'Failed to update saved auditions');
   }
 };
 

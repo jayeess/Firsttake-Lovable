@@ -154,6 +154,18 @@ service cloud.firestore {
             == resource.data.get('verificationStatus', 'not_submitted');
       }
 
+      match /savedAuditions/{auditionId} {
+        allow read: if ownsUser(uid) && isTalent();
+        allow create, update: if ownsUser(uid)
+          && isTalent()
+          && request.resource.data.auditionId == auditionId
+          && get(/databases/$(database)/documents/auditions/$(auditionId)).data.status
+            == 'ACTIVE'
+          && get(/databases/$(database)/documents/auditions/$(auditionId)).data
+            .get('moderationStatus', 'VISIBLE') == 'VISIBLE';
+        allow delete: if ownsUser(uid) && isTalent();
+      }
+
     }
 
     match /notifications/{notificationId} {
@@ -249,8 +261,13 @@ service cloud.firestore {
 
     match /auditions/{auditionId} {
       allow read: if signedIn()
-        && (resource.data.get('moderationStatus', 'VISIBLE') != 'REMOVED'
-          || resource.data.recruiterId == request.auth.uid
+        && ((isTalent()
+            && resource.data.status == 'ACTIVE'
+            && resource.data.get('moderationStatus', 'VISIBLE') == 'VISIBLE')
+          || (isRecruiter()
+            && ((resource.data.status == 'ACTIVE'
+                && resource.data.get('moderationStatus', 'VISIBLE') == 'VISIBLE')
+              || resource.data.recruiterId == request.auth.uid))
           || isAdmin());
       allow create: if isRecruiter()
         && recruiterApproved(request.auth.uid)

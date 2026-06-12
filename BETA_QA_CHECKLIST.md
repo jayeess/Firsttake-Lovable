@@ -71,6 +71,14 @@ browser, Firebase project, commit, and result for every run.
 - [ ] Shortlisted, Rejected, and Selected notify Talent without note/tag spam.
 - [ ] Withdrawn applications remain visible as read-only history.
 - [ ] A different Recruiter cannot read or update the application.
+- [ ] Audition search finds roles by title, company, and location.
+- [ ] Advanced discovery filters and active-filter chips work on mobile.
+- [ ] Recommended sorting responds to the Talent profile.
+- [ ] Talent can save and remove an audition from cards and details.
+- [ ] Saved-only discovery is owner-specific.
+- [ ] Draft, closed, expired, and removed auditions stay hidden from Talent.
+- [ ] Recruiters cannot read Talent bookmark records.
+- [ ] Applicant tag/category/location/language filters preserve pipeline actions.
 - [ ] Viewed, shortlisted, and rejected decisions persist.
 - [ ] Recruiter cannot apply as Talent or moderate another recruiter's audition.
 
