@@ -11,7 +11,12 @@ export type NotificationInput = {
   type: NotificationType;
   title: string;
   message: string;
-  relatedEntityType?: 'application' | 'audition' | 'verification' | 'user';
+  relatedEntityType?:
+    | 'application'
+    | 'audition'
+    | 'verification'
+    | 'user'
+    | 'media';
   relatedEntityId?: string;
   actionUrl?: string;
   createdBy: string;

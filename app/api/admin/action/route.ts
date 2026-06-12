@@ -27,6 +27,9 @@ const allowedActions = new Set([
   'restore_user',
   'remove_audition',
   'restore_audition',
+  'hide_media',
+  'remove_media',
+  'restore_media',
 ]);
 
 export async function POST(request: Request) {
@@ -52,6 +55,8 @@ export async function POST(request: Request) {
         'suspend_talent',
         'suspend_user',
         'remove_audition',
+        'hide_media',
+        'remove_media',
       ].includes(action) &&
       !reason
     ) {
@@ -329,6 +334,74 @@ export async function POST(request: Request) {
         createdBy: actor.uid,
         priority: 'HIGH',
       };
+    } else if (
+      action === 'hide_media' ||
+      action === 'remove_media' ||
+      action === 'restore_media'
+    ) {
+      const [talentId, mediaId] = targetId.split(':');
+      if (!talentId || !mediaId) {
+        throw new AdminRequestError('A valid Talent media target is required.');
+      }
+      const mediaRef = db
+        .collection('users')
+        .doc(talentId)
+        .collection('talentProfiles')
+        .doc(talentId)
+        .collection('media')
+        .doc(mediaId);
+      const media = await mediaRef.get();
+      if (!media.exists || media.data()?.ownerId !== talentId) {
+        throw new AdminRequestError('Talent media was not found.', 404);
+      }
+      const moderationStatus =
+        action === 'hide_media'
+          ? 'hidden'
+          : action === 'remove_media'
+            ? 'removed'
+            : 'active';
+      await mediaRef.update({
+        moderationStatus,
+        moderationReason: reason ?? '',
+        moderatedBy: actor.uid,
+        moderatedAt: now,
+        updatedAt: now,
+      });
+      await writeAuditLog({
+        action:
+          action === 'hide_media'
+            ? 'talent_media_hidden'
+            : action === 'remove_media'
+              ? 'talent_media_removed'
+              : 'talent_media_restored',
+        actor,
+        targetId: mediaId,
+        targetType: 'media',
+        reason,
+        metadata: { talentId, mediaTitle: media.data()?.title ?? '' },
+      });
+      if (action !== 'restore_media') {
+        notification = {
+          recipientId: talentId,
+          recipientRole: 'TALENT',
+          type:
+            action === 'hide_media'
+              ? 'talent_media_hidden'
+              : 'talent_media_removed',
+          title:
+            action === 'hide_media'
+              ? 'Portfolio media hidden'
+              : 'Portfolio media removed',
+          message:
+            reason ||
+            `${media.data()?.title ?? 'A portfolio item'} was updated by moderation.`,
+          relatedEntityType: 'media',
+          relatedEntityId: mediaId,
+          actionUrl: '/talent/profile',
+          createdBy: actor.uid,
+          priority: 'HIGH',
+        };
+      }
     } else {
       const removed = action === 'remove_audition';
       const auditionRef = db.collection('auditions').doc(targetId);

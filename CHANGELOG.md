@@ -4,6 +4,16 @@ All notable changes to Nata Connect are recorded here.
 
 ## Unreleased
 
+### Phase 2B: Talent Media Portfolio
+
+- Added profile photo and portfolio image uploads with progress and validation
+- Added external showreel links without large video uploads
+- Added user-scoped `talent-media` Storage paths and hardened Storage rules
+- Added Talent media metadata, featured media, visibility, and moderation state
+- Added recruiter profile-photo, featured-media, gallery, and showreel previews
+- Added light Admin media moderation with audit logs and Talent notifications
+- Added media completeness, path, URL, Firestore-rule, and Storage-rule tests
+
 ### Phase 2A: Notifications and Activity Center
 
 - Added server-owned top-level notifications with role, priority, related

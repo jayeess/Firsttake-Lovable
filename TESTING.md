@@ -252,6 +252,37 @@ manual testing.
 Document upload must remain disabled while Firebase Storage billing is
 unavailable.
 
+## Talent media manual verification
+
+1. Save a Talent profile, then upload a JPEG, PNG, or WebP profile photo under
+   5 MB.
+2. Confirm progress reaches 100%, the photo appears, and completeness rises.
+3. Upload a portfolio image under 10 MB and add an external http/https
+   showreel.
+4. Edit title/description, change visibility, and set a featured item.
+5. Confirm unsupported MIME types and oversized files show clear errors.
+6. Apply to an audition and confirm the owning approved Recruiter sees only
+   active, recruiter/public media.
+7. Confirm private media is absent from recruiter review.
+8. As Admin, hide/remove a media item and confirm the audit log and Talent
+   notification.
+9. Restore the media and confirm recruiter visibility returns.
+10. Remove media as Talent and confirm its Storage object and metadata are
+    removed.
+
+Storage paths:
+
+```text
+talent-media/{uid}/profile/{generatedName}
+talent-media/{uid}/portfolio/{mediaId}/{generatedName}
+```
+
+Deploy Phase 2B rules with:
+
+```powershell
+npx firebase-tools deploy --only firestore:rules,firestore:indexes,storage
+```
+
 ## Security-test limitation
 
 The rules suite exercises local Firestore rules, not deployed production rules

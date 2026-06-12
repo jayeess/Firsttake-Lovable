@@ -14,7 +14,7 @@ controlled private testing. It is not ready for a public production launch.
 - Tailwind CSS 4
 - Firebase Authentication
 - Cloud Firestore
-- Firebase Storage SDK present, with uploads intentionally disabled
+- Firebase Storage for scoped Talent profile and portfolio images
 - Firebase Admin SDK for trusted moderation
 
 ## Current Capabilities
@@ -24,6 +24,8 @@ controlled private testing. It is not ready for a public production launch.
 - Tab-scoped Firebase sessions for testing different accounts concurrently
 - Talent and recruiter profile forms
 - Talent profile completeness scoring and optional verification
+- Talent profile photo, portfolio images, and external showreel links
+- Recruiter-facing featured media and portfolio previews
 - Recruiter audition creation and applicant review
 - Talent audition discovery, application submission, and status tracking
 - Transactional duplicate-safe application submission
@@ -117,8 +119,9 @@ npx firebase-tools use your_project_id
 npx firebase-tools deploy --only firestore:rules,firestore:indexes
 ```
 
-Storage deployment and upload features remain out of scope until billing is
-available.
+Talent image uploads use `talent-media/{uid}/profile/...` and
+`talent-media/{uid}/portfolio/{mediaId}/...`. Verification document uploads
+remain out of scope.
 
 ## First Administrator
 
@@ -186,8 +189,8 @@ See [TESTING.md](TESTING.md) for accounts, workflows, and removal instructions.
 
 ## Known Launch Gaps
 
-- Verification document upload remains disabled until Storage is enabled
-- Profile and portfolio media upload UI is incomplete
+- Verification document upload remains disabled
+- Large video uploads are intentionally replaced by external showreel links
 - Email/SMS delivery, analytics, monitoring, and legal workflows are not
   production-ready
 - Credential-backed browser tests require dedicated accounts in

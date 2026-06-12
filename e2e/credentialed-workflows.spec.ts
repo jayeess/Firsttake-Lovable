@@ -40,6 +40,13 @@ test.describe('credential-backed role smoke', () => {
       '/talent/profile',
       'Build your professional profile'
     );
+    await expect(
+      page.getByRole('heading', { name: 'Show your work' })
+    ).toBeVisible();
+    await expect(
+      page.getByText('Add portfolio image', { exact: true })
+    ).toBeVisible();
+    await expect(page.getByRole('link', { name: /Notifications/ })).toBeVisible();
     await expectWorkspacePage(page, '/auditions', 'Roles worth showing up for.');
     await expectWorkspacePage(page, '/applications', 'My applications');
     await expectWorkspacePage(page, '/notifications', 'Notifications');

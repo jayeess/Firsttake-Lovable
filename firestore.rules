@@ -74,6 +74,74 @@ service cloud.firestore {
           )
           && request.resource.data.get('verifiedAt', null)
             == resource.data.get('verifiedAt', null);
+
+        match /media/{mediaId} {
+          allow read: if ownsUser(uid)
+            || isAdmin()
+            || (isRecruiter()
+              && recruiterApproved(request.auth.uid)
+              && resource.data.visibility in ['recruiters', 'public']
+              && resource.data.moderationStatus == 'active');
+          allow create: if ownsUser(uid)
+            && profileId == uid
+            && isTalent()
+            && request.resource.data.ownerId == request.auth.uid
+            && request.resource.data.moderationStatus == 'active'
+            && request.resource.data.type in [
+              'image',
+              'video_link',
+              'showreel_link',
+              'document'
+            ]
+            && request.resource.data.visibility in [
+              'private',
+              'recruiters',
+              'public'
+            ]
+            && request.resource.data.keys().hasOnly([
+              'ownerId',
+              'type',
+              'title',
+              'description',
+              'url',
+              'storagePath',
+              'thumbnailUrl',
+              'externalUrl',
+              'mimeType',
+              'sizeBytes',
+              'sortOrder',
+              'isFeatured',
+              'visibility',
+              'moderationStatus',
+              'createdAt',
+              'updatedAt'
+            ]);
+          allow update: if (isAdmin()
+              && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+                'moderationStatus',
+                'moderationReason',
+                'moderatedBy',
+                'moderatedAt',
+                'updatedAt'
+              ]))
+            || (ownsUser(uid)
+              && profileId == uid
+              && isTalent()
+              && request.resource.data.ownerId == resource.data.ownerId
+              && request.resource.data.moderationStatus
+                == resource.data.moderationStatus
+              && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+                'title',
+                'description',
+                'visibility',
+                'sortOrder',
+                'isFeatured',
+                'updatedAt'
+              ]));
+          allow delete: if ownsUser(uid)
+            && profileId == uid
+            && isTalent();
+        }
       }
 
       match /recruiterProfiles/{profileId} {

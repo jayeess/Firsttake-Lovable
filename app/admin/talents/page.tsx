@@ -5,6 +5,7 @@ import { fetchAdminData } from '@/app/lib/admin-client';
 import type {
   TalentProfile,
   TalentVerification,
+  TalentMedia,
 } from '@/app/lib/types';
 import { AdminActionButton } from '@/components/admin-action-button';
 import { AdminShell } from '@/components/admin-shell';
@@ -14,6 +15,7 @@ import { VerifiedBadge } from '@/components/verified-badge';
 type TalentReview = TalentVerification & {
   id: string;
   profile: TalentProfile | null;
+  media: TalentMedia[];
 };
 
 export default function AdminTalentsPage() {
@@ -84,19 +86,23 @@ export default function AdminTalentsPage() {
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    <AdminActionButton
-                      action="verify_talent"
-                      targetId={item.id}
-                      label="Verify"
-                      onComplete={load}
-                    />
-                    <AdminActionButton
-                      action="reject_talent"
-                      targetId={item.id}
-                      label="Reject"
-                      tone="danger"
-                      onComplete={load}
-                    />
+                    {item.talentVerificationStatus === 'pending' && (
+                      <>
+                        <AdminActionButton
+                          action="verify_talent"
+                          targetId={item.id}
+                          label="Verify"
+                          onComplete={load}
+                        />
+                        <AdminActionButton
+                          action="reject_talent"
+                          targetId={item.id}
+                          label="Reject"
+                          tone="danger"
+                          onComplete={load}
+                        />
+                      </>
+                    )}
                     {item.talentVerificationStatus === 'suspended' ? (
                       <AdminActionButton
                         action="restore_talent"
@@ -105,7 +111,7 @@ export default function AdminTalentsPage() {
                         tone="secondary"
                         onComplete={load}
                       />
-                    ) : (
+                    ) : item.talentVerificationStatus !== 'not_submitted' ? (
                       <AdminActionButton
                         action="suspend_talent"
                         targetId={item.id}
@@ -113,7 +119,7 @@ export default function AdminTalentsPage() {
                         tone="danger"
                         onComplete={load}
                       />
-                    )}
+                    ) : null}
                   </div>
                 </div>
 
@@ -129,6 +135,72 @@ export default function AdminTalentsPage() {
                       value={item.profile.location || 'Not provided'}
                     />
                   </dl>
+                )}
+                {item.media?.length > 0 && (
+                  <section className="mt-5 border-t border-[#e0e6e9] pt-5">
+                    <div className="flex items-center justify-between gap-3">
+                      <h3 className="font-black">Portfolio moderation</h3>
+                      <span className="text-sm font-bold text-[#657176]">
+                        {item.media.length} items
+                      </span>
+                    </div>
+                    <div className="mt-3 grid gap-3 md:grid-cols-2">
+                      {item.media.map((media) => (
+                        <article
+                          key={media.id}
+                          className="border border-[#d8e1e5] p-4"
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <p className="font-black">{media.title}</p>
+                              <p className="mt-1 text-xs font-bold uppercase text-[#718087]">
+                                {media.type.replace('_', ' ')} ·{' '}
+                                {media.moderationStatus}
+                              </p>
+                            </div>
+                            {media.url && (
+                              <a
+                                href={media.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-sm font-bold text-[#008ca6]"
+                              >
+                                Review
+                              </a>
+                            )}
+                          </div>
+                          <div className="mt-4 flex flex-wrap gap-2">
+                            {media.moderationStatus === 'active' ? (
+                              <>
+                                <AdminActionButton
+                                  action="hide_media"
+                                  targetId={`${item.id}:${media.id}`}
+                                  label="Hide"
+                                  tone="secondary"
+                                  onComplete={load}
+                                />
+                                <AdminActionButton
+                                  action="remove_media"
+                                  targetId={`${item.id}:${media.id}`}
+                                  label="Remove"
+                                  tone="danger"
+                                  onComplete={load}
+                                />
+                              </>
+                            ) : (
+                              <AdminActionButton
+                                action="restore_media"
+                                targetId={`${item.id}:${media.id}`}
+                                label="Restore"
+                                tone="secondary"
+                                onComplete={load}
+                              />
+                            )}
+                          </div>
+                        </article>
+                      ))}
+                    </div>
+                  </section>
                 )}
                 {item.rejectedReason && (
                   <p className="mt-4 border-l-2 border-red-400 pl-3 text-sm text-red-800">

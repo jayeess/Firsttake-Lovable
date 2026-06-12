@@ -29,7 +29,7 @@ browser, Firebase project, commit, and result for every run.
 - [ ] Localhost and the beta hostname are authorized domains.
 - [ ] Firestore rules are deployed.
 - [ ] Firestore indexes are deployed and finished building.
-- [ ] Storage and document uploads remain disabled while billing is unavailable.
+- [ ] Talent image Storage rules are deployed; verification documents remain disabled.
 
 ## Authentication
 
@@ -48,6 +48,9 @@ browser, Firebase project, commit, and result for every run.
 - [ ] Pending/rejected/verified/suspended states are clear.
 - [ ] Rejected Talent can fix the profile and resubmit.
 - [ ] Verification does not block discovery or applications.
+- [ ] Profile photo upload/change/remove works for JPEG, PNG, and WebP.
+- [ ] Portfolio image and external showreel management works.
+- [ ] Oversized and unsupported media are rejected clearly.
 - [ ] Active visible auditions load and filters work.
 - [ ] Closed, expired, draft, or removed auditions cannot accept applications.
 - [ ] One application succeeds and a duplicate is rejected.
@@ -61,6 +64,7 @@ browser, Firebase project, commit, and result for every run.
 - [ ] Pending/rejected/suspended states explain the next action.
 - [ ] Only approved active recruiters can publish auditions.
 - [ ] Applicant pipeline loads profile, cover message, and contact details.
+- [ ] Applicant pipeline shows only active recruiter-visible Talent media.
 - [ ] Viewed, shortlisted, and rejected decisions persist.
 - [ ] Recruiter cannot apply as Talent or moderate another recruiter's audition.
 
@@ -74,6 +78,7 @@ browser, Firebase project, commit, and result for every run.
 - [ ] User suspension/restoration works.
 - [ ] Audition removal/restoration works.
 - [ ] Every privileged action writes an audit log.
+- [ ] Media hide/remove/restore moderation works and is audited.
 - [ ] Unexpected API failures return a generic message without credentials.
 
 ## Security
@@ -106,7 +111,7 @@ browser, Firebase project, commit, and result for every run.
 
 ## Known Blockers
 
-- Firebase Storage billing is unavailable; media/document uploads stay disabled.
+- Large video and verification-document uploads remain intentionally disabled.
 - Local rules tests exist; this machine still needs Java 21 to execute them.
 - Notifications, analytics, monitoring, and legal workflows are outside Phase 1.5.
 - Credential-backed E2E tests skip when `.env.e2e.local` credentials are absent.

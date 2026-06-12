@@ -178,7 +178,20 @@ export default function AuditionApplicantsPage() {
           return (
             <article key={application.id} className="surface p-6">
               <div className="flex flex-wrap items-start justify-between gap-4">
-                <div>
+                <div className="flex min-w-0 items-start gap-4">
+                  <div
+                    role="img"
+                    aria-label={`${name} profile photo`}
+                    className="size-20 shrink-0 border border-[#cbd6db] bg-[#e7eef1] bg-cover bg-center"
+                    style={
+                      talent?.profilePhotoUrl
+                        ? {
+                            backgroundImage: `url("${talent.profilePhotoUrl}")`,
+                          }
+                        : undefined
+                    }
+                  />
+                  <div>
                   <div className="flex flex-wrap items-center gap-3">
                     <p className="text-2xl font-black">{name}</p>
                     {talent?.talentVerificationStatus === 'verified' && (
@@ -188,6 +201,7 @@ export default function AuditionApplicantsPage() {
                   <p className="mt-2 text-sm text-[#657176]">
                     Applied {formatDate(application.createdAt)}
                   </p>
+                  </div>
                 </div>
                 <StatusBadge status={application.status} />
               </div>
@@ -207,6 +221,62 @@ export default function AuditionApplicantsPage() {
                     value={talent.location || 'Not provided'}
                   />
                 </div>
+              )}
+
+              {applicant.media.length > 0 && (
+                <section className="mt-5">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-xs font-bold uppercase text-[#778287]">
+                      Portfolio preview
+                    </p>
+                    <span className="text-xs font-bold text-[#657176]">
+                      {applicant.media.length} visible items
+                    </span>
+                  </div>
+                  <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                    {applicant.media.map((item) => (
+                      <article
+                        key={item.id}
+                        className={`border p-3 ${
+                          item.isFeatured
+                            ? 'border-[#d8a843] bg-[#fffaf0]'
+                            : 'border-[#dce3e7]'
+                        }`}
+                      >
+                        {item.type === 'image' && item.url ? (
+                          <div
+                            role="img"
+                            aria-label={item.title}
+                            className="aspect-video bg-[#e7eef1] bg-cover bg-center"
+                            style={{
+                              backgroundImage: `url("${item.url}")`,
+                            }}
+                          />
+                        ) : (
+                          <div className="flex aspect-video items-center justify-center bg-[#07111f] px-4 text-center text-sm font-bold text-white">
+                            External showreel
+                          </div>
+                        )}
+                        <p className="mt-3 font-black">{item.title}</p>
+                        {item.description && (
+                          <p className="mt-1 line-clamp-2 text-sm text-[#657176]">
+                            {item.description}
+                          </p>
+                        )}
+                        {item.externalUrl && (
+                          <a
+                            href={item.externalUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-3 inline-block text-sm font-bold text-[#008ca6]"
+                          >
+                            Open showreel
+                          </a>
+                        )}
+                      </article>
+                    ))}
+                  </div>
+                </section>
               )}
 
               <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_auto]">

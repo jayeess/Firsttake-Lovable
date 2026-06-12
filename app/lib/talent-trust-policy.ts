@@ -38,7 +38,7 @@ export const calculateTalentProfileCompleteness = (
         hasText(profile.websiteUrl)
     ),
     profilePhoto: hasText(profile.profilePhotoUrl),
-    portfolioMedia: Boolean(profile.portfolioMediaUrls?.length),
+    portfolioMedia: Number(profile.portfolioMediaCount ?? 0) > 0,
     skillsAndLanguages: Boolean(
       profile.skills?.some(hasText) || profile.languages?.some(hasText)
     ),
@@ -59,8 +59,8 @@ export const calculateTalentProfileCompleteness = (
     location: 'Add your current location',
     bio: 'Write a professional bio of at least 80 characters',
     professionalLinks: 'Add Instagram, YouTube, or a portfolio website',
-    profilePhoto: 'Add a profile photo when uploads become available',
-    portfolioMedia: 'Add portfolio media when uploads become available',
+    profilePhoto: 'Add a professional profile photo',
+    portfolioMedia: 'Add at least one portfolio image or showreel',
     skillsAndLanguages:
       'Add skills or languages when those fields become available',
   };

@@ -11,6 +11,7 @@ import {
   updateDoc,
   deleteDoc,
   addDoc,
+  runTransaction,
   QueryConstraint,
   type DocumentData,
   type UpdateData,
@@ -27,6 +28,9 @@ import type {
   RecruiterProfile,
   TalentCategory,
   TalentProfile,
+  TalentMedia,
+  TalentMediaType,
+  TalentMediaVisibility,
   TalentVerification,
   UserType,
   RecruiterVerification,
@@ -346,6 +350,168 @@ export const createAudition = async (
     }
     throw new Error(message);
   }
+};
+
+const talentMediaCollection = (uid: string) =>
+  collection(
+    getFirestoreDb(),
+    'users',
+    uid,
+    'talentProfiles',
+    uid,
+    'media'
+  );
+
+export const createTalentMediaId = (uid: string) =>
+  doc(talentMediaCollection(uid)).id;
+
+export const getTalentMedia = async (
+  uid: string,
+  recruiterVisibleOnly = false
+): Promise<TalentMedia[]> => {
+  const constraints: QueryConstraint[] = recruiterVisibleOnly
+    ? [
+        where('moderationStatus', '==', 'active'),
+        where('visibility', 'in', ['recruiters', 'public']),
+      ]
+    : [];
+  const snapshot = await getDocs(
+    query(talentMediaCollection(uid), ...constraints)
+  );
+  return snapshot.docs
+    .map((item) => ({ id: item.id, ...item.data() }) as TalentMedia)
+    .sort((first, second) => first.sortOrder - second.sortOrder);
+};
+
+export const saveTalentMedia = async (
+  uid: string,
+  mediaId: string,
+  input: {
+    type: TalentMediaType;
+    title: string;
+    description?: string;
+    url?: string;
+    storagePath?: string;
+    externalUrl?: string;
+    mimeType?: string;
+    sizeBytes?: number;
+    visibility?: TalentMediaVisibility;
+  }
+) => {
+  const db = getFirestoreDb();
+  const profileRef = doc(db, 'users', uid, 'talentProfiles', uid);
+  const mediaRef = doc(talentMediaCollection(uid), mediaId);
+  await runTransaction(db, async (transaction) => {
+    const profile = await transaction.get(profileRef);
+    const count = Number(profile.data()?.portfolioMediaCount ?? 0);
+    transaction.set(mediaRef, {
+      ownerId: uid,
+      type: input.type,
+      title: input.title.trim().slice(0, 120),
+      description: input.description?.trim().slice(0, 1000) ?? '',
+      url: input.url ?? '',
+      storagePath: input.storagePath ?? '',
+      thumbnailUrl: input.type === 'image' ? input.url ?? '' : '',
+      externalUrl: input.externalUrl ?? '',
+      mimeType: input.mimeType ?? '',
+      sizeBytes: input.sizeBytes ?? 0,
+      sortOrder: count,
+      isFeatured: count === 0,
+      visibility: input.visibility ?? 'recruiters',
+      moderationStatus: 'active',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    transaction.set(
+      profileRef,
+      {
+        portfolioMediaCount: count + 1,
+        featuredMediaId:
+          profile.data()?.featuredMediaId || (count === 0 ? mediaId : ''),
+        mediaUpdatedAt: new Date(),
+        updatedAt: new Date(),
+      },
+      { merge: true }
+    );
+  });
+};
+
+export const updateTalentMedia = async (
+  uid: string,
+  mediaId: string,
+  updates: Pick<TalentMedia, 'title' | 'description' | 'visibility'>
+) => {
+  await updateDoc(doc(talentMediaCollection(uid), mediaId), {
+    title: updates.title.trim().slice(0, 120),
+    description: updates.description.trim().slice(0, 1000),
+    visibility: updates.visibility,
+    updatedAt: new Date(),
+  });
+};
+
+export const setFeaturedTalentMedia = async (
+  uid: string,
+  mediaId: string
+) => {
+  const db = getFirestoreDb();
+  const profileRef = doc(db, 'users', uid, 'talentProfiles', uid);
+  const mediaSnapshot = await getDocs(talentMediaCollection(uid));
+  const batchUpdates = mediaSnapshot.docs.map((item) =>
+    updateDoc(item.ref, {
+      isFeatured: item.id === mediaId,
+      updatedAt: new Date(),
+    })
+  );
+  await Promise.all([
+    ...batchUpdates,
+    updateDoc(profileRef, {
+      featuredMediaId: mediaId,
+      mediaUpdatedAt: new Date(),
+      updatedAt: new Date(),
+    }),
+  ]);
+};
+
+export const removeTalentMedia = async (
+  uid: string,
+  mediaId: string
+) => {
+  const db = getFirestoreDb();
+  const profileRef = doc(db, 'users', uid, 'talentProfiles', uid);
+  const mediaRef = doc(talentMediaCollection(uid), mediaId);
+  await runTransaction(db, async (transaction) => {
+    const [profile, media] = await Promise.all([
+      transaction.get(profileRef),
+      transaction.get(mediaRef),
+    ]);
+    if (!media.exists()) return;
+    const count = Math.max(
+      0,
+      Number(profile.data()?.portfolioMediaCount ?? 1) - 1
+    );
+    transaction.delete(mediaRef);
+    transaction.update(profileRef, {
+      portfolioMediaCount: count,
+      featuredMediaId:
+        profile.data()?.featuredMediaId === mediaId
+          ? ''
+          : profile.data()?.featuredMediaId ?? '',
+      mediaUpdatedAt: new Date(),
+      updatedAt: new Date(),
+    });
+  });
+};
+
+export const updateTalentProfilePhoto = async (
+  uid: string,
+  photo?: { url: string; storagePath: string }
+) => {
+  await updateDoc(doc(getFirestoreDb(), 'users', uid, 'talentProfiles', uid), {
+    profilePhotoUrl: photo?.url ?? '',
+    profilePhotoPath: photo?.storagePath ?? '',
+    mediaUpdatedAt: new Date(),
+    updatedAt: new Date(),
+  });
 };
 
 export const getTalentVerification = async (
@@ -684,9 +850,20 @@ export const getAuditionApplicants = async (
   const applications = await getAuditionApplications(auditionId);
 
   return Promise.all(
-    applications.map(async (application) => ({
-      application,
-      talent: await getTalentProfile(application.talentId).catch(() => null),
-    }))
+    applications.map(async (application) => {
+      const [talent, media] = await Promise.all([
+        getTalentProfile(application.talentId).catch(() => null),
+        getTalentMedia(application.talentId, true).catch(() => []),
+      ]);
+      return {
+        application,
+        talent,
+        media: media.filter(
+          (item) =>
+            item.moderationStatus === 'active' &&
+            item.visibility !== 'private'
+        ),
+      };
+    })
   );
 };

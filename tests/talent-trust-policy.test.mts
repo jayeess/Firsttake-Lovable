@@ -29,6 +29,18 @@ test('complete core Talent profile reaches verification eligibility', () => {
   assert.equal(result.eligibleForVerification, true);
 });
 
+test('profile photo and portfolio media increase completeness', () => {
+  const withoutMedia = calculateTalentProfileCompleteness(completeProfile);
+  const withMedia = calculateTalentProfileCompleteness({
+    ...completeProfile,
+    profilePhotoUrl: 'https://example.test/profile.jpg',
+    portfolioMediaCount: 1,
+  });
+  assert.equal(withMedia.score, withoutMedia.score + 10);
+  assert.equal(withMedia.checklist.profilePhoto, true);
+  assert.equal(withMedia.checklist.portfolioMedia, true);
+});
+
 test('incomplete Talent profile cannot submit verification', () => {
   const result = calculateTalentProfileCompleteness({
     ...completeProfile,

@@ -18,6 +18,12 @@ import {
   updateDoc,
   where,
 } from 'firebase/firestore';
+import {
+  deleteObject,
+  getBytes,
+  ref as storageRef,
+  uploadBytes,
+} from 'firebase/storage';
 
 const projectId = 'demo-nata-connect';
 let environment: RulesTestEnvironment;
@@ -123,6 +129,11 @@ before(async () => {
       port: 8080,
       rules: await readFile('firestore.rules', 'utf8'),
     },
+    storage: {
+      host: '127.0.0.1',
+      port: 9199,
+      rules: await readFile('storage.rules', 'utf8'),
+    },
   });
 });
 
@@ -199,6 +210,163 @@ test('Talent cannot edit admin-owned verification fields on their profile', asyn
       verifiedAt: serverTimestamp(),
     })
   );
+});
+
+test('Talent can create valid media metadata but cannot spoof ownership or moderation', async () => {
+  await environment.withSecurityRulesDisabled(async (context) => {
+    await setDoc(
+      doc(context.firestore(), 'users/talent-a/talentProfiles/talent-a'),
+      { firstName: 'Talent', talentVerificationStatus: 'not_submitted' }
+    );
+  });
+  const db = environment.authenticatedContext('talent-a').firestore();
+  const mediaRef = doc(
+    db,
+    'users/talent-a/talentProfiles/talent-a/media/media-a'
+  );
+  const data = {
+    ownerId: 'talent-a',
+    type: 'image',
+    title: 'Headshot',
+    description: '',
+    url: 'https://example.test/headshot.jpg',
+    storagePath: 'talent-media/talent-a/portfolio/media-a/media-a.jpg',
+    thumbnailUrl: '',
+    externalUrl: '',
+    mimeType: 'image/jpeg',
+    sizeBytes: 1000,
+    sortOrder: 0,
+    isFeatured: true,
+    visibility: 'recruiters',
+    moderationStatus: 'active',
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  };
+  await assertSucceeds(setDoc(mediaRef, data));
+  await assertFails(
+    setDoc(
+      doc(db, 'users/talent-a/talentProfiles/talent-a/media/spoofed'),
+      { ...data, ownerId: 'talent-b' }
+    )
+  );
+  await assertFails(
+    setDoc(
+      doc(db, 'users/talent-a/talentProfiles/talent-a/media/hidden'),
+      { ...data, moderationStatus: 'hidden' }
+    )
+  );
+});
+
+test('Talent cannot edit another Talent media or moderation status', async () => {
+  await environment.withSecurityRulesDisabled(async (context) => {
+    await setDoc(
+      doc(
+        context.firestore(),
+        'users/talent-a/talentProfiles/talent-a/media/media-a'
+      ),
+      {
+        ownerId: 'talent-a',
+        type: 'image',
+        title: 'Headshot',
+        visibility: 'recruiters',
+        moderationStatus: 'active',
+      }
+    );
+  });
+  const ownerDb = environment.authenticatedContext('talent-a').firestore();
+  const otherDb = environment.authenticatedContext('talent-b').firestore();
+  const path = 'users/talent-a/talentProfiles/talent-a/media/media-a';
+  await assertFails(
+    updateDoc(doc(ownerDb, path), { moderationStatus: 'hidden' })
+  );
+  await assertFails(updateDoc(doc(otherDb, path), { title: 'Changed' }));
+});
+
+test('Admin can hide or remove Talent media metadata', async () => {
+  await environment.withSecurityRulesDisabled(async (context) => {
+    await setDoc(
+      doc(
+        context.firestore(),
+        'users/talent-a/talentProfiles/talent-a/media/media-a'
+      ),
+      {
+        ownerId: 'talent-a',
+        type: 'image',
+        title: 'Headshot',
+        visibility: 'recruiters',
+        moderationStatus: 'active',
+      }
+    );
+  });
+  const db = environment
+    .authenticatedContext('admin-a', { admin: true })
+    .firestore();
+  const ref = doc(
+    db,
+    'users/talent-a/talentProfiles/talent-a/media/media-a'
+  );
+  await assertSucceeds(updateDoc(ref, { moderationStatus: 'hidden' }));
+  await assertSucceeds(updateDoc(ref, { moderationStatus: 'removed' }));
+});
+
+test('Storage accepts valid owner images and rejects another user path', async () => {
+  const ownerStorage = environment.authenticatedContext('talent-a').storage();
+  const otherStorage = environment.authenticatedContext('talent-b').storage();
+  const path = 'talent-media/talent-a/profile/photo.jpg';
+  const metadata = {
+    contentType: 'image/jpeg',
+    customMetadata: {
+      ownerId: 'talent-a',
+      visibility: 'recruiters',
+      mediaKind: 'profile',
+    },
+  };
+  await assertSucceeds(
+    uploadBytes(storageRef(ownerStorage, path), new Uint8Array([1, 2, 3]), metadata)
+  );
+  await assertFails(
+    uploadBytes(
+      storageRef(otherStorage, 'talent-media/talent-a/profile/forged.jpg'),
+      new Uint8Array([1, 2, 3]),
+      metadata
+    )
+  );
+});
+
+test('Storage rejects unsupported media and allows approved Recruiter reads', async () => {
+  const ownerStorage = environment.authenticatedContext('talent-a').storage();
+  const recruiterStorage = environment
+    .authenticatedContext('recruiter-a')
+    .storage();
+  const invalidRef = storageRef(
+    ownerStorage,
+    'talent-media/talent-a/portfolio/media-b/media-b.mp4'
+  );
+  await assertFails(
+    uploadBytes(invalidRef, new Uint8Array([1, 2, 3]), {
+      contentType: 'video/mp4',
+      customMetadata: {
+        ownerId: 'talent-a',
+        visibility: 'recruiters',
+        mediaKind: 'portfolio',
+      },
+    })
+  );
+
+  const validPath =
+    'talent-media/talent-a/portfolio/media-a/media-a.webp';
+  await assertSucceeds(
+    uploadBytes(storageRef(ownerStorage, validPath), new Uint8Array([1, 2, 3]), {
+      contentType: 'image/webp',
+      customMetadata: {
+        ownerId: 'talent-a',
+        visibility: 'recruiters',
+        mediaKind: 'portfolio',
+      },
+    })
+  );
+  await assertSucceeds(getBytes(storageRef(recruiterStorage, validPath)));
+  await assertSucceeds(deleteObject(storageRef(ownerStorage, validPath)));
 });
 
 test('Talent can create only their own application to an active audition', async () => {

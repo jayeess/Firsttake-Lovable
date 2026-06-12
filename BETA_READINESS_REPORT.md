@@ -78,6 +78,16 @@
 - Notification policy tests, Firestore rule tests, and protected-route E2E
   coverage are included
 
+## Phase 2B Talent Media
+
+- Talent can upload/change/remove a profile photo up to 5 MB
+- Talent can manage portfolio images up to 10 MB and external showreel links
+- Uploads use generated user-scoped Storage paths and progress feedback
+- Media visibility, featured state, count, and moderation status are persisted
+- Recruiter applicant review shows active recruiter-visible media
+- Admins can hide, remove, and restore media metadata with audit logging
+- Profile completeness reacts to real photo and portfolio media
+
 ## Files Changed
 
 - Authentication: `app/lib/auth-service.ts`, `app/lib/error-utils.ts`,
@@ -132,8 +142,7 @@ Run `npm run verify` again immediately before every deployment.
 ## Known Issues
 
 - Credential-backed browser tests require dedicated local test accounts
-- Storage rules exist, but complete portfolio and verification upload flows do
-  not
+- Verification document and large video upload flows remain disabled
 - No email/SMS delivery or notification preference controls
 - Report/abuse handling and account deletion are not implemented
 - No production analytics, error monitoring, uptime monitoring, or backups

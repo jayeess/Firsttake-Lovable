@@ -45,7 +45,7 @@ Nata Connect is no longer a static demonstration. It is a working Firebase-backe
 | Automated testing | Partial | Policy tests and browser smoke tests exist; emulator tests remain |
 | Admin operations | Implemented | Requires server credentials and an admin custom claim per environment |
 | Notifications | Implemented in-app | Email/SMS and preferences remain future work |
-| Media portfolio | Not implemented | Required for a serious casting product |
+| Media portfolio | Phase 2B implemented | Images and external showreels supported |
 | Deployment operations | Partial | Build passes, production process is undocumented |
 
 ## 3. Implemented Features
@@ -191,7 +191,7 @@ See `TESTING.md` for the complete testing guide.
 
 - Firebase Authentication
 - Cloud Firestore
-- Firebase Storage SDK is configured, but portfolio upload workflows are not yet connected
+- Firebase Storage provides scoped Talent profile and portfolio image uploads
 
 ### Main application layers
 
@@ -243,7 +243,9 @@ Contains identity metadata such as email, user type, account status, verificatio
 users/{uid}/talentProfiles/{uid}
 ```
 
-Contains the talent's professional information and portfolio links.
+Contains professional information, profile-photo metadata, media count, and
+featured-media state. Portfolio entries live in
+`users/{uid}/talentProfiles/{uid}/media/{mediaId}`.
 
 ### Recruiter profile
 
@@ -364,14 +366,9 @@ Emulator security-rule tests and automated accessibility tests remain.
 
 ### 8.6 Media is not implemented
 
-The Firebase Storage service exists, but talent cannot upload:
-
-- Profile photographs
-- Headshots
-- Showreels
-- Audio reels
-- Resume/CV
-- Self-tapes
+Talent can upload profile photographs and portfolio images, and can add
+external showreel links. Large video, audio reel, resume/CV, and self-tape file
+uploads remain future work.
 
 These are essential for a competitive casting platform.
 
@@ -458,9 +455,9 @@ checklist in `TESTING.md`.
 
 **Priority: high product value**
 
-1. Profile image and headshot uploads.
-2. Multiple portfolio images.
-3. Showreel and audio reel support.
+1. Completed: profile image and headshot uploads.
+2. Completed: multiple portfolio images.
+3. Partially completed: external showreel links; uploaded video/audio remains.
 4. Resume/CV upload.
 5. Languages, skills, availability, and work authorization.
 6. Physical attributes appropriate to the selected category.
@@ -611,7 +608,7 @@ At the time of this document:
 - [ ] Define the first closed-beta user group
 - [x] Add initial application policy unit tests
 - [ ] Add Firebase rule and browser end-to-end tests before expanding features
-- [ ] Prioritize portfolio media uploads
+- [x] Add initial profile photo and portfolio media uploads
 
 ---
 

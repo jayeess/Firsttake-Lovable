@@ -23,6 +23,7 @@ import {
   TALENT_VERIFICATION_MINIMUM_SCORE,
 } from '@/app/lib/talent-trust-policy';
 import { VerifiedBadge } from '@/components/verified-badge';
+import { TalentMediaManager } from '@/components/talent-media-manager';
 
 const initialProfile: TalentProfile = {
   firstName: '',
@@ -170,6 +171,7 @@ export default function TalentProfilePage() {
   const [submittingVerification, setSubmittingVerification] = useState(false);
   const [verification, setVerification] =
     useState<TalentVerification | null>(null);
+  const [profileSaved, setProfileSaved] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -178,7 +180,10 @@ export default function TalentProfilePage() {
       getTalentVerification(user.uid),
     ])
       .then(([data, verificationData]) => {
-        if (data) setProfile(data);
+        if (data) {
+          setProfile(data);
+          setProfileSaved(true);
+        }
         setVerification(verificationData);
       })
       .catch((err: unknown) =>
@@ -213,6 +218,7 @@ export default function TalentProfilePage() {
         profileCompletenessScore: completeness.score,
         profileCompletenessChecklist: completeness.checklist,
       }));
+      setProfileSaved(true);
       setMessage('Your talent profile has been saved.');
     } catch (err: unknown) {
       setError(getErrorMessage(err, 'Unable to save profile'));
@@ -333,6 +339,26 @@ export default function TalentProfilePage() {
             </div>
           )}
         </section>
+        {user && profileSaved ? (
+          <TalentMediaManager
+            uid={user.uid}
+            profile={profile}
+            onProfileChange={(updates) =>
+              setProfile((current) => ({ ...current, ...updates }))
+            }
+          />
+        ) : (
+          <section className="surface mt-6 p-6">
+            <p className="eyebrow">Media portfolio</p>
+            <h2 className="mt-2 text-2xl font-black">
+              Save your profile to add media
+            </h2>
+            <p className="mt-2 text-sm text-[#657176]">
+              Your basic Talent profile creates the secure owner record used by
+              profile photos and portfolio uploads.
+            </p>
+          </section>
+        )}
         <div className="mt-6">
           <DevFormPresets
             title="Choose a ready-made talent profile to preview the completed experience."

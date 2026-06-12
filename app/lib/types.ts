@@ -32,6 +32,13 @@ export type TalentVerificationStatus =
   | 'rejected'
   | 'suspended';
 export type ModerationStatus = 'VISIBLE' | 'REMOVED';
+export type TalentMediaType =
+  | 'image'
+  | 'video_link'
+  | 'showreel_link'
+  | 'document';
+export type TalentMediaVisibility = 'private' | 'recruiters' | 'public';
+export type TalentMediaModerationStatus = 'active' | 'hidden' | 'removed';
 export type NotificationRole = 'TALENT' | 'RECRUITER' | 'ADMIN';
 export type NotificationPriority = 'LOW' | 'NORMAL' | 'HIGH';
 export type NotificationType =
@@ -49,6 +56,10 @@ export type NotificationType =
   | 'audition_published'
   | 'audition_removed'
   | 'audition_restored'
+  | 'talent_profile_photo_uploaded'
+  | 'talent_portfolio_media_added'
+  | 'talent_media_hidden'
+  | 'talent_media_removed'
   | 'user_suspended'
   | 'user_restored';
 
@@ -80,7 +91,10 @@ export interface TalentProfile {
   youtubeUrl?: string;
   websiteUrl?: string;
   profilePhotoUrl?: string;
-  portfolioMediaUrls?: string[];
+  profilePhotoPath?: string;
+  portfolioMediaCount?: number;
+  featuredMediaId?: string;
+  mediaUpdatedAt?: Date | Timestamp;
   skills?: string[];
   languages?: string[];
   isPublic: boolean;
@@ -103,6 +117,27 @@ export interface TalentVerification {
   submittedAt?: Date | Timestamp;
   reviewedAt?: Date | Timestamp;
   reviewedBy?: string;
+  updatedAt?: Date | Timestamp;
+}
+
+export interface TalentMedia {
+  id: string;
+  ownerId: string;
+  type: TalentMediaType;
+  title: string;
+  description: string;
+  url?: string;
+  storagePath?: string;
+  thumbnailUrl?: string;
+  externalUrl?: string;
+  mimeType?: string;
+  sizeBytes?: number;
+  sortOrder: number;
+  isFeatured: boolean;
+  visibility: TalentMediaVisibility;
+  moderationStatus: TalentMediaModerationStatus;
+  moderationReason?: string;
+  createdAt?: Date | Timestamp;
   updatedAt?: Date | Timestamp;
 }
 
@@ -143,7 +178,7 @@ export interface AuditLog {
   actorEmail?: string | null;
   targetUid?: string;
   targetId?: string;
-  targetType: 'recruiter' | 'talent' | 'user' | 'audition';
+  targetType: 'recruiter' | 'talent' | 'user' | 'audition' | 'media';
   reason?: string;
   note?: string;
   timestamp?: Date | Timestamp;
@@ -193,7 +228,12 @@ export interface AppNotification {
   type: NotificationType;
   title: string;
   message: string;
-  relatedEntityType?: 'application' | 'audition' | 'verification' | 'user';
+  relatedEntityType?:
+    | 'application'
+    | 'audition'
+    | 'verification'
+    | 'user'
+    | 'media';
   relatedEntityId?: string;
   actionUrl?: string;
   read: boolean;
@@ -206,6 +246,7 @@ export interface AppNotification {
 export interface AuditionApplicant {
   application: Application;
   talent: TalentProfile | null;
+  media: TalentMedia[];
 }
 
 export const CATEGORY_LABELS: Record<TalentCategory, string> = {

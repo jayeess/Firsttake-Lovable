@@ -25,23 +25,51 @@ export async function GET(request: Request) {
       return Response.json({ users: serialize(snapshot) });
     }
     if (view === 'talentVerifications') {
-      const snapshot = await db
-        .collection('talentVerifications')
-        .orderBy('updatedAt', 'desc')
-        .limit(100)
-        .get();
+      const [snapshot, talentAccounts] = await Promise.all([
+        db
+          .collection('talentVerifications')
+          .orderBy('updatedAt', 'desc')
+          .limit(100)
+          .get(),
+        db.collection('users').where('userType', '==', 'TALENT').limit(200).get(),
+      ]);
+      const verificationByTalent = new Map(
+        snapshot.docs.map((item) => [item.id, item.data()])
+      );
       const talents = await Promise.all(
-        snapshot.docs.map(async (item) => {
+        talentAccounts.docs.map(async (account) => {
+          const verification = verificationByTalent.get(account.id);
           const profile = await db
             .collection('users')
-            .doc(item.id)
+            .doc(account.id)
             .collection('talentProfiles')
-            .doc(item.id)
+            .doc(account.id)
+            .get();
+          const media = await db
+            .collection('users')
+            .doc(account.id)
+            .collection('talentProfiles')
+            .doc(account.id)
+            .collection('media')
+            .orderBy('sortOrder', 'asc')
             .get();
           return {
-            id: item.id,
-            ...item.data(),
+            id: account.id,
+            talentId: account.id,
+            talentEmail: account.data().email ?? null,
+            talentVerificationStatus:
+              verification?.talentVerificationStatus ?? 'not_submitted',
+            profileCompletenessScore:
+              verification?.profileCompletenessScore ??
+              profile.data()?.profileCompletenessScore ??
+              0,
+            profileCompletenessChecklist:
+              verification?.profileCompletenessChecklist ??
+              profile.data()?.profileCompletenessChecklist ??
+              {},
+            ...verification,
             profile: profile.exists ? profile.data() : null,
+            media: serialize(media),
           };
         })
       );
