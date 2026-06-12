@@ -65,6 +65,12 @@ browser, Firebase project, commit, and result for every run.
 - [ ] Only approved active recruiters can publish auditions.
 - [ ] Applicant pipeline loads profile, cover message, and contact details.
 - [ ] Applicant pipeline shows only active recruiter-visible Talent media.
+- [ ] Applicant stage tabs show accurate counts for all eight statuses.
+- [ ] Search, verification/media/completeness/rating filters, and sorting work.
+- [ ] Notes, internal tags, and ratings persist and remain private.
+- [ ] Shortlisted, Rejected, and Selected notify Talent without note/tag spam.
+- [ ] Withdrawn applications remain visible as read-only history.
+- [ ] A different Recruiter cannot read or update the application.
 - [ ] Viewed, shortlisted, and rejected decisions persist.
 - [ ] Recruiter cannot apply as Talent or moderate another recruiter's audition.
 

@@ -35,6 +35,7 @@ import type {
   UserType,
   RecruiterVerification,
 } from './types';
+import type { RecruiterReviewInput } from './application-pipeline';
 import { calculateTalentProfileCompleteness } from './talent-trust-policy';
 
 export interface UserAccount {
@@ -791,7 +792,19 @@ export const updateApplicationStatus = async (
   auditionId: string,
   applicationId: string,
   newStatus: ApplicationStatus,
-  recruiterNotes?: string,
+  recruiterNote?: string,
+  rejectionReason?: string
+) => {
+  return updateApplicationReview(auditionId, applicationId, {
+    status: newStatus,
+    recruiterNote,
+  }, rejectionReason);
+};
+
+export const updateApplicationReview = async (
+  auditionId: string,
+  applicationId: string,
+  review: RecruiterReviewInput,
   rejectionReason?: string
 ) => {
   try {
@@ -806,8 +819,7 @@ export const updateApplicationStatus = async (
       body: JSON.stringify({
         auditionId,
         applicationId,
-        status: newStatus,
-        recruiterNotes,
+        ...review,
         rejectionReason,
       }),
     });

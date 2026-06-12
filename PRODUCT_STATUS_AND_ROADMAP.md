@@ -3,7 +3,7 @@
 **Telugu name:** నట కనెక్ట్  
 **Document date:** June 12, 2026
 **Repository:** `jayeess/Firsttake-Lovable`  
-**Current stage:** Phase 2A activity center and controlled private testing
+**Current stage:** Phase 2C recruiter applicant pipeline and controlled private testing
 
 ## 1. Product Summary
 
@@ -46,6 +46,7 @@ Nata Connect is no longer a static demonstration. It is a working Firebase-backe
 | Admin operations | Implemented | Requires server credentials and an admin custom claim per environment |
 | Notifications | Implemented in-app | Email/SMS and preferences remain future work |
 | Media portfolio | Phase 2B implemented | Images and external showreels supported |
+| Applicant pipeline | Phase 2C implemented | Secure statuses, filters, ratings, tags, notes, and decision alerts |
 | Deployment operations | Partial | Build passes, production process is undocumented |
 
 ## 3. Implemented Features

@@ -8,6 +8,10 @@ import {
   getTalentApplications,
 } from '@/app/lib/firestore-service';
 import {
+  APPLICATION_PIPELINE_STATUSES,
+  getApplicationStatus,
+} from '@/app/lib/application-pipeline';
+import {
   formatDate,
   type Application,
   type ApplicationStatus,
@@ -17,10 +21,7 @@ import { useAuth } from '@/context/auth-context';
 
 const tabs: Array<ApplicationStatus | 'ALL'> = [
   'ALL',
-  'APPLIED',
-  'VIEWED',
-  'SHORTLISTED',
-  'REJECTED',
+  ...APPLICATION_PIPELINE_STATUSES,
 ];
 
 export default function ApplicationsPage() {
@@ -46,7 +47,10 @@ export default function ApplicationsPage() {
   }, [reloadKey, user, userType]);
 
   const filtered = useMemo(
-    () => applications.filter((item) => tab === 'ALL' || item.status === tab),
+    () =>
+      applications.filter(
+        (item) => tab === 'ALL' || getApplicationStatus(item) === tab
+      ),
     [applications, tab]
   );
 
@@ -57,7 +61,15 @@ export default function ApplicationsPage() {
     try {
       await deleteApplication(application.auditionId, application.id);
       setApplications((current) =>
-        current.filter((item) => item.id !== application.id)
+        current.map((item) =>
+          item.id === application.id
+            ? {
+                ...item,
+                status: 'WITHDRAWN',
+                recruiterStatus: 'WITHDRAWN',
+              }
+            : item
+        )
       );
     } catch (withdrawError: unknown) {
       setError(
@@ -129,6 +141,9 @@ export default function ApplicationsPage() {
           </div>
         ) : (
           filtered.map((application) => (
+            (() => {
+              const status = getApplicationStatus(application);
+              return (
             <article
               key={`${application.auditionId}-${application.id}`}
               className="surface p-5"
@@ -143,15 +158,15 @@ export default function ApplicationsPage() {
                     Applied {formatDate(application.createdAt)}
                   </p>
                 </div>
-                <StatusBadge status={application.status} />
+                <StatusBadge status={status} />
               </div>
-              <div className="mt-5 grid grid-cols-4 gap-2">
-                {['APPLIED', 'VIEWED', 'SHORTLISTED', 'REJECTED'].map(
+              <div className="mt-5 grid grid-cols-8 gap-2">
+                {APPLICATION_PIPELINE_STATUSES.map(
                   (status) => (
                     <div
                       key={status}
                       className={`h-1.5 ${
-                        status === application.status
+                        status === getApplicationStatus(application)
                           ? 'bg-[#008ca6]'
                           : 'bg-[#dce2e8]'
                       }`}
@@ -159,7 +174,7 @@ export default function ApplicationsPage() {
                   )
                 )}
               </div>
-              {application.status === 'REJECTED' &&
+              {status === 'REJECTED' &&
                 application.rejectionReason && (
                   <p className="mt-4 border-l-2 border-[#e7ad2d] pl-4 text-sm leading-6 text-[#59666b]">
                     <span className="font-bold text-[#07111f]">
@@ -168,7 +183,7 @@ export default function ApplicationsPage() {
                     {application.rejectionReason}
                   </p>
                 )}
-              {application.status !== 'REJECTED' && (
+              {!['REJECTED', 'SELECTED', 'WITHDRAWN'].includes(status) && (
                 <div className="mt-5 border-t border-[#dce2e8] pt-4">
                   <button
                     type="button"
@@ -183,6 +198,8 @@ export default function ApplicationsPage() {
                 </div>
               )}
             </article>
+              );
+            })()
           ))
         )}
       </div>

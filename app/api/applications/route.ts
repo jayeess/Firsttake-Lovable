@@ -3,11 +3,13 @@ import {
   adminErrorResponse,
   AdminRequestError,
   requireUser,
+  writeAuditLog,
 } from '@/app/lib/admin-server';
 import { getAdminDb } from '@/app/lib/firebase-admin';
 import { getApplicationPolicyError } from '@/app/lib/application-policy';
 import {
   buildApplicationSubmittedNotifications,
+  buildApplicationStatusNotification,
   type NotificationInput,
 } from '@/app/lib/notification-policy';
 import {
@@ -15,6 +17,11 @@ import {
   deliverNotifications,
 } from '@/app/lib/notification-server';
 import type { ApplicationStatus, Audition } from '@/app/lib/types';
+import {
+  getApplicationStatus,
+  getStatusTimestampField,
+  validateRecruiterReview,
+} from '@/app/lib/application-pipeline';
 
 export const runtime = 'nodejs';
 
@@ -83,6 +90,9 @@ export async function POST(request: Request) {
         talentEmail: actor.email ?? null,
         coverMessage: body.coverMessage?.trim().slice(0, 3000) ?? '',
         status: 'APPLIED',
+        recruiterStatus: 'APPLIED',
+        statusUpdatedBy: actor.uid,
+        statusUpdatedAt: FieldValue.serverTimestamp(),
         lastStatusChange: FieldValue.serverTimestamp(),
         createdAt: FieldValue.serverTimestamp(),
         updatedAt: FieldValue.serverTimestamp(),
@@ -139,19 +149,25 @@ export async function PATCH(request: Request) {
       auditionId?: string;
       applicationId?: string;
       status?: ApplicationStatus;
+      recruiterNote?: string;
       recruiterNotes?: string;
+      recruiterRating?: number | null;
+      internalTags?: string[];
       rejectionReason?: string;
     };
     const auditionId = body.auditionId?.trim();
     const applicationId = body.applicationId?.trim();
-    const status = body.status;
-    if (
-      !auditionId ||
-      !applicationId ||
-      !status ||
-      !['APPLIED', 'VIEWED', 'SHORTLISTED', 'REJECTED'].includes(status)
-    ) {
+    if (!auditionId || !applicationId) {
       throw new AdminRequestError('Valid application review details are required.');
+    }
+    const requestedNote = body.recruiterNote ?? body.recruiterNotes;
+    const hasReviewChange =
+      body.status !== undefined ||
+      requestedNote !== undefined ||
+      body.recruiterRating !== undefined ||
+      body.internalTags !== undefined;
+    if (!hasReviewChange) {
+      throw new AdminRequestError('Add a status, note, rating, or tag update.');
     }
 
     const db = getAdminDb();
@@ -173,13 +189,57 @@ export async function PATCH(request: Request) {
       throw new AdminRequestError('Application not found.', 404);
     }
 
+    const applicationData = applicationSnapshot.data()!;
+    const currentStatus = getApplicationStatus({
+      status: applicationData.status,
+      recruiterStatus: applicationData.recruiterStatus,
+    });
+    const policyError = validateRecruiterReview(currentStatus, {
+      status: body.status,
+      recruiterNote: requestedNote,
+      recruiterRating: body.recruiterRating,
+      internalTags: body.internalTags,
+    });
+    if (policyError) throw new AdminRequestError(policyError, 409);
+
+    const now = Timestamp.now();
     const updates: Record<string, unknown> = {
-      status,
-      lastStatusChange: FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp(),
+      lastRecruiterActionAt: FieldValue.serverTimestamp(),
     };
-    if (body.recruiterNotes?.trim()) {
-      updates.recruiterNotes = body.recruiterNotes.trim().slice(0, 2000);
+    const status = body.status;
+    if (status) {
+      updates.status = status;
+      updates.recruiterStatus = status;
+      updates.statusUpdatedAt = FieldValue.serverTimestamp();
+      updates.statusUpdatedBy = actor.uid;
+      updates.lastStatusChange = FieldValue.serverTimestamp();
+      updates.statusHistory = FieldValue.arrayUnion({
+        status,
+        changedBy: actor.uid,
+        changedAt: now,
+      });
+      const timestampField = getStatusTimestampField(status);
+      if (timestampField) updates[timestampField] = FieldValue.serverTimestamp();
+    }
+    if (requestedNote !== undefined) {
+      updates.recruiterNote = requestedNote.trim().slice(0, 2000);
+      updates.recruiterNotes = FieldValue.delete();
+    }
+    if (body.recruiterRating !== undefined) {
+      updates.recruiterRating =
+        body.recruiterRating === null
+          ? FieldValue.delete()
+          : body.recruiterRating;
+    }
+    if (body.internalTags !== undefined) {
+      updates.internalTags = Array.from(
+        new Set(
+          body.internalTags
+            .map((tag) => tag.trim().slice(0, 30))
+            .filter(Boolean)
+        )
+      ).slice(0, 10);
     }
     if (status === 'REJECTED') {
       updates.rejectionReason =
@@ -187,39 +247,40 @@ export async function PATCH(request: Request) {
     }
     await applicationRef.update(updates);
 
-    const typeByStatus = {
-      APPLIED: 'application_submitted',
-      VIEWED: 'application_viewed',
-      SHORTLISTED: 'application_shortlisted',
-      REJECTED: 'application_rejected',
-    } as const;
-    const titleByStatus = {
-      APPLIED: 'Application status updated',
-      VIEWED: 'Your application was viewed',
-      SHORTLISTED: 'You have been shortlisted',
-      REJECTED: 'Application update',
-    } as const;
     const auditionTitle = auditionSnapshot.data()?.title ?? 'an audition';
-    const notification: NotificationInput = {
-      recipientId: applicationSnapshot.data()?.talentId ?? applicationId,
-      recipientRole: 'TALENT',
-      type: typeByStatus[status],
-      title: titleByStatus[status],
-      message:
-        status === 'SHORTLISTED'
-          ? `Your application for ${auditionTitle} has been shortlisted.`
-          : status === 'REJECTED'
-            ? `The recruiter has completed their review for ${auditionTitle}.`
-            : `The recruiter viewed your application for ${auditionTitle}.`,
-      relatedEntityType: 'application',
-      relatedEntityId: `${auditionId}/${applicationId}`,
-      actionUrl: '/applications',
-      createdBy: actor.uid,
-      priority: status === 'SHORTLISTED' ? 'HIGH' : 'NORMAL',
-      dedupeKey: `application-status:${auditionId}:${applicationId}:${status}`,
-      metadata: { status },
-    };
-    await deliverNotifications(() => createNotifications([notification]));
+    if (status) {
+      const notification = buildApplicationStatusNotification({
+        talentId: applicationData.talentId ?? applicationId,
+        recruiterId: actor.uid,
+        auditionId,
+        auditionTitle,
+        status,
+      });
+      if (notification) {
+        await deliverNotifications(() => createNotifications([notification]));
+      }
+      await writeAuditLog({
+        action: `application_${status.toLowerCase()}`,
+        actor,
+        targetId: `${auditionId}/${applicationId}`,
+        targetType: 'application',
+        metadata: {
+          auditionId,
+          applicationId,
+          previousStatus: currentStatus,
+          status,
+        },
+      });
+    }
+    if (requestedNote !== undefined) {
+      await writeAuditLog({
+        action: 'recruiter_note_updated',
+        actor,
+        targetId: `${auditionId}/${applicationId}`,
+        targetType: 'application',
+        metadata: { auditionId, applicationId },
+      });
+    }
 
     return Response.json({ ok: true });
   } catch (error: unknown) {
@@ -255,7 +316,22 @@ export async function DELETE(request: Request) {
     if (!applicationSnapshot.exists) {
       throw new AdminRequestError('Application not found.', 404);
     }
-    await applicationRef.delete();
+    if (applicationSnapshot.data()?.status === 'WITHDRAWN') {
+      throw new AdminRequestError('This application is already withdrawn.', 409);
+    }
+    await applicationRef.update({
+      status: 'WITHDRAWN',
+      recruiterStatus: 'WITHDRAWN',
+      statusUpdatedAt: FieldValue.serverTimestamp(),
+      statusUpdatedBy: actor.uid,
+      lastStatusChange: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
+      statusHistory: FieldValue.arrayUnion({
+        status: 'WITHDRAWN',
+        changedBy: actor.uid,
+        changedAt: Timestamp.now(),
+      }),
+    });
 
     const auditionTitle = auditionSnapshot.data()?.title ?? 'an audition';
     const recruiterId = auditionSnapshot.data()?.recruiterId;

@@ -85,6 +85,16 @@ async function seed() {
         status: 'approved',
       }),
       setDoc(doc(db, 'auditions/visible-a'), audition('recruiter-a')),
+      setDoc(doc(db, 'auditions/pipeline-a'), audition('recruiter-a')),
+      setDoc(doc(db, 'auditions/pipeline-a/applications/talent-a'), {
+        talentId: 'talent-a',
+        talentEmail: 'talent-a@example.test',
+        coverMessage: 'Original submission',
+        status: 'APPLIED',
+        recruiterStatus: 'APPLIED',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }),
       setDoc(
         doc(db, 'auditions/removed-a'),
         audition('recruiter-a', { moderationStatus: 'REMOVED' })
@@ -162,7 +172,10 @@ test('Talent can read visible active auditions but not removed auditions', async
     where('moderationStatus', '==', 'VISIBLE')
   );
   const snapshot = await assertSucceeds(getDocs(visibleQuery));
-  assert.deepEqual(snapshot.docs.map((item) => item.id), ['visible-a']);
+  assert.deepEqual(snapshot.docs.map((item) => item.id).sort(), [
+    'pipeline-a',
+    'visible-a',
+  ]);
 });
 
 test('Talent cannot update recruiter-owned audition fields', async () => {
@@ -495,18 +508,67 @@ test('admins can read notifications addressed to their own admin account', async
 });
 
 test('Application owner and audition owner can read an application', async () => {
-  await environment.withSecurityRulesDisabled(async (context) => {
-    await setDoc(
-      doc(context.firestore(), 'auditions/visible-a/applications/talent-a'),
-      { talentId: 'talent-a', status: 'APPLIED' }
-    );
-  });
-
-  const path = 'auditions/visible-a/applications/talent-a';
+  const path = 'auditions/pipeline-a/applications/talent-a';
   const talentDb = environment.authenticatedContext('talent-a').firestore();
   const ownerDb = environment.authenticatedContext('recruiter-a').firestore();
   const outsiderDb = environment.authenticatedContext('recruiter-b').firestore();
   await assertSucceeds(getDoc(doc(talentDb, path)));
   await assertSucceeds(getDoc(doc(ownerDb, path)));
   await assertFails(getDoc(doc(outsiderDb, path)));
+});
+
+test('audition owner can update allowed recruiter pipeline fields', async () => {
+  const db = environment.authenticatedContext('recruiter-a').firestore();
+  const ref = doc(db, 'auditions/pipeline-a/applications/talent-a');
+  await assertSucceeds(
+    updateDoc(ref, {
+      status: 'UNDER_REVIEW',
+      recruiterStatus: 'UNDER_REVIEW',
+      statusUpdatedBy: 'recruiter-a',
+      statusUpdatedAt: serverTimestamp(),
+      lastRecruiterActionAt: serverTimestamp(),
+      recruiterNote: 'Strong screen presence',
+      recruiterRating: 4,
+      internalTags: ['callback'],
+      updatedAt: serverTimestamp(),
+    })
+  );
+});
+
+test('recruiter cannot update applications for another recruiter audition', async () => {
+  const db = environment.authenticatedContext('recruiter-b').firestore();
+  await assertFails(
+    updateDoc(doc(db, 'auditions/pipeline-a/applications/talent-a'), {
+      status: 'SHORTLISTED',
+      recruiterStatus: 'SHORTLISTED',
+      statusUpdatedBy: 'recruiter-b',
+      updatedAt: serverTimestamp(),
+    })
+  );
+});
+
+test('Talent cannot set recruiter fields or recruiter-controlled status', async () => {
+  const db = environment.authenticatedContext('talent-a').firestore();
+  const ref = doc(db, 'auditions/pipeline-a/applications/talent-a');
+  await assertFails(
+    updateDoc(ref, {
+      status: 'SELECTED',
+      recruiterStatus: 'SELECTED',
+      recruiterNote: 'Self approved',
+      recruiterRating: 5,
+    })
+  );
+});
+
+test('recruiter cannot edit immutable application submission fields', async () => {
+  const db = environment.authenticatedContext('recruiter-a').firestore();
+  const ref = doc(db, 'auditions/pipeline-a/applications/talent-a');
+  await assertFails(
+    updateDoc(ref, {
+      talentId: 'talent-b',
+      coverMessage: 'Changed by recruiter',
+      status: 'VIEWED',
+      recruiterStatus: 'VIEWED',
+    })
+  );
 });

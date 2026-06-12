@@ -94,6 +94,19 @@
   `context/auth-context.tsx`, `app/auth/login/page.tsx`
 - Data integrity: `app/lib/firestore-service.ts`,
   `app/lib/application-policy.ts`
+
+## Phase 2C Recruiter Applicant Pipeline
+
+- Eight-stage backward-compatible pipeline: Submitted, Viewed, Under review,
+  Shortlisted, Maybe, Rejected, Selected, and Withdrawn
+- Audition-owner-only review API with immutable Talent submission fields
+- Private recruiter notes, tags, and 1-5 ratings
+- Applicant search, trust/media/completeness filters, and decision sorting
+- Talent notifications limited to meaningful Shortlisted, Rejected, and
+  Selected outcomes
+- Server-written audit events for status decisions and recruiter note updates
+- Firestore rule coverage for owner updates, cross-recruiter denial, Talent
+  denial, and immutable application fields
 - Firebase: `firestore.rules`, `firebase.json`, `.firebaserc.example`
 - Testing: `tests/application-policy.test.mts`, `TESTING.md`, `package.json`
 - Product documentation: `README.md`, `CHANGELOG.md`,

@@ -16,8 +16,12 @@ export type AuditionStatus = 'ACTIVE' | 'CLOSED' | 'CANCELLED' | 'DRAFT';
 export type ApplicationStatus =
   | 'APPLIED'
   | 'VIEWED'
+  | 'UNDER_REVIEW'
   | 'SHORTLISTED'
-  | 'REJECTED';
+  | 'MAYBE'
+  | 'REJECTED'
+  | 'SELECTED'
+  | 'WITHDRAWN';
 export type AccountStatus = 'ACTIVE' | 'SUSPENDED';
 export type VerificationStatus =
   | 'not_submitted'
@@ -51,8 +55,11 @@ export type NotificationType =
   | 'application_submitted'
   | 'application_withdrawn'
   | 'application_viewed'
+  | 'application_under_review'
   | 'application_shortlisted'
+  | 'application_maybe'
   | 'application_rejected'
+  | 'application_selected'
   | 'audition_published'
   | 'audition_removed'
   | 'audition_restored'
@@ -178,7 +185,13 @@ export interface AuditLog {
   actorEmail?: string | null;
   targetUid?: string;
   targetId?: string;
-  targetType: 'recruiter' | 'talent' | 'user' | 'audition' | 'media';
+  targetType:
+    | 'recruiter'
+    | 'talent'
+    | 'user'
+    | 'audition'
+    | 'media'
+    | 'application';
   reason?: string;
   note?: string;
   timestamp?: Date | Timestamp;
@@ -214,10 +227,27 @@ export interface Application {
   talentEmail?: string;
   coverMessage?: string;
   status: ApplicationStatus;
+  recruiterStatus?: ApplicationStatus;
+  recruiterNote?: string;
   recruiterNotes?: string;
+  recruiterRating?: number;
+  internalTags?: string[];
   rejectionReason?: string;
+  reviewedAt?: Date | Timestamp;
+  shortlistedAt?: Date | Timestamp;
+  rejectedAt?: Date | Timestamp;
+  selectedAt?: Date | Timestamp;
+  statusUpdatedAt?: Date | Timestamp;
+  statusUpdatedBy?: string;
+  lastRecruiterActionAt?: Date | Timestamp;
+  statusHistory?: Array<{
+    status: ApplicationStatus;
+    changedBy: string;
+    changedAt?: Date | Timestamp;
+  }>;
   createdAt?: Date | Timestamp;
   lastStatusChange?: Date | Timestamp;
+  updatedAt?: Date | Timestamp;
   audition?: Audition | null;
 }
 

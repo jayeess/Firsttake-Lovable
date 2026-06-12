@@ -1,14 +1,30 @@
 'use client';
 
+import {
+  ChevronDown,
+  ExternalLink,
+  Search,
+  Star,
+} from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
-import { AppShell } from '@/components/app-shell';
-import { StatusBadge } from '@/components/status-badge';
+import {
+  APPLICATION_PIPELINE_STATUSES,
+  APPLICATION_STATUS_LABELS,
+  filterApplicants,
+  getApplicationStatus,
+  getPipelineCounts,
+  sortApplicants,
+  type ApplicantFilters,
+  type ApplicantSort,
+  type RecruiterReviewInput,
+} from '@/app/lib/application-pipeline';
+import { getErrorMessage } from '@/app/lib/error-utils';
 import {
   getAuditionApplicants,
   getAuditionById,
-  updateApplicationStatus,
+  updateApplicationReview,
 } from '@/app/lib/firestore-service';
 import {
   CATEGORY_LABELS,
@@ -18,17 +34,29 @@ import {
   type Audition,
   type AuditionApplicant,
 } from '@/app/lib/types';
-import { getErrorMessage } from '@/app/lib/error-utils';
-import { useAuth } from '@/context/auth-context';
+import { AppShell } from '@/components/app-shell';
 import { EmptyState, ErrorState, LoadingState } from '@/components/async-state';
+import { StatusBadge } from '@/components/status-badge';
 import { VerifiedBadge } from '@/components/verified-badge';
+import { useAuth } from '@/context/auth-context';
 
-const filters: Array<'ALL' | ApplicationStatus> = [
-  'ALL',
-  'APPLIED',
+const initialFilters: ApplicantFilters = {
+  status: 'ALL',
+  verifiedOnly: false,
+  hasMedia: false,
+  hasShowreel: false,
+  completenessAbove70: false,
+  minimumRating: 0,
+  search: '',
+};
+
+const quickStatuses: ApplicationStatus[] = [
   'VIEWED',
+  'UNDER_REVIEW',
   'SHORTLISTED',
+  'MAYBE',
   'REJECTED',
+  'SELECTED',
 ];
 
 export default function AuditionApplicantsPage() {
@@ -37,7 +65,9 @@ export default function AuditionApplicantsPage() {
   const { user } = useAuth();
   const [audition, setAudition] = useState<Audition | null>(null);
   const [applicants, setApplicants] = useState<AuditionApplicant[]>([]);
-  const [filter, setFilter] = useState<(typeof filters)[number]>('ALL');
+  const [filters, setFilters] = useState(initialFilters);
+  const [sort, setSort] = useState<ApplicantSort>('NEWEST');
+  const [expandedId, setExpandedId] = useState('');
   const [busyId, setBusyId] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
@@ -45,7 +75,6 @@ export default function AuditionApplicantsPage() {
 
   useEffect(() => {
     if (!user) return;
-
     void Promise.all([getAuditionById(id), getAuditionApplicants(id)])
       .then(([auditionData, applicantData]) => {
         if (!auditionData || auditionData.recruiterId !== user.uid) {
@@ -61,37 +90,26 @@ export default function AuditionApplicantsPage() {
       .finally(() => setLoading(false));
   }, [id, reloadKey, router, user]);
 
+  const counts = useMemo(() => getPipelineCounts(applicants), [applicants]);
   const visibleApplicants = useMemo(
-    () =>
-      filter === 'ALL'
-        ? applicants
-        : applicants.filter(({ application }) => application.status === filter),
-    [applicants, filter]
+    () => sortApplicants(filterApplicants(applicants, filters), sort),
+    [applicants, filters, sort]
   );
 
-  const setStatus = async (
+  const updateReview = async (
     applicant: AuditionApplicant,
-    status: ApplicationStatus
+    review: RecruiterReviewInput,
+    rejectionReason?: string
   ) => {
     setBusyId(applicant.application.id);
     setError('');
-
     try {
-      const rejectionReason =
-        status === 'REJECTED'
-          ? window.prompt(
-              'Optional: add a short reason the talent can understand.'
-            ) ?? undefined
-          : undefined;
-
-      await updateApplicationStatus(
+      await updateApplicationReview(
         id,
         applicant.application.id,
-        status,
-        undefined,
+        review,
         rejectionReason
       );
-
       setApplicants((current) =>
         current.map((item) =>
           item.application.id === applicant.application.id
@@ -99,8 +117,28 @@ export default function AuditionApplicantsPage() {
                 ...item,
                 application: {
                   ...item.application,
-                  status,
-                  rejectionReason,
+                  ...(review.status
+                    ? {
+                        status: review.status,
+                        recruiterStatus: review.status,
+                      }
+                    : {}),
+                  ...(review.recruiterNote !== undefined
+                    ? { recruiterNote: review.recruiterNote }
+                    : {}),
+                  ...(review.recruiterRating !== undefined
+                    ? {
+                        recruiterRating:
+                          review.recruiterRating ?? undefined,
+                      }
+                    : {}),
+                  ...(review.internalTags !== undefined
+                    ? { internalTags: review.internalTags }
+                    : {}),
+                  ...(review.status === 'REJECTED'
+                    ? { rejectionReason }
+                    : {}),
+                  lastRecruiterActionAt: new Date(),
                 },
               }
             : item
@@ -108,6 +146,7 @@ export default function AuditionApplicantsPage() {
       );
     } catch (err: unknown) {
       setError(getErrorMessage(err, 'Unable to update this application'));
+      throw err;
     } finally {
       setBusyId('');
     }
@@ -122,42 +161,153 @@ export default function AuditionApplicantsPage() {
         Back to casting calls
       </Link>
 
-      <div className="mt-5 flex flex-wrap items-end justify-between gap-4">
+      <header className="mt-5 flex flex-wrap items-end justify-between gap-5">
         <div>
           <p className="eyebrow">Applicant pipeline</p>
           <h1 className="mt-2 text-4xl font-black">
-            {audition?.title ?? 'Loading casting call...'}
+            {audition?.title ?? 'Casting workspace'}
           </h1>
-          <p className="mt-3 text-[#657176]">
-            Review talent profiles, record progress, and keep every decision
-            visible.
+          <p className="mt-3 max-w-2xl leading-7 text-[#657176]">
+            Compare profiles, organize your shortlist, and keep casting
+            decisions in one private workspace.
           </p>
         </div>
-        <p className="border-l-2 border-[#d8a843] pl-4 text-sm font-bold">
-          {applicants.length} total applicants
-        </p>
-      </div>
+        <div className="border-l-2 border-[#d8a843] pl-4">
+          <p className="text-2xl font-black">{applicants.length}</p>
+          <p className="text-xs font-bold uppercase text-[#657176]">
+            Total applicants
+          </p>
+        </div>
+      </header>
 
-      <div className="mt-7 flex gap-2 overflow-x-auto border-b border-[#d9dee5]">
-        {filters.map((status) => (
+      <section
+        aria-label="Applicant status filters"
+        className="mt-7 overflow-x-auto border-b border-[#d9dee5]"
+      >
+        <div className="flex min-w-max">
+          <PipelineTab
+            label="All"
+            count={applicants.length}
+            active={filters.status === 'ALL'}
+            onClick={() => setFilters((current) => ({ ...current, status: 'ALL' }))}
+          />
+          {APPLICATION_PIPELINE_STATUSES.map((status) => (
+            <PipelineTab
+              key={status}
+              label={APPLICATION_STATUS_LABELS[status]}
+              count={counts[status]}
+              active={filters.status === status}
+              onClick={() => setFilters((current) => ({ ...current, status }))}
+            />
+          ))}
+        </div>
+      </section>
+
+      <section
+        aria-label="Applicant filters and sorting"
+        className="mt-5 border border-[#d7e0e4] bg-white p-4"
+      >
+        <div className="grid gap-3 lg:grid-cols-[minmax(240px,1fr)_190px_auto]">
+          <label className="relative">
+            <span className="sr-only">Search applicants</span>
+            <Search
+              aria-hidden="true"
+              className="absolute left-3 top-3.5 size-4 text-[#657176]"
+            />
+            <input
+              value={filters.search}
+              onChange={(event) =>
+                setFilters((current) => ({
+                  ...current,
+                  search: event.target.value,
+                }))
+              }
+              placeholder="Search name, category, skill, or location"
+              className="min-h-11 w-full border border-[#cbd6db] pl-10 pr-3 text-sm"
+            />
+          </label>
+          <label className="relative">
+            <span className="sr-only">Sort applicants</span>
+            <select
+              value={sort}
+              onChange={(event) => setSort(event.target.value as ApplicantSort)}
+              className="min-h-11 w-full appearance-none border border-[#cbd6db] bg-white px-3 pr-9 text-sm font-bold"
+            >
+              <option value="NEWEST">Newest first</option>
+              <option value="OLDEST">Oldest first</option>
+              <option value="COMPLETENESS">Highest completeness</option>
+              <option value="RATING">Highest rating</option>
+              <option value="UPDATED">Recently updated</option>
+            </select>
+            <ChevronDown
+              aria-hidden="true"
+              className="pointer-events-none absolute right-3 top-3.5 size-4"
+            />
+          </label>
           <button
-            key={status}
             type="button"
-            onClick={() => setFilter(status)}
-            className={`min-h-11 whitespace-nowrap border-b-2 px-4 text-sm font-bold ${
-              filter === status
-                ? 'border-[#008ca6] text-[#008ca6]'
-                : 'border-transparent text-[#657176]'
-            }`}
+            onClick={() => setFilters(initialFilters)}
+            className="secondary-button"
           >
-            {status === 'ALL' ? 'All' : status.toLowerCase()}
+            Clear filters
           </button>
-        ))}
-      </div>
+        </div>
+        <div className="mt-4 flex flex-wrap gap-x-5 gap-y-3">
+          <FilterToggle
+            label="Verified Talent"
+            checked={filters.verifiedOnly}
+            onChange={(checked) =>
+              setFilters((current) => ({ ...current, verifiedOnly: checked }))
+            }
+          />
+          <FilterToggle
+            label="Has portfolio media"
+            checked={filters.hasMedia}
+            onChange={(checked) =>
+              setFilters((current) => ({ ...current, hasMedia: checked }))
+            }
+          />
+          <FilterToggle
+            label="Has showreel"
+            checked={filters.hasShowreel}
+            onChange={(checked) =>
+              setFilters((current) => ({ ...current, hasShowreel: checked }))
+            }
+          />
+          <FilterToggle
+            label="Profile 70%+"
+            checked={filters.completenessAbove70}
+            onChange={(checked) =>
+              setFilters((current) => ({
+                ...current,
+                completenessAbove70: checked,
+              }))
+            }
+          />
+          <label className="flex items-center gap-2 text-sm font-bold">
+            Rating
+            <select
+              value={filters.minimumRating}
+              onChange={(event) =>
+                setFilters((current) => ({
+                  ...current,
+                  minimumRating: Number(event.target.value),
+                }))
+              }
+              className="min-h-9 border border-[#cbd6db] bg-white px-2"
+            >
+              <option value="0">Any</option>
+              <option value="3">3+</option>
+              <option value="4">4+</option>
+              <option value="5">5</option>
+            </select>
+          </label>
+        </div>
+      </section>
 
       {error && (
         <ErrorState
-          title="Applicants could not be loaded"
+          title="Applicant pipeline needs attention"
           message={error}
           onRetry={() => {
             setLoading(true);
@@ -169,77 +319,258 @@ export default function AuditionApplicantsPage() {
 
       <div className="mt-6 space-y-4">
         {loading && <LoadingState label="Loading the applicant pipeline..." />}
-        {visibleApplicants.map((applicant) => {
-          const { application, talent } = applicant;
-          const name = talent
-            ? `${talent.firstName} ${talent.lastName}`.trim()
-            : 'Talent profile unavailable';
+        {!loading &&
+          visibleApplicants.map((applicant) => (
+            <ApplicantCard
+              key={applicant.application.id}
+              applicant={applicant}
+              expanded={expandedId === applicant.application.id}
+              busy={busyId === applicant.application.id}
+              onToggle={() =>
+                setExpandedId((current) =>
+                  current === applicant.application.id
+                    ? ''
+                    : applicant.application.id
+                )
+              }
+              onUpdate={(review, reason) =>
+                updateReview(applicant, review, reason)
+              }
+            />
+          ))}
+        {!loading && !error && visibleApplicants.length === 0 && (
+          <EmptyState
+            title="No applicants match these filters"
+            message="Clear a filter or choose another pipeline stage."
+          />
+        )}
+      </div>
+    </AppShell>
+  );
+}
 
-          return (
-            <article key={application.id} className="surface p-6">
-              <div className="flex flex-wrap items-start justify-between gap-4">
-                <div className="flex min-w-0 items-start gap-4">
-                  <div
-                    role="img"
-                    aria-label={`${name} profile photo`}
-                    className="size-20 shrink-0 border border-[#cbd6db] bg-[#e7eef1] bg-cover bg-center"
-                    style={
-                      talent?.profilePhotoUrl
-                        ? {
-                            backgroundImage: `url("${talent.profilePhotoUrl}")`,
-                          }
-                        : undefined
-                    }
-                  />
-                  <div>
-                  <div className="flex flex-wrap items-center gap-3">
-                    <p className="text-2xl font-black">{name}</p>
-                    {talent?.talentVerificationStatus === 'verified' && (
-                      <VerifiedBadge subject="talent" />
-                    )}
-                  </div>
-                  <p className="mt-2 text-sm text-[#657176]">
-                    Applied {formatDate(application.createdAt)}
-                  </p>
-                  </div>
-                </div>
-                <StatusBadge status={application.status} />
+function PipelineTab({
+  label,
+  count,
+  active,
+  onClick,
+}: {
+  label: string;
+  count: number;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`min-h-12 border-b-2 px-4 text-sm font-bold ${
+        active
+          ? 'border-[#008ca6] text-[#008ca6]'
+          : 'border-transparent text-[#657176]'
+      }`}
+    >
+      {label} <span className="ml-1 text-xs">({count})</span>
+    </button>
+  );
+}
+
+function FilterToggle({
+  label,
+  checked,
+  onChange,
+}: {
+  label: string;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+}) {
+  return (
+    <label className="flex min-h-9 items-center gap-2 text-sm font-bold">
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(event) => onChange(event.target.checked)}
+        className="size-4 accent-[#008ca6]"
+      />
+      {label}
+    </label>
+  );
+}
+
+function ApplicantCard({
+  applicant,
+  expanded,
+  busy,
+  onToggle,
+  onUpdate,
+}: {
+  applicant: AuditionApplicant;
+  expanded: boolean;
+  busy: boolean;
+  onToggle: () => void;
+  onUpdate: (
+    review: RecruiterReviewInput,
+    rejectionReason?: string
+  ) => Promise<void>;
+}) {
+  const { application, talent, media } = applicant;
+  const status = getApplicationStatus(application);
+  const name = talent
+    ? `${talent.firstName} ${talent.lastName}`.trim()
+    : application.talentEmail ?? 'Talent profile unavailable';
+  const featuredMedia = media.find((item) => item.isFeatured) ?? media[0];
+  const [note, setNote] = useState(
+    application.recruiterNote ?? application.recruiterNotes ?? ''
+  );
+  const [tags, setTags] = useState((application.internalTags ?? []).join(', '));
+  const [rating, setRating] = useState(application.recruiterRating ?? 0);
+
+  const changeStatus = async (nextStatus: ApplicationStatus) => {
+    const rejectionReason =
+      nextStatus === 'REJECTED'
+        ? window.prompt('Optional feedback visible to the Talent member.') ??
+          undefined
+        : undefined;
+    await onUpdate({ status: nextStatus }, rejectionReason);
+  };
+
+  return (
+    <article className="surface overflow-hidden">
+      <div className="p-5 sm:p-6">
+        <div className="flex flex-wrap items-start justify-between gap-5">
+          <div className="flex min-w-0 items-start gap-4">
+            <div
+              role="img"
+              aria-label={`${name} profile photo`}
+              className="size-20 shrink-0 border border-[#cbd6db] bg-[#e7eef1] bg-cover bg-center"
+              style={
+                talent?.profilePhotoUrl
+                  ? { backgroundImage: `url("${talent.profilePhotoUrl}")` }
+                  : undefined
+              }
+            />
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <h2 className="text-2xl font-black">{name}</h2>
+                {talent?.talentVerificationStatus === 'verified' && (
+                  <VerifiedBadge subject="talent" />
+                )}
               </div>
+              <p className="mt-1 text-sm text-[#657176]">
+                Applied {formatDate(application.createdAt)}
+                {application.lastRecruiterActionAt &&
+                  ` · Last action ${formatDate(application.lastRecruiterActionAt)}`}
+              </p>
+              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm font-semibold">
+                <span>
+                  {talent ? CATEGORY_LABELS[talent.category] : 'Category unavailable'}
+                </span>
+                <span>{talent?.location || 'Location unavailable'}</span>
+                <span>
+                  {talent?.profileCompletenessScore ?? 0}% complete
+                </span>
+                {media.length > 0 && <span>{media.length} media items</span>}
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <StatusBadge status={status} />
+            <button
+              type="button"
+              onClick={onToggle}
+              className="secondary-button"
+              aria-expanded={expanded}
+            >
+              {expanded ? 'Close review' : 'Review profile'}
+            </button>
+          </div>
+        </div>
+
+        {status === 'WITHDRAWN' ? (
+          <p className="mt-5 border-l-2 border-[#9aa4aa] pl-4 text-sm text-[#657176]">
+            This application was withdrawn by the Talent member and is read-only.
+          </p>
+        ) : (
+          <div className="mt-5 flex flex-wrap gap-2 border-t border-[#e1e5ea] pt-5">
+            {quickStatuses.map((nextStatus) => (
+              <button
+                key={nextStatus}
+                type="button"
+                disabled={busy || status === nextStatus}
+                onClick={() => void changeStatus(nextStatus)}
+                className={`min-h-10 border px-3 text-xs font-bold disabled:opacity-40 ${
+                  nextStatus === 'SELECTED'
+                    ? 'border-emerald-600 bg-emerald-600 text-white'
+                    : nextStatus === 'REJECTED'
+                      ? 'border-red-300 text-red-700'
+                      : 'border-[#cbd6db] bg-white text-[#263238]'
+                }`}
+              >
+                {APPLICATION_STATUS_LABELS[nextStatus]}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {expanded && (
+        <div className="border-t border-[#d7e0e4] bg-[#f6f9fa] p-5 sm:p-6">
+          <div className="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(300px,0.6fr)]">
+            <div className="space-y-6">
+              <ReviewSection title="Application message">
+                <p className="leading-7 text-[#4f5963]">
+                  {application.coverMessage || 'No cover message was provided.'}
+                </p>
+              </ReviewSection>
 
               {talent && (
-                <div className="mt-5 grid gap-4 border-y border-[#e1e5ea] py-5 sm:grid-cols-3">
-                  <ApplicantDetail
-                    label="Category"
-                    value={CATEGORY_LABELS[talent.category]}
-                  />
-                  <ApplicantDetail
-                    label="Experience"
-                    value={EXPERIENCE_LABELS[talent.experienceLevel]}
-                  />
-                  <ApplicantDetail
-                    label="Location"
-                    value={talent.location || 'Not provided'}
-                  />
-                </div>
+                <ReviewSection title="Talent profile">
+                  <div className="grid gap-4 sm:grid-cols-3">
+                    <ApplicantDetail
+                      label="Experience"
+                      value={EXPERIENCE_LABELS[talent.experienceLevel]}
+                    />
+                    <ApplicantDetail
+                      label="Verification"
+                      value={
+                        talent.talentVerificationStatus?.replace(/_/g, ' ') ??
+                        'Not submitted'
+                      }
+                    />
+                    <ApplicantDetail
+                      label="Completeness"
+                      value={`${talent.profileCompletenessScore ?? 0}%`}
+                    />
+                  </div>
+                  {talent.bio && (
+                    <p className="mt-5 leading-7 text-[#4f5963]">{talent.bio}</p>
+                  )}
+                  {(talent.skills?.length || talent.languages?.length) && (
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {[...(talent.skills ?? []), ...(talent.languages ?? [])].map(
+                        (item) => (
+                          <span
+                            key={item}
+                            className="border border-[#cbd6db] bg-white px-2.5 py-1 text-xs font-bold"
+                          >
+                            {item}
+                          </span>
+                        )
+                      )}
+                    </div>
+                  )}
+                </ReviewSection>
               )}
 
-              {applicant.media.length > 0 && (
-                <section className="mt-5">
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="text-xs font-bold uppercase text-[#778287]">
-                      Portfolio preview
-                    </p>
-                    <span className="text-xs font-bold text-[#657176]">
-                      {applicant.media.length} visible items
-                    </span>
-                  </div>
-                  <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                    {applicant.media.map((item) => (
+              {media.length > 0 && (
+                <ReviewSection title="Portfolio preview">
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {media.map((item) => (
                       <article
                         key={item.id}
-                        className={`border p-3 ${
-                          item.isFeatured
-                            ? 'border-[#d8a843] bg-[#fffaf0]'
+                        className={`border bg-white p-3 ${
+                          item.id === featuredMedia?.id
+                            ? 'border-[#d8a843]'
                             : 'border-[#dce3e7]'
                         }`}
                       >
@@ -248,132 +579,139 @@ export default function AuditionApplicantsPage() {
                             role="img"
                             aria-label={item.title}
                             className="aspect-video bg-[#e7eef1] bg-cover bg-center"
-                            style={{
-                              backgroundImage: `url("${item.url}")`,
-                            }}
+                            style={{ backgroundImage: `url("${item.url}")` }}
                           />
                         ) : (
                           <div className="flex aspect-video items-center justify-center bg-[#07111f] px-4 text-center text-sm font-bold text-white">
-                            External showreel
+                            Showreel link
                           </div>
                         )}
-                        <p className="mt-3 font-black">{item.title}</p>
-                        {item.description && (
-                          <p className="mt-1 line-clamp-2 text-sm text-[#657176]">
-                            {item.description}
-                          </p>
-                        )}
-                        {item.externalUrl && (
-                          <a
-                            href={item.externalUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="mt-3 inline-block text-sm font-bold text-[#008ca6]"
-                          >
-                            Open showreel
-                          </a>
-                        )}
+                        <div className="mt-3 flex items-start justify-between gap-3">
+                          <div>
+                            <p className="font-black">{item.title}</p>
+                            {item.isFeatured && (
+                              <p className="mt-1 text-xs font-bold text-[#a56b00]">
+                                Featured
+                              </p>
+                            )}
+                          </div>
+                          {item.externalUrl && (
+                            <a
+                              href={item.externalUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              aria-label={`Open ${item.title}`}
+                              className="text-[#008ca6]"
+                            >
+                              <ExternalLink className="size-5" />
+                            </a>
+                          )}
+                        </div>
                       </article>
                     ))}
                   </div>
-                </section>
+                </ReviewSection>
               )}
+            </div>
 
-              <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_auto]">
-                <div>
-                  <p className="text-xs font-bold uppercase text-[#778287]">
-                    Cover message
-                  </p>
-                  <p className="mt-2 leading-7 text-[#4f5963]">
-                    {application.coverMessage ||
-                      'No cover message was provided.'}
-                  </p>
-                  {application.talentEmail && (
-                    <>
-                      <p className="mt-5 text-xs font-bold uppercase text-[#778287]">
-                        Contact
-                      </p>
-                      <a
-                        href={`mailto:${application.talentEmail}`}
-                        className="mt-2 inline-block font-bold text-[#008ca6]"
-                      >
-                        {application.talentEmail}
-                      </a>
-                    </>
-                  )}
-                  {talent?.bio && (
-                    <>
-                      <p className="mt-5 text-xs font-bold uppercase text-[#778287]">
-                        Profile summary
-                      </p>
-                      <p className="mt-2 leading-7 text-[#4f5963]">
-                        {talent.bio}
-                      </p>
-                    </>
-                  )}
-                  {talent &&
-                    (talent.instagramUrl ||
-                      talent.youtubeUrl ||
-                      talent.websiteUrl) && (
-                      <div className="mt-5 flex flex-wrap gap-4 text-sm font-bold text-[#008ca6]">
-                        {talent.instagramUrl && (
-                          <a href={talent.instagramUrl} target="_blank" rel="noreferrer">
-                            Instagram
-                          </a>
-                        )}
-                        {talent.youtubeUrl && (
-                          <a href={talent.youtubeUrl} target="_blank" rel="noreferrer">
-                            YouTube
-                          </a>
-                        )}
-                        {talent.websiteUrl && (
-                          <a href={talent.websiteUrl} target="_blank" rel="noreferrer">
-                            Portfolio
-                          </a>
-                        )}
-                      </div>
-                    )}
+            <aside className="border border-[#d7e0e4] bg-white p-5">
+              <h3 className="text-lg font-black">Private casting notes</h3>
+              <p className="mt-1 text-sm leading-6 text-[#657176]">
+                Notes, tags, and ratings are visible only to the audition owner
+                and authorized administrators.
+              </p>
+
+              <fieldset className="mt-5">
+                <legend className="text-sm font-bold">Rating</legend>
+                <div className="mt-2 flex gap-1">
+                  {[1, 2, 3, 4, 5].map((value) => (
+                    <button
+                      key={value}
+                      type="button"
+                      aria-label={`Rate ${value} star${value === 1 ? '' : 's'}`}
+                      onClick={() => setRating(value)}
+                      className="p-1"
+                    >
+                      <Star
+                        className={`size-6 ${
+                          value <= rating
+                            ? 'fill-[#d8a843] text-[#d8a843]'
+                            : 'text-[#aab3b8]'
+                        }`}
+                      />
+                    </button>
+                  ))}
                 </div>
+              </fieldset>
 
-                <div className="flex min-w-48 flex-col gap-2">
-                  <button
-                    type="button"
-                    disabled={busyId === application.id}
-                    onClick={() => void setStatus(applicant, 'VIEWED')}
-                    className="secondary-button w-full disabled:opacity-50"
-                  >
-                    Mark viewed
-                  </button>
-                  <button
-                    type="button"
-                    disabled={busyId === application.id}
-                    onClick={() => void setStatus(applicant, 'SHORTLISTED')}
-                    className="primary-button w-full disabled:opacity-50"
-                  >
-                    Shortlist talent
-                  </button>
-                  <button
-                    type="button"
-                    disabled={busyId === application.id}
-                    onClick={() => void setStatus(applicant, 'REJECTED')}
-                    className="min-h-11 border border-red-300 px-4 text-sm font-bold text-red-700 disabled:opacity-50"
-                  >
-                    Reject application
-                  </button>
-                </div>
-              </div>
-            </article>
-          );
-        })}
+              <label className="mt-5 block text-sm font-bold">
+                Recruiter note
+                <textarea
+                  value={note}
+                  onChange={(event) => setNote(event.target.value)}
+                  maxLength={2000}
+                  rows={6}
+                  className="mt-2 w-full border border-[#cbd6db] p-3 font-normal"
+                  placeholder="Performance observations, callback questions, or team notes"
+                />
+              </label>
 
-        {!loading && !error && visibleApplicants.length === 0 && (
-          <EmptyState
-            title="No applicants in this stage"
-            message="New applications will appear here as soon as talent submits them."
-          />
-        )}
-      </div>
-    </AppShell>
+              <label className="mt-4 block text-sm font-bold">
+                Internal tags
+                <input
+                  value={tags}
+                  onChange={(event) => setTags(event.target.value)}
+                  className="mt-2 min-h-11 w-full border border-[#cbd6db] px-3 font-normal"
+                  placeholder="strong dialogue, callback, local"
+                />
+              </label>
+
+              <button
+                type="button"
+                disabled={busy || status === 'WITHDRAWN'}
+                onClick={() =>
+                  void onUpdate({
+                    recruiterNote: note,
+                    recruiterRating: rating || null,
+                    internalTags: tags
+                      .split(',')
+                      .map((tag) => tag.trim())
+                      .filter(Boolean),
+                  })
+                }
+                className="primary-button mt-5 w-full disabled:opacity-50"
+              >
+                {busy ? 'Saving review...' : 'Save private review'}
+              </button>
+
+              {application.talentEmail && (
+                <a
+                  href={`mailto:${application.talentEmail}`}
+                  className="secondary-button mt-3 flex w-full justify-center"
+                >
+                  Contact Talent
+                </a>
+              )}
+            </aside>
+          </div>
+        </div>
+      )}
+    </article>
+  );
+}
+
+function ReviewSection({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section>
+      <h3 className="text-lg font-black">{title}</h3>
+      <div className="mt-3">{children}</div>
+    </section>
   );
 }
 
@@ -381,7 +719,7 @@ function ApplicantDetail({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <p className="text-xs font-bold uppercase text-[#778287]">{label}</p>
-      <p className="mt-1 font-semibold">{value}</p>
+      <p className="mt-1 font-semibold capitalize">{value}</p>
     </div>
   );
 }

@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
   buildApplicationSubmittedNotifications,
+  buildApplicationStatusNotification,
   buildNotificationRecord,
   getNotificationDocumentId,
   normalizeNotificationActionUrl,
@@ -58,4 +59,33 @@ test('application submission prepares one Talent and one Recruiter notification'
     notifications[1].actionUrl,
     '/recruiter/auditions/audition-a/applicants'
   );
+});
+
+test('user-facing casting decisions notify Talent without exposing internal reviews', () => {
+  const shortlisted = buildApplicationStatusNotification({
+    talentId: 'talent-a',
+    recruiterId: 'recruiter-a',
+    auditionId: 'audition-a',
+    auditionTitle: 'Lead role',
+    status: 'SHORTLISTED',
+  });
+  const selected = buildApplicationStatusNotification({
+    talentId: 'talent-a',
+    recruiterId: 'recruiter-a',
+    auditionId: 'audition-a',
+    auditionTitle: 'Lead role',
+    status: 'SELECTED',
+  });
+  const internal = buildApplicationStatusNotification({
+    talentId: 'talent-a',
+    recruiterId: 'recruiter-a',
+    auditionId: 'audition-a',
+    auditionTitle: 'Lead role',
+    status: 'UNDER_REVIEW',
+  });
+
+  assert.equal(shortlisted?.type, 'application_shortlisted');
+  assert.equal(selected?.type, 'application_selected');
+  assert.equal(selected?.priority, 'HIGH');
+  assert.equal(internal, null);
 });

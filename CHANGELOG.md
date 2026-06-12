@@ -1,5 +1,20 @@
 # Changelog
 
+### Phase 2C: Recruiter Applicant Pipeline
+
+- Expanded application workflow with Under review, Maybe, Selected, and
+  Withdrawn while retaining legacy status compatibility
+- Added recruiter-only notes, 1-5 ratings, internal tags, decision timestamps,
+  status history, and last-action metadata
+- Upgraded the applicant page with counted stages, search, filters, sorting,
+  profile completeness, trust badges, featured media, and expandable review
+- Kept all recruiter review mutations behind Firebase ID-token and audition
+  ownership checks
+- Added Talent notifications for Shortlisted, Rejected, and Selected decisions
+  without notifying on private notes, tags, or ratings
+- Added recruiter audit logs, pipeline policy tests, Firestore rule tests, and
+  Playwright coverage
+
 All notable changes to Nata Connect are recorded here.
 
 ## Unreleased

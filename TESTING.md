@@ -283,6 +283,33 @@ Deploy Phase 2B rules with:
 npx firebase-tools deploy --only firestore:rules,firestore:indexes,storage
 ```
 
+## Phase 2C applicant pipeline verification
+
+1. Apply to an active audition from a Talent account.
+2. Open the audition applicant pipeline as its owning Recruiter.
+3. Confirm status counts, search, filters, and sorting render.
+4. Move the application through Viewed, Under review, Maybe, Shortlisted, and
+   Selected.
+5. Confirm status timestamps and last action information update.
+6. Add a private note, one or more tags, and a 1-5 rating.
+7. Refresh and confirm private review data persists.
+8. Confirm Shortlisted, Rejected, and Selected create Talent notifications.
+9. Confirm Viewed, Under review, Maybe, note, tag, and rating changes do not
+   create notification spam.
+10. Withdraw a separate application as Talent and confirm it becomes
+    read-only in the recruiter pipeline.
+11. Confirm another Recruiter cannot read or update the application.
+12. Confirm Talent cannot write recruiter status, notes, tags, or ratings.
+
+Optional credential-backed Playwright coverage uses
+`E2E_RECRUITER_AUDITION_ID` with the existing Recruiter credentials.
+
+Deploy Phase 2C Firestore changes with:
+
+```powershell
+npx firebase-tools deploy --only firestore:rules,firestore:indexes --project nata-connect-prod
+```
+
 ## Security-test limitation
 
 The rules suite exercises local Firestore rules, not deployed production rules

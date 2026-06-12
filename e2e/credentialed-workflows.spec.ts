@@ -80,6 +80,29 @@ test.describe('credential-backed role smoke', () => {
     await expect(page.getByRole('link', { name: 'My applications' })).toHaveCount(0);
   });
 
+  test('Recruiter applicant pipeline controls render', async ({ page }) => {
+    const account = credentials('RECRUITER');
+    const auditionId = process.env.E2E_RECRUITER_AUDITION_ID;
+    test.skip(
+      !account || !auditionId,
+      'Set Recruiter E2E credentials and E2E_RECRUITER_AUDITION_ID.'
+    );
+    await login(page, account!.email, account!.password);
+    await page.goto(`/recruiter/auditions/${auditionId}/applicants`);
+
+    await expect(page.getByText('Applicant pipeline').first()).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(
+      page.getByRole('region', { name: 'Applicant status filters' })
+    ).toBeVisible();
+    await expect(page.getByPlaceholder(/Search name, category/)).toBeVisible();
+    await page.getByRole('button', { name: 'Review profile' }).first().click();
+    await expect(page.getByText('Private casting notes')).toBeVisible();
+    await expect(page.getByLabel('Rate 5 stars')).toBeVisible();
+    await expect(page.getByRole('link', { name: /Notifications/ })).toBeVisible();
+  });
+
   test('Admin workspace routes load with an admin claim', async ({ page }) => {
     const account = credentials('ADMIN');
     test.skip(!account, 'Set E2E_ADMIN_EMAIL and E2E_ADMIN_PASSWORD.');

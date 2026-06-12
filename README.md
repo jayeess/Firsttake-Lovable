@@ -233,3 +233,24 @@ submissions and decisions, audition moderation, and account suspension/restorati
 role-appropriate activity. The notification bell opens `/notifications`, where
 users can filter unread items, open an item to mark it read, or mark all items
 as read.
+
+## Recruiter Applicant Pipeline
+
+Audition owners review applicants at
+`/recruiter/auditions/{auditionId}/applicants`. The pipeline supports Submitted,
+Viewed, Under review, Shortlisted, Maybe, Rejected, Selected, and Withdrawn
+states while continuing to display legacy application records.
+
+Recruiters can search, filter, sort, rate, tag, and add private notes. Status,
+notes, ratings, and tags are written through the authenticated application API,
+which verifies the Firebase ID token and audition ownership. Shortlisted,
+Rejected, and Selected decisions notify Talent; private notes, tags, and ratings
+never create Talent notifications.
+
+Application review fields include `recruiterStatus`, `recruiterNote`,
+`recruiterRating`, `internalTags`, status timestamps, `statusUpdatedBy`, and
+`lastRecruiterActionAt`. Deploy Phase 2C Firestore changes with:
+
+```powershell
+npx firebase-tools deploy --only firestore:rules,firestore:indexes --project nata-connect-prod
+```

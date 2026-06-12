@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import type {
+  ApplicationStatus,
   NotificationPriority,
   NotificationRole,
   NotificationType,
@@ -96,3 +97,57 @@ export const buildApplicationSubmittedNotifications = ({
     dedupeKey: `application-submitted:recruiter:${auditionId}:${talentId}`,
   },
 ];
+
+export const buildApplicationStatusNotification = ({
+  talentId,
+  recruiterId,
+  auditionId,
+  auditionTitle,
+  status,
+}: {
+  talentId: string;
+  recruiterId: string;
+  auditionId: string;
+  auditionTitle: string;
+  status: ApplicationStatus;
+}): NotificationInput | null => {
+  const messages: Partial<
+    Record<
+      ApplicationStatus,
+      Pick<NotificationInput, 'type' | 'title' | 'message' | 'priority'>
+    >
+  > = {
+    SHORTLISTED: {
+      type: 'application_shortlisted',
+      title: 'You have been shortlisted',
+      message: `Your application for ${auditionTitle} has been shortlisted.`,
+      priority: 'HIGH',
+    },
+    REJECTED: {
+      type: 'application_rejected',
+      title: 'Application update',
+      message: `The recruiter has completed their review for ${auditionTitle}.`,
+      priority: 'NORMAL',
+    },
+    SELECTED: {
+      type: 'application_selected',
+      title: 'You have been selected',
+      message: `You have been selected for ${auditionTitle}. The recruiter may contact you with next steps.`,
+      priority: 'HIGH',
+    },
+  };
+  const content = messages[status];
+  if (!content) return null;
+
+  return {
+    recipientId: talentId,
+    recipientRole: 'TALENT',
+    ...content,
+    relatedEntityType: 'application',
+    relatedEntityId: `${auditionId}/${talentId}`,
+    actionUrl: '/applications',
+    createdBy: recruiterId,
+    dedupeKey: `application-status:${auditionId}:${talentId}:${status}`,
+    metadata: { status },
+  };
+};
