@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useAuth } from '@/context/auth-context';
 import { BrandLogo } from './brand-logo';
+import { NotificationBell } from './notification-bell';
 
 const links = [
   ['/admin', 'Overview'],
@@ -53,7 +54,10 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-[#eef4f7] text-[#07111f] lg:grid lg:grid-cols-[250px_1fr]">
       <aside className="border-b border-white/10 bg-[#07111f] p-5 text-white lg:min-h-screen lg:border-b-0 lg:border-r">
-        <BrandLogo light />
+        <div className="flex items-start justify-between gap-3">
+          <BrandLogo light />
+          <NotificationBell dark />
+        </div>
         <p className="mt-5 border-l-2 border-[#e7ad2d] pl-3 text-xs font-black uppercase text-white/45">
           Trust and safety
         </p>

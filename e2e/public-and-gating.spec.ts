@@ -20,6 +20,7 @@ test.describe('unauthenticated route protection', () => {
   const protectedRoutes = [
     '/dashboard',
     '/applications',
+    '/notifications',
     '/auditions',
     '/talent/profile',
     '/recruiter/profile',

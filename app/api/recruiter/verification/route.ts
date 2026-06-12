@@ -6,6 +6,11 @@ import {
   writeAuditLog,
 } from '@/app/lib/admin-server';
 import { getAdminDb } from '@/app/lib/firebase-admin';
+import {
+  createNotification,
+  deliverNotifications,
+  notifyAdmins,
+} from '@/app/lib/notification-server';
 
 export const runtime = 'nodejs';
 
@@ -70,6 +75,32 @@ export async function POST(request: Request) {
       actor,
       targetId: actor.uid,
       targetType: 'recruiter',
+    });
+    await deliverNotifications(async () => {
+      await Promise.all([
+        createNotification({
+          recipientId: actor.uid,
+          recipientRole: 'RECRUITER',
+          type: 'recruiter_verification_submitted',
+          title: 'Verification submitted',
+          message:
+            'Your company verification request is now awaiting admin review.',
+          relatedEntityType: 'verification',
+          relatedEntityId: actor.uid,
+          actionUrl: '/recruiter/verification',
+          createdBy: actor.uid,
+        }),
+        notifyAdmins({
+          type: 'recruiter_verification_submitted',
+          title: 'Recruiter verification request',
+          message: `${data.legalName} submitted a company verification request.`,
+          relatedEntityType: 'verification',
+          relatedEntityId: actor.uid,
+          actionUrl: '/admin/verifications',
+          createdBy: actor.uid,
+          priority: 'HIGH',
+        }),
+      ]);
     });
     return Response.json({ ok: true });
   } catch (error: unknown) {

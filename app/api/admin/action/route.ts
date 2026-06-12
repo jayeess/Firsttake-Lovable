@@ -6,6 +6,11 @@ import {
   writeAuditLog,
 } from '@/app/lib/admin-server';
 import { getAdminAuth, getAdminDb } from '@/app/lib/firebase-admin';
+import {
+  createNotification,
+  deliverNotifications,
+} from '@/app/lib/notification-server';
+import type { NotificationInput } from '@/app/lib/notification-policy';
 
 export const runtime = 'nodejs';
 
@@ -55,6 +60,7 @@ export async function POST(request: Request) {
 
     const db = getAdminDb();
     const now = FieldValue.serverTimestamp();
+    let notification: NotificationInput | null = null;
 
     if (
       ['approve_recruiter', 'reject_recruiter', 'suspend_recruiter', 'restore_recruiter'].includes(action)
@@ -113,6 +119,45 @@ export async function POST(request: Request) {
         targetType: 'recruiter',
         reason,
       });
+      notification = {
+        recipientId: targetId,
+        recipientRole: 'RECRUITER',
+        type:
+          action === 'restore_recruiter'
+            ? 'user_restored'
+            : status === 'approved'
+            ? 'recruiter_verification_approved'
+            : status === 'rejected'
+              ? 'recruiter_verification_rejected'
+              : status === 'suspended'
+                ? 'user_suspended'
+                : 'user_restored',
+        title:
+          action === 'restore_recruiter'
+            ? 'Recruiter account restored'
+            : status === 'approved'
+            ? 'Recruiter verification approved'
+            : status === 'rejected'
+              ? 'Recruiter verification needs changes'
+              : status === 'suspended'
+                ? 'Recruiter account suspended'
+                : 'Recruiter account restored',
+        message:
+          reason ||
+          (action === 'restore_recruiter'
+            ? 'Your recruiter account access has been restored.'
+            : status === 'approved'
+            ? 'Your company is verified and can publish casting calls.'
+              : 'Your recruiter account status has been updated.'),
+        relatedEntityType: 'verification',
+        relatedEntityId: targetId,
+        actionUrl: '/recruiter/verification',
+        createdBy: actor.uid,
+        priority:
+          status === 'approved' && action !== 'restore_recruiter'
+            ? 'HIGH'
+            : 'NORMAL',
+      };
     } else if (
       ['verify_talent', 'reject_talent', 'suspend_talent', 'restore_talent'].includes(
         action
@@ -202,11 +247,57 @@ export async function POST(request: Request) {
         targetType: 'talent',
         reason,
       });
+      notification = {
+        recipientId: targetId,
+        recipientRole: 'TALENT',
+        type:
+          action === 'restore_talent'
+            ? 'user_restored'
+            : status === 'verified'
+            ? 'talent_verified'
+            : status === 'rejected'
+              ? 'talent_rejected'
+              : status === 'suspended'
+                ? 'user_suspended'
+                : 'user_restored',
+        title:
+          action === 'restore_talent'
+            ? 'Talent account restored'
+            : status === 'verified'
+            ? 'Talent profile verified'
+            : status === 'rejected'
+              ? 'Talent verification needs changes'
+              : status === 'suspended'
+                ? 'Talent account suspended'
+                : 'Talent account restored',
+        message:
+          reason ||
+          (action === 'restore_talent'
+            ? 'Your Talent account access has been restored.'
+            : status === 'verified'
+            ? 'Your verified Talent badge is now active.'
+              : 'Your Talent verification status has been updated.'),
+        relatedEntityType: 'verification',
+        relatedEntityId: targetId,
+        actionUrl: '/talent/profile',
+        createdBy: actor.uid,
+        priority:
+          status === 'verified' && action !== 'restore_talent'
+            ? 'HIGH'
+            : 'NORMAL',
+      };
     } else if (action === 'suspend_user' || action === 'restore_user') {
       if (targetId === actor.uid) {
         throw new AdminRequestError('Administrators cannot suspend themselves.');
       }
       const suspended = action === 'suspend_user';
+      const targetAccount = await db.collection('users').doc(targetId).get();
+      const recipientRole =
+        targetAccount.data()?.userType === 'ADMIN'
+          ? 'ADMIN'
+          : targetAccount.data()?.userType === 'RECRUITER'
+            ? 'RECRUITER'
+            : 'TALENT';
       await getAdminDb().collection('users').doc(targetId).set(
         {
           accountStatus: suspended ? 'SUSPENDED' : 'ACTIVE',
@@ -222,9 +313,34 @@ export async function POST(request: Request) {
         targetType: 'user',
         reason,
       });
+      notification = {
+        recipientId: targetId,
+        recipientRole,
+        type: suspended ? 'user_suspended' : 'user_restored',
+        title: suspended ? 'Account suspended' : 'Account restored',
+        message:
+          reason ||
+          (suspended
+            ? 'Your account has been suspended by trust and safety.'
+            : 'Your account access has been restored.'),
+        relatedEntityType: 'user',
+        relatedEntityId: targetId,
+        actionUrl: '/dashboard',
+        createdBy: actor.uid,
+        priority: 'HIGH',
+      };
     } else {
       const removed = action === 'remove_audition';
-      await db.collection('auditions').doc(targetId).update({
+      const auditionRef = db.collection('auditions').doc(targetId);
+      const audition = await auditionRef.get();
+      if (!audition.exists) {
+        throw new AdminRequestError('Audition was not found.', 404);
+      }
+      const auditionRecruiterId = audition.data()?.recruiterId;
+      if (typeof auditionRecruiterId !== 'string') {
+        throw new AdminRequestError('Audition owner could not be found.', 409);
+      }
+      await auditionRef.update({
         moderationStatus: removed ? 'REMOVED' : 'VISIBLE',
         moderationReason: reason ?? '',
         moderatedBy: actor.uid,
@@ -237,8 +353,28 @@ export async function POST(request: Request) {
         targetType: 'audition',
         reason,
       });
+      notification = {
+        recipientId: auditionRecruiterId,
+        recipientRole: 'RECRUITER',
+        type: removed ? 'audition_removed' : 'audition_restored',
+        title: removed ? 'Audition removed' : 'Audition restored',
+        message:
+          reason ||
+          `${audition.data()?.title ?? 'Your audition'} has been ${
+            removed ? 'removed from public listings' : 'restored'
+          }.`,
+        relatedEntityType: 'audition',
+        relatedEntityId: targetId,
+        actionUrl: `/auditions/${targetId}`,
+        createdBy: actor.uid,
+        priority: removed ? 'HIGH' : 'NORMAL',
+      };
     }
 
+    if (notification) {
+      const pendingNotification = notification;
+      await deliverNotifications(() => createNotification(pendingNotification));
+    }
     return Response.json({ ok: true });
   } catch (error: unknown) {
     return adminErrorResponse(error);

@@ -7,6 +7,7 @@ import { logout } from '@/app/lib/auth-service';
 import { useAuth } from '@/context/auth-context';
 import type { UserType } from '@/app/lib/types';
 import { BrandLogo } from '@/components/brand-logo';
+import { NotificationBell } from '@/components/notification-bell';
 
 type NavLink = {
   href: string;
@@ -153,6 +154,10 @@ export function AppShell({
         </nav>
 
         <div className="border-t border-white/8 p-5">
+          <div className="mb-3 flex items-center justify-between">
+            <p className="text-xs font-black uppercase text-white/35">Activity</p>
+            <NotificationBell dark />
+          </div>
           <div className="rounded-md bg-white/5 p-3">
             <p className="truncate text-sm font-bold">{user.email}</p>
             <p className="mt-1 text-xs text-white/42">
@@ -175,15 +180,18 @@ export function AppShell({
             <Link href="/dashboard">
               <BrandLogo />
             </Link>
-            <button
-              type="button"
-              className="flex size-11 items-center justify-center rounded-md border border-[#c8d6dc] bg-white text-xl font-bold"
-              onClick={() => setMenuOpen((open) => !open)}
-              aria-expanded={menuOpen}
-              aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-            >
-              {menuOpen ? 'x' : 'Menu'}
-            </button>
+            <div className="flex items-center gap-2">
+              <NotificationBell />
+              <button
+                type="button"
+                className="flex size-11 items-center justify-center rounded-md border border-[#c8d6dc] bg-white text-sm font-bold"
+                onClick={() => setMenuOpen((open) => !open)}
+                aria-expanded={menuOpen}
+                aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+              >
+                {menuOpen ? 'Close' : 'Menu'}
+              </button>
+            </div>
           </div>
           {menuOpen && (
             <nav className="border-t border-[#d5e0e4] bg-[#07111f] p-3 text-white">

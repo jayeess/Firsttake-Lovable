@@ -11,6 +11,11 @@ import {
   canSubmitTalentVerification,
 } from '@/app/lib/talent-trust-policy';
 import type { TalentProfile, TalentVerificationStatus } from '@/app/lib/types';
+import {
+  createNotification,
+  deliverNotifications,
+  notifyAdmins,
+} from '@/app/lib/notification-server';
 
 export const runtime = 'nodejs';
 
@@ -95,6 +100,32 @@ export async function POST(request: Request) {
       targetId: actor.uid,
       targetType: 'talent',
       metadata: { profileCompletenessScore: completeness.score },
+    });
+    await deliverNotifications(async () => {
+      await Promise.all([
+        createNotification({
+          recipientId: actor.uid,
+          recipientRole: 'TALENT',
+          type: 'talent_verification_submitted',
+          title: 'Verification submitted',
+          message:
+            'Your Talent profile is now in the trust and safety review queue.',
+          relatedEntityType: 'verification',
+          relatedEntityId: actor.uid,
+          actionUrl: '/talent/profile',
+          createdBy: actor.uid,
+        }),
+        notifyAdmins({
+          type: 'talent_verification_submitted',
+          title: 'Talent verification request',
+          message: `${actor.email ?? 'A Talent member'} submitted a profile for review.`,
+          relatedEntityType: 'verification',
+          relatedEntityId: actor.uid,
+          actionUrl: '/admin/talents',
+          createdBy: actor.uid,
+          priority: 'HIGH',
+        }),
+      ]);
     });
     return Response.json({ ok: true });
   } catch (error: unknown) {

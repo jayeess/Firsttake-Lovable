@@ -32,6 +32,25 @@ export type TalentVerificationStatus =
   | 'rejected'
   | 'suspended';
 export type ModerationStatus = 'VISIBLE' | 'REMOVED';
+export type NotificationRole = 'TALENT' | 'RECRUITER' | 'ADMIN';
+export type NotificationPriority = 'LOW' | 'NORMAL' | 'HIGH';
+export type NotificationType =
+  | 'recruiter_verification_submitted'
+  | 'recruiter_verification_approved'
+  | 'recruiter_verification_rejected'
+  | 'talent_verification_submitted'
+  | 'talent_verified'
+  | 'talent_rejected'
+  | 'application_submitted'
+  | 'application_withdrawn'
+  | 'application_viewed'
+  | 'application_shortlisted'
+  | 'application_rejected'
+  | 'audition_published'
+  | 'audition_removed'
+  | 'audition_restored'
+  | 'user_suspended'
+  | 'user_restored';
 
 export type ProfileCompletenessChecklist = Record<
   | 'basicInfo'
@@ -165,6 +184,23 @@ export interface Application {
   createdAt?: Date | Timestamp;
   lastStatusChange?: Date | Timestamp;
   audition?: Audition | null;
+}
+
+export interface AppNotification {
+  id: string;
+  recipientId: string;
+  recipientRole: NotificationRole;
+  type: NotificationType;
+  title: string;
+  message: string;
+  relatedEntityType?: 'application' | 'audition' | 'verification' | 'user';
+  relatedEntityId?: string;
+  actionUrl?: string;
+  read: boolean;
+  createdAt?: Date | Timestamp | string;
+  createdBy: string;
+  priority: NotificationPriority;
+  metadata: Record<string, unknown>;
 }
 
 export interface AuditionApplicant {

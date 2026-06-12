@@ -91,6 +91,8 @@ The dependency-free Node test suite currently covers application eligibility:
 - Rejected Talent verification resubmission
 - Admin-only Talent verification transitions
 - Verified Talent badge policy
+- Notification action URL validation and deterministic deduplication
+- Talent/Recruiter application notification formatting
 
 These tests validate the shared policy used by the transactional Firestore
 submission path. Playwright additionally covers public pages and signed-out
@@ -157,7 +159,9 @@ npx firebase-tools deploy --only firestore:rules,firestore:indexes
 
 Wait for Firestore indexes to finish building, then repeat the critical
 workflow. The collection-group index on `applications.talentId + createdAt` is
-required by My Applications.
+required by My Applications. Notification indexes on
+`recipientId + createdAt` and `recipientId + read` support the activity center
+and bulk read-state updates.
 
 ## Firestore Emulator Rules Tests
 
@@ -176,6 +180,33 @@ queue reads, and application-owner permissions.
 
 The suite seeds data only with `withSecurityRulesDisabled` inside the emulator.
 It does not use `.env.local`, Admin credentials, or production Firebase data.
+
+Notification rule coverage verifies that:
+
+- A user can read only notifications addressed to their own UID
+- A user can update only `read` and `readAt`
+- A user cannot forge notification content or create a notification
+- An Admin can read notifications addressed to that Admin UID, but not another
+  user's notification
+
+## Notification workflow
+
+After deploying rules and indexes:
+
+1. Submit an application as Talent.
+2. Confirm Talent sees a submission confirmation in `/notifications`.
+3. Confirm the audition owner sees a new-application alert and its action opens
+   the applicant pipeline.
+4. Mark the application Viewed, Shortlisted, and Rejected as Recruiter.
+5. Confirm each new Talent activity item opens `/applications`.
+6. Withdraw a non-rejected application and confirm both roles receive the
+   correct update.
+7. Submit Talent and Recruiter verification requests and confirm the submitting
+   user and each Admin receive their appropriate notification.
+8. Mark one item read, then use **Mark all as read** and verify the bell count
+   reaches zero.
+9. Confirm a second signed-in account cannot read or modify the first account's
+   notifications.
 
 ## Phase 1 manual verification
 

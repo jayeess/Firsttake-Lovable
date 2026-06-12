@@ -86,10 +86,20 @@ service cloud.firestore {
             == resource.data.get('verificationStatus', 'not_submitted');
       }
 
-      match /notifications/{notificationId} {
-        allow read, update: if ownsUser(uid);
-        allow create: if signedIn();
-      }
+    }
+
+    match /notifications/{notificationId} {
+      allow read: if signedIn()
+        && resource.data.recipientId == request.auth.uid;
+      allow update: if signedIn()
+        && resource.data.recipientId == request.auth.uid
+        && request.resource.data.recipientId == resource.data.recipientId
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'read',
+          'readAt'
+        ])
+        && request.resource.data.read == true;
+      allow create, delete: if false;
     }
 
     match /recruiterVerifications/{uid} {

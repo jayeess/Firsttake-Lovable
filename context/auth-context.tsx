@@ -8,7 +8,10 @@ import React, {
   useState,
 } from 'react';
 import { User } from 'firebase/auth';
-import { onAuthStateChange } from '@/app/lib/auth-service';
+import {
+  onAuthStateChange,
+  prepareTabSession,
+} from '@/app/lib/auth-service';
 import {
   ensureUserAccount,
   getUserAccount,
@@ -39,10 +42,27 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const authChangeId = useRef(0);
 
   useEffect(() => {
+    let active = true;
     let unsubscribe: (() => void) | undefined;
+    let observerStarted = false;
 
-    try {
+    const initializationTimeout = window.setTimeout(() => {
+      if (!active || observerStarted) return;
+      setUser(null);
+      setUserType(null);
+      setIsAdmin(false);
+      setAccountStatus(null);
+      setError(
+        'Authentication initialization timed out. Please refresh and try again.'
+      );
+      setLoading(false);
+    }, 8000);
+
+    const startObserver = () => {
+      if (!active) return;
       unsubscribe = onAuthStateChange(async (currentUser) => {
+        observerStarted = true;
+        window.clearTimeout(initializationTimeout);
         const changeId = ++authChangeId.current;
         setLoading(true);
         setUser(currentUser);
@@ -107,15 +127,40 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         if (changeId !== authChangeId.current) return;
         setLoading(false);
-      });
-    } catch (err: unknown) {
-      queueMicrotask(() => {
-        setError(getErrorMessage(err, 'Failed to initialize authentication'));
+      }, (authError) => {
+        if (!active) return;
+        observerStarted = true;
+        window.clearTimeout(initializationTimeout);
+        setUser(null);
+        setUserType(null);
+        setIsAdmin(false);
+        setAccountStatus(null);
+        setError(getErrorMessage(authError, 'Failed to initialize authentication'));
         setLoading(false);
       });
-    }
+    };
 
-    return () => unsubscribe?.();
+    void prepareTabSession()
+      .catch((err: unknown) => {
+        if (!active) return;
+        setError(getErrorMessage(err, 'Failed to initialize authentication'));
+      })
+      .finally(() => {
+        if (!active) return;
+        try {
+          startObserver();
+        } catch (err: unknown) {
+          window.clearTimeout(initializationTimeout);
+          setError(getErrorMessage(err, 'Failed to initialize authentication'));
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      active = false;
+      window.clearTimeout(initializationTimeout);
+      unsubscribe?.();
+    };
   }, []);
 
   return (

@@ -50,7 +50,7 @@ export interface LoginData {
   password: string;
 }
 
-const prepareTabSession = async () => {
+export const prepareTabSession = async () => {
   await setPersistence(getAuth(), browserSessionPersistence);
 };
 
@@ -148,6 +148,9 @@ export const getCurrentUser = (): User | null => {
 };
 
 // Subscribe to auth state changes
-export const onAuthStateChange = (callback: (user: User | null) => void) => {
-  return getAuth().onAuthStateChanged(callback);
+export const onAuthStateChange = (
+  callback: (user: User | null) => void,
+  onError?: (error: Error) => void
+) => {
+  return getAuth().onAuthStateChanged(callback, onError);
 };

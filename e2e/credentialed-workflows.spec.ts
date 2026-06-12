@@ -42,6 +42,7 @@ test.describe('credential-backed role smoke', () => {
     );
     await expectWorkspacePage(page, '/auditions', 'Roles worth showing up for.');
     await expectWorkspacePage(page, '/applications', 'My applications');
+    await expectWorkspacePage(page, '/notifications', 'Notifications');
 
     await expect(page.getByRole('link', { name: 'Find auditions' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'My applications' })).toBeVisible();
@@ -65,6 +66,7 @@ test.describe('credential-backed role smoke', () => {
       '/recruiter/auditions/new',
       'Shape the opportunity clearly.'
     );
+    await expectWorkspacePage(page, '/notifications', 'Notifications');
 
     await expect(page.getByRole('link', { name: 'Casting pipeline' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Post an audition' })).toBeVisible();
@@ -82,6 +84,7 @@ test.describe('credential-backed role smoke', () => {
     await expectWorkspacePage(page, '/admin/users', 'User management');
     await expectWorkspacePage(page, '/admin/auditions', 'Audition moderation');
     await expectWorkspacePage(page, '/admin/audit-logs', 'Audit logs');
+    await expectWorkspacePage(page, '/notifications', 'Notifications');
 
     await expect(page.getByRole('navigation').getByText('Verifications')).toBeVisible();
   });

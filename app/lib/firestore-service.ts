@@ -11,7 +11,6 @@ import {
   updateDoc,
   deleteDoc,
   addDoc,
-  runTransaction,
   QueryConstraint,
   type DocumentData,
   type UpdateData,
@@ -19,7 +18,6 @@ import {
 import { getFirestoreDb } from './firebase';
 import { getFirebaseAuth } from './firebase';
 import { getErrorMessage } from './error-utils';
-import { getApplicationPolicyError } from './application-policy';
 import type {
   Application,
   ApplicationStatus,
@@ -325,6 +323,19 @@ export const createAudition = async (
       createdAt: new Date(),
       updatedAt: new Date(),
     });
+    if (auditionData.status === 'ACTIVE') {
+      const user = getFirebaseAuth().currentUser;
+      if (user?.uid === recruiterId) {
+        await fetch('/api/auditions/published', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${await user.getIdToken()}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ auditionId: docRef.id }),
+        }).catch(() => undefined);
+      }
+    }
     return docRef.id;
   } catch (error: unknown) {
     const message = getErrorMessage(error, 'Failed to create audition');
@@ -460,58 +471,20 @@ export const submitApplication = async (
   coverMessage?: string
 ) => {
   try {
-    const account = await getUserAccount(talentId);
-    if (account?.userType !== 'TALENT') {
-      throw new Error('Only talent accounts can apply to auditions.');
-    }
-
-    const db = getFirestoreDb();
-    const auditionRef = doc(db, 'auditions', auditionId);
-    const applicationRef = doc(
-      db,
-      'auditions',
-      auditionId,
-      'applications',
-      talentId
-    );
-
-    await runTransaction(db, async (transaction) => {
-      const [auditionSnapshot, applicationSnapshot] = await Promise.all([
-        transaction.get(auditionRef),
-        transaction.get(applicationRef),
-      ]);
-
-      const audition = auditionSnapshot.exists()
-        ? (auditionSnapshot.data() as Omit<Audition, 'id'>)
-        : null;
-      const deadline = audition
-        ? audition.deadline instanceof Date
-          ? audition.deadline
-          : audition.deadline.toDate()
-        : undefined;
-      const policyError = getApplicationPolicyError({
-        auditionExists: auditionSnapshot.exists(),
-        alreadyApplied: applicationSnapshot.exists(),
-        status: audition?.status,
-        deadline,
-      });
-
-      if (policyError) {
-        throw new Error(policyError);
-      }
-
-      const now = new Date();
-      transaction.set(applicationRef, {
-        talentId,
-        talentEmail: account.email,
-        coverMessage: coverMessage || '',
-        status: 'APPLIED',
-        lastStatusChange: now,
-        createdAt: now,
-        updatedAt: now,
-      });
+    const user = getFirebaseAuth().currentUser;
+    if (!user || user.uid !== talentId) throw new Error('Please sign in again.');
+    const response = await fetch('/api/applications', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${await user.getIdToken()}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ auditionId, coverMessage }),
     });
-
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload.error ?? 'Failed to submit application');
+    }
     return talentId;
   } catch (error: unknown) {
     const message = getErrorMessage(error, 'Failed to submit application');
@@ -656,24 +629,26 @@ export const updateApplicationStatus = async (
   rejectionReason?: string
 ) => {
   try {
-    const updates: UpdateData<DocumentData> = {
-      status: newStatus,
-      lastStatusChange: new Date(),
-      updatedAt: new Date(),
-    };
-
-    if (recruiterNotes) {
-      updates.recruiterNotes = recruiterNotes;
+    const user = getFirebaseAuth().currentUser;
+    if (!user) throw new Error('Please sign in again.');
+    const response = await fetch('/api/applications', {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${await user.getIdToken()}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        auditionId,
+        applicationId,
+        status: newStatus,
+        recruiterNotes,
+        rejectionReason,
+      }),
+    });
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload.error ?? 'Failed to update application status');
     }
-
-    if (rejectionReason) {
-      updates.rejectionReason = rejectionReason;
-    }
-
-    await updateDoc(
-      doc(getFirestoreDb(), 'auditions', auditionId, 'applications', applicationId),
-      updates
-    );
   } catch (error: unknown) {
     throw new Error(getErrorMessage(error, 'Failed to update application status'));
   }
@@ -684,15 +659,20 @@ export const deleteApplication = async (
   applicationId: string
 ) => {
   try {
-    await deleteDoc(
-      doc(
-        getFirestoreDb(),
-      'auditions',
-      auditionId,
-      'applications',
-      applicationId
-      )
-    );
+    const user = getFirebaseAuth().currentUser;
+    if (!user || user.uid !== applicationId) throw new Error('Please sign in again.');
+    const response = await fetch('/api/applications', {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${await user.getIdToken()}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ auditionId }),
+    });
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload.error ?? 'Failed to withdraw application');
+    }
   } catch (error: unknown) {
     throw new Error(getErrorMessage(error, 'Failed to delete application'));
   }

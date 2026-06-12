@@ -87,6 +87,30 @@ async function seed() {
         doc(db, 'auditions/closed-a'),
         audition('recruiter-a', { status: 'CLOSED' })
       ),
+      setDoc(doc(db, 'notifications/talent-notification'), {
+        recipientId: 'talent-a',
+        recipientRole: 'TALENT',
+        type: 'application_shortlisted',
+        title: 'Shortlisted',
+        message: 'A recruiter shortlisted your application.',
+        read: false,
+        createdBy: 'recruiter-a',
+        priority: 'HIGH',
+        metadata: {},
+        createdAt: new Date(),
+      }),
+      setDoc(doc(db, 'notifications/admin-notification'), {
+        recipientId: 'admin-a',
+        recipientRole: 'ADMIN',
+        type: 'talent_verification_submitted',
+        title: 'Review requested',
+        message: 'A Talent member requested verification.',
+        read: false,
+        createdBy: 'talent-a',
+        priority: 'HIGH',
+        metadata: {},
+        createdAt: new Date(),
+      }),
     ]);
   });
 }
@@ -259,6 +283,47 @@ test('Admins can read queues and audit logs but cannot client-write logs', async
   await assertSucceeds(getDoc(doc(db, 'recruiterVerifications/recruiter-a')));
   await assertSucceeds(getDoc(doc(db, 'auditLogs/server-log')));
   await assertFails(setDoc(doc(db, 'auditLogs/admin-client-write'), { action: 'x' }));
+});
+
+test('users can read only their own notifications', async () => {
+  const ownerDb = environment.authenticatedContext('talent-a').firestore();
+  const outsiderDb = environment.authenticatedContext('talent-b').firestore();
+  await assertSucceeds(
+    getDoc(doc(ownerDb, 'notifications/talent-notification'))
+  );
+  await assertFails(
+    getDoc(doc(outsiderDb, 'notifications/talent-notification'))
+  );
+});
+
+test('notification owners can mark read but cannot edit content or create records', async () => {
+  const db = environment.authenticatedContext('talent-a').firestore();
+  const notificationRef = doc(db, 'notifications/talent-notification');
+  await assertSucceeds(
+    updateDoc(notificationRef, {
+      read: true,
+      readAt: serverTimestamp(),
+    })
+  );
+  await assertFails(updateDoc(notificationRef, { title: 'Forged title' }));
+  await assertFails(
+    setDoc(doc(db, 'notifications/client-created'), {
+      recipientId: 'talent-a',
+      read: false,
+    })
+  );
+});
+
+test('admins can read notifications addressed to their own admin account', async () => {
+  const db = environment
+    .authenticatedContext('admin-a', { admin: true })
+    .firestore();
+  await assertSucceeds(
+    getDoc(doc(db, 'notifications/admin-notification'))
+  );
+  await assertFails(
+    getDoc(doc(db, 'notifications/talent-notification'))
+  );
 });
 
 test('Application owner and audition owner can read an application', async () => {

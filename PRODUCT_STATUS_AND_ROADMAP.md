@@ -1,9 +1,9 @@
 # Nata Connect Product Status and Roadmap
 
 **Telugu name:** నట కనెక్ట్  
-**Document date:** June 10, 2026  
+**Document date:** June 12, 2026
 **Repository:** `jayeess/Firsttake-Lovable`  
-**Current stage:** Phase 1.5 beta quality and controlled private testing
+**Current stage:** Phase 2A activity center and controlled private testing
 
 ## 1. Product Summary
 
@@ -44,7 +44,7 @@ Nata Connect is no longer a static demonstration. It is a working Firebase-backe
 | Security rules | MVP-level | Good role foundations, requires production review |
 | Automated testing | Partial | Policy tests and browser smoke tests exist; emulator tests remain |
 | Admin operations | Implemented | Requires server credentials and an admin custom claim per environment |
-| Notifications | Missing | Important for retention and workflow completion |
+| Notifications | Implemented in-app | Email/SMS and preferences remain future work |
 | Media portfolio | Not implemented | Required for a serious casting product |
 | Deployment operations | Partial | Build passes, production process is undocumented |
 
@@ -167,6 +167,16 @@ See `TESTING.md` for the complete testing guide.
 - Audit events for submission and every privileged decision
 - Verification remains optional and does not gate basic Talent usage
 
+### Notifications and activity
+
+- Notification bell and unread count in Talent, Recruiter, and Admin shells
+- `/notifications` activity center with All/Unread filters
+- Individual and bulk read-state actions
+- Trusted server creation for application, verification, moderation, and
+  account-status events
+- Role-specific action links back into the relevant workflow
+- Top-level notification security rules and supporting Firestore indexes
+
 ## 4. Technology and Architecture
 
 ### Frontend
@@ -210,6 +220,7 @@ See `TESTING.md` for the complete testing guide.
 | `/auditions` | Browse auditions | Talent |
 | `/auditions/[id]` | Audition details/application | Authenticated |
 | `/applications` | Talent application tracking | Talent |
+| `/notifications` | Role-aware activity center | Authenticated |
 | `/recruiter/profile` | Company profile | Recruiter |
 | `/recruiter/verification` | Approval status | Recruiter |
 | `/recruiter/auditions` | Recruiter casting calls | Recruiter |
@@ -257,6 +268,17 @@ auditions/{auditionId}/applications/{talentId}
 ```
 
 The talent ID is used as the application document ID. This naturally prevents the same talent from applying twice to one audition.
+
+### Notification
+
+```text
+notifications/{notificationId}
+```
+
+Contains one recipient UID and role, event type, title/message, optional related
+entity and internal action URL, read state, creator, priority, metadata, and a
+server timestamp. Notification content is server-created; clients may update
+only read-state fields.
 
 ## 6. Current Security Model
 
@@ -353,11 +375,11 @@ The Firebase Storage service exists, but talent cannot upload:
 
 These are essential for a competitive casting platform.
 
-### 8.7 Notifications and communication are missing
+### 8.7 Notification delivery is in-app only
 
-The data structure has a notifications path, but there is no complete notification UI or delivery system.
-
-Users currently need to manually revisit the application to see changes.
+The activity center now covers core workflow events. Email/SMS delivery,
+notification preferences, scheduled reminders, and retention policies remain
+future work.
 
 ### 8.8 Verification and trust are incomplete
 
@@ -463,10 +485,11 @@ checklist in `TESTING.md`.
 
 ## Phase 4: Notifications and Communication
 
-1. In-app notification center.
+1. Completed: in-app notification center.
 2. Email notifications for status changes.
-3. Recruiter alerts for new applications.
-4. Talent alerts for callbacks and deadlines.
+3. Completed: recruiter alerts for new and withdrawn applications.
+4. Partially completed: Talent application-status alerts; callbacks and
+   deadlines remain.
 5. Message templates.
 6. Optional secure recruiter-talent messaging.
 7. Notification preferences.

@@ -1,6 +1,6 @@
 # Nata Connect Beta Readiness Report
 
-**Assessment date:** June 11, 2026
+**Assessment date:** June 12, 2026
 **Recommended stage:** Controlled internal/private testing only  
 **Readiness score:** 7.5/10
 
@@ -65,6 +65,19 @@
 - Recruiters see a badge only when status is exactly `verified`
 - Submission and Admin decisions are recorded in audit logs
 
+## Phase 2A Notifications
+
+- Talent, Recruiter, and Admin users have a shared in-app activity center
+- Unread counts are visible from role shells
+- Application changes, verification workflow, moderation, and account status
+  create server-owned notifications
+- Application mutations pass through authenticated route handlers before
+  workflow alerts are generated
+- Clients cannot create notification content and can update only their own
+  read state
+- Notification policy tests, Firestore rule tests, and protected-route E2E
+  coverage are included
+
 ## Files Changed
 
 - Authentication: `app/lib/auth-service.ts`, `app/lib/error-utils.ts`,
@@ -121,7 +134,7 @@ Run `npm run verify` again immediately before every deployment.
 - Credential-backed browser tests require dedicated local test accounts
 - Storage rules exist, but complete portfolio and verification upload flows do
   not
-- No email/in-app notifications for status changes
+- No email/SMS delivery or notification preference controls
 - Report/abuse handling and account deletion are not implemented
 - No production analytics, error monitoring, uptime monitoring, or backups
 - Development mock accounts must be created manually in Firebase once

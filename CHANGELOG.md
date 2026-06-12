@@ -4,6 +4,19 @@ All notable changes to Nata Connect are recorded here.
 
 ## Unreleased
 
+### Phase 2A: Notifications and Activity Center
+
+- Added server-owned top-level notifications with role, priority, related
+  entity, safe internal action URL, read state, and metadata
+- Added authenticated notification list/read/all-read APIs
+- Added a role-aware notification bell, unread badge, and `/notifications`
+- Added alerts for application, audition publishing, verification, moderation,
+  and account-status events
+- Moved application mutations through authenticated server handlers so
+  notifications originate from trusted workflow events
+- Added notification rules, indexes, policy tests, emulator tests, and
+  credentialed route smoke coverage
+
 ### Talent Trust Layer
 
 - Added optional Talent verification states: not submitted, pending, verified,

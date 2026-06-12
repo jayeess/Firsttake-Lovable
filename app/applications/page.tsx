@@ -3,7 +3,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { AppShell } from '@/components/app-shell';
 import { StatusBadge } from '@/components/status-badge';
-import { getTalentApplications } from '@/app/lib/firestore-service';
+import {
+  deleteApplication,
+  getTalentApplications,
+} from '@/app/lib/firestore-service';
 import {
   formatDate,
   type Application,
@@ -27,6 +30,7 @@ export default function ApplicationsPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [reloadKey, setReloadKey] = useState(0);
+  const [withdrawingId, setWithdrawingId] = useState('');
 
   useEffect(() => {
     if (!user || userType !== 'TALENT') {
@@ -45,6 +49,24 @@ export default function ApplicationsPage() {
     () => applications.filter((item) => tab === 'ALL' || item.status === tab),
     [applications, tab]
   );
+
+  const withdraw = async (application: Application) => {
+    if (!window.confirm('Withdraw this application?')) return;
+    setWithdrawingId(application.id);
+    setError('');
+    try {
+      await deleteApplication(application.auditionId, application.id);
+      setApplications((current) =>
+        current.filter((item) => item.id !== application.id)
+      );
+    } catch (withdrawError: unknown) {
+      setError(
+        getErrorMessage(withdrawError, 'Unable to withdraw the application')
+      );
+    } finally {
+      setWithdrawingId('');
+    }
+  };
 
   return (
     <AppShell requiredRole="TALENT">
@@ -146,6 +168,20 @@ export default function ApplicationsPage() {
                     {application.rejectionReason}
                   </p>
                 )}
+              {application.status !== 'REJECTED' && (
+                <div className="mt-5 border-t border-[#dce2e8] pt-4">
+                  <button
+                    type="button"
+                    onClick={() => void withdraw(application)}
+                    disabled={withdrawingId === application.id}
+                    className="text-sm font-bold text-[#b63b32] hover:underline disabled:opacity-50"
+                  >
+                    {withdrawingId === application.id
+                      ? 'Withdrawing...'
+                      : 'Withdraw application'}
+                  </button>
+                </div>
+              )}
             </article>
           ))
         )}

@@ -31,6 +31,9 @@ controlled private testing. It is not ready for a public production launch.
 - Trusted custom-claim admin dashboard and moderation APIs
 - Admin Talent verification queue with approve, reject, suspend, and restore
 - User suspension, audition removal, and immutable audit history
+- In-app notification bell, unread counts, and role-aware activity center
+- Server-created alerts for applications, verification, moderation, and
+  account status changes
 - Development-only account personas and form presets
 - Firebase security rules, indexes, and Emulator Suite configuration
 
@@ -161,6 +164,7 @@ project. Exact setup is documented in `TESTING.md`.
 - `/dashboard`
 - `/auditions`
 - `/applications`
+- `/notifications`
 - `/talent/profile`
 - `/recruiter/profile`
 - `/recruiter/auditions`
@@ -184,7 +188,8 @@ See [TESTING.md](TESTING.md) for accounts, workflows, and removal instructions.
 
 - Verification document upload remains disabled until Storage is enabled
 - Profile and portfolio media upload UI is incomplete
-- Notifications, analytics, monitoring, and legal workflows are not production-ready
+- Email/SMS delivery, analytics, monitoring, and legal workflows are not
+  production-ready
 - Credential-backed browser tests require dedicated accounts in
   `.env.e2e.local`
 - Firestore rule tests require Java 21 locally
@@ -212,3 +217,16 @@ rejection reasons.
 
 See [BETA_READINESS_REPORT.md](BETA_READINESS_REPORT.md) before planning a beta
 release.
+
+## Notifications and Activity
+
+Notifications live in the top-level `notifications/{notificationId}`
+collection and are created only by authenticated server routes using Firebase
+Admin. Clients can read only notifications addressed to their UID and can
+change only read-state fields.
+
+Application submit/withdraw/review actions, audition publishing, verification
+submissions and decisions, audition moderation, and account suspension/restoration create
+role-appropriate activity. The notification bell opens `/notifications`, where
+users can filter unread items, open an item to mark it read, or mark all items
+as read.
