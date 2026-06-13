@@ -61,7 +61,9 @@ service cloud.firestore {
             'talentVerificationStatus',
             'not_submitted'
           ) == 'not_submitted'
-          && request.resource.data.get('verifiedAt', null) == null;
+          && request.resource.data.get('verifiedAt', null) == null
+          && request.resource.data.get('publicProfileEnabled', false) == false
+          && request.resource.data.get('publicSlug', '') == '';
         allow update: if ownsUser(uid)
           && profileId == uid
           && accountActive()
@@ -73,11 +75,21 @@ service cloud.firestore {
             'not_submitted'
           )
           && request.resource.data.get('verifiedAt', null)
-            == resource.data.get('verifiedAt', null);
+            == resource.data.get('verifiedAt', null)
+          && request.resource.data.get('publicProfileEnabled', false)
+            == resource.data.get('publicProfileEnabled', false)
+          && request.resource.data.get('publicSlug', '')
+            == resource.data.get('publicSlug', '')
+          && request.resource.data.get('publicProfileCreatedAt', null)
+            == resource.data.get('publicProfileCreatedAt', null)
+          && request.resource.data.get('publicProfileUpdatedAt', null)
+            == resource.data.get('publicProfileUpdatedAt', null);
 
         match /media/{mediaId} {
           allow read: if ownsUser(uid)
             || isAdmin()
+            || (resource.data.visibility == 'public'
+              && resource.data.moderationStatus == 'active')
             || (isRecruiter()
               && recruiterApproved(request.auth.uid)
               && resource.data.visibility in ['recruiters', 'public']
@@ -180,6 +192,11 @@ service cloud.firestore {
         ])
         && request.resource.data.read == true;
       allow create, delete: if false;
+    }
+
+    match /publicTalentProfiles/{slug} {
+      allow read: if resource.data.enabled == true;
+      allow create, update, delete: if false;
     }
 
     match /recruiterVerifications/{uid} {

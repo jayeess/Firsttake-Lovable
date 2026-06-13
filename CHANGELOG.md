@@ -1,5 +1,17 @@
 # Changelog
 
+### Phase 2E: Public and Shareable Talent Profiles
+
+- Added opt-in public Talent pages at `/t/[slug]`
+- Added normalized, reserved-name-aware, collision-safe public slugs
+- Added server-generated `publicTalentProfiles` snapshots containing only
+  approved display fields and active media explicitly marked public
+- Added Talent publish, preview, copy, refresh, slug-change, and disable tools
+- Added dynamic profile metadata and no-index handling for unavailable pages
+- Added Admin public-profile visibility and moderated disable actions
+- Added notifications, audit logs, policy tests, Firestore rule tests, and E2E
+  public-route coverage
+
 ### Phase 2D: Search, Filters, and Discovery
 
 - Added responsive audition search, advanced filters, active chips, result

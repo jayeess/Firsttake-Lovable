@@ -67,6 +67,53 @@ async function seed() {
     await Promise.all([
       setDoc(doc(db, 'users/talent-a'), user('talent-a', 'TALENT')),
       setDoc(doc(db, 'users/talent-b'), user('talent-b', 'TALENT')),
+      setDoc(
+        doc(db, 'users/talent-a/talentProfiles/talent-a'),
+        {
+          firstName: 'Maya',
+          lastName: 'Rao',
+          bio: 'Test profile',
+          location: 'Hyderabad',
+          category: 'ACTOR',
+          experienceLevel: 'FRESHER',
+          isPublic: true,
+          publicProfileEnabled: false,
+          talentVerificationStatus: 'not_submitted',
+          verifiedAt: null,
+        }
+      ),
+      setDoc(
+        doc(db, 'users/talent-a/talentProfiles/talent-a/media/public-media'),
+        {
+          ownerId: 'talent-a',
+          type: 'image',
+          title: 'Public headshot',
+          description: '',
+          url: 'https://example.test/public.jpg',
+          sortOrder: 0,
+          isFeatured: true,
+          visibility: 'public',
+          moderationStatus: 'active',
+        }
+      ),
+      setDoc(doc(db, 'publicTalentProfiles/maya-rao'), {
+        uid: 'talent-a',
+        slug: 'maya-rao',
+        enabled: true,
+        displayName: 'Maya Rao',
+        category: 'ACTOR',
+        experienceLevel: 'FRESHER',
+        bio: 'Test profile',
+        skills: [],
+        languages: [],
+        media: [],
+      }),
+      setDoc(doc(db, 'publicTalentProfiles/disabled-profile'), {
+        uid: 'talent-b',
+        slug: 'disabled-profile',
+        enabled: false,
+        displayName: 'Disabled Talent',
+      }),
       setDoc(doc(db, 'users/recruiter-a'), user('recruiter-a', 'RECRUITER')),
       setDoc(doc(db, 'users/recruiter-b'), user('recruiter-b', 'RECRUITER')),
       setDoc(
@@ -160,6 +207,59 @@ after(async () => {
 test('unauthenticated users cannot write protected data', async () => {
   const db = environment.unauthenticatedContext().firestore();
   await assertFails(setDoc(doc(db, 'users/anonymous'), user('anonymous', 'TALENT')));
+});
+
+test('anonymous users can read only enabled public Talent snapshots', async () => {
+  const db = environment.unauthenticatedContext().firestore();
+  await assertSucceeds(getDoc(doc(db, 'publicTalentProfiles/maya-rao')));
+  await assertFails(getDoc(doc(db, 'publicTalentProfiles/disabled-profile')));
+  await assertFails(
+    setDoc(doc(db, 'publicTalentProfiles/anonymous-write'), {
+      enabled: true,
+      displayName: 'Unsafe',
+    })
+  );
+  await assertFails(
+    getDoc(doc(db, 'users/talent-a/talentProfiles/talent-a'))
+  );
+});
+
+test('Talent can save public display preferences but cannot forge publish state', async () => {
+  const db = environment.authenticatedContext('talent-a').firestore();
+  await assertSucceeds(
+    updateDoc(doc(db, 'users/talent-a/talentProfiles/talent-a'), {
+      publicShowLocation: true,
+      publicShowSocialLinks: true,
+    })
+  );
+  await assertFails(
+    updateDoc(doc(db, 'users/talent-a/talentProfiles/talent-a'), {
+      publicProfileEnabled: true,
+      publicSlug: 'maya-rao',
+    })
+  );
+  await assertFails(
+    updateDoc(doc(db, 'users/talent-b/talentProfiles/talent-b'), {
+      publicProfileEnabled: true,
+    })
+  );
+  await assertFails(
+    updateDoc(doc(db, 'publicTalentProfiles/maya-rao'), {
+      displayName: 'Client overwrite',
+    })
+  );
+});
+
+test('anonymous users can read only active media marked public', async () => {
+  const db = environment.unauthenticatedContext().firestore();
+  await assertSucceeds(
+    getDoc(
+      doc(
+        db,
+        'users/talent-a/talentProfiles/talent-a/media/public-media'
+      )
+    )
+  );
 });
 
 test('Talent can read visible active auditions but not removed auditions', async () => {

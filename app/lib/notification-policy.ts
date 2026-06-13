@@ -17,7 +17,8 @@ export type NotificationInput = {
     | 'audition'
     | 'verification'
     | 'user'
-    | 'media';
+    | 'media'
+    | 'public_profile';
   relatedEntityId?: string;
   actionUrl?: string;
   createdBy: string;

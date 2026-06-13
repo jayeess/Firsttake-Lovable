@@ -30,6 +30,7 @@ const allowedActions = new Set([
   'hide_media',
   'remove_media',
   'restore_media',
+  'disable_public_profile',
 ]);
 
 export async function POST(request: Request) {
@@ -57,6 +58,7 @@ export async function POST(request: Request) {
         'remove_audition',
         'hide_media',
         'remove_media',
+        'disable_public_profile',
       ].includes(action) &&
       !reason
     ) {
@@ -290,6 +292,53 @@ export async function POST(request: Request) {
           status === 'verified' && action !== 'restore_talent'
             ? 'HIGH'
             : 'NORMAL',
+      };
+    } else if (action === 'disable_public_profile') {
+      const profileRef = db
+        .collection('users')
+        .doc(targetId)
+        .collection('talentProfiles')
+        .doc(targetId);
+      const profile = await profileRef.get();
+      if (!profile.exists || profile.data()?.publicProfileEnabled !== true) {
+        throw new AdminRequestError('An enabled public Talent profile was not found.', 404);
+      }
+      const slug = profile.data()?.publicSlug;
+      await db.runTransaction(async (transaction) => {
+        transaction.set(
+          profileRef,
+          {
+            publicProfileEnabled: false,
+            publicProfileUpdatedAt: now,
+            updatedAt: now,
+          },
+          { merge: true }
+        );
+        if (typeof slug === 'string' && slug) {
+          transaction.delete(db.collection('publicTalentProfiles').doc(slug));
+        }
+      });
+      await writeAuditLog({
+        action: 'public_profile_admin_disabled',
+        actor,
+        targetId,
+        targetType: 'talent',
+        reason,
+        metadata: { slug: typeof slug === 'string' ? slug : null },
+      });
+      notification = {
+        recipientId: targetId,
+        recipientRole: 'TALENT',
+        type: 'public_profile_admin_disabled',
+        title: 'Public profile disabled by moderation',
+        message:
+          reason ||
+          'Your public Talent profile was disabled by the Nata Connect trust team.',
+        relatedEntityType: 'public_profile',
+        relatedEntityId: typeof slug === 'string' ? slug : targetId,
+        actionUrl: '/talent/profile',
+        createdBy: actor.uid,
+        priority: 'HIGH',
       };
     } else if (action === 'suspend_user' || action === 'restore_user') {
       if (targetId === actor.uid) {

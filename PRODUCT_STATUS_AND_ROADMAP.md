@@ -3,7 +3,7 @@
 **Telugu name:** నట కనెక్ట్  
 **Document date:** June 12, 2026
 **Repository:** `jayeess/Firsttake-Lovable`  
-**Current stage:** Phase 2D search, filters, and discovery
+**Current stage:** Phase 2E public and shareable Talent profiles
 
 ## 1. Product Summary
 
@@ -615,3 +615,18 @@ At the time of this document:
 ---
 
 Nata Connect currently has a strong identity and a credible working marketplace loop. The best next move is not adding many unrelated features. It is strengthening trust, administration, testing, and portfolio depth so the existing workflow becomes safe and dependable for real casting activity.
+## Phase 2E: Public and Shareable Talent Profiles
+
+Talent can now explicitly publish a sanitized profile snapshot at
+`/t/[slug]`. Publishing is disabled by default and is separate from the
+existing signed-in recruiter profile visibility setting.
+
+- Public documents live in `publicTalentProfiles/{slug}` and contain no email,
+  phone, UID-facing account controls, storage paths, verification notes, admin
+  notes, application history, or private media.
+- Slugs are normalized, checked against reserved routes, and claimed in a
+  server transaction.
+- Only active portfolio items explicitly marked `public` enter the snapshot.
+- Talent can preview, copy, refresh, rename, or disable the page.
+- Admin can review public status and disable a page with an audit reason.
+- Disabled and missing pages are not indexable.

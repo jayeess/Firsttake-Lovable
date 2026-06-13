@@ -77,6 +77,10 @@ export type NotificationType =
   | 'talent_portfolio_media_added'
   | 'talent_media_hidden'
   | 'talent_media_removed'
+  | 'public_profile_enabled'
+  | 'public_profile_disabled'
+  | 'public_slug_changed'
+  | 'public_profile_admin_disabled'
   | 'user_suspended'
   | 'user_restored';
 
@@ -115,10 +119,48 @@ export interface TalentProfile {
   skills?: string[];
   languages?: string[];
   isPublic: boolean;
+  publicProfileEnabled?: boolean;
+  publicSlug?: string;
+  publicShowLocation?: boolean;
+  publicShowSocialLinks?: boolean;
+  publicProfileCreatedAt?: Date | Timestamp;
+  publicProfileUpdatedAt?: Date | Timestamp;
   talentVerificationStatus?: TalentVerificationStatus;
   profileCompletenessScore?: number;
   profileCompletenessChecklist?: ProfileCompletenessChecklist;
   verifiedAt?: Date | Timestamp;
+}
+
+export interface PublicTalentMedia {
+  id: string;
+  type: 'image' | 'video_link' | 'showreel_link';
+  title: string;
+  description?: string;
+  url: string;
+  thumbnailUrl?: string;
+  isFeatured: boolean;
+  sortOrder: number;
+}
+
+export interface PublicTalentProfile {
+  uid: string;
+  slug: string;
+  enabled: boolean;
+  displayName: string;
+  category: TalentCategory;
+  experienceLevel: ExperienceLevel;
+  location?: string;
+  bio: string;
+  profilePhotoUrl?: string;
+  skills: string[];
+  languages: string[];
+  instagramUrl?: string;
+  youtubeUrl?: string;
+  websiteUrl?: string;
+  talentVerificationStatus: TalentVerificationStatus;
+  media: PublicTalentMedia[];
+  createdAt?: Date | Timestamp;
+  updatedAt?: Date | Timestamp;
 }
 
 export interface TalentVerification {
@@ -291,7 +333,8 @@ export interface AppNotification {
     | 'audition'
     | 'verification'
     | 'user'
-    | 'media';
+    | 'media'
+    | 'public_profile';
   relatedEntityId?: string;
   actionUrl?: string;
   read: boolean;

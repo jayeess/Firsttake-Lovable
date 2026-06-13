@@ -91,12 +91,26 @@ The dependency-free Node test suite currently covers application eligibility:
 - Rejected Talent verification resubmission
 - Admin-only Talent verification transitions
 - Verified Talent badge policy
+- Public Talent slug normalization, reserved names, and safe snapshot fields
+- Public portfolio filtering by visibility and moderation state
 - Notification action URL validation and deterministic deduplication
 - Talent/Recruiter application notification formatting
 
 These tests validate the shared policy used by the transactional Firestore
 submission path. Playwright additionally covers public pages and signed-out
 route gating.
+
+## Public Talent profile checks
+
+1. Save a Talent profile with a name, location, and bio.
+2. Mark selected portfolio items as `Public profile`.
+3. Enable the shareable page in Talent profile settings and choose a slug.
+4. Open `/t/<slug>` in a signed-out browser and verify only selected public
+   fields and active public media appear.
+5. Change the slug and confirm the old URL stops resolving.
+6. Disable the page and confirm the URL returns not found.
+7. As an Admin, disable an enabled page from `/admin/talents` and verify the
+   audit event and Talent notification.
 
 ## Playwright E2E
 

@@ -197,3 +197,14 @@ Run `npm run verify` again immediately before every deployment.
 The application has a coherent MVP journey and is ready for disciplined private
 testing. It should not accept public users until the launch blockers above are
 closed.
+## Phase 2E Readiness Note
+
+Public Talent profiles are opt-in and use separate sanitized Firestore
+documents. Anonymous access is limited to enabled `publicTalentProfiles`
+records and active media metadata explicitly marked public. Publishing and
+slug ownership are controlled by a Firebase-ID-token-verified server route;
+clients cannot write public records directly. Admin disable actions create an
+audit log and notify the Talent owner.
+
+Before production rollout, deploy the updated Firestore rules and manually
+verify URL previews against the production Firebase Admin environment.

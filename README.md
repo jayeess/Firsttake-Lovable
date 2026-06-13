@@ -25,6 +25,8 @@ controlled private testing. It is not ready for a public production launch.
 - Talent and recruiter profile forms
 - Talent profile completeness scoring and optional verification
 - Talent profile photo, portfolio images, and external showreel links
+- Opt-in shareable Talent profiles at `/t/[slug]` using sanitized public
+  snapshots, safe slugs, selected public media, and verified badges
 - Recruiter-facing featured media and portfolio previews
 - Recruiter audition creation and applicant review
 - Talent audition discovery, application submission, and status tracking
@@ -32,6 +34,7 @@ controlled private testing. It is not ready for a public production launch.
 - Text-based recruiter verification and admin review
 - Trusted custom-claim admin dashboard and moderation APIs
 - Admin Talent verification queue with approve, reject, suspend, and restore
+- Admin visibility and disable controls for published Talent pages
 - User suspension, audition removal, and immutable audit history
 - In-app notification bell, unread counts, and role-aware activity center
 - Server-created alerts for applications, verification, moderation, and

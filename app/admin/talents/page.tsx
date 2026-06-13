@@ -84,6 +84,12 @@ export default function AdminTalentsPage() {
                     <p className="mt-3 font-bold">
                       Profile completeness: {item.profileCompletenessScore}%
                     </p>
+                    <p className="mt-2 text-sm font-bold text-[#657176]">
+                      Public profile:{' '}
+                      {item.profile?.publicProfileEnabled
+                        ? `/t/${item.profile.publicSlug}`
+                        : 'Disabled'}
+                    </p>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {item.talentVerificationStatus === 'pending' && (
@@ -120,6 +126,25 @@ export default function AdminTalentsPage() {
                         onComplete={load}
                       />
                     ) : null}
+                    {item.profile?.publicProfileEnabled && (
+                      <>
+                        <a
+                          href={`/t/${item.profile.publicSlug}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex min-h-10 items-center border border-[#b8c7cd] bg-white px-3 text-xs font-black hover:border-[#008ca6]"
+                        >
+                          View public page
+                        </a>
+                        <AdminActionButton
+                          action="disable_public_profile"
+                          targetId={item.id}
+                          label="Disable public page"
+                          tone="danger"
+                          onComplete={load}
+                        />
+                      </>
+                    )}
                   </div>
                 </div>
 

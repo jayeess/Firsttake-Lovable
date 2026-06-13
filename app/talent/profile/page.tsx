@@ -24,6 +24,7 @@ import {
 } from '@/app/lib/talent-trust-policy';
 import { VerifiedBadge } from '@/components/verified-badge';
 import { TalentMediaManager } from '@/components/talent-media-manager';
+import { PublicTalentProfileSettings } from '@/components/public-talent-profile-settings';
 
 const initialProfile: TalentProfile = {
   firstName: '',
@@ -340,13 +341,21 @@ export default function TalentProfilePage() {
           )}
         </section>
         {user && profileSaved ? (
-          <TalentMediaManager
-            uid={user.uid}
-            profile={profile}
-            onProfileChange={(updates) =>
-              setProfile((current) => ({ ...current, ...updates }))
-            }
-          />
+          <>
+            <TalentMediaManager
+              uid={user.uid}
+              profile={profile}
+              onProfileChange={(updates) =>
+                setProfile((current) => ({ ...current, ...updates }))
+              }
+            />
+            <PublicTalentProfileSettings
+              profile={profile}
+              onProfileChange={(updates) =>
+                setProfile((current) => ({ ...current, ...updates }))
+              }
+            />
+          </>
         ) : (
           <section className="surface mt-6 p-6">
             <p className="eyebrow">Media portfolio</p>

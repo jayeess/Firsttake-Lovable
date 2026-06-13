@@ -14,6 +14,14 @@ test.describe('public routes', () => {
       await expect(page.getByRole('heading', { name: heading }).first()).toBeVisible();
     });
   }
+
+  test('shareable Talent profile routes stay public when a slug is unavailable', async ({
+    page,
+  }) => {
+    await page.goto('/t/e2e-profile-that-does-not-exist');
+    await expect(page).toHaveURL(/\/t\/e2e-profile-that-does-not-exist$/);
+    await expect(page.getByText(/could not be found/i)).toBeVisible();
+  });
 });
 
 test.describe('unauthenticated route protection', () => {
