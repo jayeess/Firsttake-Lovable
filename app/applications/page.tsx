@@ -18,6 +18,9 @@ import {
 } from '@/app/lib/types';
 import { getErrorMessage } from '@/app/lib/error-utils';
 import { useAuth } from '@/context/auth-context';
+import { ApplicationMessageButton } from '@/components/application-message-button';
+import { getConversations } from '@/app/lib/messaging-client';
+import { getConversationId } from '@/app/lib/messaging-policy';
 
 const tabs: Array<ApplicationStatus | 'ALL'> = [
   'ALL',
@@ -32,14 +35,29 @@ export default function ApplicationsPage() {
   const [loading, setLoading] = useState(true);
   const [reloadKey, setReloadKey] = useState(0);
   const [withdrawingId, setWithdrawingId] = useState('');
+  const [unreadConversationIds, setUnreadConversationIds] = useState<Set<string>>(
+    new Set()
+  );
 
   useEffect(() => {
     if (!user || userType !== 'TALENT') {
       return;
     }
 
-    void getTalentApplications(user.uid)
-      .then(setApplications)
+    void Promise.all([
+      getTalentApplications(user.uid),
+      getConversations().catch(() => ({ conversations: [] })),
+    ])
+      .then(([applicationData, conversationData]) => {
+        setApplications(applicationData);
+        setUnreadConversationIds(
+          new Set(
+            conversationData.conversations
+              .filter((item) => item.unreadBy.includes(user.uid))
+              .map((item) => item.id)
+          )
+        );
+      })
       .catch((err: unknown) =>
         setError(getErrorMessage(err, 'Unable to load applications'))
       )
@@ -183,8 +201,25 @@ export default function ApplicationsPage() {
                     {application.rejectionReason}
                   </p>
                 )}
+              <div className="mt-5 flex flex-wrap items-center gap-4 border-t border-[#dce2e8] pt-4">
+                <ApplicationMessageButton
+                  auditionId={application.auditionId}
+                  applicationId={application.id}
+                  label={
+                    status === 'WITHDRAWN'
+                      ? 'Conversation unavailable'
+                      : unreadConversationIds.has(
+                            getConversationId(
+                              application.auditionId,
+                              application.id
+                            )
+                          )
+                        ? 'Message Recruiter (new)'
+                        : 'Message Recruiter'
+                  }
+                  disabled={status === 'WITHDRAWN'}
+                />
               {!['REJECTED', 'SELECTED', 'WITHDRAWN'].includes(status) && (
-                <div className="mt-5 border-t border-[#dce2e8] pt-4">
                   <button
                     type="button"
                     onClick={() => void withdraw(application)}
@@ -195,8 +230,8 @@ export default function ApplicationsPage() {
                       ? 'Withdrawing...'
                       : 'Withdraw application'}
                   </button>
-                </div>
               )}
+              </div>
             </article>
               );
             })()

@@ -37,8 +37,11 @@ controlled private testing. It is not ready for a public production launch.
 - Admin visibility and disable controls for published Talent pages
 - User suspension, audition removal, and immutable audit history
 - In-app notification bell, unread counts, and role-aware activity center
+- Application-linked Talent and Recruiter messaging with unread state,
+  contact-detail blocking, and message notifications
 - Server-created alerts for applications, verification, moderation, and
   account status changes
+- Admin conversation metadata review and audited conversation blocking
 - Development-only account personas and form presets
 - Firebase security rules, indexes, and Emulator Suite configuration
 

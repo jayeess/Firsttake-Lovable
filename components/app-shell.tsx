@@ -20,15 +20,17 @@ const talentLinks: NavLink[] = [
   { href: '/dashboard', label: 'Workspace', shortLabel: 'Home', mark: '01' },
   { href: '/auditions', label: 'Find auditions', shortLabel: 'Auditions', mark: '02' },
   { href: '/applications', label: 'My applications', shortLabel: 'Applications', mark: '03' },
-  { href: '/talent/profile', label: 'Talent profile', shortLabel: 'Profile', mark: '04' },
+  { href: '/messages', label: 'Messages', shortLabel: 'Messages', mark: '04' },
+  { href: '/talent/profile', label: 'Talent profile', shortLabel: 'Profile', mark: '05' },
 ];
 
 const recruiterLinks: NavLink[] = [
   { href: '/dashboard', label: 'Workspace', shortLabel: 'Home', mark: '01' },
   { href: '/recruiter/auditions', label: 'Casting pipeline', shortLabel: 'Pipeline', mark: '02' },
-  { href: '/recruiter/auditions/new', label: 'Post an audition', shortLabel: 'Post', mark: '03' },
-  { href: '/recruiter/profile', label: 'Company profile', shortLabel: 'Company', mark: '04' },
-  { href: '/recruiter/verification', label: 'Verification', shortLabel: 'Verify', mark: '05' },
+  { href: '/messages', label: 'Messages', shortLabel: 'Messages', mark: '03' },
+  { href: '/recruiter/auditions/new', label: 'Post an audition', shortLabel: 'Post', mark: '04' },
+  { href: '/recruiter/profile', label: 'Company profile', shortLabel: 'Company', mark: '05' },
+  { href: '/recruiter/verification', label: 'Verification', shortLabel: 'Verify', mark: '06' },
 ];
 
 export function AppShell({

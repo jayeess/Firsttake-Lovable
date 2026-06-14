@@ -81,8 +81,13 @@ export type NotificationType =
   | 'public_profile_disabled'
   | 'public_slug_changed'
   | 'public_profile_admin_disabled'
+  | 'conversation_started'
+  | 'new_message'
+  | 'conversation_closed'
   | 'user_suspended'
   | 'user_restored';
+export type ConversationStatus = 'active' | 'archived' | 'blocked' | 'closed';
+export type MessageModerationStatus = 'active' | 'hidden' | 'removed';
 
 export type ProfileCompletenessChecklist = Record<
   | 'basicInfo'
@@ -243,7 +248,8 @@ export interface AuditLog {
     | 'user'
     | 'audition'
     | 'media'
-    | 'application';
+    | 'application'
+    | 'conversation';
   reason?: string;
   note?: string;
   timestamp?: Date | Timestamp;
@@ -321,6 +327,44 @@ export interface Application {
   audition?: Audition | null;
 }
 
+export interface Conversation {
+  id: string;
+  applicationId: string;
+  auditionId: string;
+  recruiterId: string;
+  talentId: string;
+  participantIds: string[];
+  participantRoles: Record<string, 'TALENT' | 'RECRUITER'>;
+  titleSnapshot: string;
+  auditionTitleSnapshot: string;
+  talentNameSnapshot: string;
+  recruiterNameSnapshot: string;
+  applicationStatus: ApplicationStatus;
+  lastMessageText: string;
+  lastMessageAt?: Date | Timestamp | string;
+  lastMessageSenderId?: string;
+  unreadBy: string[];
+  status: ConversationStatus;
+  createdAt?: Date | Timestamp | string;
+  updatedAt?: Date | Timestamp | string;
+  createdBy: string;
+}
+
+export interface ConversationMessage {
+  id: string;
+  conversationId: string;
+  senderId: string;
+  senderRole: 'TALENT' | 'RECRUITER';
+  body: string;
+  createdAt?: Date | Timestamp | string;
+  editedAt?: Date | Timestamp | string;
+  deletedAt?: Date | Timestamp | string;
+  moderationStatus: MessageModerationStatus;
+  readBy: string[];
+  system: boolean;
+  metadata: Record<string, unknown>;
+}
+
 export interface AppNotification {
   id: string;
   recipientId: string;
@@ -334,7 +378,8 @@ export interface AppNotification {
     | 'verification'
     | 'user'
     | 'media'
-    | 'public_profile';
+    | 'public_profile'
+    | 'conversation';
   relatedEntityId?: string;
   actionUrl?: string;
   read: boolean;

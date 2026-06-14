@@ -47,7 +47,8 @@ export const writeAuditLog = async ({
     | 'user'
     | 'audition'
     | 'media'
-    | 'application';
+    | 'application'
+    | 'conversation';
   reason?: string;
   note?: string;
   metadata?: Record<string, unknown>;
@@ -60,7 +61,8 @@ export const writeAuditLog = async ({
     targetUid:
       targetType === 'audition' ||
       targetType === 'media' ||
-      targetType === 'application'
+      targetType === 'application' ||
+      targetType === 'conversation'
         ? null
         : targetId,
     targetType,

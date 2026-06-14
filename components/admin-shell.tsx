@@ -13,6 +13,7 @@ const links = [
   ['/admin/talents', 'Talent trust'],
   ['/admin/users', 'Users'],
   ['/admin/auditions', 'Auditions'],
+  ['/admin/messages', 'Messages'],
   ['/admin/audit-logs', 'Audit logs'],
 ] as const;
 

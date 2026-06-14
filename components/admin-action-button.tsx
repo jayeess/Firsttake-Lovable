@@ -31,6 +31,7 @@ export function AdminActionButton({
         'suspend_user',
         'remove_audition',
         'disable_public_profile',
+        'block_conversation',
       ].includes(action)
     ) {
       setError('A reason is required for this action.');

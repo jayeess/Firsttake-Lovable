@@ -3,7 +3,7 @@
 **Telugu name:** నట కనెక్ట్  
 **Document date:** June 12, 2026
 **Repository:** `jayeess/Firsttake-Lovable`  
-**Current stage:** Phase 2E public and shareable Talent profiles
+**Current stage:** Phase 3A application-linked messaging
 
 ## 1. Product Summary
 
@@ -630,3 +630,19 @@ existing signed-in recruiter profile visibility setting.
 - Talent can preview, copy, refresh, rename, or disable the page.
 - Admin can review public status and disable a page with an audit reason.
 - Disabled and missing pages are not indexable.
+
+## Phase 3A: Messaging and Recruiter-Talent Communication
+
+Messaging is private and application-linked. Nata Connect does not provide
+open direct messages.
+
+- `conversations/{auditionId__talentId}` stores participants, role mapping,
+  linked application context, latest-message metadata, and unread state.
+- `conversations/{conversationId}/messages/{messageId}` stores sender identity,
+  message content, read state, and moderation state.
+- Conversation creation and sends revalidate application ownership, active
+  accounts, and Recruiter approval.
+- Obvious email addresses and phone numbers are blocked.
+- Withdrawn applications cannot create or send new messages.
+- Admin can review conversation metadata and block a thread with an audit
+  reason. A fuller report workflow remains future work.

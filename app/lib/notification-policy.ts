@@ -18,7 +18,8 @@ export type NotificationInput = {
     | 'verification'
     | 'user'
     | 'media'
-    | 'public_profile';
+    | 'public_profile'
+    | 'conversation';
   relatedEntityId?: string;
   actionUrl?: string;
   createdBy: string;

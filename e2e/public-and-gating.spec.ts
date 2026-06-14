@@ -29,6 +29,8 @@ test.describe('unauthenticated route protection', () => {
     '/dashboard',
     '/applications',
     '/notifications',
+    '/messages',
+    '/messages/e2e-conversation',
     '/auditions',
     '/talent/profile',
     '/recruiter/profile',
@@ -41,6 +43,7 @@ test.describe('unauthenticated route protection', () => {
     '/admin/talents',
     '/admin/users',
     '/admin/auditions',
+    '/admin/messages',
     '/admin/audit-logs',
   ];
 

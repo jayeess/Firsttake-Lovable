@@ -28,6 +28,20 @@ browser, Firebase project, commit, and result for every run.
 - [ ] Email/Password Authentication is enabled.
 - [ ] Localhost and the beta hostname are authorized domains.
 - [ ] Firestore rules are deployed.
+
+## Phase 3A Messaging
+
+- [ ] Signed-out users are redirected from `/messages` and thread routes.
+- [ ] Talent can open messaging only for their own application.
+- [ ] Approved audition owner can open the applicant conversation.
+- [ ] Unrelated accounts cannot read or write another conversation.
+- [ ] Email addresses and phone numbers are rejected.
+- [ ] Recipient receives a new-message notification linked to the thread.
+- [ ] Opening a thread clears unread state.
+- [ ] Withdrawn applications cannot create or send messages.
+- [ ] Admin can block a conversation only with a reason.
+- [ ] Existing applications, notifications, public profiles, and route
+  protection continue to work.
 - [ ] Firestore indexes are deployed and finished building.
 - [ ] Talent image Storage rules are deployed; verification documents remain disabled.
 

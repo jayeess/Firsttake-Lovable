@@ -1,5 +1,18 @@
 # Changelog
 
+### Phase 3A: Application-linked Messaging
+
+- Added deterministic conversations tied to audition applications
+- Added secure list, thread, send, and mark-read messaging APIs
+- Added responsive conversation lists, message bubbles, unread indicators, and
+  application context
+- Replaced recruiter email contact with in-platform messaging
+- Blocked obvious email addresses and phone numbers in message bodies
+- Added conversation and message notifications
+- Added Admin conversation metadata review and audited blocking
+- Added Firestore participant, sender, moderation, and read-state protections
+- Added policy, emulator, and route-protection tests
+
 ### Phase 2E: Public and Shareable Talent Profiles
 
 - Added opt-in public Talent pages at `/t/[slug]`

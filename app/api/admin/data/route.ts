@@ -91,6 +91,14 @@ export async function GET(request: Request) {
         .get();
       return Response.json({ logs: serialize(snapshot) });
     }
+    if (view === 'conversations') {
+      const snapshot = await db
+        .collection('conversations')
+        .orderBy('updatedAt', 'desc')
+        .limit(100)
+        .get();
+      return Response.json({ conversations: serialize(snapshot) });
+    }
 
     const [
       users,

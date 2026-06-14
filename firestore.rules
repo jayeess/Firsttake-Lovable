@@ -194,6 +194,95 @@ service cloud.firestore {
       allow create, delete: if false;
     }
 
+    match /conversations/{conversationId} {
+      allow read: if signedIn()
+        && (request.auth.uid in resource.data.participantIds || isAdmin());
+      allow create, delete: if false;
+      allow update: if (signedIn()
+          && request.auth.uid in resource.data.participantIds
+          && request.resource.data.participantIds == resource.data.participantIds
+          && request.resource.data.recruiterId == resource.data.recruiterId
+          && request.resource.data.talentId == resource.data.talentId
+          && request.resource.data.applicationId == resource.data.applicationId
+          && request.resource.data.auditionId == resource.data.auditionId
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'unreadBy',
+            'updatedAt'
+          ])
+          && request.resource.data.unreadBy
+            == resource.data.unreadBy.removeAll([request.auth.uid]))
+        || (isAdmin()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'status',
+            'updatedAt',
+            'moderationReason',
+            'moderatedBy',
+            'moderatedAt'
+          ]));
+
+      match /messages/{messageId} {
+        allow read: if signedIn()
+          && (request.auth.uid in get(
+            /databases/$(database)/documents/conversations/$(conversationId)
+          ).data.participantIds || isAdmin());
+        allow create: if signedIn()
+          && request.auth.uid in get(
+            /databases/$(database)/documents/conversations/$(conversationId)
+          ).data.participantIds
+          && get(
+            /databases/$(database)/documents/conversations/$(conversationId)
+          ).data.status == 'active'
+          && request.resource.data.conversationId == conversationId
+          && request.resource.data.senderId == request.auth.uid
+          && request.resource.data.senderRole
+            == get(
+              /databases/$(database)/documents/conversations/$(conversationId)
+            ).data.participantRoles[request.auth.uid]
+          && request.resource.data.moderationStatus == 'active'
+          && request.resource.data.system == false
+          && request.resource.data.body is string
+          && request.resource.data.body.size() > 0
+          && request.resource.data.body.size() <= 1000
+          && request.resource.data.readBy.hasOnly([
+            request.auth.uid
+          ])
+          && request.resource.data.keys().hasOnly([
+            'conversationId',
+            'senderId',
+            'senderRole',
+            'body',
+            'createdAt',
+            'editedAt',
+            'deletedAt',
+            'moderationStatus',
+            'readBy',
+            'system',
+            'metadata'
+          ]);
+        allow update: if (signedIn()
+            && request.auth.uid in get(
+              /databases/$(database)/documents/conversations/$(conversationId)
+            ).data.participantIds
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+              'readBy'
+            ])
+            && request.resource.data.readBy.hasAll(resource.data.readBy)
+            && request.resource.data.readBy.hasOnly(
+              get(
+                /databases/$(database)/documents/conversations/$(conversationId)
+              ).data.participantIds
+            ))
+          || (isAdmin()
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+              'moderationStatus',
+              'moderationReason',
+              'moderatedBy',
+              'moderatedAt'
+            ]));
+        allow delete: if false;
+      }
+    }
+
     match /publicTalentProfiles/{slug} {
       allow read: if resource.data.enabled == true;
       allow create, update, delete: if false;

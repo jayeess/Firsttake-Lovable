@@ -208,3 +208,13 @@ audit log and notify the Talent owner.
 
 Before production rollout, deploy the updated Firestore rules and manually
 verify URL previews against the production Firebase Admin environment.
+
+## Phase 3A Readiness Note
+
+Messaging is scoped to existing applications and the approved Recruiter who
+owns the audition. Server APIs and Firestore rules independently protect
+participant identity, message sender identity, read state, and moderation
+fields. Obvious contact details are blocked for the MVP.
+
+Before wider beta, define message retention, user reporting, moderation
+response times, and legal/privacy language for communication records.

@@ -95,6 +95,8 @@ The dependency-free Node test suite currently covers application eligibility:
 - Public portfolio filtering by visibility and moderation state
 - Notification action URL validation and deterministic deduplication
 - Talent/Recruiter application notification formatting
+- Messaging eligibility, deterministic conversation IDs, contact-detail
+  detection, message validation, unread state, and message notifications
 
 These tests validate the shared policy used by the transactional Firestore
 submission path. Playwright additionally covers public pages and signed-out
@@ -111,6 +113,18 @@ route gating.
 6. Disable the page and confirm the URL returns not found.
 7. As an Admin, disable an enabled page from `/admin/talents` and verify the
    audit event and Talent notification.
+
+## Messaging checks
+
+1. Apply to an audition as Talent.
+2. Open its applicant pipeline as the approved audition owner.
+3. Select `Message Talent` and send a casting-related message.
+4. Confirm Talent sees an unread label, notification, and the same thread.
+5. Reply as Talent and verify Recruiter unread state.
+6. Confirm email addresses and phone numbers are blocked.
+7. Confirm unrelated accounts cannot access the conversation.
+8. Withdraw the application and confirm messaging becomes unavailable.
+9. As Admin, block the conversation from `/admin/messages` with a reason.
 
 ## Playwright E2E
 

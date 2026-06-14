@@ -8,6 +8,7 @@ import {
 import { getAdminAuth, getAdminDb } from '@/app/lib/firebase-admin';
 import {
   createNotification,
+  createNotifications,
   deliverNotifications,
 } from '@/app/lib/notification-server';
 import type { NotificationInput } from '@/app/lib/notification-policy';
@@ -31,6 +32,7 @@ const allowedActions = new Set([
   'remove_media',
   'restore_media',
   'disable_public_profile',
+  'block_conversation',
 ]);
 
 export async function POST(request: Request) {
@@ -59,6 +61,7 @@ export async function POST(request: Request) {
         'hide_media',
         'remove_media',
         'disable_public_profile',
+        'block_conversation',
       ].includes(action) &&
       !reason
     ) {
@@ -293,6 +296,52 @@ export async function POST(request: Request) {
             ? 'HIGH'
             : 'NORMAL',
       };
+    } else if (action === 'block_conversation') {
+      const conversationRef = db.collection('conversations').doc(targetId);
+      const conversation = await conversationRef.get();
+      if (!conversation.exists) {
+        throw new AdminRequestError('Conversation was not found.', 404);
+      }
+      await conversationRef.update({
+        status: 'blocked',
+        moderationReason: reason,
+        moderatedBy: actor.uid,
+        moderatedAt: now,
+        updatedAt: now,
+      });
+      await writeAuditLog({
+        action: 'conversation_blocked',
+        actor,
+        targetId,
+        targetType: 'conversation',
+        reason,
+        metadata: {
+          auditionId: conversation.data()?.auditionId,
+          applicationId: conversation.data()?.applicationId,
+        },
+      });
+      await deliverNotifications(() =>
+        createNotifications(
+          (conversation.data()?.participantIds ?? []).map((participantId: string) => ({
+            recipientId: participantId,
+            recipientRole:
+              conversation.data()?.participantRoles?.[participantId] ===
+              'RECRUITER'
+                ? 'RECRUITER'
+                : 'TALENT',
+            type: 'conversation_closed',
+            title: 'Conversation closed',
+            message:
+              reason ||
+              'This conversation was closed by the Nata Connect trust team.',
+            relatedEntityType: 'conversation',
+            relatedEntityId: targetId,
+            actionUrl: `/messages/${targetId}`,
+            createdBy: actor.uid,
+            priority: 'HIGH',
+          }))
+        )
+      );
     } else if (action === 'disable_public_profile') {
       const profileRef = db
         .collection('users')

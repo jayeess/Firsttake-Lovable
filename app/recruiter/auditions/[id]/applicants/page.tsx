@@ -39,6 +39,9 @@ import { EmptyState, ErrorState, LoadingState } from '@/components/async-state';
 import { StatusBadge } from '@/components/status-badge';
 import { VerifiedBadge } from '@/components/verified-badge';
 import { useAuth } from '@/context/auth-context';
+import { ApplicationMessageButton } from '@/components/application-message-button';
+import { getConversations } from '@/app/lib/messaging-client';
+import { getConversationId } from '@/app/lib/messaging-policy';
 
 const initialFilters: ApplicantFilters = {
   status: 'ALL',
@@ -76,17 +79,31 @@ export default function AuditionApplicantsPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [reloadKey, setReloadKey] = useState(0);
+  const [unreadConversationIds, setUnreadConversationIds] = useState<Set<string>>(
+    new Set()
+  );
 
   useEffect(() => {
     if (!user) return;
-    void Promise.all([getAuditionById(id), getAuditionApplicants(id)])
-      .then(([auditionData, applicantData]) => {
+    void Promise.all([
+      getAuditionById(id),
+      getAuditionApplicants(id),
+      getConversations().catch(() => ({ conversations: [] })),
+    ])
+      .then(([auditionData, applicantData, conversationData]) => {
         if (!auditionData || auditionData.recruiterId !== user.uid) {
           router.replace('/recruiter/auditions');
           return;
         }
         setAudition(auditionData);
         setApplicants(applicantData);
+        setUnreadConversationIds(
+          new Set(
+            conversationData.conversations
+              .filter((item) => item.unreadBy.includes(user.uid))
+              .map((item) => item.id)
+          )
+        );
       })
       .catch((err: unknown) =>
         setError(getErrorMessage(err, 'Unable to load applicants'))
@@ -373,6 +390,10 @@ export default function AuditionApplicantsPage() {
             <ApplicantCard
               key={applicant.application.id}
               applicant={applicant}
+              auditionId={id}
+              unread={unreadConversationIds.has(
+                getConversationId(id, applicant.application.id)
+              )}
               expanded={expandedId === applicant.application.id}
               busy={busyId === applicant.application.id}
               onToggle={() =>
@@ -448,12 +469,16 @@ function FilterToggle({
 
 function ApplicantCard({
   applicant,
+  auditionId,
+  unread,
   expanded,
   busy,
   onToggle,
   onUpdate,
 }: {
   applicant: AuditionApplicant;
+  auditionId: string;
+  unread: boolean;
   expanded: boolean;
   busy: boolean;
   onToggle: () => void;
@@ -733,14 +758,19 @@ function ApplicantCard({
                 {busy ? 'Saving review...' : 'Save private review'}
               </button>
 
-              {application.talentEmail && (
-                <a
-                  href={`mailto:${application.talentEmail}`}
-                  className="secondary-button mt-3 flex w-full justify-center"
-                >
-                  Contact Talent
-                </a>
-              )}
+              <ApplicationMessageButton
+                auditionId={auditionId}
+                applicationId={application.id}
+                label={
+                  status === 'WITHDRAWN'
+                    ? 'Conversation unavailable'
+                    : unread
+                      ? 'Message Talent (new)'
+                      : 'Message Talent'
+                }
+                disabled={status === 'WITHDRAWN'}
+                className="mt-3 w-full"
+              />
             </aside>
           </div>
         </div>

@@ -175,6 +175,47 @@ async function seed() {
         metadata: {},
         createdAt: new Date(),
       }),
+      setDoc(doc(db, 'conversations/visible-a__talent-a'), {
+        applicationId: 'talent-a',
+        auditionId: 'visible-a',
+        recruiterId: 'recruiter-a',
+        talentId: 'talent-a',
+        participantIds: ['recruiter-a', 'talent-a'],
+        participantRoles: {
+          'recruiter-a': 'RECRUITER',
+          'talent-a': 'TALENT',
+        },
+        titleSnapshot: 'E2E_TEST Casting Call',
+        auditionTitleSnapshot: 'E2E_TEST Casting Call',
+        talentNameSnapshot: 'Talent A',
+        recruiterNameSnapshot: 'Recruiter A',
+        applicationStatus: 'APPLIED',
+        lastMessageText: '',
+        unreadBy: ['recruiter-a', 'talent-a'],
+        status: 'active',
+        createdBy: 'recruiter-a',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }),
+      setDoc(
+        doc(
+          db,
+          'conversations/visible-a__talent-a/messages/seed-message'
+        ),
+        {
+          conversationId: 'visible-a__talent-a',
+          senderId: 'recruiter-a',
+          senderRole: 'RECRUITER',
+          body: 'Please prepare scene two.',
+          createdAt: new Date(),
+          editedAt: null,
+          deletedAt: null,
+          moderationStatus: 'active',
+          readBy: ['recruiter-a'],
+          system: false,
+          metadata: {},
+        }
+      ),
     ]);
   });
 }
@@ -207,6 +248,129 @@ after(async () => {
 test('unauthenticated users cannot write protected data', async () => {
   const db = environment.unauthenticatedContext().firestore();
   await assertFails(setDoc(doc(db, 'users/anonymous'), user('anonymous', 'TALENT')));
+});
+
+test('conversation participants can read while non-participants cannot', async () => {
+  const talentDb = environment.authenticatedContext('talent-a').firestore();
+  const recruiterDb = environment
+    .authenticatedContext('recruiter-a')
+    .firestore();
+  const outsiderDb = environment.authenticatedContext('talent-b').firestore();
+  const path = 'conversations/visible-a__talent-a';
+  await assertSucceeds(getDoc(doc(talentDb, path)));
+  await assertSucceeds(getDoc(doc(recruiterDb, path)));
+  await assertFails(getDoc(doc(outsiderDb, path)));
+});
+
+test('participant can create own message but cannot spoof sender or moderation', async () => {
+  const db = environment.authenticatedContext('talent-a').firestore();
+  const messages = collection(
+    db,
+    'conversations/visible-a__talent-a/messages'
+  );
+  await assertSucceeds(
+    setDoc(doc(messages, 'talent-message'), {
+      conversationId: 'visible-a__talent-a',
+      senderId: 'talent-a',
+      senderRole: 'TALENT',
+      body: 'I will prepare the scene.',
+      createdAt: serverTimestamp(),
+      editedAt: null,
+      deletedAt: null,
+      moderationStatus: 'active',
+      readBy: ['talent-a'],
+      system: false,
+      metadata: {},
+    })
+  );
+  await assertFails(
+    setDoc(doc(messages, 'spoofed-message'), {
+      conversationId: 'visible-a__talent-a',
+      senderId: 'recruiter-a',
+      senderRole: 'RECRUITER',
+      body: 'Spoofed',
+      createdAt: serverTimestamp(),
+      editedAt: null,
+      deletedAt: null,
+      moderationStatus: 'removed',
+      readBy: ['talent-a'],
+      system: false,
+      metadata: {},
+    })
+  );
+});
+
+test('non-participant cannot create messages or edit conversation participants', async () => {
+  const db = environment.authenticatedContext('talent-b').firestore();
+  await assertFails(
+    setDoc(
+      doc(
+        db,
+        'conversations/visible-a__talent-a/messages/outsider-message'
+      ),
+      {
+        conversationId: 'visible-a__talent-a',
+        senderId: 'talent-b',
+        senderRole: 'TALENT',
+        body: 'Outsider',
+        createdAt: serverTimestamp(),
+        editedAt: null,
+        deletedAt: null,
+        moderationStatus: 'active',
+        readBy: ['talent-b'],
+        system: false,
+        metadata: {},
+      }
+    )
+  );
+  await assertFails(
+    updateDoc(doc(db, 'conversations/visible-a__talent-a'), {
+      participantIds: ['talent-b'],
+    })
+  );
+});
+
+test('participant can mark own read state but cannot add outsiders', async () => {
+  const db = environment.authenticatedContext('talent-a').firestore();
+  await assertSucceeds(
+    updateDoc(
+      doc(
+        db,
+        'conversations/visible-a__talent-a/messages/seed-message'
+      ),
+      { readBy: ['recruiter-a', 'talent-a'] }
+    )
+  );
+  await assertFails(
+    updateDoc(
+      doc(
+        db,
+        'conversations/visible-a__talent-a/messages/seed-message'
+      ),
+      { readBy: ['recruiter-a', 'talent-a', 'talent-b'] }
+    )
+  );
+  await assertFails(
+    updateDoc(
+      doc(
+        db,
+        'conversations/visible-a__talent-a/messages/seed-message'
+      ),
+      { moderationStatus: 'removed' }
+    )
+  );
+  await assertSucceeds(
+    updateDoc(doc(db, 'conversations/visible-a__talent-a'), {
+      unreadBy: ['recruiter-a'],
+      updatedAt: serverTimestamp(),
+    })
+  );
+  await assertFails(
+    updateDoc(doc(db, 'conversations/visible-a__talent-a'), {
+      unreadBy: [],
+      updatedAt: serverTimestamp(),
+    })
+  );
 });
 
 test('anonymous users can read only enabled public Talent snapshots', async () => {

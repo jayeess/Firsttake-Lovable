@@ -107,6 +107,9 @@ test.describe('credential-backed role smoke', () => {
     await page.getByRole('button', { name: 'Review profile' }).first().click();
     await expect(page.getByText('Private casting notes')).toBeVisible();
     await expect(page.getByLabel('Rate 5 stars')).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: /Message Talent/ })
+    ).toBeVisible();
     await expect(page.getByRole('link', { name: /Notifications/ })).toBeVisible();
   });
 
@@ -127,6 +130,13 @@ test.describe('credential-backed role smoke', () => {
     await expect(page.getByRole('link', { name: /Notifications/ })).toBeVisible();
   });
 
+  test('Talent messages route renders', async ({ page }) => {
+    const account = credentials('TALENT');
+    test.skip(!account, 'Set E2E_TALENT_EMAIL and E2E_TALENT_PASSWORD.');
+    await login(page, account!.email, account!.password);
+    await expectWorkspacePage(page, '/messages', 'Messages');
+  });
+
   test('Admin workspace routes load with an admin claim', async ({ page }) => {
     const account = credentials('ADMIN');
     test.skip(!account, 'Set E2E_ADMIN_EMAIL and E2E_ADMIN_PASSWORD.');
@@ -137,6 +147,11 @@ test.describe('credential-backed role smoke', () => {
     await expectWorkspacePage(page, '/admin/talents', 'Talent verification');
     await expectWorkspacePage(page, '/admin/users', 'User management');
     await expectWorkspacePage(page, '/admin/auditions', 'Audition moderation');
+    await expectWorkspacePage(
+      page,
+      '/admin/messages',
+      'Conversation moderation'
+    );
     await expectWorkspacePage(page, '/admin/audit-logs', 'Audit logs');
     await expectWorkspacePage(page, '/notifications', 'Notifications');
 
