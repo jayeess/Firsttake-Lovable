@@ -282,3 +282,34 @@ users/{uid}/savedAuditions/{auditionId}
 Records contain `auditionId`, `savedAt`, `titleSnapshot`, `recruiterId`, and
 `deadlineSnapshot`. Save and remove actions use `/api/auditions/save`, which
 verifies the Firebase ID token and derives the owner UID from that token.
+## Reports and Trust Moderation
+
+Phase 3B adds private abuse reporting without exposing reporters to reported
+users. Authenticated users can report auditions, public Talent profiles and
+media, application-linked messages/conversations, and supported user profiles.
+
+Reports are created through `POST /api/reports/create`. The server verifies the
+Firebase ID token, derives the reporter identity and role, validates the target,
+stores only a minimal sanitized evidence snapshot, suppresses recent duplicate
+reports, writes an audit log, and sends generic notifications.
+
+Admins review reports at `/admin/reports`. Supported outcomes include review,
+dismissal, resolution without action, audition removal/restoration, media
+hiding, public profile disabling, conversation blocking, message hiding, and
+user suspension/restoration. Reporter identity and `adminOnlyNotes` remain
+admin-only.
+
+Firestore schema:
+
+```text
+reports/{reportId}
+reports/{reportId}/events/{eventId}
+```
+
+Deploy the Phase 3B Firestore rules and index with:
+
+```powershell
+npx firebase-tools deploy --only firestore:rules,firestore:indexes --project nata-connect-prod
+```
+
+Storage rules did not change in Phase 3B.

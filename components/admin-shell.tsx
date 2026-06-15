@@ -14,6 +14,7 @@ const links = [
   ['/admin/users', 'Users'],
   ['/admin/auditions', 'Auditions'],
   ['/admin/messages', 'Messages'],
+  ['/admin/reports', 'Reports'],
   ['/admin/audit-logs', 'Audit logs'],
 ] as const;
 

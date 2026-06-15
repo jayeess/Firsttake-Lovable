@@ -12,6 +12,10 @@ import {
   deliverNotifications,
 } from '@/app/lib/notification-server';
 import type { NotificationInput } from '@/app/lib/notification-policy';
+import {
+  handleAdminReportAction,
+  REPORT_ADMIN_ACTIONS,
+} from '@/app/lib/report-moderation-server';
 
 export const runtime = 'nodejs';
 
@@ -33,6 +37,7 @@ const allowedActions = new Set([
   'restore_media',
   'disable_public_profile',
   'block_conversation',
+  ...REPORT_ADMIN_ACTIONS,
 ]);
 
 export async function POST(request: Request) {
@@ -62,6 +67,14 @@ export async function POST(request: Request) {
         'remove_media',
         'disable_public_profile',
         'block_conversation',
+        'dismiss_report',
+        'resolve_report',
+        'hide_reported_media',
+        'remove_reported_audition',
+        'disable_reported_public_profile',
+        'block_reported_conversation',
+        'hide_reported_message',
+        'suspend_reported_user',
       ].includes(action) &&
       !reason
     ) {
@@ -72,7 +85,14 @@ export async function POST(request: Request) {
     const now = FieldValue.serverTimestamp();
     let notification: NotificationInput | null = null;
 
-    if (
+    if (REPORT_ADMIN_ACTIONS.includes(action as (typeof REPORT_ADMIN_ACTIONS)[number])) {
+      await handleAdminReportAction({
+        action,
+        reportId: targetId,
+        reason,
+        actor,
+      });
+    } else if (
       ['approve_recruiter', 'reject_recruiter', 'suspend_recruiter', 'restore_recruiter'].includes(action)
     ) {
       const status =

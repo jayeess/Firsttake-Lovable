@@ -11,6 +11,7 @@ import {
 } from '@/app/lib/types';
 import { PublicProfileShareButton } from '@/components/public-profile-share-button';
 import { VerifiedBadge } from '@/components/verified-badge';
+import { ReportButton } from '@/components/report-button';
 
 export const dynamic = 'force-dynamic';
 
@@ -109,7 +110,14 @@ export default async function PublicTalentPage({
                   )}
                 </div>
               </div>
-              <PublicProfileShareButton />
+              <div className="flex flex-wrap items-center gap-3">
+                <PublicProfileShareButton />
+                <ReportButton
+                  targetType="publicProfile"
+                  targetId={profile.slug}
+                  label="Report profile"
+                />
+              </div>
             </div>
             <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm font-bold text-[#53656d]">
               <span>{EXPERIENCE_LABELS[profile.experienceLevel]}</span>
@@ -148,30 +156,41 @@ export default async function PublicTalentPage({
             {gallery.length > 0 && (
               <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {gallery.map((item) => (
-                  <a
+                  <article
                     key={item.id}
-                    href={item.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
                     className="group border border-[#d3dfe4] bg-[#f6f9fa]"
                   >
-                    <div
-                      role="img"
-                      aria-label={item.title}
-                      className="aspect-video bg-[#dfe9ed] bg-cover bg-center"
-                      style={{ backgroundImage: `url("${item.url}")` }}
-                    />
-                    <div className="p-4">
-                      <h3 className="font-black group-hover:text-[#008ca6]">
-                        {item.title}
-                      </h3>
-                      {item.description && (
-                        <p className="mt-2 text-sm text-[#617078]">
-                          {item.description}
-                        </p>
-                      )}
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <div
+                        role="img"
+                        aria-label={item.title}
+                        className="aspect-video bg-[#dfe9ed] bg-cover bg-center"
+                        style={{ backgroundImage: `url("${item.url}")` }}
+                      />
+                      <div className="px-4 pt-4">
+                        <h3 className="font-black group-hover:text-[#008ca6]">
+                          {item.title}
+                        </h3>
+                        {item.description && (
+                          <p className="mt-2 text-sm text-[#617078]">
+                            {item.description}
+                          </p>
+                        )}
+                      </div>
+                    </a>
+                    <div className="px-4 pb-4 pt-3">
+                      <ReportButton
+                        targetType="media"
+                        targetId={`${profile.slug}:${item.id}`}
+                        label="Report media"
+                        compact
+                      />
                     </div>
-                  </a>
+                  </article>
                 ))}
               </div>
             )}

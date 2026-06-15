@@ -22,6 +22,7 @@ import { getErrorMessage } from '@/app/lib/error-utils';
 import { useAuth } from '@/context/auth-context';
 import { VerifiedBadge } from '@/components/verified-badge';
 import { EmptyState, ErrorState, LoadingState } from '@/components/async-state';
+import { ReportButton } from '@/components/report-button';
 
 export default function AuditionDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -126,6 +127,13 @@ export default function AuditionDetailPage() {
             </div>
             <div className="flex items-center gap-2">
               <StatusBadge status={audition.status} />
+              {audition.recruiterId !== user?.uid && (
+                <ReportButton
+                  targetType="audition"
+                  targetId={audition.id}
+                  compact
+                />
+              )}
               {userType === 'TALENT' && (
                 <button
                   type="button"

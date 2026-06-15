@@ -218,3 +218,24 @@ fields. Obvious contact details are blocked for the MVP.
 
 Before wider beta, define message retention, user reporting, moderation
 response times, and legal/privacy language for communication records.
+## Phase 3B Readiness Note
+
+Nata Connect now has a private trust-reporting workflow for auditions, public
+Talent content, and application-linked communication. Reporter identity is
+restricted to administrators. Evidence snapshots are deliberately minimal and
+sanitize contact details before storage.
+
+The admin report queue reuses established moderation states and records both a
+report event history and global audit log. Automated checks cover policy
+helpers, report privacy, admin-only updates, event control, route protection,
+lint, TypeScript production build, and existing product regressions.
+
+Before production use, deploy the updated Firestore rules and indexes:
+
+```powershell
+npx firebase-tools deploy --only firestore:rules,firestore:indexes --project nata-connect-prod
+```
+
+Storage rules are unchanged. Manual beta QA should validate generic
+notifications, every target-specific action, and confirm reported users never
+receive reporter identity or internal resolution notes.

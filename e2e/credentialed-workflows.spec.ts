@@ -127,6 +127,18 @@ test.describe('credential-backed role smoke', () => {
         name: /Save audition|Remove saved audition/,
       })
     ).toBeVisible({ timeout: 15_000 });
+    await page.getByRole('button', { name: 'Report', exact: true }).click();
+    await expect(
+      page.getByRole('heading', { name: 'Report a concern' })
+    ).toBeVisible();
+    await page.getByLabel(/What is the concern/).selectOption('other');
+    await expect(
+      page.getByRole('button', { name: 'Submit report' })
+    ).toBeDisabled();
+    await page.getByLabel(/Details/).fill('Enough detail for validation only.');
+    await expect(
+      page.getByRole('button', { name: 'Submit report' })
+    ).toBeEnabled();
     await expect(page.getByRole('link', { name: /Notifications/ })).toBeVisible();
   });
 
@@ -152,6 +164,7 @@ test.describe('credential-backed role smoke', () => {
       '/admin/messages',
       'Conversation moderation'
     );
+    await expectWorkspacePage(page, '/admin/reports', 'Report queue');
     await expectWorkspacePage(page, '/admin/audit-logs', 'Audit logs');
     await expectWorkspacePage(page, '/notifications', 'Notifications');
 

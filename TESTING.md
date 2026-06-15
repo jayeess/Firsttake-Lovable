@@ -363,3 +363,42 @@ Optional browser fixtures use `E2E_TALENT_AUDITION_ID` and
 The rules suite exercises local Firestore rules, not deployed production rules
 or Firebase Admin route handlers. After deployment, complete the manual Admin
 workflow above in the controlled beta project.
+## Phase 3B Reports and Moderation Checks
+
+1. Sign in as a Talent and open an active audition.
+2. Open `Report`, select a reason, and confirm `Other` requires details.
+3. Submit a report and confirm the private success state and
+   `report_received` notification.
+4. Submit the same target again within 24 hours and confirm the existing report
+   is returned rather than a new report being created.
+5. Report a public Talent profile or public media item from `/t/[slug]`.
+6. In an application-linked conversation, report the thread and a message from
+   the other participant.
+7. Sign in as Admin and open `/admin/reports`.
+8. Filter by status, target type, reason, and priority.
+9. Start review, inspect the sanitized evidence snapshot, then dismiss or
+   resolve a report.
+10. Exercise the matching moderation action and verify the target state,
+    generic owner/reporter notifications, audit log, and report event.
+11. Confirm the reported user cannot read the report document or reporter ID.
+12. Confirm message evidence redacts email addresses and phone numbers.
+
+Automated Phase 3B coverage:
+
+- `tests/report-policy.test.mts` validates reason/target checks, evidence
+  sanitization, priority, duplicate handling, notifications, and resolution.
+- `tests/firestore.rules.mts` verifies safe report creation, reporter spoof
+  denial, admin-field denial, report privacy, admin updates, and event control.
+- Playwright verifies `/admin/reports` route protection and conditionally checks
+  report modal validation when Talent E2E credentials are configured.
+
+Run:
+
+```powershell
+npm run lint
+npm test
+npm run build
+npm run emulators:test
+npm run test:e2e
+git diff --check
+```

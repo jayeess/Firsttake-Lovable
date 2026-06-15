@@ -85,9 +85,36 @@ export type NotificationType =
   | 'new_message'
   | 'conversation_closed'
   | 'user_suspended'
-  | 'user_restored';
+  | 'user_restored'
+  | 'report_received'
+  | 'report_submitted_admin_alert'
+  | 'report_resolved'
+  | 'content_removed'
+  | 'account_suspended'
+  | 'conversation_blocked';
 export type ConversationStatus = 'active' | 'archived' | 'blocked' | 'closed';
 export type MessageModerationStatus = 'active' | 'hidden' | 'removed';
+export type ReportTargetType =
+  | 'audition'
+  | 'talentProfile'
+  | 'publicProfile'
+  | 'media'
+  | 'message'
+  | 'conversation'
+  | 'recruiter'
+  | 'talent';
+export type ReportReasonCode =
+  | 'fake_audition'
+  | 'scam_or_fraud'
+  | 'inappropriate_content'
+  | 'harassment'
+  | 'spam'
+  | 'impersonation'
+  | 'unsafe_contact_request'
+  | 'misleading_information'
+  | 'other';
+export type ReportStatus = 'open' | 'under_review' | 'resolved' | 'dismissed';
+export type ReportPriority = 'low' | 'medium' | 'high' | 'urgent';
 
 export type ProfileCompletenessChecklist = Record<
   | 'basicInfo'
@@ -249,7 +276,9 @@ export interface AuditLog {
     | 'audition'
     | 'media'
     | 'application'
-    | 'conversation';
+    | 'conversation'
+    | 'message'
+    | 'report';
   reason?: string;
   note?: string;
   timestamp?: Date | Timestamp;
@@ -365,6 +394,28 @@ export interface ConversationMessage {
   metadata: Record<string, unknown>;
 }
 
+export interface AbuseReport {
+  id: string;
+  targetType: ReportTargetType;
+  targetId: string;
+  targetKey: string;
+  targetOwnerId: string | null;
+  reporterId: string;
+  reporterRole: NotificationRole;
+  reasonCode: ReportReasonCode;
+  reasonText: string;
+  status: ReportStatus;
+  priority: ReportPriority;
+  evidenceSnapshots: Record<string, unknown>;
+  createdAt?: Date | Timestamp | string;
+  updatedAt?: Date | Timestamp | string;
+  reviewedBy?: string | null;
+  reviewedAt?: Date | Timestamp | string | null;
+  resolutionAction?: string | null;
+  resolutionNote?: string | null;
+  adminOnlyNotes?: string | null;
+}
+
 export interface AppNotification {
   id: string;
   recipientId: string;
@@ -379,7 +430,8 @@ export interface AppNotification {
     | 'user'
     | 'media'
     | 'public_profile'
-    | 'conversation';
+    | 'conversation'
+    | 'report';
   relatedEntityId?: string;
   actionUrl?: string;
   read: boolean;

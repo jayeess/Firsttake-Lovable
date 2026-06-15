@@ -99,6 +99,28 @@ export async function GET(request: Request) {
         .get();
       return Response.json({ conversations: serialize(snapshot) });
     }
+    if (view === 'reports') {
+      const snapshot = await db
+        .collection('reports')
+        .orderBy('createdAt', 'desc')
+        .limit(200)
+        .get();
+      const reports = await Promise.all(
+        snapshot.docs.map(async (item) => {
+          const events = await item.ref
+            .collection('events')
+            .orderBy('createdAt', 'desc')
+            .limit(20)
+            .get();
+          return {
+            id: item.id,
+            ...item.data(),
+            events: serialize(events),
+          };
+        })
+      );
+      return Response.json({ reports });
+    }
 
     const [
       users,

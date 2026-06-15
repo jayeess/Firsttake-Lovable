@@ -1,5 +1,20 @@
 # Changelog
 
+### Phase 3B: Reports, Abuse Handling, and Trust Moderation
+
+- Added private reports for auditions, public Talent profiles, public media,
+  messages, conversations, Recruiters, and Talents
+- Added token-verified report creation with validation, safe evidence
+  snapshots, duplicate suppression, audit logs, and generic notifications
+- Added report controls to audition details, public Talent profiles/media, and
+  application-linked conversations/messages
+- Added `/admin/reports` with status, target, reason, and priority filters,
+  evidence review, event history, and moderation actions
+- Added report review, dismissal, resolution, content removal, conversation
+  blocking, and account suspension support to the secure admin action API
+- Added admin-private Firestore report/event rules, a duplicate lookup index,
+  policy tests, emulator tests, and route-protection/E2E coverage
+
 ### Phase 3A: Application-linked Messaging
 
 - Added deterministic conversations tied to audition applications

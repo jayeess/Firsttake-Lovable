@@ -44,6 +44,7 @@ test.describe('unauthenticated route protection', () => {
     '/admin/users',
     '/admin/auditions',
     '/admin/messages',
+    '/admin/reports',
     '/admin/audit-logs',
   ];
 

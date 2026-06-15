@@ -15,6 +15,7 @@ import { AppShell } from '@/components/app-shell';
 import { ErrorState, LoadingState } from '@/components/async-state';
 import { StatusBadge } from '@/components/status-badge';
 import { useAuth } from '@/context/auth-context';
+import { ReportButton } from '@/components/report-button';
 
 const messageTime = (value?: ConversationMessage['createdAt']) => {
   if (!value) return 'Sending';
@@ -126,7 +127,15 @@ export default function ConversationPage() {
                     {conversation.auditionTitleSnapshot}
                   </p>
                 </div>
-                <StatusBadge status={conversation.applicationStatus} />
+                <div className="flex items-center gap-3">
+                  <ReportButton
+                    targetType="conversation"
+                    targetId={conversation.id}
+                    label="Report thread"
+                    compact
+                  />
+                  <StatusBadge status={conversation.applicationStatus} />
+                </div>
               </div>
             </header>
 
@@ -169,6 +178,16 @@ export default function ConversationPage() {
                             >
                               {messageTime(message.createdAt)}
                             </p>
+                            {!mine && (
+                              <div className="mt-1">
+                                <ReportButton
+                                  targetType="message"
+                                  targetId={`${conversation.id}:${message.id}`}
+                                  label="Report message"
+                                  compact
+                                />
+                              </div>
+                            )}
                           </div>
                         </div>
                       );

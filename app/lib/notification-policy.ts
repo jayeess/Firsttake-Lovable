@@ -19,7 +19,8 @@ export type NotificationInput = {
     | 'user'
     | 'media'
     | 'public_profile'
-    | 'conversation';
+    | 'conversation'
+    | 'report';
   relatedEntityId?: string;
   actionUrl?: string;
   createdBy: string;

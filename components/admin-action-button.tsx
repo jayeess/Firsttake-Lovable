@@ -32,6 +32,14 @@ export function AdminActionButton({
         'remove_audition',
         'disable_public_profile',
         'block_conversation',
+        'dismiss_report',
+        'resolve_report',
+        'hide_reported_media',
+        'remove_reported_audition',
+        'disable_reported_public_profile',
+        'block_reported_conversation',
+        'hide_reported_message',
+        'suspend_reported_user',
       ].includes(action)
     ) {
       setError('A reason is required for this action.');

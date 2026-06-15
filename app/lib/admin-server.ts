@@ -48,7 +48,9 @@ export const writeAuditLog = async ({
     | 'audition'
     | 'media'
     | 'application'
-    | 'conversation';
+    | 'conversation'
+    | 'message'
+    | 'report';
   reason?: string;
   note?: string;
   metadata?: Record<string, unknown>;

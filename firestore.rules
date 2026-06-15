@@ -194,6 +194,70 @@ service cloud.firestore {
       allow create, delete: if false;
     }
 
+    match /reports/{reportId} {
+      allow read: if isAdmin();
+      allow create: if signedIn()
+        && request.resource.data.reporterId == request.auth.uid
+        && request.resource.data.reporterRole == currentUserType()
+        && request.resource.data.targetType in [
+          'audition',
+          'talentProfile',
+          'publicProfile',
+          'media',
+          'message',
+          'conversation',
+          'recruiter',
+          'talent'
+        ]
+        && request.resource.data.reasonCode in [
+          'fake_audition',
+          'scam_or_fraud',
+          'inappropriate_content',
+          'harassment',
+          'spam',
+          'impersonation',
+          'unsafe_contact_request',
+          'misleading_information',
+          'other'
+        ]
+        && request.resource.data.reasonText is string
+        && request.resource.data.reasonText.size() <= 1000
+        && request.resource.data.status == 'open'
+        && request.resource.data.priority in ['low', 'medium', 'high', 'urgent']
+        && request.resource.data.evidenceSnapshots == {}
+        && request.resource.data.reviewedBy == null
+        && request.resource.data.reviewedAt == null
+        && request.resource.data.resolutionAction == null
+        && request.resource.data.resolutionNote == null
+        && request.resource.data.adminOnlyNotes == null
+        && request.resource.data.keys().hasOnly([
+          'targetType',
+          'targetId',
+          'targetKey',
+          'targetOwnerId',
+          'reporterId',
+          'reporterRole',
+          'reasonCode',
+          'reasonText',
+          'status',
+          'priority',
+          'evidenceSnapshots',
+          'createdAt',
+          'updatedAt',
+          'reviewedBy',
+          'reviewedAt',
+          'resolutionAction',
+          'resolutionNote',
+          'adminOnlyNotes'
+        ]);
+      allow update: if isAdmin();
+      allow delete: if false;
+
+      match /events/{eventId} {
+        allow read, write: if isAdmin();
+      }
+    }
+
     match /conversations/{conversationId} {
       allow read: if signedIn()
         && (request.auth.uid in resource.data.participantIds || isAdmin());

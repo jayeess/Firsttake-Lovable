@@ -149,3 +149,19 @@ browser, Firebase project, commit, and result for every run.
 | Check | Result | Evidence | Owner | Follow-up |
 | --- | --- | --- | --- | --- |
 | Example | PASS / FAIL / BLOCKED | Screenshot/log/link | Name | Issue/PR |
+## Phase 3B Reports and Abuse Handling
+
+- [ ] Talent can report an audition and receives a private success state.
+- [ ] Recruiter/Talent can report an eligible conversation or message.
+- [ ] Public Talent profile and media report controls render.
+- [ ] `Other` requires useful details and all details stop at 1000 characters.
+- [ ] A recent duplicate returns the existing open report.
+- [ ] Evidence snapshots contain no private email, phone, internal notes, or
+  unrelated conversation history.
+- [ ] Reported users cannot read reports or reporter identity.
+- [ ] Admin can filter and review `/admin/reports`.
+- [ ] Admin can dismiss or resolve without action.
+- [ ] Target-specific moderation updates the content/account safely.
+- [ ] Reporter and target-owner notifications remain generic.
+- [ ] Report events and global audit logs are written.
+- [ ] Firestore report rules and index are deployed.

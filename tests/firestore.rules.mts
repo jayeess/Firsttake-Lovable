@@ -797,6 +797,98 @@ test('Admins can read queues and audit logs but cannot client-write logs', async
   await assertFails(setDoc(doc(db, 'auditLogs/admin-client-write'), { action: 'x' }));
 });
 
+const validClientReport = (reporterId = 'talent-a') => ({
+  targetType: 'audition',
+  targetId: 'visible-a',
+  targetKey: 'audition:visible-a',
+  targetOwnerId: 'recruiter-a',
+  reporterId,
+  reporterRole: 'TALENT',
+  reasonCode: 'misleading_information',
+  reasonText: 'The casting brief appears misleading.',
+  status: 'open',
+  priority: 'low',
+  evidenceSnapshots: {},
+  createdAt: serverTimestamp(),
+  updatedAt: serverTimestamp(),
+  reviewedBy: null,
+  reviewedAt: null,
+  resolutionAction: null,
+  resolutionNote: null,
+  adminOnlyNotes: null,
+});
+
+test('authenticated users can create only their own safe report submission', async () => {
+  const db = environment.authenticatedContext('talent-a').firestore();
+  await assertSucceeds(
+    setDoc(doc(db, 'reports/client-report'), validClientReport())
+  );
+  await assertFails(
+    setDoc(
+      doc(db, 'reports/spoofed-report'),
+      validClientReport('talent-b')
+    )
+  );
+  await assertFails(
+    setDoc(doc(db, 'reports/admin-fields-report'), {
+      ...validClientReport(),
+      status: 'resolved',
+      reviewedBy: 'talent-a',
+      adminOnlyNotes: 'forged',
+    })
+  );
+});
+
+test('reports are private from reporters, targets, and unrelated users', async () => {
+  await environment.withSecurityRulesDisabled(async (context) => {
+    await setDoc(doc(context.firestore(), 'reports/private-report'), {
+      ...validClientReport(),
+      evidenceSnapshots: { title: 'Safe title' },
+    });
+  });
+  const reporterDb = environment.authenticatedContext('talent-a').firestore();
+  const targetDb = environment.authenticatedContext('recruiter-a').firestore();
+  const outsiderDb = environment.authenticatedContext('talent-b').firestore();
+  await assertFails(getDoc(doc(reporterDb, 'reports/private-report')));
+  await assertFails(getDoc(doc(targetDb, 'reports/private-report')));
+  await assertFails(getDoc(doc(outsiderDb, 'reports/private-report')));
+});
+
+test('admins can read and update reports and control report events', async () => {
+  await environment.withSecurityRulesDisabled(async (context) => {
+    await setDoc(doc(context.firestore(), 'reports/admin-report'), {
+      ...validClientReport(),
+      evidenceSnapshots: { title: 'Safe title' },
+    });
+  });
+  const adminDb = environment
+    .authenticatedContext('admin-a', { admin: true })
+    .firestore();
+  const userDb = environment.authenticatedContext('talent-a').firestore();
+  await assertSucceeds(getDoc(doc(adminDb, 'reports/admin-report')));
+  await assertSucceeds(
+    updateDoc(doc(adminDb, 'reports/admin-report'), {
+      status: 'under_review',
+      reviewedBy: 'admin-a',
+    })
+  );
+  await assertSucceeds(
+    setDoc(doc(adminDb, 'reports/admin-report/events/event-a'), {
+      actorId: 'admin-a',
+      actorRole: 'ADMIN',
+      action: 'review_report',
+      note: '',
+      createdAt: serverTimestamp(),
+    })
+  );
+  await assertFails(
+    setDoc(doc(userDb, 'reports/admin-report/events/forged'), {
+      actorId: 'talent-a',
+      action: 'resolve_report',
+    })
+  );
+});
+
 test('users can read only their own notifications', async () => {
   const ownerDb = environment.authenticatedContext('talent-a').firestore();
   const outsiderDb = environment.authenticatedContext('talent-b').firestore();

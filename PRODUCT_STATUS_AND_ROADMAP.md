@@ -3,7 +3,7 @@
 **Telugu name:** నట కనెక్ట్  
 **Document date:** June 12, 2026
 **Repository:** `jayeess/Firsttake-Lovable`  
-**Current stage:** Phase 3A application-linked messaging
+**Current stage:** Phase 3B reports, abuse handling, and trust moderation
 
 ## 1. Product Summary
 
@@ -646,3 +646,25 @@ open direct messages.
 - Withdrawn applications cannot create or send new messages.
 - Admin can review conversation metadata and block a thread with an audit
   reason. A fuller report workflow remains future work.
+## Phase 3B: Reports, Abuse Handling, and Trust Moderation
+
+Implemented:
+
+- Private `reports/{reportId}` records with admin-only event subcollections
+- Safe evidence snapshots that omit private contact, review, and admin fields
+- Token-verified report API with role derivation and 24-hour duplicate handling
+- Report controls for auditions, public profiles/media, conversations/messages
+- Admin report queue with filters, evidence, event history, and quick actions
+- Reuse of existing audition, media, profile, conversation, message, and user
+  moderation states
+- Generic notifications for report receipt, resolution, content removal,
+  conversation blocking, and account suspension
+- Firestore rule, policy, build, and Playwright coverage
+
+Next:
+
+- Operational moderation SLAs and escalation ownership
+- Reporter-facing report history through a redacted server API, if beta users
+  need it
+- Moderation analytics and repeat-offender signals after sufficient beta data
+- Appeals workflow and formal community standards before public launch
