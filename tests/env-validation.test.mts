@@ -19,6 +19,10 @@ import {
   getRequestOrigin,
   normalizeAppUrl,
 } from '../app/lib/app-url.ts';
+import {
+  getFirebaseClientConfigErrorMessage,
+  getMissingFirebaseClientConfigKeys,
+} from '../app/lib/firebase.ts';
 
 test('environment validation reports missing names without values', () => {
   const env = {
@@ -67,6 +71,36 @@ test('Firebase env helpers validate public and server groups', () => {
     () => assertEnvKeys('Test', ['MISSING'], {}),
     /MISSING/
   );
+});
+
+test('Firebase client config validation uses direct public env values', () => {
+  const completeConfig = {
+    apiKey: 'public-api-key',
+    authDomain: 'nata-connect-prod.firebaseapp.com',
+    projectId: 'nata-connect-prod',
+    storageBucket: 'nata-connect-prod.firebasestorage.app',
+    messagingSenderId: '837417703593',
+    appId: '1:837417703593:web:test',
+  };
+
+  assert.deepEqual(getMissingFirebaseClientConfigKeys(completeConfig), []);
+
+  const missing = getMissingFirebaseClientConfigKeys({
+    ...completeConfig,
+    apiKey: '',
+    appId: undefined,
+  });
+
+  assert.deepEqual(missing, [
+    'NEXT_PUBLIC_FIREBASE_API_KEY',
+    'NEXT_PUBLIC_FIREBASE_APP_ID',
+  ]);
+
+  const message = getFirebaseClientConfigErrorMessage(missing);
+  assert.match(message, /NEXT_PUBLIC_FIREBASE_API_KEY/);
+  assert.match(message, /NEXT_PUBLIC_FIREBASE_APP_ID/);
+  assert.doesNotMatch(message, /public-api-key/);
+  assert.doesNotMatch(message, /1:837417703593:web:test/);
 });
 
 test('safe logging strips secret-like context keys', () => {

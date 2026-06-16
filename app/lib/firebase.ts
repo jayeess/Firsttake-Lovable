@@ -2,10 +2,6 @@ import { getApp, getApps, initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
-import {
-  getEnvErrorMessage,
-  validatePublicFirebaseEnv,
-} from './env-validation';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -16,11 +12,38 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-const getFirebaseApp = () => {
-  const status = validatePublicFirebaseEnv();
+type FirebaseClientConfig = typeof firebaseConfig;
 
-  if (!status.ok) {
-    throw new Error(getEnvErrorMessage('Firebase web', status.missing));
+const FIREBASE_CLIENT_CONFIG_KEYS: Array<
+  readonly [string, keyof FirebaseClientConfig]
+> = [
+  ['NEXT_PUBLIC_FIREBASE_API_KEY', 'apiKey'],
+  ['NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN', 'authDomain'],
+  ['NEXT_PUBLIC_FIREBASE_PROJECT_ID', 'projectId'],
+  ['NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET', 'storageBucket'],
+  ['NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID', 'messagingSenderId'],
+  ['NEXT_PUBLIC_FIREBASE_APP_ID', 'appId'],
+];
+
+export const getMissingFirebaseClientConfigKeys = (
+  config: FirebaseClientConfig = firebaseConfig
+) =>
+  FIREBASE_CLIENT_CONFIG_KEYS
+    .filter(([, configKey]) => !config[configKey]?.trim())
+    .map(([envKey]) => envKey);
+
+export const getFirebaseClientConfigErrorMessage = (
+  missing: readonly string[]
+) =>
+  missing.length === 0
+    ? ''
+    : `Firebase web configuration is missing: ${missing.join(', ')}. Add these variables in the local environment or hosting dashboard. Secret values are never printed.`;
+
+const getFirebaseApp = () => {
+  const missing = getMissingFirebaseClientConfigKeys();
+
+  if (missing.length > 0) {
+    throw new Error(getFirebaseClientConfigErrorMessage(missing));
   }
 
   return getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
