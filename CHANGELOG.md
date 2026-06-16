@@ -1,5 +1,16 @@
 # Changelog
 
+### Phase 4A: Vercel Production Deployment and Beta Launch Setup
+
+- Added `VERCEL_DEPLOYMENT.md` with Vercel import, environment variable,
+  Firebase authorized-domain, smoke test, beta launch, rollback, and legal
+  placeholder guidance
+- Added optional `NEXT_PUBLIC_APP_URL` support for production metadata base URL
+  handling, with Vercel URL fallback and request-origin helpers
+- Added tests for production URL normalization and safe fallback behavior
+- Updated beta readiness, QA, testing, and roadmap documentation for Vercel
+  launch preparation
+
 ### Phase 3C: Production Beta Readiness and Deployment Hardening
 
 - Added safe Firebase environment validation helpers for public and Admin SDK

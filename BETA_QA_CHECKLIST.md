@@ -2,9 +2,15 @@
 
 ## Phase 3C Production Readiness
 
+- [ ] Vercel project is connected to the GitHub repo.
+- [ ] Vercel framework preset is Next.js.
 - [ ] Vercel has all required `NEXT_PUBLIC_FIREBASE_*` variables.
 - [ ] Vercel has `FIREBASE_ADMIN_PROJECT_ID`,
   `FIREBASE_ADMIN_CLIENT_EMAIL`, and `FIREBASE_ADMIN_PRIVATE_KEY`.
+- [ ] Optional `NEXT_PUBLIC_APP_URL` points to the Vercel production URL or
+  custom domain.
+- [ ] Firebase Auth authorized domains include the production Vercel/custom
+  domain if login requires it.
 - [ ] `.env.local`, `.env.e2e.local`, service account JSON, private keys, and
   debug logs are not committed.
 - [ ] `/admin/beta-readiness` loads for admin users only.
@@ -18,6 +24,20 @@
   conversation, and media.
 - [ ] Rollback path is known: redeploy last known good Vercel build and restore
   previous Firebase rules/indexes if needed.
+
+## Phase 4A Beta Launch Checklist
+
+- [ ] One admin account is ready.
+- [ ] One recruiter test account is ready.
+- [ ] One Talent test account is ready.
+- [ ] One sample audition is created.
+- [ ] Support/contact email is prepared.
+- [ ] Privacy/terms placeholder decision is documented.
+- [ ] Known limitations are documented.
+- [ ] Beta user invitation message is prepared.
+- [ ] Report abuse workflow is documented.
+- [ ] Data deletion request process is planned.
+- [ ] Minor safety policy is flagged for review before public launch.
 
 Use this checklist before each private-beta release. Record the date, tester,
 browser, Firebase project, commit, and result for every run.

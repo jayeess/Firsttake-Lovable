@@ -13,6 +13,12 @@ import { parseJsonBody, requireMethod } from '../app/lib/api-helpers.ts';
 import {
   sanitizeLogContext,
 } from '../app/lib/server-logger.ts';
+import {
+  getAppBaseUrl,
+  getConfiguredAppUrl,
+  getRequestOrigin,
+  normalizeAppUrl,
+} from '../app/lib/app-url.ts';
 
 test('environment validation reports missing names without values', () => {
   const env = {
@@ -101,4 +107,32 @@ test('API helpers reject wrong methods and oversized payloads', async () => {
     ),
     { ok: true }
   );
+});
+
+test('app URL helper normalizes production URLs without exposing secrets', () => {
+  assert.equal(
+    normalizeAppUrl('nata-connect.vercel.app'),
+    'https://nata-connect.vercel.app'
+  );
+  assert.equal(
+    normalizeAppUrl('https://example.com/path/'),
+    'https://example.com/path'
+  );
+  assert.equal(normalizeAppUrl('javascript:alert(1)'), '');
+  assert.equal(
+    getConfiguredAppUrl({ NEXT_PUBLIC_APP_URL: 'https://beta.example.com/' }),
+    'https://beta.example.com'
+  );
+  assert.equal(
+    getConfiguredAppUrl({ VERCEL_URL: 'nata-connect-prod.vercel.app' }),
+    'https://nata-connect-prod.vercel.app'
+  );
+  const request = new Request('https://ignored.test', {
+    headers: {
+      'x-forwarded-proto': 'https',
+      'x-forwarded-host': 'app.example.com',
+    },
+  });
+  assert.equal(getRequestOrigin(request), 'https://app.example.com');
+  assert.equal(getAppBaseUrl(undefined, {}), 'http://localhost:3000');
 });

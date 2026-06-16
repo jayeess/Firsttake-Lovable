@@ -33,6 +33,21 @@ Production smoke checklist:
 - Messaging, notifications, reports, and admin resolution
 - Mobile browser scan and desktop Chrome/Edge scan
 
+## Phase 4A Deployment Readiness Note
+
+The app is prepared for Vercel production deployment. `NEXT_PUBLIC_APP_URL` is
+optional and should point to the Vercel production URL before a custom domain is
+available, then to the final custom domain later. The app also falls back to
+Vercel's `VERCEL_URL` for metadata base generation.
+
+Firebase Auth authorized domains must include the Vercel production domain if
+Firebase blocks login/signup after deployment. This remains a manual Firebase
+Console step.
+
+Legal readiness remains a beta limitation: Terms of Service, Privacy Policy,
+Community Guidelines, data deletion process, and minor safety policy are still
+placeholders and should be completed before a wider public launch.
+
 **Assessment date:** June 12, 2026
 **Recommended stage:** Controlled internal/private testing only  
 **Readiness score:** 7.5/10

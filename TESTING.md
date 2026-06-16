@@ -421,3 +421,27 @@ git diff --check
 8. Production smoke test after deploy: signup/login, Talent profile save,
    recruiter audition post, application submit, applicant review, media upload,
    public profile load, message send, report submit, admin report resolve.
+
+## Phase 4A Vercel Production Smoke Flow
+
+Run this after the first Vercel production deployment:
+
+1. Open the Vercel production URL.
+2. Confirm the home page loads without a console application error.
+3. Sign up or log in as Talent.
+4. Open Talent profile and confirm save works.
+5. Upload or add Talent media.
+6. Enable or open a public Talent profile at `/t/[slug]`.
+7. Log in as Recruiter.
+8. Open recruiter verification.
+9. Post a sample audition.
+10. Log in as Talent and apply to that audition.
+11. Log in as Recruiter and review the applicant pipeline.
+12. Start or open messaging from the application.
+13. Confirm notifications load and can be marked read.
+14. Submit a report from an audition or conversation.
+15. Log in as Admin and resolve the report.
+16. Confirm moderation actions work: remove audition, hide media, block
+    conversation, suspend/restore test user.
+17. Log out and confirm protected routes redirect to `/auth/login`.
+18. Do a mobile-width pass and a desktop Chrome/Edge pass.

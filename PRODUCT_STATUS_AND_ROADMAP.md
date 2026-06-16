@@ -3,7 +3,7 @@
 **Telugu name:** నట కనెక్ట్  
 **Document date:** June 12, 2026
 **Repository:** `jayeess/Firsttake-Lovable`  
-**Current stage:** Phase 3C production beta readiness and deployment hardening
+**Current stage:** Phase 4A Vercel production deployment and beta launch setup
 
 ## 1. Product Summary
 
@@ -690,3 +690,25 @@ Known limitations:
 - Rate limiting remains simple and in-code. Future production scale should add
   edge or server-side rate limits.
 - Manual QA status must be updated by the launch operator after every release.
+
+## Phase 4A: Vercel Production Deployment and Beta Launch Setup
+
+Implemented:
+
+- Dedicated Vercel deployment guide
+- Required public and Admin SDK environment variable checklist
+- Optional `NEXT_PUBLIC_APP_URL` support for production metadata and future
+  share-link consistency
+- Firebase Auth authorized-domain guidance
+- Production smoke test checklist
+- Final beta launch checklist
+- Legal/policy placeholder section for wider launch readiness
+- Rollback and emergency-action guidance
+
+Next:
+
+- Import the GitHub repo into Vercel.
+- Add production environment variables.
+- Deploy the latest `main` branch.
+- Run the production smoke test checklist.
+- Invite a small controlled beta cohort.

@@ -334,9 +334,17 @@ FIREBASE_ADMIN_CLIENT_EMAIL
 FIREBASE_ADMIN_PRIVATE_KEY
 ```
 
+Optional production URL:
+
+```text
+NEXT_PUBLIC_APP_URL
+```
+
 Use Vercel Project Settings -> Environment Variables. Paste the private key as a
 single value with escaped `\n` line breaks if needed. Never commit `.env.local`,
 `.env.e2e.local`, service account JSON, Firebase private keys, or debug logs.
+See `VERCEL_DEPLOYMENT.md` for the full production deployment, smoke test,
+rollback, and beta launch checklist.
 
 Production deploy checklist:
 
