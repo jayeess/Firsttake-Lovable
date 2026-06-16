@@ -258,12 +258,14 @@ export default function TalentProfilePage() {
         <p className="text-sm font-bold uppercase text-[#008ca6]">
           Talent profile
         </p>
-        <h1 className="mt-1 text-3xl font-bold">Build your professional profile</h1>
-        <p className="mt-2 text-[#68727c]">
+        <h1 className="mt-1 text-3xl font-black leading-tight sm:text-4xl">
+          Build your professional profile
+        </h1>
+        <p className="mt-2 text-sm leading-6 text-[#68727c] sm:text-base">
           This information is shown to recruiters when you apply.
         </p>
-        <section className="surface mt-6 p-6">
-          <div className="flex flex-wrap items-start justify-between gap-5">
+        <section className="surface mt-6 rounded-md p-4 sm:p-6">
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <p className="eyebrow">Profile trust</p>
               <div className="mt-2 flex flex-wrap items-center gap-3">
@@ -292,7 +294,7 @@ export default function TalentProfilePage() {
                 type="button"
                 onClick={() => void handleVerificationSubmit()}
                 disabled={submittingVerification}
-                className="primary-button disabled:opacity-50"
+                className="primary-button disabled:opacity-50 sm:w-auto"
               >
                 {submittingVerification
                   ? 'Submitting...'
@@ -397,7 +399,7 @@ export default function TalentProfilePage() {
         )}
         <form
           onSubmit={handleSubmit}
-          className="mt-6 grid gap-5 border border-[#d9dee5] bg-white p-6 sm:grid-cols-2"
+          className="mt-6 grid gap-5 rounded-md border border-[#d9dee5] bg-white p-4 sm:p-6 md:grid-cols-2"
         >
           <Field label="First name">
             <input required value={profile.firstName} onChange={(e) => update('firstName', e.target.value)} className="field" />

@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { AppShell } from '@/components/app-shell';
 import { StatusBadge } from '@/components/status-badge';
@@ -101,20 +102,22 @@ export default function ApplicationsPage() {
   return (
     <AppShell requiredRole="TALENT">
       <p className="eyebrow">Application tracker</p>
-      <h1 className="mt-2 text-4xl font-black">My applications</h1>
-      <p className="mt-3 max-w-2xl leading-7 text-[#657176]">
+      <h1 className="mt-2 text-3xl font-black leading-tight sm:text-4xl">
+        My applications
+      </h1>
+      <p className="mt-3 max-w-2xl text-sm leading-6 text-[#657176] sm:text-base sm:leading-7">
         Follow every role from submission through recruiter review and final
         status.
       </p>
 
-      <div className="mt-7 flex gap-1 overflow-x-auto border-b border-[#ccd3da]">
+      <div className="mt-6 flex snap-x gap-1 overflow-x-auto border-b border-[#ccd3da] pb-1">
         {tabs.map((value) => (
           <button
             key={value}
             onClick={() => setTab(value)}
-            className={`min-h-11 whitespace-nowrap px-4 text-sm font-bold ${
+            className={`min-h-12 snap-start whitespace-nowrap rounded-t-md px-4 text-sm font-bold ${
               tab === value
-                ? 'border-b-2 border-[#008ca6] text-[#008ca6]'
+                ? 'bg-white border-b-2 border-[#008ca6] text-[#008ca6]'
                 : 'text-[#66717c]'
             }`}
           >
@@ -156,6 +159,9 @@ export default function ApplicationsPage() {
             <p className="mt-2 text-[#68727c]">
               Browse auditions and submit your profile for a role.
             </p>
+            <Link href="/auditions" className="primary-button mt-5 sm:w-auto">
+              Find auditions
+            </Link>
           </div>
         ) : (
           filtered.map((application) => (
@@ -164,11 +170,11 @@ export default function ApplicationsPage() {
               return (
             <article
               key={`${application.auditionId}-${application.id}`}
-              className="surface p-5"
+              className="surface rounded-md p-4 sm:p-5"
             >
-              <div className="flex flex-wrap items-start justify-between gap-3">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                  <h2 className="text-xl font-black">
+                  <h2 className="text-lg font-black leading-snug sm:text-xl">
                     {application.audition?.title ?? 'Audition'}
                   </h2>
                   <p className="mt-1 text-sm text-[#68727c]">
@@ -178,7 +184,7 @@ export default function ApplicationsPage() {
                 </div>
                 <StatusBadge status={status} />
               </div>
-              <div className="mt-5 grid grid-cols-8 gap-2">
+              <div className="mt-5 grid grid-cols-8 gap-1.5 sm:gap-2">
                 {APPLICATION_PIPELINE_STATUSES.map(
                   (status) => (
                     <div
@@ -201,7 +207,7 @@ export default function ApplicationsPage() {
                     {application.rejectionReason}
                   </p>
                 )}
-              <div className="mt-5 flex flex-wrap items-center gap-4 border-t border-[#dce2e8] pt-4">
+              <div className="mt-5 flex flex-col gap-3 border-t border-[#dce2e8] pt-4 sm:flex-row sm:flex-wrap sm:items-center">
                 <ApplicationMessageButton
                   auditionId={application.auditionId}
                   applicationId={application.id}
@@ -218,13 +224,14 @@ export default function ApplicationsPage() {
                         : 'Message Recruiter'
                   }
                   disabled={status === 'WITHDRAWN'}
+                  className="w-full sm:w-auto"
                 />
               {!['REJECTED', 'SELECTED', 'WITHDRAWN'].includes(status) && (
                   <button
                     type="button"
                     onClick={() => void withdraw(application)}
                     disabled={withdrawingId === application.id}
-                    className="text-sm font-bold text-[#b63b32] hover:underline disabled:opacity-50"
+                    className="min-h-11 text-left text-sm font-bold text-[#b63b32] hover:underline disabled:opacity-50 sm:min-h-0"
                   >
                     {withdrawingId === application.id
                       ? 'Withdrawing...'

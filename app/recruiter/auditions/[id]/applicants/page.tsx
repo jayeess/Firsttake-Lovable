@@ -182,18 +182,18 @@ export default function AuditionApplicantsPage() {
         Back to casting calls
       </Link>
 
-      <header className="mt-5 flex flex-wrap items-end justify-between gap-5">
+      <header className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="eyebrow">Applicant pipeline</p>
-          <h1 className="mt-2 text-4xl font-black">
+          <h1 className="mt-2 text-3xl font-black leading-tight sm:text-4xl">
             {audition?.title ?? 'Casting workspace'}
           </h1>
-          <p className="mt-3 max-w-2xl leading-7 text-[#657176]">
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-[#657176] sm:text-base sm:leading-7">
             Compare profiles, organize your shortlist, and keep casting
             decisions in one private workspace.
           </p>
         </div>
-        <div className="border-l-2 border-[#d8a843] pl-4">
+        <div className="rounded-md border border-[#d7e0e4] bg-white p-4 sm:border-l-2 sm:border-l-[#d8a843]">
           <p className="text-2xl font-black">{applicants.length}</p>
           <p className="text-xs font-bold uppercase text-[#657176]">
             Total applicants
@@ -203,7 +203,7 @@ export default function AuditionApplicantsPage() {
 
       <section
         aria-label="Applicant status filters"
-        className="mt-7 overflow-x-auto border-b border-[#d9dee5]"
+        className="mt-6 overflow-x-auto border-b border-[#d9dee5]"
       >
         <div className="flex min-w-max">
           <PipelineTab
@@ -226,7 +226,7 @@ export default function AuditionApplicantsPage() {
 
       <section
         aria-label="Applicant filters and sorting"
-        className="mt-5 border border-[#d7e0e4] bg-white p-4"
+        className="mt-5 rounded-md border border-[#d7e0e4] bg-white p-3 sm:p-4"
       >
         <div className="grid gap-3 lg:grid-cols-[minmax(240px,1fr)_190px_auto]">
           <label className="relative">
@@ -270,7 +270,7 @@ export default function AuditionApplicantsPage() {
           <button
             type="button"
             onClick={() => setFilters(initialFilters)}
-            className="secondary-button"
+            className="secondary-button sm:w-auto"
           >
             Clear filters
           </button>
@@ -509,14 +509,14 @@ function ApplicantCard({
   };
 
   return (
-    <article className="surface overflow-hidden">
-      <div className="p-5 sm:p-6">
-        <div className="flex flex-wrap items-start justify-between gap-5">
-          <div className="flex min-w-0 items-start gap-4">
+    <article className="surface overflow-hidden rounded-md">
+      <div className="p-4 sm:p-6">
+        <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
+          <div className="flex min-w-0 items-start gap-3 sm:gap-4">
             <div
               role="img"
               aria-label={`${name} profile photo`}
-              className="size-20 shrink-0 border border-[#cbd6db] bg-[#e7eef1] bg-cover bg-center"
+              className="size-16 shrink-0 rounded-md border border-[#cbd6db] bg-[#e7eef1] bg-cover bg-center sm:size-20"
               style={
                 talent?.profilePhotoUrl
                   ? { backgroundImage: `url("${talent.profilePhotoUrl}")` }
@@ -525,7 +525,7 @@ function ApplicantCard({
             />
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
-                <h2 className="text-2xl font-black">{name}</h2>
+                <h2 className="text-xl font-black leading-tight sm:text-2xl">{name}</h2>
                 {talent?.talentVerificationStatus === 'verified' && (
                   <VerifiedBadge subject="talent" />
                 )}
@@ -547,12 +547,12 @@ function ApplicantCard({
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <StatusBadge status={status} />
             <button
               type="button"
               onClick={onToggle}
-              className="secondary-button"
+              className="secondary-button sm:w-auto"
               aria-expanded={expanded}
             >
               {expanded ? 'Close review' : 'Review profile'}
@@ -565,14 +565,14 @@ function ApplicantCard({
             This application was withdrawn by the Talent member and is read-only.
           </p>
         ) : (
-          <div className="mt-5 flex flex-wrap gap-2 border-t border-[#e1e5ea] pt-5">
+          <div className="mt-5 grid grid-cols-2 gap-2 border-t border-[#e1e5ea] pt-5 sm:flex sm:flex-wrap">
             {quickStatuses.map((nextStatus) => (
               <button
                 key={nextStatus}
                 type="button"
                 disabled={busy || status === nextStatus}
                 onClick={() => void changeStatus(nextStatus)}
-                className={`min-h-10 border px-3 text-xs font-bold disabled:opacity-40 ${
+                className={`min-h-11 rounded-md border px-3 text-xs font-bold disabled:opacity-40 ${
                   nextStatus === 'SELECTED'
                     ? 'border-emerald-600 bg-emerald-600 text-white'
                     : nextStatus === 'REJECTED'
@@ -588,7 +588,7 @@ function ApplicantCard({
       </div>
 
       {expanded && (
-        <div className="border-t border-[#d7e0e4] bg-[#f6f9fa] p-5 sm:p-6">
+        <div className="border-t border-[#d7e0e4] bg-[#f6f9fa] p-4 sm:p-6">
           <div className="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(300px,0.6fr)]">
             <div className="space-y-6">
               <ReviewSection title="Application message">
@@ -688,7 +688,7 @@ function ApplicantCard({
               )}
             </div>
 
-            <aside className="border border-[#d7e0e4] bg-white p-5">
+            <aside className="rounded-md border border-[#d7e0e4] bg-white p-4 sm:p-5">
               <h3 className="text-lg font-black">Private casting notes</h3>
               <p className="mt-1 text-sm leading-6 text-[#657176]">
                 Notes, tags, and ratings are visible only to the audition owner

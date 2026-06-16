@@ -1,6 +1,21 @@
 'use client';
 
 import Link from 'next/link';
+import {
+  BriefcaseBusiness,
+  ClipboardList,
+  Home,
+  LayoutDashboard,
+  Menu,
+  MessageSquare,
+  PlusCircle,
+  Search,
+  ShieldCheck,
+  UserRound,
+  UsersRound,
+  X,
+  type LucideIcon,
+} from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { logout } from '@/app/lib/auth-service';
@@ -14,24 +29,34 @@ type NavLink = {
   label: string;
   shortLabel: string;
   mark: string;
+  icon: LucideIcon;
+  activePattern?: string;
 };
 
 const talentLinks: NavLink[] = [
-  { href: '/dashboard', label: 'Workspace', shortLabel: 'Home', mark: '01' },
-  { href: '/auditions', label: 'Find auditions', shortLabel: 'Auditions', mark: '02' },
-  { href: '/applications', label: 'My applications', shortLabel: 'Applications', mark: '03' },
-  { href: '/messages', label: 'Messages', shortLabel: 'Messages', mark: '04' },
-  { href: '/talent/profile', label: 'Talent profile', shortLabel: 'Profile', mark: '05' },
+  { href: '/dashboard', label: 'Workspace', shortLabel: 'Home', mark: '01', icon: Home },
+  { href: '/auditions', label: 'Find auditions', shortLabel: 'Auditions', mark: '02', icon: Search },
+  { href: '/applications', label: 'My applications', shortLabel: 'Applications', mark: '03', icon: ClipboardList },
+  { href: '/messages', label: 'Messages', shortLabel: 'Messages', mark: '04', icon: MessageSquare },
+  { href: '/talent/profile', label: 'Talent profile', shortLabel: 'Profile', mark: '05', icon: UserRound },
 ];
 
 const recruiterLinks: NavLink[] = [
-  { href: '/dashboard', label: 'Workspace', shortLabel: 'Home', mark: '01' },
-  { href: '/recruiter/auditions', label: 'Casting pipeline', shortLabel: 'Pipeline', mark: '02' },
-  { href: '/messages', label: 'Messages', shortLabel: 'Messages', mark: '03' },
-  { href: '/recruiter/auditions/new', label: 'Post an audition', shortLabel: 'Post', mark: '04' },
-  { href: '/recruiter/profile', label: 'Company profile', shortLabel: 'Company', mark: '05' },
-  { href: '/recruiter/verification', label: 'Verification', shortLabel: 'Verify', mark: '06' },
+  { href: '/dashboard', label: 'Workspace', shortLabel: 'Dashboard', mark: '01', icon: LayoutDashboard },
+  { href: '/recruiter/auditions', label: 'Casting calls', shortLabel: 'Auditions', mark: '02', icon: BriefcaseBusiness },
+  { href: '/recruiter/auditions', label: 'Applicants', shortLabel: 'Applicants', mark: '03', icon: UsersRound, activePattern: '/recruiter/auditions/' },
+  { href: '/messages', label: 'Messages', shortLabel: 'Messages', mark: '04', icon: MessageSquare },
+  { href: '/recruiter/profile', label: 'Company profile', shortLabel: 'Profile', mark: '05', icon: UserRound },
+  { href: '/recruiter/auditions/new', label: 'Post an audition', shortLabel: 'Post', mark: '06', icon: PlusCircle },
+  { href: '/recruiter/verification', label: 'Verification', shortLabel: 'Verify', mark: '07', icon: ShieldCheck },
 ];
+
+const mobileRecruiterLinks = recruiterLinks.slice(0, 5);
+
+const isActiveLink = (pathname: string, link: NavLink) => {
+  if (link.activePattern) return pathname.startsWith(link.activePattern);
+  return pathname === link.href || (link.href !== '/dashboard' && pathname.startsWith(link.href));
+};
 
 export function AppShell({
   children,
@@ -45,6 +70,7 @@ export function AppShell({
   const { user, userType, loading, accountStatus } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const links = userType === 'RECRUITER' ? recruiterLinks : talentLinks;
+  const mobileLinks = userType === 'RECRUITER' ? mobileRecruiterLinks : talentLinks;
 
   useEffect(() => {
     if (!loading && !user) {
@@ -123,12 +149,11 @@ export function AppShell({
           </p>
           <div className="space-y-1">
             {links.map((link) => {
-              const active =
-                pathname === link.href ||
-                (link.href !== '/dashboard' && pathname.startsWith(link.href));
+              const Icon = link.icon;
+              const active = isActiveLink(pathname, link);
               return (
                 <Link
-                  key={link.href}
+                  key={`${link.href}-${link.shortLabel}`}
                   href={link.href}
                   className={`group grid min-h-12 grid-cols-[32px_1fr_16px] items-center gap-2 rounded-md px-3 text-sm font-bold ${
                     active
@@ -143,7 +168,7 @@ export function AppShell({
                         : 'border-white/10 text-white/30'
                     }`}
                   >
-                    {link.mark}
+                    <Icon aria-hidden="true" className="size-3.5" />
                   </span>
                   <span>{link.label}</span>
                   <span className={active ? 'text-[#e7ad2d]' : 'text-white/15'}>
@@ -186,12 +211,12 @@ export function AppShell({
               <NotificationBell />
               <button
                 type="button"
-                className="flex size-11 items-center justify-center rounded-md border border-[#c8d6dc] bg-white text-sm font-bold"
+                className="flex size-11 items-center justify-center rounded-md border border-[#c8d6dc] bg-white text-[#07111f]"
                 onClick={() => setMenuOpen((open) => !open)}
                 aria-expanded={menuOpen}
                 aria-label={menuOpen ? 'Close menu' : 'Open menu'}
               >
-                {menuOpen ? 'Close' : 'Menu'}
+                {menuOpen ? <X aria-hidden="true" size={20} /> : <Menu aria-hidden="true" size={20} />}
               </button>
             </div>
           </div>
@@ -199,13 +224,11 @@ export function AppShell({
             <nav className="border-t border-[#d5e0e4] bg-[#07111f] p-3 text-white">
               <div className="grid gap-1">
                 {links.map((link) => {
-                  const active =
-                    pathname === link.href ||
-                    (link.href !== '/dashboard' &&
-                      pathname.startsWith(link.href));
+                  const Icon = link.icon;
+                  const active = isActiveLink(pathname, link);
                   return (
                     <Link
-                      key={link.href}
+                      key={`${link.href}-${link.shortLabel}`}
                       href={link.href}
                       onClick={() => setMenuOpen(false)}
                       className={`grid min-h-12 grid-cols-[32px_1fr] items-center gap-3 rounded-md px-3 text-sm font-bold ${
@@ -214,8 +237,8 @@ export function AppShell({
                           : 'text-white/70'
                       }`}
                     >
-                      <span className="text-[10px] text-[#e7ad2d]">
-                        {link.mark}
+                      <span className="flex size-8 items-center justify-center rounded-md bg-white/7 text-[#e7ad2d]">
+                        <Icon aria-hidden="true" className="size-4" />
                       </span>
                       {link.label}
                     </Link>
@@ -233,32 +256,33 @@ export function AppShell({
           )}
         </header>
 
-        <main className="mx-auto w-full max-w-[1440px] px-4 py-6 sm:px-7 lg:px-10 lg:py-9">
+        <main className="mx-auto w-full max-w-[1440px] px-4 pb-28 pt-6 sm:px-7 lg:px-10 lg:py-9">
           {children}
         </main>
 
-        <nav className="fixed inset-x-0 bottom-0 z-20 grid border-t border-[#cad7dd] bg-white/96 px-2 pb-[max(8px,env(safe-area-inset-bottom))] pt-2 shadow-[0_-8px_24px_rgba(7,17,31,0.08)] backdrop-blur lg:hidden" style={{ gridTemplateColumns: `repeat(${Math.min(links.length, 5)}, minmax(0, 1fr))` }}>
-          {links.slice(0, 5).map((link) => {
-            const active =
-              pathname === link.href ||
-              (link.href !== '/dashboard' && pathname.startsWith(link.href));
+        <nav className="fixed inset-x-0 bottom-0 z-40 grid border-t border-[#cad7dd] bg-white/96 px-2 pb-[max(10px,env(safe-area-inset-bottom))] pt-2 shadow-[0_-10px_28px_rgba(7,17,31,0.12)] backdrop-blur lg:hidden" style={{ gridTemplateColumns: `repeat(${mobileLinks.length}, minmax(0, 1fr))` }}>
+          {mobileLinks.map((link) => {
+            const Icon = link.icon;
+            const active = isActiveLink(pathname, link);
             return (
               <Link
-                key={link.href}
+                key={`${link.href}-${link.shortLabel}`}
                 href={link.href}
-                className={`flex min-h-12 flex-col items-center justify-center gap-1 rounded text-[10px] font-bold ${
-                  active ? 'text-[#008ca6]' : 'text-[#6d7e87]'
+                className={`relative flex min-h-14 flex-col items-center justify-center gap-1 rounded-md text-[10px] font-black ${
+                  active ? 'bg-[#e9f8fb] text-[#008ca6]' : 'text-[#6d7e87]'
                 }`}
               >
-                <span className={active ? 'text-[#e0a01c]' : 'text-[#9bacb4]'}>
-                  {link.mark}
+                <span className={active ? 'text-[#008ca6]' : 'text-[#9bacb4]'}>
+                  <Icon aria-hidden="true" className="size-5" strokeWidth={2.4} />
                 </span>
                 <span className="max-w-full truncate px-1">{link.shortLabel}</span>
+                {active && (
+                  <span className="absolute top-1 h-1 w-6 rounded-full bg-[#e7ad2d]" />
+                )}
               </Link>
             );
           })}
         </nav>
-        <div className="h-20 lg:hidden" />
       </div>
     </div>
   );

@@ -49,8 +49,8 @@ export default function MessagesPage() {
   return (
     <AppShell>
       <p className="eyebrow">Private casting communication</p>
-      <h1 className="mt-2 text-4xl font-black">Messages</h1>
-      <p className="mt-3 max-w-3xl leading-7 text-[#657176]">
+      <h1 className="mt-2 text-3xl font-black leading-tight sm:text-4xl">Messages</h1>
+      <p className="mt-3 max-w-3xl text-sm leading-6 text-[#657176] sm:text-base sm:leading-7">
         Application-linked conversations with verified casting teams and
         applicants. Keep personal contact details private.
       </p>
@@ -91,7 +91,7 @@ export default function MessagesPage() {
               <Link
                 key={conversation.id}
                 href={`/messages/${conversation.id}`}
-                className={`surface grid gap-4 p-5 transition hover:border-[#008ca6] sm:grid-cols-[44px_1fr_auto] ${
+                className={`surface grid gap-3 rounded-md p-4 transition hover:border-[#008ca6] sm:grid-cols-[44px_1fr_auto] sm:gap-4 sm:p-5 ${
                   unread ? 'border-[#00a8c6] bg-white' : ''
                 }`}
               >
@@ -100,7 +100,7 @@ export default function MessagesPage() {
                 </span>
                 <span className="min-w-0">
                   <span className="flex flex-wrap items-center gap-2">
-                    <strong className="text-lg">{otherName}</strong>
+                    <strong className="text-base sm:text-lg">{otherName}</strong>
                     {unread && (
                       <span className="rounded-full bg-[#e7ad2d] px-2 py-0.5 text-[10px] font-black uppercase">
                         New
@@ -114,7 +114,7 @@ export default function MessagesPage() {
                     {conversation.lastMessageText || 'Conversation ready'}
                   </span>
                 </span>
-                <span className="text-xs font-bold text-[#7b898f]">
+                <span className="text-xs font-bold text-[#7b898f] sm:text-right">
                   {formatTime(conversation.updatedAt)}
                 </span>
               </Link>

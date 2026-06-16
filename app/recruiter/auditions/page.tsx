@@ -29,9 +29,19 @@ export default function RecruiterAuditionsPage() {
 
   return (
     <AppShell requiredRole="RECRUITER">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div><p className="text-sm font-bold uppercase text-[#008ca6]">Recruiter tools</p><h1 className="mt-1 text-3xl font-bold">My auditions</h1></div>
-        <Link href="/recruiter/auditions/new" className="bg-[#008ca6] px-5 py-3 font-semibold text-white">Post audition</Link>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="eyebrow">Recruiter tools</p>
+          <h1 className="mt-2 text-3xl font-black leading-tight sm:text-4xl">
+            My auditions
+          </h1>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-[#657176] sm:text-base">
+            Manage live briefs, review applicant flow, and open the next casting decision quickly.
+          </p>
+        </div>
+        <Link href="/recruiter/auditions/new" className="primary-button sm:w-auto">
+          Post audition
+        </Link>
       </div>
       {error && (
         <ErrorState
@@ -54,8 +64,56 @@ export default function RecruiterAuditionsPage() {
           actionLabel="Post an audition"
         />
       ) : (
-      <div className="mt-6 overflow-x-auto border border-[#d9dee5] bg-white">
-        <table className="w-full min-w-[720px] text-left">
+      <>
+      <div className="mt-6 grid gap-4 lg:hidden">
+        {auditions.map((audition) => (
+          <article key={audition.id} className="surface rounded-md p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-xs font-black uppercase text-[#008ca6]">
+                  Casting call
+                </p>
+                <h2 className="mt-1 text-lg font-black leading-snug">
+                  {audition.title}
+                </h2>
+              </div>
+              <StatusBadge status={audition.status} />
+            </div>
+            <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+              <div className="rounded-md bg-[#f2f6f8] p-3">
+                <p className="text-xs font-bold uppercase text-[#657176]">
+                  Deadline
+                </p>
+                <p className="mt-1 font-black">{formatDate(audition.deadline)}</p>
+              </div>
+              <div className="rounded-md bg-[#edf7f5] p-3">
+                <p className="text-xs font-bold uppercase text-[#657176]">
+                  Applicants
+                </p>
+                <p className="mt-1 font-black text-[#008ca6]">
+                  {audition.applicantCount ?? 0}
+                </p>
+              </div>
+            </div>
+            <div className="mt-4 grid gap-2 sm:grid-cols-2">
+              <Link
+                href={`/recruiter/auditions/${audition.id}/applicants`}
+                className="primary-button"
+              >
+                Review applicants
+              </Link>
+              <Link
+                href={`/auditions/${audition.id}`}
+                className="secondary-button"
+              >
+                View brief
+              </Link>
+            </div>
+          </article>
+        ))}
+      </div>
+      <div className="mt-6 hidden overflow-x-auto border border-[#d9dee5] bg-white lg:block">
+        <table className="w-full text-left">
           <thead className="bg-[#eef2f5] text-xs uppercase text-[#64707b]">
             <tr><th className="p-4">Audition</th><th className="p-4">Status</th><th className="p-4">Deadline</th><th className="p-4">Applicants</th><th className="p-4">Action</th></tr>
           </thead>
@@ -80,6 +138,7 @@ export default function RecruiterAuditionsPage() {
           </tbody>
         </table>
       </div>
+      </>
       )}
     </AppShell>
   );

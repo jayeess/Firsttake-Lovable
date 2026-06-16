@@ -41,17 +41,19 @@ export function AuthFrame({
           Profiles | Casting calls | Decisions
         </p>
       </section>
-      <section className="flex min-h-screen items-center justify-center p-5 sm:p-10 lg:bg-white/82">
+      <section className="flex min-h-screen items-center justify-center p-4 py-8 sm:p-10 lg:bg-white/82">
         <div className="w-full max-w-xl">
-          <Link href="/" className="mb-10 inline-block lg:hidden">
+          <Link href="/" className="mb-8 inline-block lg:hidden">
             <BrandLogo />
           </Link>
           <p className="eyebrow">{eyebrow}</p>
-          <h1 className="mt-3 text-4xl font-black leading-tight">{title}</h1>
-          <p className="mt-3 max-w-md leading-7 text-[#657176]">
+          <h1 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
+            {title}
+          </h1>
+          <p className="mt-3 max-w-md text-sm leading-6 text-[#657176] sm:text-base sm:leading-7">
             {description}
           </p>
-          <div className="mt-8">{children}</div>
+          <div className="mt-6 sm:mt-8">{children}</div>
         </div>
       </section>
     </main>

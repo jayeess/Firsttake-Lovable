@@ -148,16 +148,18 @@ export default function AuditionsPage() {
 
   return (
     <AppShell requiredRole="TALENT">
-      <header className="flex flex-wrap items-end justify-between gap-5">
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="eyebrow">Opportunity discovery</p>
-          <h1 className="mt-2 text-4xl font-black">Find the right next role.</h1>
-          <p className="mt-3 max-w-2xl leading-7 text-[#657176]">
+          <h1 className="mt-2 text-3xl font-black leading-tight sm:text-4xl">
+            Find the right next role.
+          </h1>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-[#657176] sm:text-base sm:leading-7">
             Search verified casting calls, save promising briefs, and surface
             opportunities that fit your profile.
           </p>
         </div>
-        <div className="border-l-2 border-[#d8a843] pl-4">
+        <div className="rounded-md border border-[#d7e0e4] bg-white p-4 sm:border-l-2 sm:border-l-[#d8a843]">
           <p className="text-2xl font-black">{visible.length}</p>
           <p className="text-xs font-bold uppercase text-[#657176]">
             Active opportunities
@@ -167,7 +169,7 @@ export default function AuditionsPage() {
 
       <section
         aria-label="Audition search and filters"
-        className="mt-7 border border-[#d7e0e4] bg-white p-4"
+        className="mt-6 rounded-md border border-[#d7e0e4] bg-white p-3 sm:p-4"
       >
         <div className="grid gap-3 lg:grid-cols-[minmax(280px,1fr)_210px_auto]">
           <label className="relative">
@@ -203,7 +205,7 @@ export default function AuditionsPage() {
           <button
             type="button"
             onClick={() => setFiltersOpen((current) => !current)}
-            className="secondary-button flex items-center justify-center gap-2"
+            className="secondary-button flex items-center justify-center gap-2 sm:w-auto"
             aria-expanded={filtersOpen}
           >
             <SlidersHorizontal className="size-4" />
@@ -340,7 +342,7 @@ export default function AuditionsPage() {
                 key={item.key}
                 type="button"
                 onClick={() => clearFilter(item.key)}
-                className="border border-[#9fc9c4] bg-[#edf7f5] px-3 py-1.5 text-xs font-bold text-[#006d7f]"
+              className="min-h-9 border border-[#9fc9c4] bg-[#edf7f5] px-3 py-1.5 text-xs font-bold text-[#006d7f]"
               >
                 {item.label} ×
               </button>
@@ -348,7 +350,7 @@ export default function AuditionsPage() {
             <button
               type="button"
               onClick={() => setFilters(initialAuditionFilters)}
-              className="px-2 py-1.5 text-xs font-bold text-[#a33d35]"
+              className="min-h-9 px-2 py-1.5 text-xs font-bold text-[#a33d35]"
             >
               Clear all
             </button>

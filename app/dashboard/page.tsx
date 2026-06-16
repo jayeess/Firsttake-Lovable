@@ -16,6 +16,9 @@ import { useAuth } from '@/context/auth-context';
 import { hasRecruiterApproval } from '@/app/lib/recruiter-access';
 import { ErrorState, LoadingState } from '@/components/async-state';
 
+const statusValue = (items: Application[], status: Application['status']) =>
+  items.filter((item) => item.status === status).length;
+
 export default function Dashboard() {
   const router = useRouter();
   const { user, userType, loading, error } = useAuth();
@@ -69,8 +72,8 @@ export default function Dashboard() {
   const talentStats = useMemo(
     () => [
       ['Applications', applications.length],
-      ['Viewed', applications.filter((item) => item.status === 'VIEWED').length],
-      ['Shortlisted', applications.filter((item) => item.status === 'SHORTLISTED').length],
+      ['Viewed', statusValue(applications, 'VIEWED')],
+      ['Shortlisted', statusValue(applications, 'SHORTLISTED')],
     ],
     [applications]
   );
@@ -91,16 +94,16 @@ export default function Dashboard() {
   return (
     <AppShell>
       <section
-        className="relative overflow-hidden bg-[#07111f] bg-cover bg-center p-6 text-white sm:p-8"
+        className="relative overflow-hidden rounded-md bg-[#07111f] bg-cover bg-center p-5 text-white sm:p-8"
         style={{ backgroundImage: "url('/nata-connect-brand-poster.png')" }}
       >
         <div className="absolute inset-0 bg-[#10191d]/70" />
-        <div className="relative z-10 flex flex-wrap items-end justify-between gap-6">
+        <div className="relative z-10 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
           <p className="text-xs font-black uppercase text-[#7fd0c7]">
             {userType === 'RECRUITER' ? 'Recruiter workspace' : 'Talent workspace'}
           </p>
-          <h1 className="mt-2 text-4xl font-black">
+          <h1 className="mt-2 text-3xl font-black leading-tight sm:text-4xl">
             Welcome{firstName ? `, ${firstName}` : ''}
           </h1>
           <p className="mt-3 max-w-2xl text-white/75">
@@ -111,7 +114,7 @@ export default function Dashboard() {
           </div>
           <Link
             href={userType === 'RECRUITER' ? '/recruiter/auditions/new' : '/auditions'}
-            className="primary-button"
+            className="primary-button sm:w-auto"
           >
             {userType === 'RECRUITER' ? 'Post an audition' : 'Browse auditions'}
           </Link>
@@ -146,13 +149,33 @@ export default function Dashboard() {
 
       {!dataLoading && !dataError && (
       <>
-      <section className="mt-7 grid gap-4 sm:grid-cols-3">
+      <section className="mt-6 grid gap-3 md:grid-cols-3">
+        {(userType === 'RECRUITER'
+          ? [
+              ['Review applicants', 'Open your live casting calls and keep decisions moving.', '/recruiter/auditions'],
+              ['Post a brief', 'Create a clear casting call with deadline, requirements, and role context.', '/recruiter/auditions/new'],
+              ['Check messages', 'Reply to shortlisted Talent while keeping communication protected.', '/messages'],
+            ]
+          : [
+              ['Complete profile', 'Keep your profile, media, and verification signals ready for recruiters.', '/talent/profile'],
+              ['Find roles', 'Browse active auditions matched to your category, location, and experience.', '/auditions'],
+              ['Track replies', 'Follow application status and open recruiter conversations quickly.', '/applications'],
+            ]
+        ).map(([title, body, href]) => (
+          <Link key={title} href={href} className="mobile-card block rounded-md p-5 hover:border-[#008ca6]">
+            <p className="eyebrow">{title}</p>
+            <p className="mt-2 text-sm leading-6 text-[#526874]">{body}</p>
+          </Link>
+        ))}
+      </section>
+
+      <section className="mt-6 grid gap-4 sm:grid-cols-3">
         {(userType === 'RECRUITER' ? recruiterStats : talentStats).map(
           ([label, value], index) => (
-            <article key={label} className="surface relative overflow-hidden p-6">
+            <article key={label} className="surface relative overflow-hidden p-5 sm:p-6">
               <div className={`absolute inset-x-0 top-0 h-1 ${index === 0 ? 'bg-[#008ca6]' : index === 1 ? 'bg-[#d8a843]' : 'bg-[#e7ad2d]'}`} />
               <p className="text-sm font-bold text-[#657176]">{label}</p>
-              <p className="mt-4 text-4xl font-black text-[#07111f]">{value}</p>
+              <p className="mt-3 text-3xl font-black text-[#07111f] sm:text-4xl">{value}</p>
               <p className="mt-2 text-xs uppercase text-[#8a9697]">Live workspace total</p>
             </article>
           )
@@ -160,10 +183,10 @@ export default function Dashboard() {
       </section>
 
       <section className="surface mt-7">
-        <div className="flex items-center justify-between border-b border-[#e1e5ea] p-6">
+        <div className="flex items-center justify-between gap-3 border-b border-[#e1e5ea] p-5 sm:p-6">
           <div>
             <p className="eyebrow">Recent activity</p>
-            <h2 className="mt-2 text-2xl font-black">
+            <h2 className="mt-2 text-xl font-black sm:text-2xl">
             {userType === 'RECRUITER' ? 'Recent auditions' : 'Recent applications'}
             </h2>
           </div>
@@ -177,13 +200,13 @@ export default function Dashboard() {
         <div className="divide-y divide-[#e1e5ea]">
           {userType === 'RECRUITER'
             ? auditions.slice(0, 5).map((audition) => (
-                <div key={audition.id} className="flex items-center justify-between gap-4 p-6">
+                <div key={audition.id} className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
                   <div><p className="font-bold">{audition.title}</p><p className="mt-1 text-sm text-[#68727c]">{audition.applicantCount} applicants in pipeline</p></div>
                   <StatusBadge status={audition.status} />
                 </div>
               ))
             : applications.slice(0, 5).map((application) => (
-                <div key={`${application.auditionId}-${application.id}`} className="flex items-center justify-between gap-4 p-6">
+                <div key={`${application.auditionId}-${application.id}`} className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
                   <div><p className="font-bold">{application.audition?.title ?? 'Audition'}</p><p className="mt-1 text-sm text-[#68727c]">{application.audition?.recruiterName ?? 'Recruiter'}</p></div>
                   <StatusBadge status={application.status} />
                 </div>

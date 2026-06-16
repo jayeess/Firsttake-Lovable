@@ -102,8 +102,8 @@ export function PublicTalentProfileSettings({
   };
 
   return (
-    <section className="surface mt-6 p-6" aria-label="Public Talent profile">
-      <div className="flex flex-wrap items-start justify-between gap-4">
+    <section className="surface mt-6 rounded-md p-4 sm:p-6" aria-label="Public Talent profile">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="eyebrow">Shareable profile</p>
           <div className="mt-2 flex flex-wrap items-center gap-3">
@@ -157,11 +157,11 @@ export function PublicTalentProfileSettings({
           </div>
         </label>
         {enabled && relativeUrl && (
-          <div className="flex items-end gap-2">
+          <div className="grid gap-2 sm:flex sm:items-end">
             <button
               type="button"
               onClick={() => void copyLink()}
-              className="secondary-button inline-flex items-center gap-2"
+              className="secondary-button inline-flex items-center justify-center gap-2 sm:w-auto"
             >
               <Copy aria-hidden="true" size={16} />
               Copy
@@ -170,7 +170,7 @@ export function PublicTalentProfileSettings({
               href={relativeUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="secondary-button inline-flex items-center gap-2"
+              className="secondary-button inline-flex items-center justify-center gap-2 sm:w-auto"
             >
               <ExternalLink aria-hidden="true" size={16} />
               Preview
@@ -221,13 +221,13 @@ export function PublicTalentProfileSettings({
         </p>
       )}
 
-      <div className="mt-5 flex flex-wrap gap-3">
+      <div className="mt-5 grid gap-3 sm:flex sm:flex-wrap">
         {!enabled ? (
           <button
             type="button"
             disabled={busy || !canPublishTalentProfile(profile)}
             onClick={() => void run('enable')}
-            className="primary-button disabled:opacity-50"
+            className="primary-button disabled:opacity-50 sm:w-auto"
           >
             {busy ? 'Publishing...' : 'Enable public profile'}
           </button>
@@ -239,7 +239,7 @@ export function PublicTalentProfileSettings({
               onClick={() =>
                 void run(slug !== profile.publicSlug ? 'updateSlug' : 'refresh')
               }
-              className="primary-button inline-flex items-center gap-2 disabled:opacity-50"
+              className="primary-button inline-flex items-center justify-center gap-2 disabled:opacity-50 sm:w-auto"
             >
               <RefreshCw aria-hidden="true" size={16} />
               {busy ? 'Updating...' : 'Update public profile'}
@@ -248,7 +248,7 @@ export function PublicTalentProfileSettings({
               type="button"
               disabled={busy}
               onClick={() => void run('disable')}
-              className="secondary-button text-red-700 disabled:opacity-50"
+              className="secondary-button text-red-700 disabled:opacity-50 sm:w-auto"
             >
               Disable public profile
             </button>

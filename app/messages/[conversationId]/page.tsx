@@ -117,17 +117,17 @@ export default function ConversationPage() {
         />
       ) : conversation ? (
         <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_300px]">
-          <section className="surface overflow-hidden">
-            <header className="border-b border-[#d7e0e4] p-5">
-              <div className="flex flex-wrap items-start justify-between gap-3">
+          <section className="surface overflow-hidden rounded-md">
+            <header className="border-b border-[#d7e0e4] p-4 sm:p-5">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <p className="eyebrow">Application conversation</p>
-                  <h1 className="mt-2 text-2xl font-black">{otherName}</h1>
+                  <h1 className="mt-2 text-xl font-black sm:text-2xl">{otherName}</h1>
                   <p className="mt-1 text-sm font-bold text-[#5f7078]">
                     {conversation.auditionTitleSnapshot}
                   </p>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3">
                   <ReportButton
                     targetType="conversation"
                     targetId={conversation.id}
@@ -139,7 +139,7 @@ export default function ConversationPage() {
               </div>
             </header>
 
-            <div className="h-[52vh] min-h-[360px] overflow-y-auto bg-[#f4f8fa] p-4 sm:p-6">
+            <div className="h-[52vh] min-h-[340px] overflow-y-auto bg-[#f4f8fa] p-3 sm:p-6">
               {messages.length === 0 ? (
                 <div className="flex h-full items-center justify-center text-center">
                   <div>
@@ -162,7 +162,7 @@ export default function ConversationPage() {
                           className={`flex ${mine ? 'justify-end' : 'justify-start'}`}
                         >
                           <div
-                            className={`max-w-[82%] rounded-md px-4 py-3 ${
+                            className={`max-w-[88%] rounded-md px-4 py-3 sm:max-w-[82%] ${
                               mine
                                 ? 'bg-[#083348] text-white'
                                 : 'border border-[#d0dde2] bg-white'
@@ -197,7 +197,7 @@ export default function ConversationPage() {
               )}
             </div>
 
-            <form onSubmit={submit} className="border-t border-[#d7e0e4] p-4">
+            <form onSubmit={submit} className="border-t border-[#d7e0e4] bg-white p-3 sm:p-4">
               {error && (
                 <p className="mb-3 border border-red-300 bg-red-50 p-3 text-sm text-red-800">
                   {error}
@@ -207,7 +207,7 @@ export default function ConversationPage() {
                 Keep communication inside Nata Connect for safety. Do not share
                 personal contact details until you trust the other party.
               </p>
-              <div className="flex items-end gap-3">
+              <div className="flex items-end gap-2 sm:gap-3">
                 <textarea
                   value={body}
                   onChange={(event) => setBody(event.target.value)}
@@ -217,7 +217,7 @@ export default function ConversationPage() {
                   placeholder={
                     readOnly ? 'This conversation is read-only.' : 'Write a message'
                   }
-                  className="field min-h-24 resize-y py-3 disabled:bg-[#edf1f3]"
+                  className="field min-h-20 resize-y py-3 disabled:bg-[#edf1f3] sm:min-h-24"
                 />
                 <button
                   type="submit"
@@ -234,7 +234,7 @@ export default function ConversationPage() {
             </form>
           </section>
 
-          <aside className="surface h-fit p-5">
+          <aside className="surface h-fit rounded-md p-4 sm:p-5">
             <p className="eyebrow">Casting context</p>
             <h2 className="mt-2 text-lg font-black">
               {conversation.auditionTitleSnapshot}

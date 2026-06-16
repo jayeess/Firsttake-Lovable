@@ -46,6 +46,11 @@ textarea {
 
 button,
 a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+a {
   transition:
     background-color 160ms ease,
     border-color 160ms ease,
@@ -97,6 +102,14 @@ textarea.field {
   box-shadow:
     0 1px 2px rgba(24, 33, 38, 0.04),
     0 16px 40px rgba(7, 17, 31, 0.07);
+}
+
+.mobile-card {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  box-shadow:
+    0 1px 2px rgba(24, 33, 38, 0.04),
+    0 14px 34px rgba(7, 17, 31, 0.06);
 }
 
 .primary-button {
@@ -153,4 +166,28 @@ textarea.field {
 
 ::selection {
   background: rgba(0, 194, 224, 0.22);
+}
+
+@media (max-width: 640px) {
+  body {
+    background-size: 24px 24px;
+  }
+
+  .field {
+    min-height: 52px;
+    font-size: 16px;
+  }
+
+  .primary-button,
+  .secondary-button {
+    min-height: 52px;
+    width: 100%;
+  }
+
+  .surface,
+  .mobile-card {
+    box-shadow:
+      0 1px 2px rgba(24, 33, 38, 0.04),
+      0 10px 26px rgba(7, 17, 31, 0.05);
+  }
 }

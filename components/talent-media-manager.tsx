@@ -225,8 +225,8 @@ export function TalentMediaManager({
   };
 
   return (
-    <section className="surface mt-6 p-6" aria-label="Talent media portfolio">
-      <div className="flex flex-wrap items-start justify-between gap-4">
+    <section className="surface mt-6 rounded-md p-4 sm:p-6" aria-label="Talent media portfolio">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="eyebrow">Media portfolio</p>
           <h2 className="mt-2 text-2xl font-black">Show your work</h2>
@@ -304,7 +304,7 @@ export function TalentMediaManager({
         </div>
 
         <div>
-          <div className="flex flex-wrap gap-2">
+          <div className="grid gap-2 sm:flex sm:flex-wrap">
             <label className="primary-button flex cursor-pointer items-center gap-2">
               <ImagePlus aria-hidden="true" size={17} />
               Add portfolio image
@@ -318,7 +318,7 @@ export function TalentMediaManager({
               />
             </label>
           </div>
-          <div className="mt-4 grid gap-3 border border-[#d7e0e4] bg-[#f7fafb] p-4 sm:grid-cols-[1fr_1fr_auto]">
+          <div className="mt-4 grid gap-3 rounded-md border border-[#d7e0e4] bg-[#f7fafb] p-4 lg:grid-cols-[1fr_1fr_auto]">
             <input
               value={linkTitle}
               onChange={(event) => setLinkTitle(event.target.value)}
@@ -335,7 +335,7 @@ export function TalentMediaManager({
             <button
               type="button"
               onClick={() => void addExternalLink()}
-              className="secondary-button inline-flex items-center justify-center gap-2"
+              className="secondary-button inline-flex items-center justify-center gap-2 lg:w-auto"
             >
               <ExternalLink aria-hidden="true" size={17} />
               Add link

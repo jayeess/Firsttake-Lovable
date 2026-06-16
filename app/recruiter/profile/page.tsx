@@ -138,7 +138,9 @@ export default function RecruiterProfilePage() {
           Recruiter onboarding
         </p>
         <div className="mt-1 flex flex-wrap items-center gap-3">
-          <h1 className="text-3xl font-bold">Company profile</h1>
+          <h1 className="text-3xl font-black leading-tight sm:text-4xl">
+            Company profile
+          </h1>
           {profile.verificationStatus === 'approved' && <VerifiedBadge />}
         </div>
         <p className="mt-2 text-[#68727c]">
@@ -165,7 +167,7 @@ export default function RecruiterProfilePage() {
             {error || message}
           </p>
         )}
-        <form onSubmit={handleSubmit} className="mt-6 grid gap-5 border border-[#d9dee5] bg-white p-6 sm:grid-cols-2">
+        <form onSubmit={handleSubmit} className="mt-6 grid gap-5 rounded-md border border-[#d9dee5] bg-white p-4 sm:p-6 md:grid-cols-2">
           {[
             ['companyName', 'Company name', 'text'],
             ['phone', 'Company phone', 'tel'],
@@ -183,16 +185,16 @@ export default function RecruiterProfilePage() {
               />
             </label>
           ))}
-          <label className="block text-sm font-semibold sm:col-span-2">
+          <label className="block text-sm font-semibold md:col-span-2">
             Company bio
             <textarea maxLength={500} rows={5} value={profile.bio} onChange={(e) => update('bio', e.target.value)} className="field mt-2 py-3" />
           </label>
-          <div className="border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 sm:col-span-2">
+          <div className="border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 md:col-span-2">
             Verification documents and admin approval are the next onboarding
             phase. Your profile currently remains pending verification.
           </div>
-          <div className="sm:col-span-2">
-            <button disabled={saving} className="h-12 bg-[#008ca6] px-6 font-semibold text-white disabled:opacity-50">
+          <div className="md:col-span-2">
+            <button disabled={saving} className="primary-button disabled:opacity-50 md:w-auto">
               {saving ? 'Saving...' : 'Save company profile'}
             </button>
           </div>

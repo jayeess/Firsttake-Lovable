@@ -94,11 +94,13 @@ function NotificationCenter() {
 
   return (
     <>
-      <div className="flex flex-wrap items-end justify-between gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="eyebrow">Activity center</p>
-          <h1 className="mt-2 text-4xl font-black">Notifications</h1>
-          <p className="mt-3 text-[#657176]">
+          <h1 className="mt-2 text-3xl font-black leading-tight sm:text-4xl">
+            Notifications
+          </h1>
+          <p className="mt-3 text-sm leading-6 text-[#657176] sm:text-base">
             Reviews, applications, casting decisions, and trust updates in one
             place.
           </p>
@@ -107,7 +109,7 @@ function NotificationCenter() {
           type="button"
           onClick={markAllRead}
           disabled={busy || unreadCount === 0}
-          className="secondary-button inline-flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-45"
+          className="secondary-button inline-flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-45 sm:w-auto"
         >
           <CheckCheck aria-hidden="true" size={18} />
           Mark all as read
@@ -120,7 +122,7 @@ function NotificationCenter() {
             key={value}
             type="button"
             onClick={() => setFilter(value)}
-            className={`min-h-11 px-4 text-sm font-bold ${
+            className={`min-h-12 rounded-t-md px-4 text-sm font-bold ${
               filter === value
                 ? 'border-b-2 border-[#008ca6] text-[#008ca6]'
                 : 'text-[#66717c]'
@@ -143,7 +145,7 @@ function NotificationCenter() {
             Loading activity...
           </p>
         ) : visible.length === 0 ? (
-          <section className="surface p-10 text-center">
+          <section className="surface rounded-md p-7 text-center sm:p-10">
             <Bell
               aria-hidden="true"
               className="mx-auto text-[#008ca6]"
@@ -162,7 +164,7 @@ function NotificationCenter() {
               key={notification.id}
               type="button"
               onClick={() => void openNotification(notification)}
-              className={`surface grid w-full grid-cols-[12px_1fr_auto] items-start gap-4 p-5 text-left transition hover:border-[#008ca6]/45 ${
+              className={`surface grid w-full grid-cols-[12px_1fr] gap-3 rounded-md p-4 text-left transition hover:border-[#008ca6]/45 sm:grid-cols-[12px_1fr_auto] sm:gap-4 sm:p-5 ${
                 notification.read ? 'bg-white/70' : 'border-[#00a8c6] bg-white'
               }`}
             >
@@ -181,7 +183,7 @@ function NotificationCenter() {
                   {notification.message}
                 </span>
               </span>
-              <span className="whitespace-nowrap text-xs font-semibold text-[#7a878d]">
+              <span className="col-start-2 whitespace-nowrap text-xs font-semibold text-[#7a878d] sm:col-start-auto">
                 {formatNotificationTime(notification.createdAt)}
               </span>
             </button>
