@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import Link from 'next/link';
 import { fetchAdminData } from '@/app/lib/admin-client';
 import type {
   TalentProfile,
@@ -11,6 +12,13 @@ import { AdminActionButton } from '@/components/admin-action-button';
 import { AdminShell } from '@/components/admin-shell';
 import { EmptyState, ErrorState, LoadingState } from '@/components/async-state';
 import { VerifiedBadge } from '@/components/verified-badge';
+import {
+  AdminActionGroup,
+  AdminDangerActionGroup,
+  AdminInfo,
+  AdminPageHeader,
+  AdminStatusBadge,
+} from '@/components/admin-ui';
 
 type TalentReview = TalentVerification & {
   id: string;
@@ -34,12 +42,11 @@ export default function AdminTalentsPage() {
 
   return (
     <AdminShell>
-      <p className="eyebrow">Talent trust</p>
-      <h1 className="mt-2 text-4xl font-black">Talent verification</h1>
-      <p className="mt-3 max-w-3xl leading-7 text-[#657176]">
-        Review profile quality and identity context without blocking normal
-        Talent participation.
-      </p>
+      <AdminPageHeader
+        eyebrow="Talent trust"
+        title="Talent verification"
+        description="Review profile quality, completeness, media, and identity context without blocking normal Talent participation."
+      />
 
       {error && (
         <ErrorState
@@ -66,13 +73,30 @@ export default function AdminTalentsPage() {
               ? `${item.profile.firstName} ${item.profile.lastName}`.trim()
               : item.talentEmail || item.id;
             return (
-              <article key={item.id} className="surface p-6">
-                <div className="flex flex-wrap items-start justify-between gap-4">
+              <article
+                key={item.id}
+                className={`surface rounded-md p-5 sm:p-6 ${
+                  item.talentVerificationStatus === 'pending'
+                    ? 'border-[#e7ad2d]'
+                    : ''
+                }`}
+              >
+                <div className="grid gap-5 xl:grid-cols-[1fr_auto]">
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <p className="text-xs font-black uppercase text-[#008ca6]">
+                      <AdminStatusBadge
+                        tone={
+                          item.talentVerificationStatus === 'pending'
+                            ? 'attention'
+                            : item.talentVerificationStatus === 'verified'
+                              ? 'success'
+                              : item.talentVerificationStatus === 'suspended'
+                                ? 'danger'
+                                : 'muted'
+                        }
+                      >
                         {item.talentVerificationStatus.replace('_', ' ')}
-                      </p>
+                      </AdminStatusBadge>
                       {item.talentVerificationStatus === 'verified' && (
                         <VerifiedBadge subject="talent" />
                       )}
@@ -91,9 +115,9 @@ export default function AdminTalentsPage() {
                         : 'Disabled'}
                     </p>
                   </div>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="grid gap-3">
                     {item.talentVerificationStatus === 'pending' && (
-                      <>
+                      <AdminActionGroup>
                         <AdminActionButton
                           action="verify_talent"
                           targetId={item.id}
@@ -104,38 +128,42 @@ export default function AdminTalentsPage() {
                           action="reject_talent"
                           targetId={item.id}
                           label="Reject"
-                          tone="danger"
+                          tone="secondary"
                           onComplete={load}
                         />
-                      </>
+                      </AdminActionGroup>
                     )}
-                    {item.talentVerificationStatus === 'suspended' ? (
-                      <AdminActionButton
-                        action="restore_talent"
-                        targetId={item.id}
-                        label="Restore"
-                        tone="secondary"
-                        onComplete={load}
-                      />
-                    ) : item.talentVerificationStatus !== 'not_submitted' ? (
-                      <AdminActionButton
-                        action="suspend_talent"
-                        targetId={item.id}
-                        label="Suspend"
-                        tone="danger"
-                        onComplete={load}
-                      />
-                    ) : null}
+                    {item.talentVerificationStatus !== 'not_submitted' && (
+                      <AdminDangerActionGroup>
+                        {item.talentVerificationStatus === 'suspended' ? (
+                          <AdminActionButton
+                            action="restore_talent"
+                            targetId={item.id}
+                            label="Restore"
+                            tone="secondary"
+                            onComplete={load}
+                          />
+                        ) : (
+                          <AdminActionButton
+                            action="suspend_talent"
+                            targetId={item.id}
+                            label="Suspend"
+                            tone="danger"
+                            onComplete={load}
+                          />
+                        )}
+                      </AdminDangerActionGroup>
+                    )}
                     {item.profile?.publicProfileEnabled && (
-                      <>
-                        <a
+                      <AdminActionGroup title="Public profile">
+                        <Link
                           href={`/t/${item.profile.publicSlug}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex min-h-10 items-center border border-[#b8c7cd] bg-white px-3 text-xs font-black hover:border-[#008ca6]"
                         >
                           View public page
-                        </a>
+                        </Link>
                         <AdminActionButton
                           action="disable_public_profile"
                           targetId={item.id}
@@ -143,19 +171,19 @@ export default function AdminTalentsPage() {
                           tone="danger"
                           onComplete={load}
                         />
-                      </>
+                      </AdminActionGroup>
                     )}
                   </div>
                 </div>
 
                 {item.profile && (
                   <dl className="mt-5 grid gap-4 border-t border-[#e0e6e9] pt-5 sm:grid-cols-3">
-                    <Info label="Category" value={item.profile.category} />
-                    <Info
+                    <AdminInfo label="Category" value={item.profile.category} />
+                    <AdminInfo
                       label="Experience"
                       value={item.profile.experienceLevel}
                     />
-                    <Info
+                    <AdminInfo
                       label="Location"
                       value={item.profile.location || 'Not provided'}
                     />
@@ -171,15 +199,15 @@ export default function AdminTalentsPage() {
                     </div>
                     <div className="mt-3 grid gap-3 md:grid-cols-2">
                       {item.media.map((media) => (
-                        <article
-                          key={media.id}
-                          className="border border-[#d8e1e5] p-4"
-                        >
+                      <article
+                        key={media.id}
+                          className="rounded-md border border-[#d8e1e5] p-4"
+                      >
                           <div className="flex items-start justify-between gap-3">
                             <div>
                               <p className="font-black">{media.title}</p>
                               <p className="mt-1 text-xs font-bold uppercase text-[#718087]">
-                                {media.type.replace('_', ' ')} ·{' '}
+                                {media.type.replace('_', ' ')} /{' '}
                                 {media.moderationStatus}
                               </p>
                             </div>
@@ -194,9 +222,9 @@ export default function AdminTalentsPage() {
                               </a>
                             )}
                           </div>
-                          <div className="mt-4 flex flex-wrap gap-2">
+                          <div className="mt-4">
                             {media.moderationStatus === 'active' ? (
-                              <>
+                              <AdminDangerActionGroup title="Media moderation">
                                 <AdminActionButton
                                   action="hide_media"
                                   targetId={`${item.id}:${media.id}`}
@@ -211,15 +239,17 @@ export default function AdminTalentsPage() {
                                   tone="danger"
                                   onComplete={load}
                                 />
-                              </>
+                              </AdminDangerActionGroup>
                             ) : (
-                              <AdminActionButton
-                                action="restore_media"
-                                targetId={`${item.id}:${media.id}`}
-                                label="Restore"
-                                tone="secondary"
-                                onComplete={load}
-                              />
+                              <AdminActionGroup title="Media moderation">
+                                <AdminActionButton
+                                  action="restore_media"
+                                  targetId={`${item.id}:${media.id}`}
+                                  label="Restore"
+                                  tone="secondary"
+                                  onComplete={load}
+                                />
+                              </AdminActionGroup>
                             )}
                           </div>
                         </article>
@@ -238,14 +268,5 @@ export default function AdminTalentsPage() {
         </div>
       )}
     </AdminShell>
-  );
-}
-
-function Info({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <dt className="text-xs font-black uppercase text-[#7c8990]">{label}</dt>
-      <dd className="mt-1 font-bold">{value}</dd>
-    </div>
   );
 }

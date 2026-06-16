@@ -17,6 +17,14 @@ import type {
 import { AdminActionButton } from '@/components/admin-action-button';
 import { AdminShell } from '@/components/admin-shell';
 import { EmptyState, ErrorState, LoadingState } from '@/components/async-state';
+import {
+  AdminActionGroup,
+  AdminDangerActionGroup,
+  AdminInfo,
+  AdminPageHeader,
+  AdminStatusBadge,
+  type AdminStatusTone,
+} from '@/components/admin-ui';
 
 type ReportEvent = {
   id: string;
@@ -42,15 +50,14 @@ const priorityOptions: Array<'all' | ReportPriority> = [
   'low',
 ];
 
-const badge = (value: string) => {
-  const tone =
-    value === 'urgent' || value === 'high' || value === 'open'
-      ? 'border-red-200 bg-red-50 text-red-800'
-      : value === 'resolved' || value === 'dismissed'
-        ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
-        : 'border-[#bfd0d7] bg-[#f3f8fa] text-[#31525f]';
-  return `border px-2 py-1 text-[10px] font-black uppercase ${tone}`;
-};
+const badgeTone = (value: string): AdminStatusTone =>
+  value === 'urgent' || value === 'high' || value === 'open'
+    ? 'danger'
+    : value === 'resolved' || value === 'dismissed'
+      ? 'success'
+      : value === 'under_review'
+        ? 'attention'
+        : 'neutral';
 
 const actionForTarget = (report: AdminReport) => {
   if (report.targetType === 'audition') {
@@ -116,16 +123,19 @@ export default function AdminReportsPage() {
 
   return (
     <AdminShell>
-      <p className="eyebrow">Trust moderation</p>
-      <h1 className="mt-2 text-4xl font-black">Report queue</h1>
-      <p className="mt-3 max-w-3xl leading-7 text-[#657176]">
-        Review private abuse reports, inspect minimal evidence, and apply
-        proportionate platform actions. Reporter identity stays inside this
-        administrator workspace.
-      </p>
+      <AdminPageHeader
+        eyebrow="Trust moderation"
+        title="Report queue"
+        description="Review private abuse reports, inspect minimal evidence, and apply proportionate platform actions. Reporter identity stays inside this administrator workspace."
+      />
 
-      <div className="mt-7 grid gap-3 border border-[#cbd9df] bg-white p-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Filter label="Status" value={status} onChange={setStatus} options={statusOptions} />
+      <div className="surface mt-7 grid gap-3 rounded-md p-4 sm:grid-cols-2 xl:grid-cols-4">
+        <Filter
+          label="Status"
+          value={status}
+          onChange={setStatus}
+          options={statusOptions}
+        />
         <Filter
           label="Target"
           value={targetType}
@@ -163,7 +173,11 @@ export default function AdminReportsPage() {
           <LoadingState label="Loading private reports..." />
         ) : !error && filtered.length === 0 ? (
           <EmptyState
-            title="No reports match these filters"
+            title={
+              status === 'open'
+                ? 'No open reports right now'
+                : 'No reports match these filters'
+            }
             message="Open safety concerns will appear here as they are submitted."
           />
         ) : (
@@ -178,14 +192,18 @@ export default function AdminReportsPage() {
                   : null;
             return (
               <article key={report.id} className="surface p-5 sm:p-6">
-                <div className="flex flex-wrap items-start justify-between gap-4">
+                <div className="grid gap-5 xl:grid-cols-[1fr_auto]">
                   <div>
                     <div className="flex flex-wrap gap-2">
-                      <span className={badge(report.priority)}>{report.priority}</span>
-                      <span className={badge(report.status)}>{report.status}</span>
-                      <span className={badge(report.targetType)}>
+                      <AdminStatusBadge tone={badgeTone(report.priority)}>
+                        {report.priority}
+                      </AdminStatusBadge>
+                      <AdminStatusBadge tone={badgeTone(report.status)}>
+                        {report.status}
+                      </AdminStatusBadge>
+                      <AdminStatusBadge tone="muted">
                         {report.targetType}
-                      </span>
+                      </AdminStatusBadge>
                     </div>
                     <h2 className="mt-3 text-xl font-black">
                       {REPORT_REASON_LABELS[report.reasonCode]}
@@ -193,56 +211,66 @@ export default function AdminReportsPage() {
                     <p className="mt-2 text-sm text-[#657176]">
                       Target: {report.targetId}
                     </p>
-                    <p className="mt-1 text-xs text-[#7d898f]">
-                      Reporter: {report.reporterRole} / {report.reporterId}
-                    </p>
-                    <p className="mt-1 text-xs text-[#7d898f]">
-                      Target owner: {report.targetOwnerId ?? 'Not available'}
-                    </p>
+                    <dl className="mt-4 grid gap-4 sm:grid-cols-2">
+                      <AdminInfo
+                        label="Reporter"
+                        value={`${report.reporterRole} / ${report.reporterId}`}
+                      />
+                      <AdminInfo
+                        label="Target owner"
+                        value={report.targetOwnerId ?? 'Not available'}
+                      />
+                    </dl>
                   </div>
                   {!closed ? (
-                    <div className="flex flex-wrap gap-2">
-                      {report.status === 'open' && (
+                    <div className="grid gap-3">
+                      <AdminActionGroup title="Case handling">
+                        {report.status === 'open' && (
+                          <AdminActionButton
+                            action="review_report"
+                            targetId={report.id}
+                            label="Start review"
+                            tone="secondary"
+                            onComplete={load}
+                          />
+                        )}
                         <AdminActionButton
-                          action="review_report"
+                          action="resolve_report"
                           targetId={report.id}
-                          label="Start review"
+                          label="Resolve without action"
                           tone="secondary"
                           onComplete={load}
                         />
-                      )}
-                      {targetAction && (
                         <AdminActionButton
-                          action={targetAction[0]}
+                          action="dismiss_report"
                           targetId={report.id}
-                          label={targetAction[1]}
-                          tone="danger"
+                          label="Dismiss"
+                          tone="secondary"
                           onComplete={load}
                         />
+                      </AdminActionGroup>
+                      {targetAction && (
+                        <AdminDangerActionGroup title="Target enforcement">
+                          <AdminActionButton
+                            action={targetAction[0]}
+                            targetId={report.id}
+                            label={targetAction[1]}
+                            tone="danger"
+                            onComplete={load}
+                          />
+                        </AdminDangerActionGroup>
                       )}
-                      <AdminActionButton
-                        action="resolve_report"
-                        targetId={report.id}
-                        label="Resolve without action"
-                        tone="secondary"
-                        onComplete={load}
-                      />
-                      <AdminActionButton
-                        action="dismiss_report"
-                        targetId={report.id}
-                        label="Dismiss"
-                        tone="secondary"
-                        onComplete={load}
-                      />
                     </div>
                   ) : restoreAction ? (
-                    <AdminActionButton
-                      action={restoreAction[0]}
-                      targetId={report.id}
-                      label={restoreAction[1]}
-                      tone="secondary"
-                      onComplete={load}
-                    />
+                    <AdminActionGroup title="Restoration">
+                      <AdminActionButton
+                        action={restoreAction[0]}
+                        targetId={report.id}
+                        label={restoreAction[1]}
+                        tone="secondary"
+                        onComplete={load}
+                      />
+                    </AdminActionGroup>
                   ) : null}
                 </div>
 

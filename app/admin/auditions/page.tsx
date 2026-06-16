@@ -5,6 +5,15 @@ import { fetchAdminData } from '@/app/lib/admin-client';
 import { AdminActionButton } from '@/components/admin-action-button';
 import { AdminShell } from '@/components/admin-shell';
 import { EmptyState, ErrorState, LoadingState } from '@/components/async-state';
+import {
+  AdminActionGroup,
+  AdminDangerActionGroup,
+  AdminInfo,
+  AdminMetricCard,
+  AdminPageHeader,
+  AdminStatusBadge,
+  type AdminStatusTone,
+} from '@/components/admin-ui';
 
 type AuditionRow = {
   id: string;
@@ -14,6 +23,9 @@ type AuditionRow = {
   status?: string;
   moderationStatus?: string;
 };
+
+const moderationTone = (status?: string): AdminStatusTone =>
+  status === 'REMOVED' ? 'danger' : 'success';
 
 export default function AdminAuditionsPage() {
   const [items, setItems] = useState<AuditionRow[]>([]);
@@ -41,17 +53,41 @@ export default function AdminAuditionsPage() {
       ),
     [items, search]
   );
+  const removedCount = items.filter(
+    (item) => item.moderationStatus === 'REMOVED'
+  ).length;
+  const visibleCount = items.length - removedCount;
 
   return (
     <AdminShell>
-      <p className="eyebrow">Casting quality</p>
-      <h1 className="mt-2 text-4xl font-black">Audition moderation</h1>
-      <input
-        className="field mt-6 max-w-xl"
-        placeholder="Search title, company, or location"
-        value={search}
-        onChange={(event) => setSearch(event.target.value)}
+      <AdminPageHeader
+        eyebrow="Casting quality"
+        title="Audition moderation"
+        description="Review active casting calls, remove unsafe or low-trust posts, and restore only after the recruiter fixes the concern."
       />
+      <section className="mt-7 grid gap-4 sm:grid-cols-3">
+        <AdminMetricCard label="Total auditions" value={items.length} />
+        <AdminMetricCard
+          label="Visible"
+          value={visibleCount}
+          tone="success"
+          detail="Available to Talent"
+        />
+        <AdminMetricCard
+          label="Removed"
+          value={removedCount}
+          tone={removedCount > 0 ? 'danger' : 'success'}
+          detail="Hidden from marketplace"
+        />
+      </section>
+      <div className="surface mt-6 rounded-md p-4">
+        <input
+          className="field max-w-xl"
+          placeholder="Search title, company, or location"
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+        />
+      </div>
 
       {error && (
         <ErrorState
@@ -76,33 +112,41 @@ export default function AdminAuditionsPage() {
           {filtered.map((item) => (
             <article
               key={item.id}
-              className="surface flex flex-wrap items-center justify-between gap-5 p-5"
+              className="surface grid gap-5 rounded-md p-5 lg:grid-cols-[1fr_auto]"
             >
               <div>
-                <p className="text-xs font-black uppercase text-[#008ca6]">
-                  {item.status} / {item.moderationStatus || 'VISIBLE'}
-                </p>
+                <div className="flex flex-wrap gap-2">
+                  <AdminStatusBadge>{item.status || 'UNKNOWN'}</AdminStatusBadge>
+                  <AdminStatusBadge tone={moderationTone(item.moderationStatus)}>
+                    {item.moderationStatus || 'VISIBLE'}
+                  </AdminStatusBadge>
+                </div>
                 <h2 className="mt-2 text-xl font-black">{item.title}</h2>
-                <p className="mt-1 text-sm text-[#657176]">
-                  {item.recruiterName} / {item.location}
-                </p>
+                <dl className="mt-4 grid gap-4 sm:grid-cols-2">
+                  <AdminInfo label="Recruiter" value={item.recruiterName} />
+                  <AdminInfo label="Location" value={item.location} />
+                </dl>
               </div>
               {item.moderationStatus === 'REMOVED' ? (
-                <AdminActionButton
-                  action="restore_audition"
-                  targetId={item.id}
-                  label="Restore"
-                  tone="secondary"
-                  onComplete={load}
-                />
+                <AdminActionGroup title="Restoration">
+                  <AdminActionButton
+                    action="restore_audition"
+                    targetId={item.id}
+                    label="Restore"
+                    tone="secondary"
+                    onComplete={load}
+                  />
+                </AdminActionGroup>
               ) : (
-                <AdminActionButton
-                  action="remove_audition"
-                  targetId={item.id}
-                  label="Remove"
-                  tone="danger"
-                  onComplete={load}
-                />
+                <AdminDangerActionGroup title="Casting enforcement">
+                  <AdminActionButton
+                    action="remove_audition"
+                    targetId={item.id}
+                    label="Remove"
+                    tone="danger"
+                    onComplete={load}
+                  />
+                </AdminDangerActionGroup>
               )}
             </article>
           ))}

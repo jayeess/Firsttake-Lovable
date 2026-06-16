@@ -6,6 +6,17 @@ import type { Conversation } from '@/app/lib/types';
 import { AdminActionButton } from '@/components/admin-action-button';
 import { AdminShell } from '@/components/admin-shell';
 import { EmptyState, ErrorState, LoadingState } from '@/components/async-state';
+import {
+  AdminDangerActionGroup,
+  AdminInfo,
+  AdminMetricCard,
+  AdminPageHeader,
+  AdminStatusBadge,
+  type AdminStatusTone,
+} from '@/components/admin-ui';
+
+const conversationTone = (status?: string): AdminStatusTone =>
+  status === 'active' ? 'success' : status === 'blocked' ? 'danger' : 'muted';
 
 export default function AdminMessagesPage() {
   const [items, setItems] = useState<Conversation[]>([]);
@@ -26,16 +37,31 @@ export default function AdminMessagesPage() {
   }, []);
 
   useEffect(load, [load]);
+  const activeCount = items.filter((item) => item.status === 'active').length;
+  const blockedCount = items.filter((item) => item.status === 'blocked').length;
 
   return (
     <AdminShell>
-      <p className="eyebrow">Communication safety</p>
-      <h1 className="mt-2 text-4xl font-black">Conversation moderation</h1>
-      <p className="mt-3 max-w-3xl leading-7 text-[#657176]">
-        Review application-linked conversation metadata and close unsafe
-        threads. Message content remains participant-scoped unless a future
-        report workflow explicitly escalates it.
-      </p>
+      <AdminPageHeader
+        eyebrow="Communication safety"
+        title="Conversation moderation"
+        description="Review application-linked conversation metadata and close unsafe threads. Message content remains participant-scoped unless a report workflow explicitly escalates it."
+      />
+      <section className="mt-7 grid gap-4 sm:grid-cols-3">
+        <AdminMetricCard label="Conversations" value={items.length} />
+        <AdminMetricCard
+          label="Active"
+          value={activeCount}
+          tone="success"
+          detail="Open participant threads"
+        />
+        <AdminMetricCard
+          label="Blocked"
+          value={blockedCount}
+          tone={blockedCount > 0 ? 'danger' : 'success'}
+          detail="Closed for safety"
+        />
+      </section>
 
       {error && (
         <ErrorState
@@ -58,31 +84,37 @@ export default function AdminMessagesPage() {
           />
         ) : (
           items.map((conversation) => (
-            <article key={conversation.id} className="surface p-5">
-              <div className="flex flex-wrap items-start justify-between gap-4">
+            <article key={conversation.id} className="surface rounded-md p-5">
+              <div className="grid gap-5 lg:grid-cols-[1fr_auto]">
                 <div>
-                  <p className="text-xs font-black uppercase text-[#008ca6]">
+                  <AdminStatusBadge tone={conversationTone(conversation.status)}>
                     {conversation.status}
-                  </p>
+                  </AdminStatusBadge>
                   <h2 className="mt-2 text-xl font-black">
                     {conversation.auditionTitleSnapshot}
                   </h2>
-                  <p className="mt-2 text-sm text-[#657176]">
-                    {conversation.recruiterNameSnapshot} and{' '}
-                    {conversation.talentNameSnapshot}
-                  </p>
-                  <p className="mt-2 text-xs text-[#7b898f]">
-                    Conversation ID: {conversation.id}
-                  </p>
+                  <dl className="mt-4 grid gap-4 sm:grid-cols-3">
+                    <AdminInfo
+                      label="Recruiter"
+                      value={conversation.recruiterNameSnapshot}
+                    />
+                    <AdminInfo
+                      label="Talent"
+                      value={conversation.talentNameSnapshot}
+                    />
+                    <AdminInfo label="Conversation ID" value={conversation.id} />
+                  </dl>
                 </div>
                 {conversation.status === 'active' && (
-                  <AdminActionButton
-                    action="block_conversation"
-                    targetId={conversation.id}
-                    label="Block conversation"
-                    tone="danger"
-                    onComplete={load}
-                  />
+                  <AdminDangerActionGroup title="Conversation enforcement">
+                    <AdminActionButton
+                      action="block_conversation"
+                      targetId={conversation.id}
+                      label="Block conversation"
+                      tone="danger"
+                      onComplete={load}
+                    />
+                  </AdminDangerActionGroup>
                 )}
               </div>
             </article>

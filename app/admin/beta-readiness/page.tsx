@@ -4,6 +4,11 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { fetchAdminData } from '@/app/lib/admin-client';
 import { AdminShell } from '@/components/admin-shell';
 import { ErrorState, LoadingState } from '@/components/async-state';
+import {
+  AdminInfo,
+  AdminPageHeader,
+  AdminStatusBadge,
+} from '@/components/admin-ui';
 
 type BetaReadinessData = {
   checks: Record<string, boolean | number>;
@@ -75,6 +80,41 @@ const operations = [
   ],
 ] as const;
 
+const launchAreas = [
+  [
+    'Production status',
+    'Confirm Vercel production is on the latest commit and Firebase rules/indexes match the deployed code.',
+  ],
+  [
+    'Firebase',
+    'Check Auth providers, Firestore rules, indexes, Storage rules, admin claims, and service account env configuration.',
+  ],
+  [
+    'Vercel',
+    'Verify public Firebase env vars, server-only Admin SDK env vars, Node runtime, and production build logs.',
+  ],
+  [
+    'Auth and security',
+    'Retest signed-out redirects, role routes, admin-only APIs, custom claims, and account suspension flows.',
+  ],
+  [
+    'Content and legal',
+    'Prepare report handling guidance, prohibited content language, privacy copy, and escalation process.',
+  ],
+  [
+    'Support',
+    'Define a support inbox, response owner, launch-day monitoring window, and rollback contact.',
+  ],
+  [
+    'User testing',
+    'Run one Talent journey, one Recruiter journey, one admin verification journey, and one report moderation journey.',
+  ],
+  [
+    'Known limitations',
+    'Document unfinished automation, manual verification steps, and any beta-only restrictions before inviting users.',
+  ],
+] as const;
+
 export default function AdminBetaReadinessPage() {
   const [data, setData] = useState<BetaReadinessData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -107,12 +147,11 @@ export default function AdminBetaReadinessPage() {
 
   return (
     <AdminShell>
-      <p className="eyebrow">Production beta readiness</p>
-      <h1 className="mt-2 text-4xl font-black">Launch control checklist</h1>
-      <p className="mt-3 max-w-3xl leading-7 text-[#657176]">
-        Confirm the production Firebase connection, admin operations, and manual
-        launch workflow before inviting real beta users.
-      </p>
+      <AdminPageHeader
+        eyebrow="Production beta readiness"
+        title="Launch control checklist"
+        description="Confirm the production Firebase connection, admin operations, and manual launch workflow before inviting real beta users."
+      />
 
       {error && (
         <ErrorState
@@ -159,19 +198,23 @@ export default function AdminBetaReadinessPage() {
                       </p>
                       <h2 className="mt-2 font-black">{title}</h2>
                     </div>
-                    <span
-                      className={`border px-2 py-1 text-[10px] font-black uppercase ${
-                        ok
-                          ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
-                          : 'border-amber-300 bg-amber-50 text-amber-900'
-                      }`}
-                    >
+                    <AdminStatusBadge tone={ok ? 'success' : 'attention'}>
                       {ok ? 'Ready' : 'Needs check'}
-                    </span>
+                    </AdminStatusBadge>
                   </div>
                 </article>
               );
             })}
+          </section>
+
+          <section className="surface mt-7 p-6">
+            <p className="eyebrow">Launch review areas</p>
+            <h2 className="mt-2 text-2xl font-black">Manual beta checklist</h2>
+            <dl className="mt-5 grid gap-4 md:grid-cols-2">
+              {launchAreas.map(([title, description]) => (
+                <AdminInfo key={title} label={title} value={description} />
+              ))}
+            </dl>
           </section>
 
           <section className="surface mt-7 p-6">
