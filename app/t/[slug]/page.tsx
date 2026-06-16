@@ -14,6 +14,7 @@ import { VerifiedBadge } from '@/components/verified-badge';
 import { ReportButton } from '@/components/report-button';
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 type PublicTalentPageProps = {
   params: Promise<{ slug: string }>;

@@ -23,6 +23,7 @@ import {
   getFirebaseClientConfigErrorMessage,
   getMissingFirebaseClientConfigKeys,
 } from '../app/lib/firebase.ts';
+import nextConfig from '../next.config.ts';
 
 test('environment validation reports missing names without values', () => {
   const env = {
@@ -169,4 +170,11 @@ test('app URL helper normalizes production URLs without exposing secrets', () =>
   });
   assert.equal(getRequestOrigin(request), 'https://app.example.com');
   assert.equal(getAppBaseUrl(undefined, {}), 'http://localhost:3000');
+});
+
+test('Next config externalizes Firebase Admin for server runtimes', () => {
+  assert.ok(
+    nextConfig.serverExternalPackages?.includes('firebase-admin'),
+    'firebase-admin must stay externalized for Vercel server functions'
+  );
 });
