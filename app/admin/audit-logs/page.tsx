@@ -5,57 +5,43 @@ import { fetchAdminData } from '@/app/lib/admin-client';
 import { AdminShell } from '@/components/admin-shell';
 import { EmptyState, ErrorState, LoadingState } from '@/components/async-state';
 import {
-  AdminInfo,
+  AdminAuditLogList,
+  getAuditActionTone,
+  type AdminAuditLogEntry,
+} from '@/components/admin-audit-log';
+import {
   AdminMetricCard,
   AdminPageHeader,
-  AdminStatusBadge,
-  type AdminStatusTone,
 } from '@/components/admin-ui';
 
-type LogRow = {
-  id: string;
-  action?: string;
-  actorEmail?: string;
-  actorUid?: string;
-  targetId?: string;
-  reason?: string;
-  note?: string;
-};
-
-const actionTone = (action?: string): AdminStatusTone =>
-  action?.includes('reject') ||
-  action?.includes('suspend') ||
-  action?.includes('remove') ||
-  action?.includes('block') ||
-  action?.includes('hide')
-    ? 'danger'
-    : action?.includes('approve') ||
-        action?.includes('verify') ||
-        action?.includes('restore')
-      ? 'success'
-      : 'neutral';
-
 export default function AdminAuditLogsPage() {
-  const [logs, setLogs] = useState<LogRow[]>([]);
+  const [logs, setLogs] = useState<AdminAuditLogEntry[]>([]);
   const [action, setAction] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
-    void fetchAdminData<{ logs: LogRow[] }>('auditLogs')
+    void fetchAdminData<{ logs: AdminAuditLogEntry[] }>('auditLogs')
       .then((data) => setLogs(data.logs))
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, [reloadKey]);
 
   const actions = useMemo(
-    () => Array.from(new Set(logs.map((log) => log.action).filter(Boolean))),
+    () =>
+      Array.from(
+        new Set(
+          logs
+            .map((log) => log.action)
+            .filter((value): value is string => Boolean(value))
+        )
+      ),
     [logs]
   );
   const filtered = logs.filter((log) => !action || log.action === action);
   const enforcementCount = logs.filter(
-    (log) => actionTone(log.action) === 'danger'
+    (log) => getAuditActionTone(log.action) === 'danger'
   ).length;
 
   return (
@@ -116,29 +102,8 @@ export default function AdminAuditLogsPage() {
           message="Privileged admin actions will appear here with their actor and target."
         />
       ) : !error ? (
-        <div className="surface mt-6 divide-y divide-[#e0e6e9]">
-          {filtered.map((log) => (
-            <article
-              key={log.id}
-              className="grid gap-4 p-5 lg:grid-cols-[1.2fr_1fr_2fr]"
-            >
-              <div>
-                <AdminStatusBadge tone={actionTone(log.action)}>
-                  {log.action}
-                </AdminStatusBadge>
-                <dl className="mt-3">
-                  <AdminInfo
-                    label="Actor"
-                    value={log.actorEmail || log.actorUid}
-                  />
-                </dl>
-              </div>
-              <AdminInfo label="Target" value={log.targetId} />
-              <p className="text-sm leading-6 text-[#526874]">
-                {log.reason || log.note || 'No note supplied'}
-              </p>
-            </article>
-          ))}
+        <div className="mt-6">
+          <AdminAuditLogList logs={filtered} />
         </div>
       ) : null}
     </AdminShell>

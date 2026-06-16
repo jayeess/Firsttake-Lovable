@@ -6,6 +6,10 @@ import { AdminShell } from '@/components/admin-shell';
 import { fetchAdminData } from '@/app/lib/admin-client';
 import { ErrorState, LoadingState } from '@/components/async-state';
 import {
+  AdminAuditLogList,
+  type AdminAuditLogEntry,
+} from '@/components/admin-audit-log';
+import {
   AdminEmptyState,
   AdminMetricCard,
   AdminPageHeader,
@@ -14,7 +18,7 @@ import {
 
 type Overview = {
   stats: Record<string, number>;
-  logs: Array<Record<string, unknown>>;
+  logs: AdminAuditLogEntry[];
 };
 
 const labels: Record<string, string> = {
@@ -153,24 +157,7 @@ export default function AdminDashboardPage() {
                 message="Approval, suspension, restoration, and moderation activity will appear here."
               />
             ) : (
-              <div className="divide-y divide-[#e1e7ea]">
-                {data.logs.map((log) => (
-                  <div key={String(log.id)} className="grid gap-3 p-5 md:grid-cols-[1fr_1fr_2fr]">
-                    <div>
-                      <AdminStatusBadge>{String(log.action)}</AdminStatusBadge>
-                      <p className="mt-2 text-sm font-bold text-[#657176]">
-                        {String(log.actorEmail ?? log.actorUid ?? 'Admin')}
-                      </p>
-                    </div>
-                    <p className="text-sm text-[#657176]">
-                      Target: {String(log.targetId ?? log.targetUid ?? 'Unknown')}
-                    </p>
-                    <p className="text-sm leading-6 text-[#526874]">
-                      {String(log.reason ?? log.note ?? 'No note supplied')}
-                    </p>
-                  </div>
-                ))}
-              </div>
+              <AdminAuditLogList logs={data.logs} compact />
             )}
           </section>
         </>
