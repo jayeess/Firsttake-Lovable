@@ -14,7 +14,8 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "verify": "npm run lint && npm test && npm run build",
-    "admin:set": "node scripts/set-admin.mjs"
+    "admin:set": "node scripts/set-admin.mjs",
+    "demo:seed": "node scripts/seed-demo-data.mjs"
   },
   "dependencies": {
     "@next/env": "^16.2.7",

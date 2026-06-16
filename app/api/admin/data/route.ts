@@ -1,4 +1,8 @@
 import { requireAdmin, adminErrorResponse } from '@/app/lib/admin-server';
+import {
+  validatePublicFirebaseEnv,
+  validateServerFirebaseEnv,
+} from '@/app/lib/env-validation';
 import { getAdminDb } from '@/app/lib/firebase-admin';
 
 export const runtime = 'nodejs';
@@ -120,6 +124,33 @@ export async function GET(request: Request) {
         })
       );
       return Response.json({ reports });
+    }
+    if (view === 'betaReadiness') {
+      const [admins, users, recruiterVerifications, talentVerifications] =
+        await Promise.all([
+          db.collection('users').where('isAdmin', '==', true).limit(1).get(),
+          db.collection('users').limit(1).get(),
+          db.collection('recruiterVerifications').limit(1).get(),
+          db.collection('talentVerifications').limit(1).get(),
+        ]);
+      return Response.json({
+        checks: {
+          firebaseProjectConnected: true,
+          adminSdkConfigured: validateServerFirebaseEnv().ok,
+          publicFirebaseConfigured: validatePublicFirebaseEnv().ok,
+          adminUserExists: !admins.empty,
+          firestoreReachable: true,
+          anyUserExists: !users.empty,
+          recruiterVerificationEnabled: true,
+          talentVerificationEnabled: true,
+          recruiterVerificationRecords: recruiterVerifications.size,
+          talentVerificationRecords: talentVerifications.size,
+        },
+        env: {
+          public: validatePublicFirebaseEnv(),
+          server: validateServerFirebaseEnv(),
+        },
+      });
     }
 
     const [

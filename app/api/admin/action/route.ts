@@ -2,10 +2,12 @@ import { FieldValue } from 'firebase-admin/firestore';
 import {
   adminErrorResponse,
   AdminRequestError,
+  logAdminAction,
   requireAdmin,
   writeAuditLog,
 } from '@/app/lib/admin-server';
 import { getAdminAuth, getAdminDb } from '@/app/lib/firebase-admin';
+import { parseJsonBody } from '@/app/lib/api-helpers';
 import {
   createNotification,
   createNotifications,
@@ -43,11 +45,11 @@ const allowedActions = new Set([
 export async function POST(request: Request) {
   try {
     const actor = await requireAdmin(request);
-    const body = (await request.json()) as {
+    const body = await parseJsonBody<{
       action?: string;
       targetId?: string;
       reason?: string;
-    };
+    }>(request, 16_000);
     const action = body.action?.trim();
     const targetId = body.targetId?.trim();
     const reason = body.reason?.trim().slice(0, 1000);
@@ -55,6 +57,7 @@ export async function POST(request: Request) {
     if (!action || !allowedActions.has(action) || !targetId) {
       throw new AdminRequestError('A valid action and target are required.');
     }
+    logAdminAction(request, action, actor.uid, targetId);
     if (
       [
         'reject_recruiter',

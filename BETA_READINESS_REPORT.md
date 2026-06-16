@@ -1,5 +1,38 @@
 # Nata Connect Beta Readiness Report
 
+## Phase 3C Readiness Note
+
+Production beta hardening is now in place. The app validates required Firebase
+web and Admin SDK environment variable names without printing values, exposes an
+admin-only `/admin/beta-readiness` checklist, and documents launch operations
+for verification, moderation, reports, conversations, suspensions, rollback,
+and emergency disable actions.
+
+Current launch blockers:
+
+- No code-level blocker found in the latest local verification pass.
+- Production launch still requires Vercel environment variables to be reviewed
+  in the dashboard.
+- Firebase rules/indexes must be deployed whenever `firestore.rules` or
+  `firestore.indexes.json` changes.
+
+Recommended beta scope:
+
+- Invite a small controlled group of Talents, Recruiters, and one launch admin.
+- Use production for real accounts and the emulator-only demo seed for local
+  walkthroughs.
+- Keep reports and admin audit logs under daily review during the first beta
+  week.
+
+Production smoke checklist:
+
+- Auth signup/login/logout
+- Talent profile, trust, media, public profile
+- Recruiter verification and audition posting
+- Application submit and applicant pipeline decisions
+- Messaging, notifications, reports, and admin resolution
+- Mobile browser scan and desktop Chrome/Edge scan
+
 **Assessment date:** June 12, 2026
 **Recommended stage:** Controlled internal/private testing only  
 **Readiness score:** 7.5/10

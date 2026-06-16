@@ -165,6 +165,11 @@ test.describe('credential-backed role smoke', () => {
       'Conversation moderation'
     );
     await expectWorkspacePage(page, '/admin/reports', 'Report queue');
+    await expectWorkspacePage(
+      page,
+      '/admin/beta-readiness',
+      'Launch control checklist'
+    );
     await expectWorkspacePage(page, '/admin/audit-logs', 'Audit logs');
     await expectWorkspacePage(page, '/notifications', 'Notifications');
 

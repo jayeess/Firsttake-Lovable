@@ -6,6 +6,7 @@ import {
   writeAuditLog,
 } from '@/app/lib/admin-server';
 import { getAdminDb } from '@/app/lib/firebase-admin';
+import { parseJsonBody } from '@/app/lib/api-helpers';
 import {
   buildReportNotifications,
   getReportPriority,
@@ -26,12 +27,12 @@ export const runtime = 'nodejs';
 export async function POST(request: Request) {
   try {
     const actor = await requireUser(request);
-    const body = (await request.json()) as {
+    const body = await parseJsonBody<{
       targetType?: unknown;
       targetId?: unknown;
       reasonCode?: unknown;
       reasonText?: unknown;
-    };
+    }>(request, 12_000);
     if (!isReportTargetType(body.targetType)) {
       throw new AdminRequestError('A valid report target is required.');
     }

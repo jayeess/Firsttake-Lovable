@@ -402,3 +402,22 @@ npm run emulators:test
 npm run test:e2e
 git diff --check
 ```
+
+## Phase 3C Production Beta Readiness Checks
+
+1. Admin opens `/admin/beta-readiness`.
+2. Confirm Firebase project, Admin SDK, public env, admin user, feature, index,
+   QA, and deployment cards render.
+3. Temporarily remove one local env variable in a separate shell and confirm the
+   readiness response shows only the missing variable name, never a value.
+4. Review the embedded operations guide for recruiter, Talent, audition, media,
+   report, conversation, suspension, and escalation workflows.
+5. Confirm signed-out users are redirected from `/admin/beta-readiness` to
+   `/auth/login`.
+6. Confirm Talent and Recruiter accounts see the normal administrator access
+   denied screen.
+7. Run `npm run demo:seed -- --confirm-demo-data` only against the Firestore
+   emulator and confirm it refuses to run without `FIRESTORE_EMULATOR_HOST`.
+8. Production smoke test after deploy: signup/login, Talent profile save,
+   recruiter audition post, application submit, applicant review, media upload,
+   public profile load, message send, report submit, admin report resolve.

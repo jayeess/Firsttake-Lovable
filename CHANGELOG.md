@@ -1,5 +1,19 @@
 # Changelog
 
+### Phase 3C: Production Beta Readiness and Deployment Hardening
+
+- Added safe Firebase environment validation helpers for public and Admin SDK
+  configuration without printing secret values
+- Added lightweight server logging and JSON payload guard helpers
+- Added `/admin/beta-readiness` with launch checklist, environment status,
+  production commands, and admin operations guidance
+- Added an emulator-only `npm run demo:seed -- --confirm-demo-data` script for
+  safe local beta demos
+- Added oversized-payload guards to report creation and admin action APIs
+- Updated beta QA, readiness, deployment, and testing documentation
+- Added unit and Playwright coverage for environment validation, safe logging,
+  API helpers, and beta-readiness route protection
+
 ### Phase 3B: Reports, Abuse Handling, and Trust Moderation
 
 - Added private reports for auditions, public Talent profiles, public media,

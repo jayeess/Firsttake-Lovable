@@ -1,5 +1,24 @@
 # Nata Connect Private Beta QA Checklist
 
+## Phase 3C Production Readiness
+
+- [ ] Vercel has all required `NEXT_PUBLIC_FIREBASE_*` variables.
+- [ ] Vercel has `FIREBASE_ADMIN_PROJECT_ID`,
+  `FIREBASE_ADMIN_CLIENT_EMAIL`, and `FIREBASE_ADMIN_PRIVATE_KEY`.
+- [ ] `.env.local`, `.env.e2e.local`, service account JSON, private keys, and
+  debug logs are not committed.
+- [ ] `/admin/beta-readiness` loads for admin users only.
+- [ ] Readiness cards show Firebase, Admin SDK, features, QA, indexes, and
+  deployment notes.
+- [ ] Admin operations guide has been reviewed by the launch operator.
+- [ ] Firebase rules/index deploy command has been run if rules/indexes changed.
+- [ ] Production smoke test covers auth, Talent, Recruiter, applications,
+  applicant pipeline, media, public profiles, messaging, reports, and admin.
+- [ ] Emergency disable steps are rehearsed: public profile, user, audition,
+  conversation, and media.
+- [ ] Rollback path is known: redeploy last known good Vercel build and restore
+  previous Firebase rules/indexes if needed.
+
 Use this checklist before each private-beta release. Record the date, tester,
 browser, Firebase project, commit, and result for every run.
 

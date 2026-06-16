@@ -1,6 +1,7 @@
 import type { DecodedIdToken } from 'firebase-admin/auth';
 import { FieldValue } from 'firebase-admin/firestore';
 import { getAdminAuth, getAdminDb } from './firebase-admin';
+import { getRequestId, logServerEvent } from './server-logger';
 
 export class AdminRequestError extends Error {
   constructor(
@@ -25,8 +26,7 @@ export const requireUser = async (request: Request): Promise<DecodedIdToken> => 
     throw new AdminRequestError('Authentication is required.', 401);
   }
 
-  const token = await getAdminAuth().verifyIdToken(authorization.slice(7));
-  return token;
+  return getAdminAuth().verifyIdToken(authorization.slice(7));
 };
 
 export const writeAuditLog = async ({
@@ -79,12 +79,39 @@ export const adminErrorResponse = (error: unknown) => {
   if (error instanceof AdminRequestError) {
     return Response.json({ error: error.message }, { status: error.status });
   }
+  if (
+    typeof error === 'object' &&
+    error !== null &&
+    'status' in error &&
+    typeof error.status === 'number' &&
+    'message' in error &&
+    typeof error.message === 'string'
+  ) {
+    return Response.json(
+      { error: error.message },
+      { status: error.status }
+    );
+  }
 
-  console.error('Admin API request failed', {
+  logServerEvent('error', 'admin_api_request_failed', {
     name: error instanceof Error ? error.name : 'UnknownError',
   });
   return Response.json(
     { error: 'The secure admin service could not complete this request.' },
     { status: 500 }
   );
+};
+
+export const logAdminAction = (
+  request: Request,
+  action: string,
+  actorUid?: string,
+  targetId?: string
+) => {
+  logServerEvent('info', 'admin_action_requested', {
+    requestId: getRequestId(request),
+    action,
+    actorUid,
+    targetId,
+  });
 };

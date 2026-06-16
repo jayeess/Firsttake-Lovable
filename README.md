@@ -313,3 +313,51 @@ npx firebase-tools deploy --only firestore:rules,firestore:indexes --project nat
 ```
 
 Storage rules did not change in Phase 3B.
+
+## Production Beta Readiness
+
+Phase 3C adds a launch-readiness surface at `/admin/beta-readiness`. It checks
+safe configuration signals, confirms the Admin SDK can reach Firestore, and
+keeps admin operations guidance inside the protected workspace.
+
+Required Vercel environment variables:
+
+```text
+NEXT_PUBLIC_FIREBASE_API_KEY
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+NEXT_PUBLIC_FIREBASE_PROJECT_ID
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+NEXT_PUBLIC_FIREBASE_APP_ID
+FIREBASE_ADMIN_PROJECT_ID
+FIREBASE_ADMIN_CLIENT_EMAIL
+FIREBASE_ADMIN_PRIVATE_KEY
+```
+
+Use Vercel Project Settings -> Environment Variables. Paste the private key as a
+single value with escaped `\n` line breaks if needed. Never commit `.env.local`,
+`.env.e2e.local`, service account JSON, Firebase private keys, or debug logs.
+
+Production deploy checklist:
+
+```powershell
+npm run lint
+npm test
+npm run build
+npm run emulators:test
+npm run test:e2e
+npx firebase-tools deploy --only firestore:rules,firestore:indexes --project nata-connect-prod
+```
+
+Emergency admin actions are available through the admin workspace: disable a
+public profile, suspend a user, remove an audition, block a conversation, and
+hide media. Keep public communication generic and preserve audit logs.
+
+Optional local demo seed:
+
+```powershell
+$env:FIRESTORE_EMULATOR_HOST='127.0.0.1:8080'
+npm run demo:seed -- --confirm-demo-data
+```
+
+The seed script refuses to run unless it detects the Firestore emulator.
