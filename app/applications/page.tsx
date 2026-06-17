@@ -7,6 +7,8 @@ import { StatusBadge } from '@/components/status-badge';
 import {
   deleteApplication,
   getTalentApplications,
+  removeSelfTape,
+  submitSelfTapeLink,
 } from '@/app/lib/firestore-service';
 import {
   APPLICATION_PIPELINE_STATUSES,
@@ -22,6 +24,12 @@ import { useAuth } from '@/context/auth-context';
 import { ApplicationMessageButton } from '@/components/application-message-button';
 import { getConversations } from '@/app/lib/messaging-client';
 import { getConversationId } from '@/app/lib/messaging-policy';
+import {
+  getSelfTapeBadgeTone,
+  getSelfTapeStatus,
+  SELF_TAPE_STATUS_LABELS,
+  validateSelfTapeLink,
+} from '@/app/lib/self-tape-policy';
 
 const tabs: Array<ApplicationStatus | 'ALL'> = [
   'ALL',
@@ -36,6 +44,8 @@ export default function ApplicationsPage() {
   const [loading, setLoading] = useState(true);
   const [reloadKey, setReloadKey] = useState(0);
   const [withdrawingId, setWithdrawingId] = useState('');
+  const [selfTapeBusyId, setSelfTapeBusyId] = useState('');
+  const [selfTapeDrafts, setSelfTapeDrafts] = useState<Record<string, string>>({});
   const [unreadConversationIds, setUnreadConversationIds] = useState<Set<string>>(
     new Set()
   );
@@ -96,6 +106,77 @@ export default function ApplicationsPage() {
       );
     } finally {
       setWithdrawingId('');
+    }
+  };
+
+  const updateSelfTapeInState = (
+    application: Application,
+    updates: Partial<Application>
+  ) => {
+    setApplications((current) =>
+      current.map((item) =>
+        item.auditionId === application.auditionId && item.id === application.id
+          ? { ...item, ...updates }
+          : item
+      )
+    );
+  };
+
+  const submitSelfTape = async (application: Application) => {
+    const url =
+      selfTapeDrafts[application.id] ?? application.selfTapeSubmission?.url ?? '';
+    setSelfTapeBusyId(application.id);
+    setError('');
+    try {
+      const normalizedUrl = validateSelfTapeLink(url);
+      await submitSelfTapeLink(
+        application.auditionId,
+        application.id,
+        normalizedUrl
+      );
+      updateSelfTapeInState(application, {
+        selfTapeStatus: 'submitted',
+        selfTapeSubmission: {
+          type: 'link',
+          url: normalizedUrl,
+          updatedAt: new Date(),
+          submittedAt: new Date(),
+        },
+        selfTapeReviewedAt: undefined,
+      });
+      setSelfTapeDrafts((current) => ({
+        ...current,
+        [application.id]: normalizedUrl,
+      }));
+    } catch (submitError: unknown) {
+      setError(getErrorMessage(submitError, 'Unable to submit self-tape'));
+    } finally {
+      setSelfTapeBusyId('');
+    }
+  };
+
+  const removeSelfTapeSubmission = async (application: Application) => {
+    if (!window.confirm('Remove this self-tape link?')) return;
+    setSelfTapeBusyId(application.id);
+    setError('');
+    try {
+      await removeSelfTape(application.auditionId, application.id);
+      const nextStatus = application.audition?.selfTapeRequired
+        ? 'missing'
+        : 'requested';
+      updateSelfTapeInState(application, {
+        selfTapeStatus: nextStatus,
+        selfTapeSubmission: undefined,
+        selfTapeReviewedAt: undefined,
+      });
+      setSelfTapeDrafts((current) => ({
+        ...current,
+        [application.id]: '',
+      }));
+    } catch (removeError: unknown) {
+      setError(getErrorMessage(removeError, 'Unable to remove self-tape'));
+    } finally {
+      setSelfTapeBusyId('');
     }
   };
 
@@ -207,6 +288,25 @@ export default function ApplicationsPage() {
                     {application.rejectionReason}
                   </p>
                 )}
+              {application.audition?.selfTapeEnabled && (
+                <SelfTapePanel
+                  application={application}
+                  draftUrl={
+                    selfTapeDrafts[application.id] ??
+                    application.selfTapeSubmission?.url ??
+                    ''
+                  }
+                  busy={selfTapeBusyId === application.id}
+                  onDraftChange={(value) =>
+                    setSelfTapeDrafts((current) => ({
+                      ...current,
+                      [application.id]: value,
+                    }))
+                  }
+                  onSubmit={() => void submitSelfTape(application)}
+                  onRemove={() => void removeSelfTapeSubmission(application)}
+                />
+              )}
               <div className="mt-5 flex flex-col gap-3 border-t border-[#dce2e8] pt-4 sm:flex-row sm:flex-wrap sm:items-center">
                 <ApplicationMessageButton
                   auditionId={application.auditionId}
@@ -247,4 +347,136 @@ export default function ApplicationsPage() {
       </div>
     </AppShell>
   );
+}
+
+function SelfTapePanel({
+  application,
+  draftUrl,
+  busy,
+  onDraftChange,
+  onSubmit,
+  onRemove,
+}: {
+  application: Application;
+  draftUrl: string;
+  busy: boolean;
+  onDraftChange: (value: string) => void;
+  onSubmit: () => void;
+  onRemove: () => void;
+}) {
+  const status = getSelfTapeStatus(application, application.audition);
+  const locked =
+    getApplicationStatus(application) === 'WITHDRAWN' ||
+    isDeadlinePassed(application.audition?.deadline);
+  return (
+    <section className="mt-5 rounded-md border border-[#bad7d3] bg-[#edf7f5] p-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <p className="eyebrow">Self-tape</p>
+          <h3 className="mt-1 text-lg font-black">
+            {application.audition?.selfTapeRequired
+              ? 'Required self-tape'
+              : 'Optional self-tape'}
+          </h3>
+        </div>
+        <span
+          className={`inline-flex min-h-8 items-center rounded-md border px-3 text-xs font-black uppercase ${selfTapeToneClass(
+            getSelfTapeBadgeTone(status)
+          )}`}
+        >
+          {SELF_TAPE_STATUS_LABELS[status]}
+        </span>
+      </div>
+      <p className="mt-3 whitespace-pre-line text-sm leading-6 text-[#234b47]">
+        {application.audition?.selfTapeInstructions ||
+          'Submit an unlisted or private video link for this role.'}
+      </p>
+      {application.audition?.selfTapeMaxDurationSeconds && (
+        <p className="mt-2 text-xs font-bold uppercase text-[#657176]">
+          Suggested max duration:{' '}
+          {application.audition.selfTapeMaxDurationSeconds} seconds
+        </p>
+      )}
+      <label className="mt-4 block text-sm font-black">
+        Self-tape video link
+        <input
+          className="field mt-2 bg-white"
+          value={draftUrl}
+          onChange={(event) => onDraftChange(event.target.value)}
+          disabled={locked || busy}
+          placeholder="https://vimeo.com/... or unlisted YouTube link"
+          maxLength={500}
+        />
+      </label>
+      {application.selfTapeSubmission?.url && (
+        <a
+          href={application.selfTapeSubmission.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-3 inline-flex text-sm font-black text-[#008ca6]"
+        >
+          Open submitted self-tape
+        </a>
+      )}
+      {locked && (
+        <p className="mt-3 text-sm font-bold text-[#657176]">
+          Self-tape changes are locked because this application is no longer
+          active or the deadline has passed.
+        </p>
+      )}
+      {!locked && (
+        <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+          <button
+            type="button"
+            onClick={onSubmit}
+            disabled={busy}
+            className="primary-button sm:w-auto disabled:opacity-60"
+          >
+            {busy
+              ? 'Saving...'
+              : application.selfTapeSubmission?.url
+                ? 'Replace self-tape'
+                : 'Submit self-tape'}
+          </button>
+          {application.selfTapeSubmission?.url && (
+            <button
+              type="button"
+              onClick={onRemove}
+              disabled={busy}
+              className="secondary-button sm:w-auto disabled:opacity-60"
+            >
+              Remove self-tape
+            </button>
+          )}
+        </div>
+      )}
+    </section>
+  );
+}
+
+function isDeadlinePassed(deadline?: unknown) {
+  if (!deadline) return false;
+  if (deadline instanceof Date) {
+    return deadline.getTime() <= Date.now();
+  }
+  if (
+    typeof deadline === 'object' &&
+    deadline !== null &&
+    'toDate' in deadline &&
+    typeof deadline.toDate === 'function'
+  ) {
+    const date = deadline.toDate();
+    return date instanceof Date && date.getTime() <= Date.now();
+  }
+  return false;
+}
+
+function selfTapeToneClass(tone: string) {
+  return tone === 'danger'
+    ? 'border-red-200 bg-red-50 text-red-800'
+    : tone === 'attention'
+      ? 'border-amber-300 bg-amber-50 text-amber-900'
+      : tone === 'success'
+        ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+        : 'border-[#d3dde2] bg-white text-[#657176]';
 }

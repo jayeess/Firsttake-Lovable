@@ -31,6 +31,8 @@ const labels: Record<string, string> = {
   suspendedUsers: 'Suspended users',
   activeAuditions: 'Active auditions',
   totalApplications: 'Applications',
+  selfTapeRequests: 'Self-tape auditions',
+  selfTapeSubmissions: 'Self-tapes submitted',
 };
 
 export default function AdminDashboardPage() {

@@ -18,7 +18,12 @@ import {
   type TalentCategory,
   type WorkMode,
   type PaymentType,
+  type SelfTapeSubmissionType,
 } from '@/app/lib/types';
+import {
+  normalizeSelfTapeSubmissionTypes,
+  validateSelfTapeInstructions,
+} from '@/app/lib/self-tape-policy';
 import { getErrorMessage } from '@/app/lib/error-utils';
 import { useAuth } from '@/context/auth-context';
 import { DevFormPresets } from '@/components/dev-form-presets';
@@ -37,6 +42,11 @@ type AuditionForm = {
   auditionType: AuditionType;
   workMode: WorkMode;
   paymentType: PaymentType;
+  selfTapeEnabled: boolean;
+  selfTapeRequired: boolean;
+  selfTapeInstructions: string;
+  selfTapeSubmissionTypes: SelfTapeSubmissionType[];
+  selfTapeMaxDurationSeconds: number | null;
   deadline: string;
 };
 
@@ -54,6 +64,11 @@ const emptyAudition: AuditionForm = {
   auditionType: 'OTHER',
   workMode: 'ONSITE',
   paymentType: 'UNSPECIFIED',
+  selfTapeEnabled: false,
+  selfTapeRequired: false,
+  selfTapeInstructions: '',
+  selfTapeSubmissionTypes: ['link'],
+  selfTapeMaxDurationSeconds: null,
   deadline: '',
 };
 
@@ -85,6 +100,11 @@ const auditionPresets: Array<{
       auditionType: 'SERIES',
       workMode: 'ONSITE',
       paymentType: 'PAID',
+      selfTapeEnabled: false,
+      selfTapeRequired: false,
+      selfTapeInstructions: '',
+      selfTapeSubmissionTypes: ['link'],
+      selfTapeMaxDurationSeconds: null,
       deadline: dateFromToday(21),
     },
   },
@@ -105,6 +125,11 @@ const auditionPresets: Array<{
       auditionType: 'COMMERCIAL',
       workMode: 'ONSITE',
       paymentType: 'PAID',
+      selfTapeEnabled: false,
+      selfTapeRequired: false,
+      selfTapeInstructions: '',
+      selfTapeSubmissionTypes: ['link'],
+      selfTapeMaxDurationSeconds: null,
       deadline: dateFromToday(14),
     },
   },
@@ -125,6 +150,12 @@ const auditionPresets: Array<{
       auditionType: 'VOICE_OVER',
       workMode: 'REMOTE',
       paymentType: 'PAID',
+      selfTapeEnabled: true,
+      selfTapeRequired: true,
+      selfTapeInstructions:
+        'Submit a 60-90 second sample reading one warm commercial line in Hindi and one in English. Use a clean, quiet recording and share an unlisted video link.',
+      selfTapeSubmissionTypes: ['link'],
+      selfTapeMaxDurationSeconds: 90,
       deadline: dateFromToday(10),
     },
   },
@@ -145,6 +176,12 @@ const auditionPresets: Array<{
       auditionType: 'FILM',
       workMode: 'ONSITE',
       paymentType: 'PAID',
+      selfTapeEnabled: true,
+      selfTapeRequired: false,
+      selfTapeInstructions:
+        'Optional: share a recent 45-60 second movement clip that shows musicality and full-body framing.',
+      selfTapeSubmissionTypes: ['link'],
+      selfTapeMaxDurationSeconds: 60,
       deadline: dateFromToday(18),
     },
   },
@@ -165,6 +202,11 @@ const auditionPresets: Array<{
       auditionType: 'LIVE_EVENT',
       workMode: 'ONSITE',
       paymentType: 'PAID',
+      selfTapeEnabled: false,
+      selfTapeRequired: false,
+      selfTapeInstructions: '',
+      selfTapeSubmissionTypes: ['link'],
+      selfTapeMaxDurationSeconds: null,
       deadline: dateFromToday(12),
     },
   },
@@ -185,6 +227,12 @@ const auditionPresets: Array<{
       auditionType: 'FILM',
       workMode: 'ONSITE',
       paymentType: 'HONORARIUM',
+      selfTapeEnabled: true,
+      selfTapeRequired: true,
+      selfTapeInstructions:
+        'Record a 60-90 second self-tape introducing yourself and performing a short natural conversation beat. Phone video is fine; prioritize clear audio and light.',
+      selfTapeSubmissionTypes: ['link'],
+      selfTapeMaxDurationSeconds: 90,
       deadline: dateFromToday(9),
     },
   },
@@ -210,6 +258,17 @@ export default function NewAuditionPage() {
       setError('Choose a deadline in the future.');
       return;
     }
+    let selfTapeInstructions = '';
+    try {
+      selfTapeInstructions = validateSelfTapeInstructions(
+        form.selfTapeInstructions
+      );
+    } catch (validationError: unknown) {
+      setError(
+        getErrorMessage(validationError, 'Check the self-tape instructions.')
+      );
+      return;
+    }
     setSaving(true);
     setError('');
     try {
@@ -226,6 +285,15 @@ export default function NewAuditionPage() {
       }
       await createAudition(user.uid, {
         ...form,
+        selfTapeInstructions,
+        selfTapeSubmissionTypes: normalizeSelfTapeSubmissionTypes(
+          form.selfTapeEnabled,
+          form.selfTapeSubmissionTypes
+        ),
+        selfTapeMaxDurationSeconds:
+          form.selfTapeEnabled && form.selfTapeMaxDurationSeconds
+            ? Number(form.selfTapeMaxDurationSeconds)
+            : null,
         recruiterName: profile?.companyName ?? user.email ?? 'Recruiter',
         deadline: new Date(form.deadline),
         status,
@@ -238,7 +306,10 @@ export default function NewAuditionPage() {
     }
   };
 
-  const update = (key: keyof typeof form, value: string | number) =>
+  const update = (
+    key: keyof typeof form,
+    value: string | number | boolean | string[] | null
+  ) =>
     setForm((current) => ({ ...current, [key]: value }));
 
   return (
@@ -314,11 +385,128 @@ export default function NewAuditionPage() {
               <label className="mt-5 block text-sm font-bold">Role description<textarea required rows={7} value={form.description} onChange={(e) => update('description', e.target.value)} className="field mt-2" placeholder="Describe the project, character, tone, and what makes this role distinctive." /></label>
               <label className="mt-5 block text-sm font-bold">Requirements<textarea required rows={6} value={form.requirements} onChange={(e) => update('requirements', e.target.value)} className="field mt-2" placeholder="Skills, language, age range, availability, and portfolio expectations." /></label>
             </section>
+
+            <section className="surface p-6">
+              <p className="eyebrow">03 · Self-tape requirements</p>
+              <div className="mt-5 space-y-5">
+                <label className="flex items-start gap-3 rounded-md border border-[#d8e2e6] bg-[#f8fbfc] p-4">
+                  <input
+                    type="checkbox"
+                    checked={form.selfTapeEnabled}
+                    onChange={(event) => {
+                      update('selfTapeEnabled', event.target.checked);
+                      if (!event.target.checked) {
+                        setForm((current) => ({
+                          ...current,
+                          selfTapeRequired: false,
+                          selfTapeInstructions: '',
+                          selfTapeSubmissionTypes: ['link'],
+                          selfTapeMaxDurationSeconds: null,
+                        }));
+                      }
+                    }}
+                    className="mt-1 size-4 accent-[#008ca6]"
+                  />
+                  <span>
+                    <span className="block font-black">
+                      Request a self-tape from applicants
+                    </span>
+                    <span className="mt-1 block text-sm leading-6 text-[#657176]">
+                      Applicants will apply first, then submit their self-tape
+                      from My Applications. Self-tapes are visible only to the
+                      applicant, audition owner, and admins.
+                    </span>
+                  </span>
+                </label>
+
+                {form.selfTapeEnabled && (
+                  <div className="grid gap-5">
+                    <fieldset className="grid gap-3 rounded-md border border-[#d8e2e6] p-4 sm:grid-cols-2">
+                      <legend className="px-1 text-sm font-black">
+                        Requirement level
+                      </legend>
+                      <label className="flex items-center gap-2 font-bold">
+                        <input
+                          type="radio"
+                          checked={form.selfTapeRequired}
+                          onChange={() => update('selfTapeRequired', true)}
+                          className="accent-[#008ca6]"
+                        />
+                        Required
+                      </label>
+                      <label className="flex items-center gap-2 font-bold">
+                        <input
+                          type="radio"
+                          checked={!form.selfTapeRequired}
+                          onChange={() => update('selfTapeRequired', false)}
+                          className="accent-[#008ca6]"
+                        />
+                        Optional
+                      </label>
+                    </fieldset>
+
+                    <fieldset className="rounded-md border border-[#d8e2e6] p-4">
+                      <legend className="px-1 text-sm font-black">
+                        Accepted submission
+                      </legend>
+                      <div className="mt-2 grid gap-3 sm:grid-cols-2">
+                        <label className="flex items-center gap-2 font-bold">
+                          <input
+                            type="checkbox"
+                            checked
+                            readOnly
+                            className="accent-[#008ca6]"
+                          />
+                          External video link
+                        </label>
+                        <label className="flex items-center gap-2 font-bold text-[#839199]">
+                          <input type="checkbox" disabled />
+                          Upload video coming soon
+                        </label>
+                      </div>
+                      <p className="mt-3 text-sm leading-6 text-[#657176]">
+                        For beta safety, self-tapes use unlisted/private links
+                        from trusted video platforms. Direct uploads will be
+                        added after private video serving is finalized.
+                      </p>
+                    </fieldset>
+
+                    <label className="block text-sm font-bold">
+                      Instructions or prompt
+                      <textarea
+                        value={form.selfTapeInstructions}
+                        onChange={(event) =>
+                          update('selfTapeInstructions', event.target.value)
+                        }
+                        maxLength={1200}
+                        rows={5}
+                        className="field mt-2"
+                        placeholder="Example: Record a 60-second introduction and one short scene. Use clear audio, natural light, and an unlisted video link."
+                      />
+                    </label>
+
+                    <Input
+                      label="Max duration in seconds"
+                      type="number"
+                      value={String(form.selfTapeMaxDurationSeconds ?? '')}
+                      onChange={(value) =>
+                        update(
+                          'selfTapeMaxDurationSeconds',
+                          value ? Number(value) : null
+                        )
+                      }
+                      required={false}
+                      placeholder="Optional, e.g. 90"
+                    />
+                  </div>
+                )}
+              </div>
+            </section>
           </div>
 
           <aside className="space-y-5">
             <section className="surface p-5">
-              <p className="eyebrow">03 · Publishing</p>
+              <p className="eyebrow">04 · Publishing</p>
               <div className="mt-5 space-y-5">
                 <Input label="Positions" type="number" value={String(form.numberOfPositions)} onChange={(v) => update('numberOfPositions', Number(v))} />
                 <Input label="Application deadline" type="date" value={form.deadline} onChange={(v) => update('deadline', v)} />

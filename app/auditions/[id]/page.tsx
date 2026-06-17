@@ -163,6 +163,27 @@ export default function AuditionDetailPage() {
           </div>
           <Section title="About the role" body={audition.description} />
           <Section title="Requirements" body={audition.requirements} />
+          {audition.selfTapeEnabled && (
+            <section className="mt-7 rounded-md border border-[#bad7d3] bg-[#edf7f5] p-5">
+              <p className="eyebrow">Self-tape request</p>
+              <h2 className="mt-2 text-xl font-bold">
+                {audition.selfTapeRequired
+                  ? 'Self-tape required'
+                  : 'Optional self-tape'}
+              </h2>
+              <p className="mt-3 whitespace-pre-line leading-7 text-[#234b47]">
+                {audition.selfTapeInstructions ||
+                  'The recruiter has requested a self-tape video link for this role.'}
+              </p>
+              <p className="mt-3 text-sm font-bold text-[#526874]">
+                Submit your application first, then add or replace your
+                self-tape from My Applications.
+                {audition.selfTapeMaxDurationSeconds
+                  ? ` Suggested max duration: ${audition.selfTapeMaxDurationSeconds} seconds.`
+                  : ''}
+              </p>
+            </section>
+          )}
           {audition.payInfo && <Section title="Compensation" body={audition.payInfo} />}
         </article>
         <aside className="h-fit border border-[#d9dee5] bg-white p-5">

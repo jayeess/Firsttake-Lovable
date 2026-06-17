@@ -46,6 +46,13 @@ export type TalentVerificationStatus =
   | 'rejected'
   | 'suspended';
 export type ModerationStatus = 'VISIBLE' | 'REMOVED';
+export type SelfTapeSubmissionType = 'upload' | 'link';
+export type SelfTapeStatus =
+  | 'not_requested'
+  | 'requested'
+  | 'submitted'
+  | 'missing'
+  | 'reviewed';
 export type TalentMediaType =
   | 'image'
   | 'video_link'
@@ -70,6 +77,8 @@ export type NotificationType =
   | 'application_maybe'
   | 'application_rejected'
   | 'application_selected'
+  | 'self_tape_submitted'
+  | 'self_tape_reviewed'
   | 'audition_published'
   | 'audition_removed'
   | 'audition_restored'
@@ -314,6 +323,11 @@ export interface Audition {
   moderationReason?: string;
   recruiterVerified?: boolean;
   applicantCount: number;
+  selfTapeEnabled?: boolean;
+  selfTapeRequired?: boolean;
+  selfTapeInstructions?: string;
+  selfTapeSubmissionTypes?: SelfTapeSubmissionType[];
+  selfTapeMaxDurationSeconds?: number | null;
   createdAt?: Date | Timestamp;
   updatedAt?: Date | Timestamp;
 }
@@ -351,6 +365,18 @@ export interface Application {
     changedBy: string;
     changedAt?: Date | Timestamp;
   }>;
+  selfTapeStatus?: SelfTapeStatus;
+  selfTapeSubmission?: {
+    type: SelfTapeSubmissionType;
+    url?: string;
+    storagePath?: string;
+    fileName?: string;
+    contentType?: string;
+    sizeBytes?: number;
+    submittedAt?: Date | Timestamp;
+    updatedAt?: Date | Timestamp;
+  };
+  selfTapeReviewedAt?: Date | Timestamp;
   createdAt?: Date | Timestamp;
   lastStatusChange?: Date | Timestamp;
   updatedAt?: Date | Timestamp;

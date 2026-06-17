@@ -30,6 +30,8 @@ controlled private testing. It is not ready for a public production launch.
 - Recruiter-facing featured media and portfolio previews
 - Recruiter audition creation and applicant review
 - Talent audition discovery, application submission, and status tracking
+- Self-tape requests on auditions with Talent link submission and Recruiter
+  review status
 - Transactional duplicate-safe application submission
 - Text-based recruiter verification and admin review
 - Trusted custom-claim admin dashboard and moderation APIs
@@ -45,7 +47,9 @@ controlled private testing. It is not ready for a public production launch.
 - Development-only account personas and form presets
 - Firebase security rules, indexes, and Emulator Suite configuration
 
-See [PRODUCT_STATUS_AND_ROADMAP.md](PRODUCT_STATUS_AND_ROADMAP.md) for the full
+See [SELF_TAPE_SUBMISSIONS.md](SELF_TAPE_SUBMISSIONS.md) for the current
+self-tape workflow and upload roadmap. See
+[PRODUCT_STATUS_AND_ROADMAP.md](PRODUCT_STATUS_AND_ROADMAP.md) for the full
 product inventory and roadmap.
 
 ## Local Setup

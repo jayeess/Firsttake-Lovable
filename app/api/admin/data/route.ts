@@ -180,6 +180,7 @@ export async function GET(request: Request) {
     const userData = users.docs.map((item) => item.data());
     const verificationData = verifications.docs.map((item) => item.data());
     const auditionData = auditions.docs.map((item) => item.data());
+    const applicationData = applications.docs.map((item) => item.data());
 
     return Response.json({
       stats: {
@@ -203,6 +204,15 @@ export async function GET(request: Request) {
             item.status === 'ACTIVE' && item.moderationStatus !== 'REMOVED'
         ).length,
         totalApplications: applications.size,
+        selfTapeRequests: auditionData.filter(
+          (item) => item.selfTapeEnabled === true
+        ).length,
+        selfTapeSubmissions: applicationData.filter(
+          (item) =>
+            item.selfTapeStatus === 'submitted' ||
+            item.selfTapeStatus === 'reviewed' ||
+            Boolean(item.selfTapeSubmission)
+        ).length,
       },
       logs: serialize(logs),
     });

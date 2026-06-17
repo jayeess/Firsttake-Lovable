@@ -22,6 +22,7 @@ import {
   getStatusTimestampField,
   validateRecruiterReview,
 } from '@/app/lib/application-pipeline';
+import { getInitialSelfTapeStatus } from '@/app/lib/self-tape-policy';
 
 export const runtime = 'nodejs';
 
@@ -91,6 +92,10 @@ export async function POST(request: Request) {
         coverMessage: body.coverMessage?.trim().slice(0, 3000) ?? '',
         status: 'APPLIED',
         recruiterStatus: 'APPLIED',
+        selfTapeStatus: getInitialSelfTapeStatus({
+          selfTapeEnabled: audition?.selfTapeEnabled,
+          selfTapeRequired: audition?.selfTapeRequired,
+        }),
         statusUpdatedBy: actor.uid,
         statusUpdatedAt: FieldValue.serverTimestamp(),
         lastStatusChange: FieldValue.serverTimestamp(),

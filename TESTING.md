@@ -97,6 +97,8 @@ The dependency-free Node test suite currently covers application eligibility:
 - Talent/Recruiter application notification formatting
 - Messaging eligibility, deterministic conversation IDs, contact-detail
   detection, message validation, unread state, and message notifications
+- Self-tape status defaults, link validation, instruction sanitization, and
+  badge-tone policy
 
 These tests validate the shared policy used by the transactional Firestore
 submission path. Playwright additionally covers public pages and signed-out
@@ -172,6 +174,23 @@ after the run.
 9. As Talent, confirm each current status appears in My Applications.
 10. Confirm Talent cannot access recruiter creation/review actions.
 11. Confirm Recruiter cannot submit a Talent application.
+
+## Self-tape submission checks
+
+1. As Recruiter, publish a future-dated audition with self-tape enabled.
+2. Add clear instructions, mark it required, and keep submission type as link.
+3. As Talent, open the audition and confirm the self-tape prompt appears before
+   applying.
+4. Apply, then open `/applications` and submit an unlisted/private video link.
+5. Confirm the application card changes from Required missing to Submitted.
+6. Replace the link, then remove it, and confirm the status returns to Required
+   missing.
+7. Submit again and confirm Talent receives a notification.
+8. As the owning Recruiter, open the applicant pipeline, open the self-tape link,
+   and mark it reviewed.
+9. Confirm Talent sees the Reviewed state and a review notification.
+10. Confirm another Talent or another Recruiter cannot access or update the
+    self-tape through the UI.
 12. Log out in one tab and confirm the other tab remains signed in.
 
 Also test an expired audition and a closed audition. Neither should accept a

@@ -22,6 +22,8 @@ type AuditionRow = {
   location?: string;
   status?: string;
   moderationStatus?: string;
+  selfTapeEnabled?: boolean;
+  selfTapeRequired?: boolean;
 };
 
 const moderationTone = (status?: string): AdminStatusTone =>
@@ -120,6 +122,13 @@ export default function AdminAuditionsPage() {
                   <AdminStatusBadge tone={moderationTone(item.moderationStatus)}>
                     {item.moderationStatus || 'VISIBLE'}
                   </AdminStatusBadge>
+                  {item.selfTapeEnabled && (
+                    <AdminStatusBadge tone="attention">
+                      {item.selfTapeRequired
+                        ? 'Self-tape required'
+                        : 'Self-tape optional'}
+                    </AdminStatusBadge>
+                  )}
                 </div>
                 <h2 className="mt-2 text-xl font-black">{item.title}</h2>
                 <dl className="mt-4 grid gap-4 sm:grid-cols-2">

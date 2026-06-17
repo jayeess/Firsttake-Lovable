@@ -24,6 +24,7 @@ import { getErrorMessage } from '@/app/lib/error-utils';
 import {
   getAuditionApplicants,
   getAuditionById,
+  markSelfTapeReviewed,
   updateApplicationReview,
 } from '@/app/lib/firestore-service';
 import {
@@ -34,6 +35,11 @@ import {
   type Audition,
   type AuditionApplicant,
 } from '@/app/lib/types';
+import {
+  getSelfTapeBadgeTone,
+  getSelfTapeStatus,
+  SELF_TAPE_STATUS_LABELS,
+} from '@/app/lib/self-tape-policy';
 import { AppShell } from '@/components/app-shell';
 import { EmptyState, ErrorState, LoadingState } from '@/components/async-state';
 import { StatusBadge } from '@/components/status-badge';
@@ -168,6 +174,33 @@ export default function AuditionApplicantsPage() {
     } catch (err: unknown) {
       setError(getErrorMessage(err, 'Unable to update this application'));
       throw err;
+    } finally {
+      setBusyId('');
+    }
+  };
+
+  const reviewSelfTape = async (applicant: AuditionApplicant) => {
+    setBusyId(applicant.application.id);
+    setError('');
+    try {
+      await markSelfTapeReviewed(id, applicant.application.id);
+      setApplicants((current) =>
+        current.map((item) =>
+          item.application.id === applicant.application.id
+            ? {
+                ...item,
+                application: {
+                  ...item.application,
+                  selfTapeStatus: 'reviewed',
+                  selfTapeReviewedAt: new Date(),
+                  lastRecruiterActionAt: new Date(),
+                },
+              }
+            : item
+        )
+      );
+    } catch (reviewError: unknown) {
+      setError(getErrorMessage(reviewError, 'Unable to review self-tape'));
     } finally {
       setBusyId('');
     }
@@ -390,6 +423,7 @@ export default function AuditionApplicantsPage() {
             <ApplicantCard
               key={applicant.application.id}
               applicant={applicant}
+              audition={audition}
               auditionId={id}
               unread={unreadConversationIds.has(
                 getConversationId(id, applicant.application.id)
@@ -406,6 +440,7 @@ export default function AuditionApplicantsPage() {
               onUpdate={(review, reason) =>
                 updateReview(applicant, review, reason)
               }
+              onSelfTapeReviewed={() => reviewSelfTape(applicant)}
             />
           ))}
         {!loading && !error && visibleApplicants.length === 0 && (
@@ -469,14 +504,17 @@ function FilterToggle({
 
 function ApplicantCard({
   applicant,
+  audition,
   auditionId,
   unread,
   expanded,
   busy,
   onToggle,
   onUpdate,
+  onSelfTapeReviewed,
 }: {
   applicant: AuditionApplicant;
+  audition: Audition | null;
   auditionId: string;
   unread: boolean;
   expanded: boolean;
@@ -486,9 +524,13 @@ function ApplicantCard({
     review: RecruiterReviewInput,
     rejectionReason?: string
   ) => Promise<void>;
+  onSelfTapeReviewed: () => Promise<void>;
 }) {
   const { application, talent, media } = applicant;
   const status = getApplicationStatus(application);
+  const selfTapeStatus = getSelfTapeStatus(application, audition);
+  const showSelfTape =
+    audition?.selfTapeEnabled === true || selfTapeStatus !== 'not_requested';
   const name = talent
     ? `${talent.firstName} ${talent.lastName}`.trim()
     : application.talentEmail ?? 'Talent profile unavailable';
@@ -548,6 +590,15 @@ function ApplicantCard({
             </div>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            {showSelfTape && (
+              <span
+                className={`inline-flex min-h-8 items-center rounded-md border px-3 text-xs font-black uppercase ${selfTapeToneClass(
+                  getSelfTapeBadgeTone(selfTapeStatus)
+                )}`}
+              >
+                Self-tape: {SELF_TAPE_STATUS_LABELS[selfTapeStatus]}
+              </span>
+            )}
             <StatusBadge status={status} />
             <button
               type="button"
@@ -596,6 +647,68 @@ function ApplicantCard({
                   {application.coverMessage || 'No cover message was provided.'}
                 </p>
               </ReviewSection>
+
+              {showSelfTape && (
+                <ReviewSection title="Self-tape submission">
+                  <div className="rounded-md border border-[#bad7d3] bg-white p-4">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div>
+                        <p className="text-sm font-bold text-[#657176]">
+                          {audition?.selfTapeRequired
+                            ? 'Required for this role'
+                            : 'Optional for this role'}
+                        </p>
+                        <p className="mt-2 whitespace-pre-line leading-7 text-[#4f5963]">
+                          {audition?.selfTapeInstructions ||
+                            'No extra self-tape instructions were provided.'}
+                        </p>
+                        {audition?.selfTapeMaxDurationSeconds && (
+                          <p className="mt-2 text-xs font-black uppercase text-[#657176]">
+                            Max duration: {audition.selfTapeMaxDurationSeconds}{' '}
+                            seconds
+                          </p>
+                        )}
+                      </div>
+                      <span
+                        className={`inline-flex min-h-8 shrink-0 items-center rounded-md border px-3 text-xs font-black uppercase ${selfTapeToneClass(
+                          getSelfTapeBadgeTone(selfTapeStatus)
+                        )}`}
+                      >
+                        {SELF_TAPE_STATUS_LABELS[selfTapeStatus]}
+                      </span>
+                    </div>
+
+                    {application.selfTapeSubmission?.url ? (
+                      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <a
+                          href={application.selfTapeSubmission.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex min-h-11 items-center gap-2 rounded-md border border-[#008ca6] px-4 text-sm font-black text-[#008ca6]"
+                        >
+                          Open self-tape
+                          <ExternalLink className="size-4" />
+                        </a>
+                        {selfTapeStatus === 'submitted' && (
+                          <button
+                            type="button"
+                            onClick={() => void onSelfTapeReviewed()}
+                            disabled={busy}
+                            className="primary-button sm:w-auto disabled:opacity-50"
+                          >
+                            {busy ? 'Saving...' : 'Mark reviewed'}
+                          </button>
+                        )}
+                      </div>
+                    ) : (
+                      <p className="mt-4 border-l-2 border-[#e7ad2d] pl-4 text-sm leading-6 text-[#657176]">
+                        No self-tape link has been submitted for this application
+                        yet.
+                      </p>
+                    )}
+                  </div>
+                </ReviewSection>
+              )}
 
               {talent && (
                 <ReviewSection title="Talent profile">
@@ -801,4 +914,14 @@ function ApplicantDetail({ label, value }: { label: string; value: string }) {
       <p className="mt-1 font-semibold capitalize">{value}</p>
     </div>
   );
+}
+
+function selfTapeToneClass(tone: string) {
+  return tone === 'danger'
+    ? 'border-red-200 bg-red-50 text-red-800'
+    : tone === 'attention'
+      ? 'border-amber-300 bg-amber-50 text-amber-900'
+      : tone === 'success'
+        ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+        : 'border-[#d3dde2] bg-white text-[#657176]';
 }

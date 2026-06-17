@@ -1,5 +1,18 @@
 # Changelog
 
+### Phase 5A: Self-Tape Audition Submissions
+
+- Added self-tape request fields to auditions and self-tape status/submission
+  fields to applications
+- Added a beta-safe external-link self-tape workflow for Talent after applying
+- Added recruiter applicant-pipeline self-tape badges, view action, and reviewed
+  state
+- Added server-side self-tape submit/remove/review API with notifications and
+  recruiter review audit logging
+- Added admin self-tape request/submission visibility in overview metrics and
+  audition moderation badges
+- Added self-tape validation/status tests and `SELF_TAPE_SUBMISSIONS.md`
+
 ### Phase 4A: Vercel Production Deployment and Beta Launch Setup
 
 - Added `VERCEL_DEPLOYMENT.md` with Vercel import, environment variable,

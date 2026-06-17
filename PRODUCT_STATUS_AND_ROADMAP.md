@@ -3,7 +3,7 @@
 **Telugu name:** నట కనెక్ట్  
 **Document date:** June 12, 2026
 **Repository:** `jayeess/Firsttake-Lovable`  
-**Current stage:** Phase 4A Vercel production deployment and beta launch setup
+**Current stage:** Phase 5A self-tape audition submissions
 
 ## 1. Product Summary
 
@@ -48,6 +48,7 @@ Nata Connect is no longer a static demonstration. It is a working Firebase-backe
 | Media portfolio | Phase 2B implemented | Images and external showreels supported |
 | Applicant pipeline | Phase 2C implemented | Secure statuses, filters, ratings, tags, notes, and decision alerts |
 | Audition discovery | Phase 2D implemented | Search, advanced filters, recommendations, and saved auditions |
+| Self-tape submissions | Phase 5A implemented | External link workflow live; direct private video upload remains future work |
 | Deployment operations | Partial | Build passes, production process is undocumented |
 
 ## 3. Implemented Features
@@ -99,6 +100,8 @@ Nata Connect is no longer a static demonstration. It is a working Firebase-backe
   - Viewed
   - Shortlisted
   - Rejected
+- Self-tape link submission, replacement, and removal for eligible
+  applications
 - Recruiter rejection feedback display
 - Weighted profile completeness score and recommended next actions
 - Optional Talent verification submission and review status
@@ -118,6 +121,7 @@ Nata Connect is no longer a static demonstration. It is a working Firebase-backe
   - Talent category
   - Experience level
   - Location
+  - Optional self-tape requirement and instructions
   - Duration
   - Requirements
   - Number of positions

@@ -310,6 +310,11 @@ export const createAudition = async (
     auditionType?: AuditionType;
     workMode?: WorkMode;
     paymentType?: PaymentType;
+    selfTapeEnabled?: boolean;
+    selfTapeRequired?: boolean;
+    selfTapeInstructions?: string;
+    selfTapeSubmissionTypes?: Array<'upload' | 'link'>;
+    selfTapeMaxDurationSeconds?: number | null;
     deadline: Date;
     status: 'ACTIVE' | 'DRAFT';
   }
@@ -872,6 +877,79 @@ export const updateApplicationReview = async (
     }
   } catch (error: unknown) {
     throw new Error(getErrorMessage(error, 'Failed to update application status'));
+  }
+};
+
+export const submitSelfTapeLink = async (
+  auditionId: string,
+  applicationId: string,
+  url: string
+) => {
+  try {
+    const user = getFirebaseAuth().currentUser;
+    if (!user || user.uid !== applicationId) throw new Error('Please sign in again.');
+    const response = await fetch('/api/applications/self-tape', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${await user.getIdToken()}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ auditionId, url }),
+    });
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload.error ?? 'Failed to submit self-tape');
+    }
+  } catch (error: unknown) {
+    throw new Error(getErrorMessage(error, 'Failed to submit self-tape'));
+  }
+};
+
+export const removeSelfTape = async (
+  auditionId: string,
+  applicationId: string
+) => {
+  try {
+    const user = getFirebaseAuth().currentUser;
+    if (!user || user.uid !== applicationId) throw new Error('Please sign in again.');
+    const response = await fetch('/api/applications/self-tape', {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${await user.getIdToken()}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ auditionId }),
+    });
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload.error ?? 'Failed to remove self-tape');
+    }
+  } catch (error: unknown) {
+    throw new Error(getErrorMessage(error, 'Failed to remove self-tape'));
+  }
+};
+
+export const markSelfTapeReviewed = async (
+  auditionId: string,
+  applicationId: string
+) => {
+  try {
+    const user = getFirebaseAuth().currentUser;
+    if (!user) throw new Error('Please sign in again.');
+    const response = await fetch('/api/applications/self-tape', {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${await user.getIdToken()}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ auditionId, applicationId }),
+    });
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload.error ?? 'Failed to mark self-tape reviewed');
+    }
+  } catch (error: unknown) {
+    throw new Error(getErrorMessage(error, 'Failed to mark self-tape reviewed'));
   }
 };
 

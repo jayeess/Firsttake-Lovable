@@ -67,6 +67,13 @@ export function AuditionCard({
           {EXPERIENCE_LABELS[audition.experienceLevel]}
         </span>
         <span className="bg-[#f0f1ee] px-2.5 py-1">{audition.location}</span>
+        {audition.selfTapeEnabled && (
+          <span className="bg-[#fff4d6] px-2.5 py-1 text-[#8a5b00]">
+            {audition.selfTapeRequired
+              ? 'Self-tape required'
+              : 'Self-tape optional'}
+          </span>
+        )}
       </div>
       <p className="mt-4 line-clamp-2 text-sm leading-6 text-[#4b535c]">
         {audition.description}
