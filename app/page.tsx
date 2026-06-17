@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { BrandLogo } from '@/components/brand-logo';
+import { PublicFooter } from '@/components/public-footer';
 
 export default function Home() {
   return (
@@ -9,6 +10,18 @@ export default function Home() {
         <div className="mx-auto flex h-24 max-w-7xl items-center justify-between px-5">
           <BrandLogo light />
           <nav className="flex items-center gap-1 sm:gap-2">
+            <Link
+              href="/safety"
+              className="hidden min-h-11 px-3 py-3 text-sm font-bold text-white/70 hover:text-white sm:block"
+            >
+              Safety
+            </Link>
+            <Link
+              href="/help"
+              className="hidden min-h-11 px-3 py-3 text-sm font-bold text-white/70 hover:text-white md:block"
+            >
+              Help
+            </Link>
             <Link
               href="/auth/login"
               className="min-h-11 px-3 py-3 text-sm font-bold text-white/80 hover:text-white sm:px-4"
@@ -126,9 +139,7 @@ export default function Home() {
         </div>
       </section>
 
-      <footer className="px-5 py-8 text-center text-sm font-semibold text-[#657176]">
-        Built for trusted casting, safer communication, and professional talent discovery.
-      </footer>
+      <PublicFooter />
     </main>
   );
 }

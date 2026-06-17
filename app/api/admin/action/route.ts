@@ -39,6 +39,8 @@ const allowedActions = new Set([
   'restore_media',
   'disable_public_profile',
   'block_conversation',
+  'mark_beta_feedback_reviewed',
+  'mark_beta_feedback_resolved',
   ...REPORT_ADMIN_ACTIONS,
 ]);
 
@@ -94,6 +96,36 @@ export async function POST(request: Request) {
         reportId: targetId,
         reason,
         actor,
+      });
+    } else if (
+      action === 'mark_beta_feedback_reviewed' ||
+      action === 'mark_beta_feedback_resolved'
+    ) {
+      const feedbackRef = db.collection('betaFeedback').doc(targetId);
+      const feedback = await feedbackRef.get();
+      if (!feedback.exists) {
+        throw new AdminRequestError('Beta feedback was not found.', 404);
+      }
+      const status =
+        action === 'mark_beta_feedback_resolved' ? 'resolved' : 'reviewed';
+      await feedbackRef.set(
+        {
+          status,
+          reviewedBy: actor.uid,
+          reviewedAt: now,
+          updatedAt: now,
+        },
+        { merge: true }
+      );
+      await writeAuditLog({
+        action:
+          action === 'mark_beta_feedback_resolved'
+            ? 'beta_feedback_resolved'
+            : 'beta_feedback_reviewed',
+        actor,
+        targetId,
+        targetType: 'feedback',
+        note: reason,
       });
     } else if (
       ['approve_recruiter', 'reject_recruiter', 'suspend_recruiter', 'restore_recruiter'].includes(action)

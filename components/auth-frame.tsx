@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { BrandLogo } from '@/components/brand-logo';
+import { PublicFooter } from './public-footer';
 
 export function AuthFrame({
   eyebrow,
@@ -41,7 +42,7 @@ export function AuthFrame({
           Profiles | Casting calls | Decisions
         </p>
       </section>
-      <section className="flex min-h-screen items-center justify-center p-4 py-8 sm:p-10 lg:bg-white/82">
+      <section className="flex min-h-screen flex-col justify-center p-4 py-8 sm:p-10 lg:bg-white/82">
         <div className="w-full max-w-xl">
           <Link href="/" className="mb-8 inline-block lg:hidden">
             <BrandLogo />
@@ -54,6 +55,9 @@ export function AuthFrame({
             {description}
           </p>
           <div className="mt-6 sm:mt-8">{children}</div>
+        </div>
+        <div className="mt-8 w-full max-w-xl">
+          <PublicFooter />
         </div>
       </section>
     </main>

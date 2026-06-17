@@ -278,7 +278,8 @@ export interface AuditLog {
     | 'application'
     | 'conversation'
     | 'message'
-    | 'report';
+    | 'report'
+    | 'feedback';
   reason?: string;
   note?: string;
   timestamp?: Date | Timestamp;

@@ -6,6 +6,13 @@ test.describe('public routes', () => {
     ['/auth/login', /Continue your casting journey/i],
     ['/auth/signup', /Your next opportunity starts here/i],
     ['/auth/forgot-password', /Reset your password/i],
+    ['/terms', /Terms of Service/i],
+    ['/privacy', /Privacy Policy/i],
+    ['/community-guidelines', /Community Guidelines/i],
+    ['/safety', /Safer casting starts/i],
+    ['/contact', /Contact Nata Connect support/i],
+    ['/help', /Find your way through beta/i],
+    ['/beta-feedback', /Help make Nata Connect/i],
   ] as const;
 
   for (const [route, heading] of routes) {
@@ -46,6 +53,7 @@ test.describe('unauthenticated route protection', () => {
     '/admin/messages',
     '/admin/reports',
     '/admin/beta-readiness',
+    '/admin/beta-feedback',
     '/admin/audit-logs',
   ];
 

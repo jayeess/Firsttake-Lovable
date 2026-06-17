@@ -115,6 +115,68 @@ const launchAreas = [
   ],
 ] as const;
 
+const manualReadinessGroups = [
+  {
+    title: 'Production foundation',
+    items: [
+      'Vercel production deployed',
+      'Firebase production connected',
+      'Admin dashboard working',
+      'Mobile UX checked',
+      'Admin UX checked',
+    ],
+  },
+  {
+    title: 'Legal and policy readiness',
+    items: [
+      'Terms page added',
+      'Privacy page added',
+      'Community Guidelines added',
+      'Safety page added',
+      'Final legal review still required',
+    ],
+  },
+  {
+    title: 'Support readiness',
+    items: [
+      'Contact page added',
+      'Help page added',
+      'Beta feedback page added',
+      'Support workflow and owner defined before launch',
+    ],
+  },
+  {
+    title: 'Trust and safety readiness',
+    items: [
+      'Recruiter verification active',
+      'Talent verification active',
+      'Reports and moderation active',
+      'Audit logs active',
+      'Safety warnings visible',
+    ],
+  },
+  {
+    title: 'Beta user readiness',
+    items: [
+      'Demo Talent account tested',
+      'Demo Recruiter account tested',
+      'Sample audition tested',
+      'Sample application tested',
+      'Messaging and reports tested',
+    ],
+  },
+  {
+    title: 'Launch limitations',
+    items: [
+      'Custom domain may still be pending',
+      'Full legal review pending',
+      'Email/SMS delivery pending unless separately configured',
+      'Analytics and monitoring improvements pending',
+      'Payments are not implemented',
+    ],
+  },
+] as const;
+
 export default function AdminBetaReadinessPage() {
   const [data, setData] = useState<BetaReadinessData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -227,6 +289,33 @@ export default function AdminBetaReadinessPage() {
                   <p className="mt-2 text-sm leading-6 text-[#657176]">
                     {description}
                   </p>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section className="surface mt-7 p-6">
+            <p className="eyebrow">Manual launch control</p>
+            <h2 className="mt-2 text-2xl font-black">
+              Beta readiness checklist
+            </h2>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-[#657176]">
+              These are manual launch checks. They should be confirmed by the
+              team before inviting real beta users; they are not automated legal
+              or compliance guarantees.
+            </p>
+            <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {manualReadinessGroups.map((group) => (
+                <article key={group.title} className="border border-[#d7e0e4] p-4">
+                  <h3 className="font-black">{group.title}</h3>
+                  <ul className="mt-3 grid gap-2 text-sm leading-6 text-[#526874]">
+                    {group.items.map((item) => (
+                      <li key={item} className="flex gap-2">
+                        <span className="font-black text-[#008ca6]">-</span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </article>
               ))}
             </div>

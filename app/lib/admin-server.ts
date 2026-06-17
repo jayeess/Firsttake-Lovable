@@ -52,7 +52,8 @@ export const writeAuditLog = async ({
     | 'application'
     | 'conversation'
     | 'message'
-    | 'report';
+    | 'report'
+    | 'feedback';
   reason?: string;
   note?: string;
   metadata?: Record<string, unknown>;

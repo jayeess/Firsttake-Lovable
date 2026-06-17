@@ -125,6 +125,14 @@ export async function GET(request: Request) {
       );
       return Response.json({ reports });
     }
+    if (view === 'betaFeedback') {
+      const snapshot = await db
+        .collection('betaFeedback')
+        .orderBy('createdAt', 'desc')
+        .limit(100)
+        .get();
+      return Response.json({ feedback: serialize(snapshot) });
+    }
     if (view === 'betaReadiness') {
       const [admins, users, recruiterVerifications, talentVerifications] =
         await Promise.all([
