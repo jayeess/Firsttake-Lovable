@@ -89,6 +89,17 @@ export default function AuditionsPage() {
   const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
+    const view = new URLSearchParams(window.location.search).get('view');
+    if (view === 'saved') {
+      const timeoutId = window.setTimeout(() => {
+        setFilters((current) => ({ ...current, savedOnly: true }));
+      }, 0);
+      return () => window.clearTimeout(timeoutId);
+    }
+    return undefined;
+  }, []);
+
+  useEffect(() => {
     if (!user) return;
     void Promise.all([
       getAuditions(),
