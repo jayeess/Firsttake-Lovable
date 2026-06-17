@@ -139,33 +139,30 @@ export default function Dashboard() {
 
   return (
     <AppShell>
-      <section
-        className="relative overflow-hidden rounded-md bg-[#07111f] bg-cover bg-center p-5 text-white sm:p-8"
-        style={{ backgroundImage: "url('/nata-connect-brand-poster.png')" }}
-      >
-        <div className="absolute inset-0 bg-[#10191d]/70" />
-        <div className="relative z-10 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-          <p className="text-xs font-black uppercase text-[#7fd0c7]">
-            {userType === 'RECRUITER' ? 'Recruiter workspace' : 'Talent workspace'}
-          </p>
-          <h1 className="mt-2 text-3xl font-black leading-tight sm:text-4xl">
-            Welcome{firstName ? `, ${firstName}` : ''}
-          </h1>
-          <p className="mt-3 max-w-2xl text-white/75">
-            {userType === 'RECRUITER'
-              ? 'Keep your casting pipeline moving and your briefs current.'
-              : 'Track momentum, discover roles, and keep your portfolio ready.'}
-          </p>
+      {userType === 'RECRUITER' && (
+        <section
+          className="relative overflow-hidden rounded-md bg-[#07111f] bg-cover bg-center p-5 text-white sm:p-8"
+          style={{ backgroundImage: "url('/nata-connect-brand-poster.png')" }}
+        >
+          <div className="absolute inset-0 bg-[#10191d]/70" />
+          <div className="relative z-10 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs font-black uppercase text-[#7fd0c7]">
+                Recruiter workspace
+              </p>
+              <h1 className="mt-2 text-3xl font-black leading-tight sm:text-4xl">
+                Welcome
+              </h1>
+              <p className="mt-3 max-w-2xl text-white/75">
+                Keep your casting pipeline moving and your briefs current.
+              </p>
+            </div>
+            <Link href="/recruiter/auditions/new" className="primary-button sm:w-auto">
+              Post an audition
+            </Link>
           </div>
-          <Link
-            href={userType === 'RECRUITER' ? '/recruiter/auditions/new' : '/auditions'}
-            className="primary-button sm:w-auto"
-          >
-            {userType === 'RECRUITER' ? 'Post an audition' : 'Browse auditions'}
-          </Link>
-        </div>
-      </section>
+        </section>
+      )}
 
       {error && (
         <p className="mt-6 border border-amber-300 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
@@ -340,7 +337,7 @@ function TalentWorkspace({
   return (
     <>
       <section
-        className="relative mt-6 overflow-hidden rounded-md bg-[#07111f] bg-cover bg-center p-5 text-white shadow-xl sm:p-7"
+        className="relative overflow-hidden rounded-md bg-[#07111f] bg-cover bg-center p-5 text-white shadow-xl sm:p-7"
         style={{ backgroundImage: "url('/nata-connect-brand-poster.png')" }}
       >
         <div className="absolute inset-0 bg-[#051019]/75" />

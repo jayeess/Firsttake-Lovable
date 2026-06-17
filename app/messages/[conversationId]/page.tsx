@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowLeft, Send } from 'lucide-react';
+import { ArrowLeft, MessageCircle, Send, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
@@ -32,6 +32,14 @@ const messageTime = (value?: ConversationMessage['createdAt']) => {
     minute: '2-digit',
   }).format(date);
 };
+
+const getInitials = (name?: string) =>
+  (name ?? 'Nata Connect')
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join('') || 'NC';
 
 export default function ConversationPage() {
   const { conversationId } = useParams<{ conversationId: string }>();
@@ -116,18 +124,28 @@ export default function ConversationPage() {
           }}
         />
       ) : conversation ? (
-        <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_300px]">
-          <section className="surface overflow-hidden rounded-md">
-            <header className="border-b border-[#d7e0e4] p-4 sm:p-5">
+        <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
+          <section className="overflow-hidden rounded-md border border-[#cbd6db] bg-white shadow-sm">
+            <header className="relative overflow-hidden border-b border-[#d7e0e4] bg-[#07111f] p-4 text-white sm:p-5">
+              <div className="absolute inset-y-0 right-0 w-1/2 bg-[radial-gradient(circle_at_top_right,rgba(0,194,224,0.22),transparent_62%)]" />
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                  <p className="eyebrow">Application conversation</p>
-                  <h1 className="mt-2 text-xl font-black sm:text-2xl">{otherName}</h1>
-                  <p className="mt-1 text-sm font-bold text-[#5f7078]">
-                    {conversation.auditionTitleSnapshot}
-                  </p>
+                <div className="relative z-10 flex min-w-0 gap-3">
+                  <span className="flex size-12 shrink-0 items-center justify-center rounded-md bg-white/10 text-sm font-black text-[#7fd0c7]">
+                    {getInitials(otherName)}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-xs font-black uppercase text-[#7fd0c7]">
+                      Application conversation
+                    </p>
+                    <h1 className="mt-2 truncate text-xl font-black sm:text-2xl">
+                      {otherName}
+                    </h1>
+                    <p className="mt-1 truncate text-sm font-bold text-white/70">
+                      {conversation.auditionTitleSnapshot}
+                    </p>
+                  </div>
                 </div>
-                <div className="flex flex-wrap items-center gap-3">
+                <div className="relative z-10 flex flex-wrap items-center gap-3">
                   <ReportButton
                     targetType="conversation"
                     targetId={conversation.id}
@@ -139,11 +157,12 @@ export default function ConversationPage() {
               </div>
             </header>
 
-            <div className="h-[52vh] min-h-[340px] overflow-y-auto bg-[#f4f8fa] p-3 sm:p-6">
+            <div className="h-[56vh] min-h-[380px] overflow-y-auto bg-[#eef4f7] p-3 sm:p-6">
               {messages.length === 0 ? (
                 <div className="flex h-full items-center justify-center text-center">
-                  <div>
-                    <h2 className="font-black">Start the conversation</h2>
+                  <div className="rounded-md border border-[#d5e2e7] bg-white p-6 shadow-sm">
+                    <MessageCircle className="mx-auto size-8 text-[#008ca6]" />
+                    <h2 className="mt-3 font-black">Start the conversation</h2>
                     <p className="mt-2 max-w-md text-sm leading-6 text-[#68777e]">
                       Ask about the audition, availability, self-tape guidance,
                       or next casting steps.
@@ -151,7 +170,7 @@ export default function ConversationPage() {
                   </div>
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-5">
                   {messages
                     .filter((message) => message.moderationStatus === 'active')
                     .map((message) => {
@@ -161,13 +180,23 @@ export default function ConversationPage() {
                           key={message.id}
                           className={`flex ${mine ? 'justify-end' : 'justify-start'}`}
                         >
-                          <div
-                            className={`max-w-[88%] rounded-md px-4 py-3 sm:max-w-[82%] ${
-                              mine
-                                ? 'bg-[#083348] text-white'
-                                : 'border border-[#d0dde2] bg-white'
-                            }`}
-                          >
+                          <div className={`flex max-w-[90%] gap-2 sm:max-w-[82%] ${mine ? 'flex-row-reverse' : ''}`}>
+                            <span
+                              className={`mt-1 flex size-8 shrink-0 items-center justify-center rounded-full text-[10px] font-black ${
+                                mine
+                                  ? 'bg-[#008ca6] text-white'
+                                  : 'bg-white text-[#008ca6]'
+                              }`}
+                            >
+                              {mine ? 'You' : getInitials(otherName).slice(0, 2)}
+                            </span>
+                            <div
+                              className={`rounded-2xl px-4 py-3 shadow-sm ${
+                                mine
+                                  ? 'rounded-tr-md bg-[#083348] text-white'
+                                  : 'rounded-tl-md border border-[#d0dde2] bg-white'
+                              }`}
+                            >
                             <p className="whitespace-pre-wrap text-sm leading-6">
                               {message.body}
                             </p>
@@ -188,6 +217,7 @@ export default function ConversationPage() {
                                 />
                               </div>
                             )}
+                            </div>
                           </div>
                         </div>
                       );
@@ -203,10 +233,13 @@ export default function ConversationPage() {
                   {error}
                 </p>
               )}
-              <p className="mb-3 text-xs leading-5 text-[#657176]">
-                Keep communication inside Nata Connect for safety. Do not share
-                personal contact details until you trust the other party.
-              </p>
+              <div className="mb-3 flex items-start gap-2 rounded-md bg-[#f7fbfc] p-3 text-xs leading-5 text-[#657176]">
+                <ShieldCheck className="mt-0.5 size-4 shrink-0 text-[#008ca6]" />
+                <p>
+                  Keep communication inside Nata Connect for safety. Do not share
+                  personal contact details until you trust the other party.
+                </p>
+              </div>
               <div className="flex items-end gap-2 sm:gap-3">
                 <textarea
                   value={body}
@@ -217,13 +250,13 @@ export default function ConversationPage() {
                   placeholder={
                     readOnly ? 'This conversation is read-only.' : 'Write a message'
                   }
-                  className="field min-h-20 resize-y py-3 disabled:bg-[#edf1f3] sm:min-h-24"
+                  className="field min-h-20 resize-y rounded-md py-3 disabled:bg-[#edf1f3] sm:min-h-24"
                 />
                 <button
                   type="submit"
                   disabled={sending || readOnly || !body.trim()}
                   aria-label="Send message"
-                  className="flex size-12 shrink-0 items-center justify-center rounded-md bg-[#008ca6] text-white disabled:opacity-40"
+                  className="flex size-12 shrink-0 items-center justify-center rounded-md bg-[#008ca6] text-white shadow-sm transition hover:bg-[#007891] disabled:opacity-40"
                 >
                   <Send aria-hidden="true" size={19} />
                 </button>
@@ -234,7 +267,7 @@ export default function ConversationPage() {
             </form>
           </section>
 
-          <aside className="surface h-fit rounded-md p-4 sm:p-5">
+          <aside className="h-fit rounded-md border border-[#cbd6db] bg-white p-4 shadow-sm sm:p-5">
             <p className="eyebrow">Casting context</p>
             <h2 className="mt-2 text-lg font-black">
               {conversation.auditionTitleSnapshot}
@@ -243,6 +276,12 @@ export default function ConversationPage() {
               This thread exists only because the Talent member applied to this
               casting call.
             </p>
+            <div className="mt-4 rounded-md bg-[#edf7f5] p-3 text-sm text-[#234b47]">
+              <p className="font-black">Trust reminder</p>
+              <p className="mt-1 leading-6">
+                Keep casting details and next steps here so both sides have a clear record.
+              </p>
+            </div>
             <Link
               href={
                 userType === 'RECRUITER'
