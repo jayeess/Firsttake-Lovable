@@ -12,6 +12,7 @@ import {
 } from '@/app/lib/firestore-service';
 import {
   APPLICATION_PIPELINE_STATUSES,
+  APPLICATION_STATUS_LABELS,
   getApplicationStatus,
 } from '@/app/lib/application-pipeline';
 import {
@@ -31,15 +32,82 @@ import {
   validateSelfTapeLink,
 } from '@/app/lib/self-tape-policy';
 
-const tabs: Array<ApplicationStatus | 'ALL'> = [
-  'ALL',
-  ...APPLICATION_PIPELINE_STATUSES,
+type ApplicationView = 'ALL' | 'ACTIVE' | 'SHORTLISTED' | 'CLOSED';
+
+const applicationViews: Array<{
+  value: ApplicationView;
+  label: string;
+  description: string;
+  statuses: ApplicationStatus[] | null;
+}> = [
+  {
+    value: 'ALL',
+    label: 'All',
+    description: 'Every application',
+    statuses: null,
+  },
+  {
+    value: 'ACTIVE',
+    label: 'Active',
+    description: 'Waiting or in review',
+    statuses: ['APPLIED', 'VIEWED', 'UNDER_REVIEW', 'MAYBE'],
+  },
+  {
+    value: 'SHORTLISTED',
+    label: 'Shortlisted',
+    description: 'Strong progress',
+    statuses: ['SHORTLISTED', 'SELECTED'],
+  },
+  {
+    value: 'CLOSED',
+    label: 'Closed',
+    description: 'Ended or withdrawn',
+    statuses: ['REJECTED', 'WITHDRAWN'],
+  },
 ];
+
+const positiveTimeline: ApplicationStatus[] = [
+  'APPLIED',
+  'VIEWED',
+  'UNDER_REVIEW',
+  'SHORTLISTED',
+  'SELECTED',
+];
+
+const nextStepMessages: Record<ApplicationStatus, string> = {
+  APPLIED: 'Waiting for recruiter review',
+  VIEWED: 'Recruiter viewed your application',
+  UNDER_REVIEW: 'Your profile is being reviewed',
+  MAYBE: 'Recruiter may consider you later',
+  SHORTLISTED: 'You are shortlisted',
+  SELECTED: 'You were selected',
+  REJECTED: 'This application is closed',
+  WITHDRAWN: 'You withdrew this application',
+};
+
+const emptyMessages: Record<ApplicationView, string> = {
+  ALL: 'No applications yet. Apply to your first audition.',
+  ACTIVE: 'No active applications right now.',
+  SHORTLISTED: 'No shortlisted applications yet.',
+  CLOSED: 'No closed applications yet.',
+};
+
+const getViewCount = (
+  applications: Application[],
+  statuses: ApplicationStatus[] | null
+) =>
+  applications.filter((item) => {
+    const status = getApplicationStatus(item);
+    return !statuses || statuses.includes(status);
+  }).length;
 
 export default function ApplicationsPage() {
   const { user, userType } = useAuth();
   const [applications, setApplications] = useState<Application[]>([]);
-  const [tab, setTab] = useState<ApplicationStatus | 'ALL'>('ALL');
+  const [view, setView] = useState<ApplicationView>('ALL');
+  const [statusFilter, setStatusFilter] = useState<ApplicationStatus | 'ALL'>(
+    'ALL'
+  );
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [reloadKey, setReloadKey] = useState(0);
@@ -75,12 +143,17 @@ export default function ApplicationsPage() {
       .finally(() => setLoading(false));
   }, [reloadKey, user, userType]);
 
+  const activeView = applicationViews.find((item) => item.value === view);
   const filtered = useMemo(
     () =>
-      applications.filter(
-        (item) => tab === 'ALL' || getApplicationStatus(item) === tab
-      ),
-    [applications, tab]
+      applications.filter((item) => {
+        const status = getApplicationStatus(item);
+        return (
+          (!activeView?.statuses || activeView.statuses.includes(status)) &&
+          (statusFilter === 'ALL' || status === statusFilter)
+        );
+      }),
+    [activeView, applications, statusFilter]
   );
 
   const withdraw = async (application: Application) => {
@@ -191,20 +264,74 @@ export default function ApplicationsPage() {
         status.
       </p>
 
-      <div className="mt-6 flex snap-x gap-1 overflow-x-auto border-b border-[#ccd3da] pb-1">
-        {tabs.map((value) => (
-          <button
-            key={value}
-            onClick={() => setTab(value)}
-            className={`min-h-12 snap-start whitespace-nowrap rounded-t-md px-4 text-sm font-bold ${
-              tab === value
-                ? 'bg-white border-b-2 border-[#008ca6] text-[#008ca6]'
-                : 'text-[#66717c]'
-            }`}
-          >
-            {value}
-          </button>
-        ))}
+      <div className="mt-6 rounded-md border border-[#cbd6db] bg-white/95 p-3 shadow-sm sm:p-4">
+        <div
+          className="grid grid-cols-2 gap-1 rounded-md bg-[#f3f7f8] p-1 sm:grid-cols-4"
+          role="tablist"
+          aria-label="Application views"
+        >
+          {applicationViews.map((item) => {
+            const selected = view === item.value;
+            return (
+              <button
+                key={item.value}
+                type="button"
+                role="tab"
+                aria-selected={selected}
+                onClick={() => setView(item.value)}
+                className={`min-h-14 rounded px-3 py-2 text-left transition ${
+                  selected
+                    ? 'bg-white text-[#07111f] shadow-sm'
+                    : 'text-[#657176] hover:text-[#008ca6]'
+                }`}
+              >
+                <span className="flex items-center justify-between gap-2 text-sm font-black">
+                  {item.label}
+                  <span
+                    className={`rounded px-1.5 py-0.5 text-xs ${
+                      selected
+                        ? 'bg-[#e8f5f3] text-[#008ca6]'
+                        : 'bg-white text-[#657176]'
+                    }`}
+                  >
+                    {getViewCount(applications, item.statuses)}
+                  </span>
+                </span>
+                <span className="mt-1 block text-xs font-semibold">
+                  {item.description}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="mt-3 flex flex-col gap-3 border-t border-[#e1e5ea] pt-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-xs font-black uppercase text-[#008ca6]">
+              Status filter
+            </p>
+            <p className="mt-1 text-sm text-[#657176]">
+              Use this when you need one exact internal status.
+            </p>
+          </div>
+          <label className="text-sm font-bold sm:min-w-64">
+            <span className="sr-only">Detailed application status</span>
+            <select
+              value={statusFilter}
+              onChange={(event) =>
+                setStatusFilter(event.target.value as ApplicationStatus | 'ALL')
+              }
+              className="field mt-0 rounded-md text-sm"
+            >
+              <option value="ALL">Any status</option>
+              {APPLICATION_PIPELINE_STATUSES.map((status) => (
+                <option key={status} value={status}>
+                  {APPLICATION_STATUS_LABELS[status]}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
       </div>
 
       {error && (
@@ -236,12 +363,16 @@ export default function ApplicationsPage() {
           </p>
         ) : error ? null : filtered.length === 0 ? (
           <div className="surface border-dashed p-10 text-center">
-            <h2 className="text-xl font-black">No applications here yet</h2>
+            <h2 className="text-xl font-black">
+              {statusFilter === 'ALL'
+                ? emptyMessages[view]
+                : 'No applications match this status filter.'}
+            </h2>
             <p className="mt-2 text-[#68727c]">
               Browse auditions and submit your profile for a role.
             </p>
             <Link href="/auditions" className="primary-button mt-5 sm:w-auto">
-              Find auditions
+              Browse auditions
             </Link>
           </div>
         ) : (
@@ -254,31 +385,27 @@ export default function ApplicationsPage() {
               className="surface rounded-md p-4 sm:p-5"
             >
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div>
+                <div className="min-w-0">
                   <h2 className="text-lg font-black leading-snug sm:text-xl">
                     {application.audition?.title ?? 'Audition'}
                   </h2>
                   <p className="mt-1 text-sm text-[#68727c]">
-                    {application.audition?.recruiterName ?? 'Recruiter'} ·
+                    {application.audition?.recruiterName ?? 'Recruiter'} -
                     Applied {formatDate(application.createdAt)}
                   </p>
                 </div>
                 <StatusBadge status={status} />
               </div>
-              <div className="mt-5 grid grid-cols-8 gap-1.5 sm:gap-2">
-                {APPLICATION_PIPELINE_STATUSES.map(
-                  (status) => (
-                    <div
-                      key={status}
-                      className={`h-1.5 ${
-                        status === getApplicationStatus(application)
-                          ? 'bg-[#008ca6]'
-                          : 'bg-[#dce2e8]'
-                      }`}
-                    />
-                  )
-                )}
+              <div className="mt-4 rounded-md border border-[#d9e4e6] bg-[#f7fbfb] p-3">
+                <p className="text-xs font-black uppercase text-[#008ca6]">
+                  Next step
+                </p>
+                <p className="mt-1 text-sm font-bold text-[#183139]">
+                  {nextStepMessages[status]}
+                </p>
               </div>
+
+              <ApplicationProgress status={status} />
               {status === 'REJECTED' &&
                 application.rejectionReason && (
                   <p className="mt-4 border-l-2 border-[#e7ad2d] pl-4 text-sm leading-6 text-[#59666b]">
@@ -369,11 +496,11 @@ function SelfTapePanel({
     getApplicationStatus(application) === 'WITHDRAWN' ||
     isDeadlinePassed(application.audition?.deadline);
   return (
-    <section className="mt-5 rounded-md border border-[#bad7d3] bg-[#edf7f5] p-4">
+    <section className="mt-5 rounded-md border border-[#bad7d3] bg-[#edf7f5] p-3 sm:p-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="eyebrow">Self-tape</p>
-          <h3 className="mt-1 text-lg font-black">
+          <h3 className="mt-1 text-base font-black sm:text-lg">
             {application.audition?.selfTapeRequired
               ? 'Required self-tape'
               : 'Optional self-tape'}
@@ -451,6 +578,55 @@ function SelfTapePanel({
         </div>
       )}
     </section>
+  );
+}
+
+function ApplicationProgress({ status }: { status: ApplicationStatus }) {
+  if (status === 'REJECTED' || status === 'WITHDRAWN') {
+    return (
+      <div className="mt-4 rounded-md border border-[#dce2e8] bg-[#f6f7f8] p-3 text-sm text-[#59666b]">
+        <span className="font-black text-[#07111f]">Closed state:</span>{' '}
+        {nextStepMessages[status]}
+      </div>
+    );
+  }
+
+  if (status === 'MAYBE') {
+    return (
+      <div className="mt-4 rounded-md border border-violet-200 bg-violet-50 p-3 text-sm text-violet-900">
+        <span className="font-black">Review pool:</span> This is still active,
+        but it is not a final selection.
+      </div>
+    );
+  }
+
+  const currentIndex = positiveTimeline.indexOf(status);
+
+  return (
+    <div className="mt-5" aria-label="Application progress">
+      <div className="grid grid-cols-5 gap-1.5 sm:gap-2">
+        {positiveTimeline.map((item, index) => {
+          const reached = index <= currentIndex;
+          const current = item === status;
+          return (
+            <div key={item} className="min-w-0">
+              <div
+                className={`h-2 rounded-full ${
+                  reached ? 'bg-[#008ca6]' : 'bg-[#dce2e8]'
+                }`}
+              />
+              <p
+                className={`mt-2 break-words text-[0.68rem] font-black leading-tight sm:text-xs ${
+                  current ? 'text-[#008ca6]' : 'text-[#657176]'
+                }`}
+              >
+                {APPLICATION_STATUS_LABELS[item]}
+              </p>
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 
