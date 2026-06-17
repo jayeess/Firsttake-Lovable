@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronDown, Search, SlidersHorizontal } from 'lucide-react';
+import { Bookmark, ChevronDown, Search, SlidersHorizontal } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import {
   filterAuditions,
@@ -72,8 +72,6 @@ const getActiveFilters = (
     labels.push({ key: 'recentlyPosted', label: 'Recently posted' });
   if (filters.deadlineSoon)
     labels.push({ key: 'deadlineSoon', label: 'Deadline soon' });
-  if (filters.savedOnly)
-    labels.push({ key: 'savedOnly', label: 'Saved' });
   return labels;
 };
 
@@ -109,6 +107,15 @@ export default function AuditionsPage() {
   }, [reloadKey, user]);
 
   const activeFilters = getActiveFilters(filters);
+  const savedAvailableCount = useMemo(
+    () =>
+      filterAuditions(
+        auditions,
+        { ...initialAuditionFilters, savedOnly: true },
+        savedIds
+      ).length,
+    [auditions, savedIds]
+  );
   const visible = useMemo(
     () =>
       sortAuditions(
@@ -146,6 +153,17 @@ export default function AuditionsPage() {
     }));
   };
 
+  const setSavedView = (savedOnly: boolean) => {
+    setFilters((current) => ({ ...current, savedOnly }));
+  };
+
+  const clearSearchFilters = () => {
+    setFilters((current) => ({
+      ...initialAuditionFilters,
+      savedOnly: current.savedOnly,
+    }));
+  };
+
   return (
     <AppShell requiredRole="TALENT">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -162,7 +180,7 @@ export default function AuditionsPage() {
         <div className="rounded-md border border-[#d7e0e4] bg-white p-4 sm:border-l-2 sm:border-l-[#d8a843]">
           <p className="text-2xl font-black">{visible.length}</p>
           <p className="text-xs font-bold uppercase text-[#657176]">
-            Active opportunities
+            {filters.savedOnly ? 'Saved opportunities' : 'Active opportunities'}
           </p>
         </div>
       </header>
@@ -171,6 +189,50 @@ export default function AuditionsPage() {
         aria-label="Audition search and filters"
         className="mt-6 rounded-md border border-[#cbd6db] bg-white/95 p-3 shadow-sm sm:p-4"
       >
+        <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div
+            className="grid grid-cols-2 rounded-md border border-[#cbd6db] bg-[#f5f8f9] p-1 sm:inline-grid"
+            role="tablist"
+            aria-label="Audition view"
+          >
+            <button
+              type="button"
+              role="tab"
+              aria-selected={!filters.savedOnly}
+              onClick={() => setSavedView(false)}
+              className={`min-h-11 rounded px-4 text-sm font-black transition ${
+                !filters.savedOnly
+                  ? 'bg-white text-[#07111f] shadow-sm'
+                  : 'text-[#657176] hover:text-[#008ca6]'
+              }`}
+            >
+              All auditions
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={filters.savedOnly}
+              onClick={() => setSavedView(true)}
+              className={`flex min-h-11 items-center justify-center gap-2 rounded px-4 text-sm font-black transition ${
+                filters.savedOnly
+                  ? 'bg-white text-[#07111f] shadow-sm'
+                  : 'text-[#657176] hover:text-[#008ca6]'
+              }`}
+            >
+              <Bookmark className="size-4" />
+              Saved
+              <span className="rounded bg-[#e8f5f3] px-1.5 py-0.5 text-xs text-[#008ca6]">
+                {savedAvailableCount}
+              </span>
+            </button>
+          </div>
+          <p className="text-sm font-semibold text-[#657176]">
+            {filters.savedOnly
+              ? 'Showing roles you bookmarked for later.'
+              : 'Browse all active casting calls.'}
+          </p>
+        </div>
+
         <div className="grid gap-2 sm:gap-3 md:grid-cols-[minmax(0,1fr)_220px_150px] md:items-center">
           <label className="relative min-w-0">
             <span className="sr-only">Search auditions</span>
@@ -330,13 +392,6 @@ export default function AuditionsPage() {
                   setFilters((current) => ({ ...current, deadlineSoon }))
                 }
               />
-              <FilterToggle
-                label="Saved only"
-                checked={filters.savedOnly}
-                onChange={(savedOnly) =>
-                  setFilters((current) => ({ ...current, savedOnly }))
-                }
-              />
             </div>
           </div>
         )}
@@ -355,7 +410,7 @@ export default function AuditionsPage() {
             ))}
             <button
               type="button"
-              onClick={() => setFilters(initialAuditionFilters)}
+              onClick={clearSearchFilters}
               className="min-h-9 px-2 py-1.5 text-xs font-bold text-[#a33d35]"
             >
               Clear all
@@ -383,7 +438,7 @@ export default function AuditionsPage() {
           title={filters.savedOnly ? 'No saved auditions yet' : 'No matching auditions'}
           message={
             filters.savedOnly
-              ? 'Save a promising casting call and it will appear here.'
+              ? 'Use the bookmark button on any audition card to build your saved list.'
               : 'Try removing a filter or broadening your search.'
           }
         />
