@@ -39,6 +39,8 @@ controlled private testing. It is not ready for a public production launch.
 - Admin visibility and disable controls for published Talent pages
 - User suspension, audition removal, and immutable audit history
 - In-app notification bell, unread counts, and role-aware activity center
+- Server-side email notification foundation with safe no-op mode until a
+  provider is configured
 - Application-linked Talent and Recruiter messaging with unread state,
   contact-detail blocking, and message notifications
 - Server-created alerts for applications, verification, moderation, and
@@ -46,9 +48,12 @@ controlled private testing. It is not ready for a public production launch.
 - Admin conversation metadata review and audited conversation blocking
 - Development-only account personas and form presets
 - Firebase security rules, indexes, and Emulator Suite configuration
+- PWA manifest and installability metadata for mobile testing
 
 See [SELF_TAPE_SUBMISSIONS.md](SELF_TAPE_SUBMISSIONS.md) for the current
 self-tape workflow and upload roadmap. See
+[EMAIL_NOTIFICATIONS.md](EMAIL_NOTIFICATIONS.md) for email provider/no-op
+behavior and [PWA_READINESS.md](PWA_READINESS.md) for installability notes. See
 [PRODUCT_STATUS_AND_ROADMAP.md](PRODUCT_STATUS_AND_ROADMAP.md) for the full
 product inventory and roadmap.
 
@@ -81,6 +86,12 @@ NEXT_PUBLIC_SHOW_TEST_CASES=true
 FIREBASE_ADMIN_PROJECT_ID=your_project_id
 FIREBASE_ADMIN_CLIENT_EMAIL=firebase-adminsdk-...@your_project.iam.gserviceaccount.com
 FIREBASE_ADMIN_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+
+# Optional email provider. Missing values keep email in no-op mode.
+EMAIL_PROVIDER=resend
+RESEND_API_KEY=your_resend_key
+EMAIL_FROM="Nata Connect <notifications@example.com>"
+EMAIL_REPLY_TO=support@example.com
 ```
 
 In Firebase Authentication, enable Email/Password and add `localhost` to the

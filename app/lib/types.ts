@@ -62,6 +62,15 @@ export type TalentMediaVisibility = 'private' | 'recruiters' | 'public';
 export type TalentMediaModerationStatus = 'active' | 'hidden' | 'removed';
 export type NotificationRole = 'TALENT' | 'RECRUITER' | 'ADMIN';
 export type NotificationPriority = 'LOW' | 'NORMAL' | 'HIGH';
+export type NotificationPreferences = {
+  emailEnabled?: boolean;
+  messageEmails?: boolean;
+  applicationUpdateEmails?: boolean;
+  verificationEmails?: boolean;
+  selfTapeEmails?: boolean;
+  safetyEmails?: boolean;
+  marketingEmails?: boolean;
+};
 export type NotificationType =
   | 'recruiter_verification_submitted'
   | 'recruiter_verification_approved'

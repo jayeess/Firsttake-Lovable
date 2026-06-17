@@ -1,5 +1,18 @@
 # Changelog
 
+### Phase 5B: Email Notifications Foundation and PWA Readiness
+
+- Added server-only email provider architecture with safe no-op mode and Resend
+  readiness
+- Added transactional email templates for critical notification categories
+- Added account-level notification preference policy and Talent/Recruiter
+  preference UI
+- Wired safe email attempts after successful in-app notification creation
+- Added PWA manifest, mobile metadata, and installability documentation
+- Added admin beta-readiness checks for email foundation, preferences, PWA, and
+  push-notification pending status
+- Added email/preference tests and documentation
+
 ### Phase 5A: Self-Tape Audition Submissions
 
 - Added self-tape request fields to auditions and self-tape status/submission

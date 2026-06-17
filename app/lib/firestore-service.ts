@@ -38,17 +38,37 @@ import type {
   SavedAudition,
   WorkMode,
   PaymentType,
+  NotificationPreferences,
 } from './types';
 import type { RecruiterReviewInput } from './application-pipeline';
 import { calculateTalentProfileCompleteness } from './talent-trust-policy';
 import { buildAuditionSearchFields } from './audition-discovery';
+import { normalizeNotificationPreferences } from './notification-preferences';
 
 export interface UserAccount {
   uid: string;
   email: string | null;
   userType: Exclude<UserType, 'ADMIN'>;
   accountStatus: 'ACTIVE' | 'SUSPENDED';
+  notificationPreferences?: NotificationPreferences;
 }
+
+export const getUserNotificationPreferences = async (uid: string) => {
+  const snapshot = await getDoc(doc(getFirestoreDb(), 'users', uid));
+  return normalizeNotificationPreferences(
+    snapshot.data()?.notificationPreferences as NotificationPreferences | undefined
+  );
+};
+
+export const updateUserNotificationPreferences = async (
+  uid: string,
+  preferences: NotificationPreferences
+) => {
+  await updateDoc(doc(getFirestoreDb(), 'users', uid), {
+    notificationPreferences: normalizeNotificationPreferences(preferences),
+    updatedAt: new Date(),
+  });
+};
 
 export const ensureUserAccount = async (
   uid: string,

@@ -99,6 +99,8 @@ The dependency-free Node test suite currently covers application eligibility:
   detection, message validation, unread state, and message notifications
 - Self-tape status defaults, link validation, instruction sanitization, and
   badge-tone policy
+- Email template generation, safe no-op provider behavior, and notification
+  preference policy
 
 These tests validate the shared policy used by the transactional Firestore
 submission path. Playwright additionally covers public pages and signed-out
@@ -191,6 +193,18 @@ after the run.
 9. Confirm Talent sees the Reviewed state and a review notification.
 10. Confirm another Talent or another Recruiter cannot access or update the
     self-tape through the UI.
+
+## Email and PWA readiness checks
+
+1. Leave email provider env variables unset and trigger a supported in-app
+   notification.
+2. Confirm the original action succeeds and the in-app notification appears.
+3. Confirm server logs show safe email no-op delivery without recipient or
+   secret values.
+4. Open Talent and Recruiter profile pages and save email preferences.
+5. Confirm safety/account-risk preference copy remains visible.
+6. Open `/manifest.webmanifest` and confirm Nata Connect app metadata appears.
+7. On mobile Chrome or Safari, confirm the app can be added to the home screen.
 12. Log out in one tab and confirm the other tab remains signed in.
 
 Also test an expired audition and a closed audition. Neither should accept a

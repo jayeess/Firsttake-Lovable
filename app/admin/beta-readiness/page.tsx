@@ -15,6 +15,12 @@ type BetaReadinessData = {
   env: {
     public: { ok: boolean; missing: string[]; present: string[] };
     server: { ok: boolean; missing: string[]; present: string[] };
+    email?: {
+      provider: string;
+      configured: boolean;
+      missing: string[];
+      replyToConfigured: boolean;
+    };
   };
 };
 
@@ -30,6 +36,12 @@ const checklist = [
   ['messagingEnabled', 'Messaging enabled', 'Feature'],
   ['reportsEnabled', 'Reports and moderation enabled', 'Feature'],
   ['notificationsEnabled', 'Notifications enabled', 'Feature'],
+  ['emailNotificationFoundationAdded', 'Email foundation added', 'Feature'],
+  ['emailDeliveryModeSafe', 'Email delivery mode safe', 'Server env'],
+  ['notificationPreferencesEnabled', 'Notification preferences added', 'Feature'],
+  ['pwaManifestAdded', 'PWA manifest added', 'Mobile'],
+  ['pushNotificationsPending', 'Push notifications pending', 'Mobile'],
+  ['realEmailProviderSetupPending', 'Real email provider setup pending', 'Launch ops'],
   ['indexesDocumented', 'Required indexes documented', 'Deployment'],
   ['manualQaChecklist', 'Manual QA checklist status', 'Launch ops'],
   ['deploymentNotes', 'Last deployment notes documented', 'Launch ops'],
@@ -40,6 +52,10 @@ const staticReady = new Set([
   'messagingEnabled',
   'reportsEnabled',
   'notificationsEnabled',
+  'emailNotificationFoundationAdded',
+  'notificationPreferencesEnabled',
+  'pwaManifestAdded',
+  'pushNotificationsPending',
   'indexesDocumented',
   'manualQaChecklist',
   'deploymentNotes',
@@ -163,6 +179,8 @@ const manualReadinessGroups = [
       'Sample audition tested',
       'Sample application tested',
       'Messaging and reports tested',
+      'Email no-op flow tested',
+      'PWA installability checked on mobile',
     ],
   },
   {
@@ -170,7 +188,8 @@ const manualReadinessGroups = [
     items: [
       'Custom domain may still be pending',
       'Full legal review pending',
-      'Email/SMS delivery pending unless separately configured',
+      'Real email delivery pending unless provider env is configured',
+      'Push notifications are not implemented yet',
       'Analytics and monitoring improvements pending',
       'Payments are not implemented',
     ],

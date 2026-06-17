@@ -3,7 +3,7 @@
 **Telugu name:** నట కనెక్ట్  
 **Document date:** June 12, 2026
 **Repository:** `jayeess/Firsttake-Lovable`  
-**Current stage:** Phase 5A self-tape audition submissions
+**Current stage:** Phase 5B email notifications foundation and PWA readiness
 
 ## 1. Product Summary
 
@@ -44,7 +44,9 @@ Nata Connect is no longer a static demonstration. It is a working Firebase-backe
 | Security rules | MVP-level | Good role foundations, requires production review |
 | Automated testing | Partial | Policy tests and browser smoke tests exist; emulator tests remain |
 | Admin operations | Implemented | Requires server credentials and an admin custom claim per environment |
-| Notifications | Implemented in-app | Email/SMS and preferences remain future work |
+| Notifications | Implemented in-app | Email foundation exists; real provider delivery and SMS remain future work |
+| Email foundation | Phase 5B implemented | No-op provider mode by default; Resend adapter ready |
+| PWA readiness | Phase 5B implemented | Manifest/installability added; push notifications pending |
 | Media portfolio | Phase 2B implemented | Images and external showreels supported |
 | Applicant pipeline | Phase 2C implemented | Secure statuses, filters, ratings, tags, notes, and decision alerts |
 | Audition discovery | Phase 2D implemented | Search, advanced filters, recommendations, and saved auditions |

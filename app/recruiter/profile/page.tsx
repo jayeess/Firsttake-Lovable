@@ -12,6 +12,7 @@ import type { RecruiterProfile } from '@/app/lib/types';
 import { getErrorMessage } from '@/app/lib/error-utils';
 import { DevFormPresets } from '@/components/dev-form-presets';
 import { VerifiedBadge } from '@/components/verified-badge';
+import { NotificationPreferencesForm } from '@/components/notification-preferences-form';
 
 const initialProfile: RecruiterProfile = {
   companyName: '',
@@ -199,6 +200,7 @@ export default function RecruiterProfilePage() {
             </button>
           </div>
         </form>
+        {user && <NotificationPreferencesForm uid={user.uid} />}
       </div>
     </AppShell>
   );

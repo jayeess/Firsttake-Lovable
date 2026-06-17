@@ -25,6 +25,7 @@ import {
 import { VerifiedBadge } from '@/components/verified-badge';
 import { TalentMediaManager } from '@/components/talent-media-manager';
 import { PublicTalentProfileSettings } from '@/components/public-talent-profile-settings';
+import { NotificationPreferencesForm } from '@/components/notification-preferences-form';
 
 const initialProfile: TalentProfile = {
   firstName: '',
@@ -357,6 +358,7 @@ export default function TalentProfilePage() {
                 setProfile((current) => ({ ...current, ...updates }))
               }
             />
+            <NotificationPreferencesForm uid={user.uid} />
           </>
         ) : (
           <section className="surface mt-6 p-6">

@@ -4,6 +4,7 @@ import {
   validateServerFirebaseEnv,
 } from '@/app/lib/env-validation';
 import { getAdminDb } from '@/app/lib/firebase-admin';
+import { getEmailProviderStatus } from '@/app/lib/email/email-provider';
 
 export const runtime = 'nodejs';
 
@@ -134,6 +135,7 @@ export async function GET(request: Request) {
       return Response.json({ feedback: serialize(snapshot) });
     }
     if (view === 'betaReadiness') {
+      const email = getEmailProviderStatus();
       const [admins, users, recruiterVerifications, talentVerifications] =
         await Promise.all([
           db.collection('users').where('isAdmin', '==', true).limit(1).get(),
@@ -151,12 +153,21 @@ export async function GET(request: Request) {
           anyUserExists: !users.empty,
           recruiterVerificationEnabled: true,
           talentVerificationEnabled: true,
+          emailNotificationFoundationAdded: true,
+          emailDeliveryModeSafe: true,
+          emailProviderConfigured: email.configured,
+          emailNoopModeActive: !email.configured,
+          notificationPreferencesEnabled: true,
+          pwaManifestAdded: true,
+          pushNotificationsPending: true,
+          realEmailProviderSetupPending: !email.configured,
           recruiterVerificationRecords: recruiterVerifications.size,
           talentVerificationRecords: talentVerifications.size,
         },
         env: {
           public: validatePublicFirebaseEnv(),
           server: validateServerFirebaseEnv(),
+          email,
         },
       });
     }

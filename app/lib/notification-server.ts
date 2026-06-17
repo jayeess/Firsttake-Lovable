@@ -5,6 +5,7 @@ import {
   getNotificationDocumentId,
   type NotificationInput,
 } from './notification-policy';
+import { deliverEmailForNotification } from './email/email-notifications';
 
 export const createNotification = async (input: NotificationInput) => {
   const db = getAdminDb();
@@ -20,6 +21,7 @@ export const createNotification = async (input: NotificationInput) => {
   if (id) {
     try {
       await ref.create(data);
+      await deliverEmailForNotification(input);
       return ref.id;
     } catch (error: unknown) {
       const code =
@@ -32,6 +34,7 @@ export const createNotification = async (input: NotificationInput) => {
   }
 
   await ref.set(data);
+  await deliverEmailForNotification(input);
   return ref.id;
 };
 
