@@ -169,12 +169,15 @@ export default function AuditionsPage() {
 
       <section
         aria-label="Audition search and filters"
-        className="mt-6 rounded-md border border-[#d7e0e4] bg-white p-3 sm:p-4"
+        className="mt-6 rounded-md border border-[#cbd6db] bg-white/95 p-3 shadow-sm sm:p-4"
       >
-        <div className="grid gap-3 lg:grid-cols-[minmax(280px,1fr)_210px_auto]">
-          <label className="relative">
+        <div className="grid gap-2 sm:gap-3 md:grid-cols-[minmax(0,1fr)_220px_150px] md:items-center">
+          <label className="relative min-w-0">
             <span className="sr-only">Search auditions</span>
-            <Search className="absolute left-3 top-3.5 size-4 text-[#657176]" />
+            <Search
+              aria-hidden="true"
+              className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-[#657176]"
+            />
             <input
               value={filters.search}
               onChange={(event) =>
@@ -184,15 +187,15 @@ export default function AuditionsPage() {
                 }))
               }
               placeholder="Search role, project, company, or location"
-              className="field pl-10"
+              className="field rounded-md !pl-11 !pr-4 text-sm placeholder:font-normal"
             />
           </label>
-          <label className="relative">
+          <label className="relative min-w-0">
             <span className="sr-only">Sort auditions</span>
             <select
               value={sort}
               onChange={(event) => setSort(event.target.value as AuditionSort)}
-              className="field appearance-none pr-9 font-bold"
+              className="field rounded-md appearance-none !pr-10 text-sm font-bold"
             >
               <option value="NEWEST">Newest first</option>
               <option value="DEADLINE">Deadline soon</option>
@@ -200,12 +203,15 @@ export default function AuditionsPage() {
               <option value="RECOMMENDED">Recommended for you</option>
               <option value="UPDATED">Recently updated</option>
             </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-3.5 size-4" />
+            <ChevronDown
+              aria-hidden="true"
+              className="pointer-events-none absolute right-3.5 top-1/2 size-4 -translate-y-1/2 text-[#657176]"
+            />
           </label>
           <button
             type="button"
             onClick={() => setFiltersOpen((current) => !current)}
-            className="secondary-button flex items-center justify-center gap-2 sm:w-auto"
+            className="secondary-button rounded-md text-sm sm:w-auto md:w-full"
             aria-expanded={filtersOpen}
           >
             <SlidersHorizontal className="size-4" />
@@ -215,7 +221,7 @@ export default function AuditionsPage() {
         </div>
 
         {filtersOpen && (
-          <div className="mt-4 grid gap-3 border-t border-[#e1e5ea] pt-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-3 grid gap-3 border-t border-[#e1e5ea] pt-3 sm:grid-cols-2 lg:grid-cols-4">
             <SelectFilter
               label="Category"
               value={filters.category}
@@ -342,7 +348,7 @@ export default function AuditionsPage() {
                 key={item.key}
                 type="button"
                 onClick={() => clearFilter(item.key)}
-              className="min-h-9 border border-[#9fc9c4] bg-[#edf7f5] px-3 py-1.5 text-xs font-bold text-[#006d7f]"
+                className="min-h-9 rounded-md border border-[#9fc9c4] bg-[#edf7f5] px-3 py-1.5 text-xs font-bold text-[#006d7f]"
               >
                 {item.label} ×
               </button>

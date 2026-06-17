@@ -259,14 +259,14 @@ export default function AuditionApplicantsPage() {
 
       <section
         aria-label="Applicant filters and sorting"
-        className="mt-5 rounded-md border border-[#d7e0e4] bg-white p-3 sm:p-4"
+        className="mt-5 rounded-md border border-[#cbd6db] bg-white/95 p-3 shadow-sm sm:p-4"
       >
-        <div className="grid gap-3 lg:grid-cols-[minmax(240px,1fr)_190px_auto]">
-          <label className="relative">
+        <div className="grid gap-2 sm:gap-3 md:grid-cols-[minmax(0,1fr)_220px_150px] md:items-center">
+          <label className="relative min-w-0">
             <span className="sr-only">Search applicants</span>
             <Search
               aria-hidden="true"
-              className="absolute left-3 top-3.5 size-4 text-[#657176]"
+              className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-[#657176]"
             />
             <input
               value={filters.search}
@@ -277,15 +277,15 @@ export default function AuditionApplicantsPage() {
                 }))
               }
               placeholder="Search name, category, skill, or location"
-              className="min-h-11 w-full border border-[#cbd6db] pl-10 pr-3 text-sm"
+              className="field rounded-md !pl-11 !pr-4 text-sm placeholder:font-normal"
             />
           </label>
-          <label className="relative">
+          <label className="relative min-w-0">
             <span className="sr-only">Sort applicants</span>
             <select
               value={sort}
               onChange={(event) => setSort(event.target.value as ApplicantSort)}
-              className="min-h-11 w-full appearance-none border border-[#cbd6db] bg-white px-3 pr-9 text-sm font-bold"
+              className="field rounded-md appearance-none !pr-10 text-sm font-bold"
             >
               <option value="NEWEST">Newest first</option>
               <option value="OLDEST">Oldest first</option>
@@ -297,18 +297,18 @@ export default function AuditionApplicantsPage() {
             </select>
             <ChevronDown
               aria-hidden="true"
-              className="pointer-events-none absolute right-3 top-3.5 size-4"
+              className="pointer-events-none absolute right-3.5 top-1/2 size-4 -translate-y-1/2 text-[#657176]"
             />
           </label>
           <button
             type="button"
             onClick={() => setFilters(initialFilters)}
-            className="secondary-button sm:w-auto"
+            className="secondary-button rounded-md text-sm sm:w-auto md:w-full"
           >
             Clear filters
           </button>
         </div>
-        <div className="mt-4 flex flex-wrap gap-x-5 gap-y-3">
+        <div className="mt-3 flex flex-wrap gap-x-5 gap-y-3 border-t border-[#e1e5ea] pt-3">
           <FilterToggle
             label="Verified Talent"
             checked={filters.verifiedOnly}
@@ -366,7 +366,7 @@ export default function AuditionApplicantsPage() {
               setFilters((current) => ({ ...current, tag: event.target.value }))
             }
             placeholder="Filter by internal tag"
-            className="min-h-10 border border-[#cbd6db] px-3 text-sm"
+            className="field rounded-md text-sm"
           />
           <input
             value={filters.category}
@@ -377,7 +377,7 @@ export default function AuditionApplicantsPage() {
               }))
             }
             placeholder="Category"
-            className="min-h-10 border border-[#cbd6db] px-3 text-sm"
+            className="field rounded-md text-sm"
           />
           <input
             value={filters.location}
@@ -388,7 +388,7 @@ export default function AuditionApplicantsPage() {
               }))
             }
             placeholder="Location"
-            className="min-h-10 border border-[#cbd6db] px-3 text-sm"
+            className="field rounded-md text-sm"
           />
           <input
             value={filters.language}
@@ -399,7 +399,7 @@ export default function AuditionApplicantsPage() {
               }))
             }
             placeholder="Language"
-            className="min-h-10 border border-[#cbd6db] px-3 text-sm"
+            className="field rounded-md text-sm"
           />
         </div>
       </section>
