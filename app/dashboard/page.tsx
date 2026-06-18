@@ -151,10 +151,11 @@ export default function Dashboard() {
                 Recruiter workspace
               </p>
               <h1 className="mt-2 text-3xl font-black leading-tight sm:text-4xl">
-                Welcome
+                Manage your casting pipeline.
               </h1>
               <p className="mt-3 max-w-2xl text-white/75">
-                Keep your casting pipeline moving and your briefs current.
+                Post verified auditions, review Talent profiles and self-tapes,
+                shortlist applicants, and keep safer conversations moving.
               </p>
             </div>
             <Link href="/recruiter/auditions/new" className="primary-button sm:w-auto">
@@ -207,7 +208,7 @@ export default function Dashboard() {
               {[
                 ['Review applicants', 'Open your live casting calls and keep decisions moving.', '/recruiter/auditions'],
                 ['Post a brief', 'Create a clear casting call with deadline, requirements, and role context.', '/recruiter/auditions/new'],
-                ['Check messages', 'Reply to shortlisted Talent while keeping communication protected.', '/messages'],
+                ['Check messages', 'Reply to applicants while keeping communication protected on-platform.', '/messages'],
               ].map(([title, body, href]) => (
                 <Link key={title} href={href} className="mobile-card block rounded-md p-5 hover:border-[#008ca6]">
                   <p className="eyebrow">{title}</p>
@@ -296,8 +297,8 @@ function TalentWorkspace({
   const nextAction = getTalentNextAction({
     applications,
     completion,
-    emailVerified,
     missingSelfTapes,
+    savedAuditions,
     unreadConversationCount,
   });
   const metrics = [
@@ -346,18 +347,24 @@ function TalentWorkspace({
             Talent home
           </p>
           <h2 className="mt-2 text-3xl font-black leading-tight sm:text-5xl">
-            Your next audition starts with one focused move.
+            Find your next casting opportunity.
           </h2>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-white/80 sm:text-base">
-            Welcome{firstName ? `, ${firstName}` : ''}. Keep your profile sharp,
-            follow recruiter signals, and return to the roles worth your energy.
+            Welcome{firstName ? `, ${firstName}` : ''}. Build your profile,
+            apply to verified roles, submit self-tapes, and track every
+            recruiter response in one place.
           </p>
           <div className="mt-5 flex flex-col gap-3 sm:flex-row">
             <Link href={nextAction.href} className="primary-button sm:w-auto">
               {nextAction.cta}
               <ArrowRight className="size-4" />
             </Link>
-            {completion < 100 && nextAction.href !== '/talent/profile' && (
+            {applications.length > 0 && nextAction.href !== '/applications' && (
+              <Link href="/applications" className="secondary-button border-white/30 bg-white/10 text-white hover:bg-white/15 sm:w-auto">
+                View applications
+              </Link>
+            )}
+            {applications.length === 0 && completion < 100 && nextAction.href !== '/talent/profile' && (
               <Link href="/talent/profile" className="secondary-button border-white/30 bg-white/10 text-white hover:bg-white/15 sm:w-auto">
                 Complete profile
               </Link>
@@ -450,6 +457,50 @@ function TalentWorkspace({
         </article>
       </section>
 
+      <section className="mt-5">
+        <div className="mb-3 flex items-end justify-between gap-3">
+          <div>
+            <p className="eyebrow">Audition discovery</p>
+            <h2 className="mt-1 text-xl font-black">Move from interest to application</h2>
+          </div>
+          <Link href="/auditions" className="hidden text-sm font-black text-[#008ca6] sm:block">
+            Browse all
+          </Link>
+        </div>
+        <div className="grid gap-3 md:grid-cols-3">
+          {[
+            {
+              title: 'Browse verified auditions',
+              body: 'Find structured casting calls with requirements, deadlines, and recruiter context.',
+              href: '/auditions',
+              Icon: Film,
+            },
+            {
+              title: 'Return to saved roles',
+              body: savedAuditions.length
+                ? `${savedAuditions.length} saved audition${savedAuditions.length === 1 ? '' : 's'} waiting for review.`
+                : 'Save promising auditions and revisit them before the deadline.',
+              href: '/auditions?view=saved',
+              Icon: Bookmark,
+            },
+            {
+              title: 'Track applications',
+              body: applications.length
+                ? `${activeApplications} active application${activeApplications === 1 ? '' : 's'} still moving.`
+                : 'Once you apply, every status update appears in one clear tracker.',
+              href: '/applications',
+              Icon: ClipboardList,
+            },
+          ].map((item) => (
+            <Link key={item.title} href={item.href} className="surface group block p-5 transition hover:border-[#008ca6]">
+              <item.Icon className="size-5 text-[#008ca6]" />
+              <h3 className="mt-3 text-lg font-black">{item.title}</h3>
+              <p className="mt-2 text-sm leading-6 text-[#657176]">{item.body}</p>
+            </Link>
+          ))}
+        </div>
+      </section>
+
       <section className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
         {metrics.map((metric) => (
           <Link
@@ -505,6 +556,46 @@ function TalentWorkspace({
           <article className="surface p-5">
             <div className="flex items-start justify-between gap-3">
               <div>
+                <p className="eyebrow">Self-tapes</p>
+                <h2 className="mt-2 text-xl font-black">
+                  {missingSelfTapes.length ? 'Submission needed' : 'Digital auditions'}
+                </h2>
+              </div>
+              <Video className="size-5 text-[#008ca6]" />
+            </div>
+            <p className="mt-4 text-sm leading-6 text-[#657176]">
+              {missingSelfTapes.length
+                ? `${missingSelfTapes.length} application${missingSelfTapes.length === 1 ? '' : 's'} need self-tape material before review.`
+                : 'Self-tape requests will appear here when a role requires digital audition material.'}
+            </p>
+            <Link href="/applications" className="secondary-button mt-5 sm:w-auto">
+              {missingSelfTapes.length ? 'Submit self-tape' : 'View applications'}
+            </Link>
+          </article>
+
+          <article className="surface p-5">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="eyebrow">Recruiter replies</p>
+                <h2 className="mt-2 text-xl font-black">
+                  {unreadConversationCount ? 'Reply waiting' : 'Messages'}
+                </h2>
+              </div>
+              <MessageCircle className="size-5 text-[#d8a843]" />
+            </div>
+            <p className="mt-4 text-sm leading-6 text-[#657176]">
+              {unreadConversationCount
+                ? `${unreadConversationCount} unread recruiter conversation${unreadConversationCount === 1 ? '' : 's'} need attention.`
+                : 'Recruiter conversations stay organized and protected once casting teams respond.'}
+            </p>
+            <Link href="/messages" className="secondary-button mt-5 sm:w-auto">
+              Open messages
+            </Link>
+          </article>
+
+          <article className="surface p-5">
+            <div className="flex items-start justify-between gap-3">
+              <div>
                 <p className="eyebrow">Saved auditions</p>
                 <h2 className="mt-2 text-xl font-black">Revisit your shortlist</h2>
               </div>
@@ -557,50 +648,23 @@ function TalentWorkspace({
 function getTalentNextAction({
   applications,
   completion,
-  emailVerified,
   missingSelfTapes,
+  savedAuditions,
   unreadConversationCount,
 }: {
   applications: Application[];
   completion: number;
-  emailVerified: boolean;
   missingSelfTapes: Application[];
+  savedAuditions: SavedAudition[];
   unreadConversationCount: number;
 }) {
-  if (!emailVerified) {
-    return {
-      title: 'Verify your email',
-      body: 'A verified email makes your Talent account more trustworthy before recruiters respond.',
-      cta: 'Check verification guidance',
-      href: '#email-verification',
-      Icon: ShieldCheck,
-    };
-  }
-  if (completion < 100) {
-    return {
-      title: 'Complete your talent profile',
-      body: 'Add the missing recruiter-facing signals: media, links, skills, languages, and public profile readiness.',
-      cta: 'Complete profile',
-      href: '/talent/profile',
-      Icon: Sparkles,
-    };
-  }
   if (missingSelfTapes.length > 0) {
     return {
       title: 'Submit your self-tape',
       body: 'One or more active applications need a required self-tape before recruiters can fully review you.',
-      cta: 'Open applications',
+      cta: 'Submit self-tape',
       href: '/applications',
       Icon: Video,
-    };
-  }
-  if (unreadConversationCount > 0) {
-    return {
-      title: 'Reply to recruiter',
-      body: 'You have unread conversation activity. A quick response can keep momentum moving.',
-      cta: 'Open messages',
-      href: '/messages',
-      Icon: MessageCircle,
     };
   }
   if (applications.length === 0) {
@@ -612,13 +676,58 @@ function getTalentNextAction({
       Icon: Film,
     };
   }
+  if (savedAuditions.length > 0 && !hasRecentApplication(applications)) {
+    return {
+      title: 'Turn a saved role into an application',
+      body: 'You have saved auditions waiting. Revisit the strongest fit and apply before the deadline.',
+      cta: 'View saved auditions',
+      href: '/auditions?view=saved',
+      Icon: Bookmark,
+    };
+  }
+  if (unreadConversationCount > 0) {
+    return {
+      title: 'Reply to recruiter',
+      body: 'You have unread conversation activity. A quick response can keep casting momentum moving.',
+      cta: 'Reply to recruiter',
+      href: '/messages',
+      Icon: MessageCircle,
+    };
+  }
+  if (completion < 100) {
+    return {
+      title: 'Complete your talent profile',
+      body: 'Add the missing recruiter-facing signals: media, links, skills, languages, and public profile readiness.',
+      cta: 'Complete profile',
+      href: '/talent/profile',
+      Icon: Sparkles,
+    };
+  }
   return {
     title: 'Browse new auditions',
     body: 'Your workspace is in good shape. Look for fresh roles and save the ones worth revisiting.',
-    cta: 'Find roles',
+    cta: 'Browse new auditions',
     href: '/auditions',
     Icon: ClipboardList,
   };
+}
+
+function hasRecentApplication(applications: Application[]) {
+  const twoWeeksAgo = Date.now() - 1000 * 60 * 60 * 24 * 14;
+  return applications.some((application) => {
+    const timestamp = toMillis(application.createdAt ?? application.updatedAt);
+    return timestamp >= twoWeeksAgo;
+  });
+}
+
+function toMillis(value: Application['createdAt'] | Application['updatedAt']) {
+  if (!value) return 0;
+  if (value instanceof Date) return value.getTime();
+  const maybeTimestamp = value as { toMillis?: unknown };
+  if (typeof maybeTimestamp.toMillis === 'function') {
+    return maybeTimestamp.toMillis();
+  }
+  return 0;
 }
 
 function getReadinessHints(profile: TalentProfile | null, completion: number) {

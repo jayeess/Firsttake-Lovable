@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 
 test.describe('public routes', () => {
   const routes = [
-    ['/', /Talent finds its stage/i],
+    ['/', /Where Talent Meets Opportunity/i],
     ['/auth/login', /Continue your casting journey/i],
     ['/auth/signup', /Your next opportunity starts here/i],
     ['/auth/forgot-password', /Reset your password/i],

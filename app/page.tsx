@@ -50,23 +50,21 @@ export default function Home() {
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,17,31,0.96)_0%,rgba(7,17,31,0.9)_48%,rgba(7,17,31,0.56)_100%)] lg:bg-[linear-gradient(90deg,rgba(7,17,31,0.98)_0%,rgba(7,17,31,0.88)_42%,rgba(7,17,31,0.28)_100%)]" />
         <div className="relative z-10 mx-auto w-full max-w-7xl px-5 pb-16 pt-32 text-white">
           <p className="text-sm font-black uppercase text-[#55e6f7]">
-            Cinema craft meets connected opportunity
+            FirstTake by MVA Studios
           </p>
           <h1 className="mt-5 max-w-3xl text-4xl font-black leading-[1.04] sm:text-6xl lg:text-7xl">
-            Talent finds its stage.
-            <br />
-            Casting finds its people.
+            Where Talent Meets Opportunity.
           </h1>
           <p lang="te" className="mt-5 text-2xl font-bold text-[#ffd66d]">
             నట కనెక్ట్
           </p>
           <p className="mt-6 max-w-xl text-base leading-7 text-white/72 sm:text-lg sm:leading-8">
-            One professional network for artists, production teams, auditions,
-            applications, and casting decisions.
+            Discover verified auditions, build your professional portfolio,
+            submit self-tapes, and track every casting response in one place.
           </p>
           <div className="mt-9 grid gap-3 sm:flex sm:flex-wrap">
             <Link href="/auth/signup" className="primary-button px-7 sm:w-auto">
-              Create your profile
+              Join the beta
             </Link>
             <Link
               href="/auth/login"
@@ -80,9 +78,9 @@ export default function Home() {
 
       <section className="mx-auto grid max-w-7xl px-5 py-14 lg:grid-cols-3">
         {[
-          ['01', 'Discover the right work', 'Explore structured casting calls with clear requirements, deadlines, and project context.'],
-          ['02', 'Present real capability', 'Build a professional talent portfolio or a credible production-company profile.'],
-          ['03', 'Move casting forward', 'Track applications and manage talent through review, shortlist, and decision stages.'],
+          ['01', 'Opportunities are scattered', 'Casting calls often disappear inside Instagram posts, WhatsApp forwards, contacts, and unclear forms.'],
+          ['02', 'FirstTake centralizes discovery', 'Talent can browse verified auditions with clear requirements, deadlines, and recruiter context.'],
+          ['03', 'Digital auditions reduce friction', 'Profiles, applications, self-tapes, messages, and status updates stay connected in one workflow.'],
         ].map(([number, title, body]) => (
           <article
             key={number}
@@ -99,11 +97,15 @@ export default function Home() {
         {[
           [
             'For Talent',
-            'Build a trusted profile, upload your portfolio, save auditions, apply, track every status, and message recruiters safely.',
+            'Create a professional profile with photos, videos, skills, languages, portfolio links, showreels, saved auditions, self-tapes, and status tracking.',
           ],
           [
             'For Recruiters',
-            'Publish verified casting calls, review applicant cards, manage shortlists, preview media, and keep decisions organized.',
+            'Post verified auditions, review Talent profiles and media, manage self-tapes, shortlist applicants, and message safely.',
+          ],
+          [
+            'Digital audition workflow',
+            'Apply from anywhere, submit required self-tapes, and avoid unnecessary travel before a recruiter knows there is a fit.',
           ],
           [
             'Trust and verification',
@@ -130,11 +132,11 @@ export default function Home() {
               Built for Telugu cinema and beyond
             </p>
             <h2 className="mt-3 max-w-3xl text-4xl font-black">
-              Professional profiles. Clear auditions. Better connections.
+              Verified casting calls. Professional portfolios. Safer first connections.
             </h2>
           </div>
           <Link href="/auth/signup" className="primary-button shrink-0 sm:w-auto">
-            Join the network
+            Join beta
           </Link>
         </div>
       </section>

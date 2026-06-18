@@ -6,11 +6,18 @@ Nata Connect now has a strong product foundation across Talent, Recruiter, and A
 
 The main UX risk was not missing functionality. It was unclear hierarchy: users could complete tasks, but they were not always guided through why each section matters, what is public, what is private, what is complete, and what to do next.
 
+This pass also realigned the product around the FirstTake by MVA Studios
+promise: "Where Talent Meets Opportunity." The experience now emphasizes
+verified auditions, professional portfolios, self-tape workflows, application
+tracking, recruiter review, and platform trust instead of generic dashboard
+actions.
+
 ## Pages Improved
 
 - `/talent/profile`
 - `/recruiter/profile`
 - `/dashboard`
+- `/`
 - `/messages`
 - `/messages/[conversationId]`
 
@@ -21,20 +28,39 @@ Recent previous polish also improved:
 
 ## Dashboard CTA Logic
 
-The Talent dashboard primary CTA now follows the product journey instead of
-promoting help as the main action.
+The Talent dashboard primary CTA now follows the casting journey instead of
+promoting help, safety, or email verification as the main action.
 
 Priority order:
 
-1. Email not verified: show email verification guidance.
-2. Profile below 100%: send Talent to complete profile details.
-3. Required self-tape missing: send Talent to applications.
-4. Unread conversation: send Talent to messages.
-5. No applications: send Talent to auditions.
-6. Otherwise: send Talent to browse new auditions.
+1. Required self-tape missing: send Talent to applications with self-tape copy.
+2. No applications yet: send Talent to browse auditions.
+3. Saved auditions exist but no recent application: send Talent to saved auditions.
+4. Unread recruiter message: send Talent to messages.
+5. Profile below 100%: send Talent to complete profile.
+6. Email not verified: show a secondary trust banner, not the hero CTA.
+7. Otherwise: send Talent to browse new auditions.
 
 Safety and help remain available as a secondary support card, not the hero
 action.
+
+The dashboard now includes opportunity-first sections for audition discovery,
+application momentum, self-tape reminders, saved auditions, recruiter replies,
+and safety/support.
+
+## Landing Page Alignment
+
+The public landing page now leads with the core FirstTake pitch:
+
+- "Where Talent Meets Opportunity."
+- Discover verified auditions.
+- Build a professional portfolio.
+- Submit self-tapes.
+- Track every casting response in one place.
+
+It also explains the market problem of scattered audition discovery across
+Instagram, WhatsApp, informal contacts, and unclear forms, then positions
+FirstTake as a centralized verified casting workflow for Talent and Recruiters.
 
 ## Profile Completion Logic
 
@@ -118,6 +144,10 @@ Remaining Talent opportunities:
 ## Recruiter Journey Improvements
 
 The Recruiter profile now better explains the path from company setup to verification and publishing readiness.
+
+The Recruiter dashboard copy was also aligned to the same product language:
+verified audition posting, applicant review, self-tape review, shortlisting, and
+safe on-platform messaging.
 
 Remaining Recruiter opportunities:
 
