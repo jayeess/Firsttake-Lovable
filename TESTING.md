@@ -46,10 +46,20 @@ keeps its own Firebase session.
 
 Dashboard and profile pages show an email verification trust prompt when the
 current Firebase user is unverified. Use **Send verification email** to trigger
-Firebase Auth, open the email link, then return to the app and use **I verified,
-refresh status**. The refresh reloads the Firebase user, forces a fresh ID token,
-and syncs `emailVerified: true` to the signed-in user document through a secure
-server route.
+Firebase Auth, open the email link, then return to the app. The prompt checks
+status quietly on mount, tab focus, and visibility changes, and briefly polls
+after sending an email. Users can also choose **Check verification status**.
+
+Firebase email links continue to `/auth/email-verified`. In production, set:
+
+```env
+NEXT_PUBLIC_APP_URL=https://firsttake-lovable.vercel.app
+```
+
+The refresh reloads the Firebase user, forces a fresh ID token, and syncs
+`emailVerified: true` to the signed-in user document through a secure server
+route. During beta, remind testers to check Spam or Promotions before resending
+because Firebase can throttle repeated verification emails.
 
 ## Disable or remove
 

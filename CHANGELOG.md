@@ -9,6 +9,9 @@
 - Added real Firebase email verification send/resend and refresh controls
 - Added secure Admin-SDK token verified email-verification sync route for the
   current user document
+- Polished email verification wording, added automatic checks on mount/focus,
+  short post-send polling, Spam/Promotions guidance, and `/auth/email-verified`
+  continue page
 - Updated UX polish, README, and testing documentation
 
 ### Phase 5B: Email Notifications Foundation and PWA Readiness

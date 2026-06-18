@@ -56,10 +56,12 @@ export const prepareTabSession = async () => {
 };
 
 const getEmailVerificationRedirectUrl = () => {
+  // Production should set:
+  // NEXT_PUBLIC_APP_URL=https://firsttake-lovable.vercel.app
   const configuredUrl = normalizeAppUrl(process.env.NEXT_PUBLIC_APP_URL);
   const browserUrl =
     typeof window === 'undefined' ? '' : normalizeAppUrl(window.location.origin);
-  return `${configuredUrl || browserUrl || 'http://localhost:3000'}/dashboard`;
+  return `${configuredUrl || browserUrl || 'http://localhost:3000'}/auth/email-verified`;
 };
 
 export const sendVerificationEmail = async (user: User) => {

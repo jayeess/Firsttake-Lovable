@@ -6,6 +6,7 @@ test.describe('public routes', () => {
     ['/auth/login', /Continue your casting journey/i],
     ['/auth/signup', /Your next opportunity starts here/i],
     ['/auth/forgot-password', /Reset your password/i],
+    ['/auth/email-verified', /Email verification link opened/i],
     ['/terms', /Terms of Service/i],
     ['/privacy', /Privacy Policy/i],
     ['/community-guidelines', /Community Guidelines/i],

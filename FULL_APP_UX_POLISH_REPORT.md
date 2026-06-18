@@ -65,6 +65,12 @@ Added a reusable verification prompt for signed-in unverified users:
   after Firebase Admin verifies the current user's ID token.
 - Keep email verification as a secondary trust banner/card, not the primary
   casting journey CTA.
+- Check status quietly on mount, browser focus, and visibility changes.
+- Poll for a short two-minute window after sending an email, then stop.
+- Continue Firebase email links to `/auth/email-verified`.
+- Use production `NEXT_PUBLIC_APP_URL=https://firsttake-lovable.vercel.app`
+  so Firebase emails return users to the correct deployment.
+- Include Spam/Promotions guidance before encouraging another resend.
 
 The prompt appears on:
 
