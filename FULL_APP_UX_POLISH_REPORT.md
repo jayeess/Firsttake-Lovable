@@ -19,6 +19,53 @@ Recent previous polish also improved:
 - `/auditions`
 - `/applications`
 
+## Dashboard CTA Logic
+
+The Talent dashboard primary CTA now follows the product journey instead of
+promoting help as the main action.
+
+Priority order:
+
+1. Email not verified: show email verification guidance.
+2. Profile below 100%: send Talent to complete profile details.
+3. Required self-tape missing: send Talent to applications.
+4. Unread conversation: send Talent to messages.
+5. No applications: send Talent to auditions.
+6. Otherwise: send Talent to browse new auditions.
+
+Safety and help remain available as a secondary support card, not the hero
+action.
+
+## Profile Completion Logic
+
+The Talent profile now explains why the score is not 100%. The score still uses
+the existing trust policy, but the UI now surfaces the exact missing items and
+turns them into actions.
+
+Tracked completeness signals:
+
+- Basic identity
+- Age, gender, and height
+- Category
+- Experience
+- Location
+- Bio of at least 80 characters
+- Instagram, YouTube, or portfolio website
+- Profile photo
+- Portfolio media
+- Skills or languages
+
+The profile now shows:
+
+- Completion percentage
+- Exact missing items
+- "Complete these to reach 100%" guidance
+- Done, Missing, and Optional states
+- Action links to the relevant profile section
+
+Skills and languages are now editable from the Talent profile, so the user is
+not blocked from reaching 100% by a hidden field.
+
 ## Profile Improvements
 
 ### Talent Profile
@@ -27,11 +74,13 @@ The Talent profile now has a clearer structure:
 
 - Profile overview hero with name, completeness, verification, and public profile state.
 - Readiness card showing profile completeness and verification messaging.
-- Checklist explaining what recruiters look for.
+- Checklist explaining what recruiters look for, with Done/Missing/Optional states.
+- Exact missing-item list explaining how to reach 100%.
 - Privacy note explaining recruiter visibility, public profile visibility, and internal-only data.
 - Form split into clear sections:
   - Basic identity
   - Casting details
+  - Skills and languages
   - Portfolio links
 - Sticky save action for easier mobile and desktop saving.
 - Public profile preview action appears when a public slug exists.
@@ -42,12 +91,13 @@ The Recruiter profile now has:
 
 - Company overview hero with verification, company info, and contact readiness.
 - Trust readiness checklist.
+- Exact trust setup gaps before the profile feels fully ready.
 - Safety/trust note explaining recruiter responsibilities.
 - Form split into clear sections:
   - Company details
   - Casting identity
 - Sticky save action.
-- Direct verification status action.
+- Hero CTA that points to trust setup until ready, then audition creation.
 
 ## Talent Journey Improvements
 

@@ -357,7 +357,7 @@ function TalentWorkspace({
               {nextAction.cta}
               <ArrowRight className="size-4" />
             </Link>
-            {completion < 80 && (
+            {completion < 100 && nextAction.href !== '/talent/profile' && (
               <Link href="/talent/profile" className="secondary-button border-white/30 bg-white/10 text-white hover:bg-white/15 sm:w-auto">
                 Complete profile
               </Link>
@@ -367,18 +367,24 @@ function TalentWorkspace({
       </section>
 
       {!emailVerified && (
-        <section className="mt-5 flex flex-col gap-3 rounded-md border border-[#d8a843] bg-[#fff8df] p-4 text-sm text-[#5e4b13] sm:flex-row sm:items-center sm:justify-between">
-          <div>
+        <section
+          id="email-verification"
+          className="mt-5 scroll-mt-24 rounded-md border border-[#d8a843] bg-[#fff8df] p-4 text-sm text-[#5e4b13]"
+        >
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
             <p className="font-black text-[#07111f]">
               Verify your email to strengthen account trust.
             </p>
             <p className="mt-1">
-              We will show your account as more reliable once your inbox confirms it.
+              Open the Firebase verification email in your inbox, then refresh
+              this dashboard after confirming.
             </p>
+            </div>
+            <span className="rounded-md bg-white px-3 py-2 font-bold text-[#88680f]">
+              {email}
+            </span>
           </div>
-          <span className="rounded-md bg-white px-3 py-2 font-bold text-[#88680f]">
-            {email}
-          </span>
         </section>
       )}
 
@@ -565,15 +571,15 @@ function getTalentNextAction({
     return {
       title: 'Verify your email',
       body: 'A verified email makes your Talent account more trustworthy before recruiters respond.',
-      cta: 'Review help',
-      href: '/help',
+      cta: 'Check verification guidance',
+      href: '#email-verification',
       Icon: ShieldCheck,
     };
   }
-  if (completion < 70) {
+  if (completion < 100) {
     return {
       title: 'Complete your talent profile',
-      body: 'Add the essentials recruiters expect: profile details, media, links, skills, and languages.',
+      body: 'Add the missing recruiter-facing signals: media, links, skills, languages, and public profile readiness.',
       cta: 'Complete profile',
       href: '/talent/profile',
       Icon: Sparkles,

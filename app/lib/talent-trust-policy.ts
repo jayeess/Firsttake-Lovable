@@ -61,8 +61,7 @@ export const calculateTalentProfileCompleteness = (
     professionalLinks: 'Add Instagram, YouTube, or a portfolio website',
     profilePhoto: 'Add a professional profile photo',
     portfolioMedia: 'Add at least one portfolio image or showreel',
-    skillsAndLanguages:
-      'Add skills or languages when those fields become available',
+    skillsAndLanguages: 'Add skills or languages',
   };
 
   return {

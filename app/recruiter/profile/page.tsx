@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { AppShell } from '@/components/app-shell';
 import { useAuth } from '@/context/auth-context';
@@ -126,6 +127,13 @@ export default function RecruiterProfilePage() {
   const companyReady = Boolean(profile.companyName && profile.bio);
   const contactReady = Boolean(profile.phone && profile.address);
   const websiteReady = Boolean(profile.website);
+  const recruiterReadinessItems = [
+    !companyReady ? 'Company name and bio' : '',
+    !contactReady ? 'Phone and address' : '',
+    !websiteReady ? 'Website or proof link' : '',
+    verificationStatus === 'not_submitted' ? 'Verification submission' : '',
+    verificationStatus !== 'approved' ? 'Admin approval' : '',
+  ].filter(Boolean);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -170,19 +178,27 @@ export default function RecruiterProfilePage() {
             </>
           }
           primaryAction={
-            <button
-              type="submit"
-              disabled={saving}
-              form="recruiter-profile-form"
-              className="primary-button disabled:opacity-50 sm:w-auto"
-            >
-              {saving ? 'Saving...' : 'Save profile'}
-            </button>
+            recruiterReadinessItems.length > 0 ? (
+              <Link href="#recruiter-readiness" className="primary-button sm:w-auto">
+                Complete trust setup
+              </Link>
+            ) : (
+              <Link href="/recruiter/auditions/new" className="primary-button sm:w-auto">
+                Create audition
+              </Link>
+            )
           }
-          secondaryAction={{ href: '/recruiter/verification', label: 'Verification status' }}
+          secondaryAction={{
+            href: verificationStatus === 'not_submitted'
+              ? '/recruiter/verification'
+              : '#recruiter-profile-form',
+            label: verificationStatus === 'not_submitted'
+              ? 'Submit verification'
+              : 'Update profile',
+          }}
         />
 
-        <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
+        <div id="recruiter-readiness" className="mt-5 grid scroll-mt-24 gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
           <section className="rounded-md border border-[#d7e2e6] bg-white p-4 shadow-sm sm:p-5">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div>
@@ -200,15 +216,60 @@ export default function RecruiterProfilePage() {
               </div>
               {verificationStatus === 'approved' && <VerifiedBadge />}
             </div>
+            {recruiterReadinessItems.length > 0 && (
+              <div className="mt-5 rounded-md border border-amber-200 bg-amber-50 p-4">
+                <p className="text-sm font-black text-amber-950">
+                  Complete these before the profile feels fully trusted
+                </p>
+                <ul className="mt-3 grid gap-2 text-sm leading-6 text-amber-900 sm:grid-cols-2">
+                  {recruiterReadinessItems.map((item) => (
+                    <li key={item} className="border-l-2 border-amber-300 pl-3">
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </section>
           <ReadinessChecklist
             title="Recruiter readiness"
+            description="These signals tell Talent whether the casting organization is credible and ready to publish."
             items={[
-              { label: 'Company name and bio', complete: companyReady },
-              { label: 'Phone and address', complete: contactReady },
-              { label: 'Website or proof link', complete: websiteReady },
-              { label: 'Verification submitted', complete: verificationStatus !== 'not_submitted' },
-              { label: 'Approved to publish', complete: verificationStatus === 'approved' },
+              {
+                label: 'Company name and bio',
+                complete: companyReady,
+                hint: 'Talent should understand who is casting and what your team does.',
+                actionHref: '#company-details',
+                actionLabel: 'Edit company',
+              },
+              {
+                label: 'Phone and address',
+                complete: contactReady,
+                hint: 'Contact details support accountability and admin review.',
+                actionHref: '#company-details',
+                actionLabel: 'Add contact',
+              },
+              {
+                label: 'Website or proof link',
+                complete: websiteReady,
+                hint: 'A public company or portfolio link strengthens credibility.',
+                actionHref: '#company-details',
+                actionLabel: 'Add website',
+              },
+              {
+                label: 'Verification submitted',
+                complete: verificationStatus !== 'not_submitted',
+                hint: 'Submit documents and company context for admin review.',
+                actionHref: '/recruiter/verification',
+                actionLabel: 'Open verification',
+              },
+              {
+                label: 'Approved to publish',
+                complete: verificationStatus === 'approved',
+                hint: 'Admin approval unlocks the strongest recruiter trust signal.',
+                actionHref: '/recruiter/verification',
+                actionLabel: 'Check status',
+              },
             ]}
           />
         </div>
@@ -242,6 +303,7 @@ export default function RecruiterProfilePage() {
         )}
         <form id="recruiter-profile-form" onSubmit={handleSubmit} className="mt-6 grid gap-5">
           <ProfileSection
+            id="company-details"
             eyebrow="Company details"
             title="Who is casting?"
             description="This information helps Talent evaluate whether a casting call is credible."
@@ -268,6 +330,7 @@ export default function RecruiterProfilePage() {
           </ProfileSection>
 
           <ProfileSection
+            id="casting-identity"
             eyebrow="Casting identity"
             title="How Talent should understand your team"
             description="Keep the bio specific: project types, casting style, transparency standards, and response expectations."

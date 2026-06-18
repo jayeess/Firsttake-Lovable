@@ -77,14 +77,16 @@ export function ProfileSection({
   title,
   description,
   children,
+  id,
 }: {
   eyebrow: string;
   title: string;
   description?: string;
   children: ReactNode;
+  id?: string;
 }) {
   return (
-    <section className="rounded-md border border-[#d7e2e6] bg-white p-4 shadow-sm sm:p-6">
+    <section id={id} className="scroll-mt-24 rounded-md border border-[#d7e2e6] bg-white p-4 shadow-sm sm:p-6">
       <div className="mb-5">
         <p className="eyebrow">{eyebrow}</p>
         <h2 className="mt-2 text-xl font-black sm:text-2xl">{title}</h2>
@@ -101,36 +103,77 @@ export function ProfileSection({
 
 export function ReadinessChecklist({
   title,
+  description,
   items,
 }: {
   title: string;
-  items: Array<{ label: string; complete: boolean; hint?: string }>;
+  description?: string;
+  items: Array<{
+    label: string;
+    complete: boolean;
+    hint?: string;
+    actionHref?: string;
+    actionLabel?: string;
+    optional?: boolean;
+  }>;
 }) {
   return (
     <section className="rounded-md border border-[#d7e2e6] bg-white p-4 shadow-sm sm:p-5">
       <p className="eyebrow">Readiness checklist</p>
       <h2 className="mt-2 text-xl font-black">{title}</h2>
+      {description && (
+        <p className="mt-2 text-sm leading-6 text-[#657176]">{description}</p>
+      )}
       <div className="mt-4 grid gap-2">
         {items.map((item) => (
           <div
             key={item.label}
-            className="flex items-start gap-3 rounded-md border border-[#e0e8eb] bg-[#f8fbfc] p-3"
+            className={`flex items-start gap-3 rounded-md border p-3 ${
+              item.complete
+                ? 'border-emerald-100 bg-emerald-50/70'
+                : item.optional
+                  ? 'border-[#e0e8eb] bg-[#f8fbfc]'
+                  : 'border-amber-200 bg-amber-50/70'
+            }`}
           >
             <span
               className={`mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full text-[10px] font-black ${
                 item.complete
                   ? 'bg-emerald-100 text-emerald-800'
-                  : 'bg-amber-100 text-amber-900'
+                  : item.optional
+                    ? 'bg-[#e6eef2] text-[#526874]'
+                    : 'bg-amber-100 text-amber-900'
               }`}
             >
-              {item.complete ? 'OK' : '!'}
+              {item.complete ? 'OK' : item.optional ? '-' : '!'}
             </span>
-            <div>
-              <p className="text-sm font-black">{item.label}</p>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="text-sm font-black">{item.label}</p>
+                <span
+                  className={`rounded-full px-2 py-0.5 text-[10px] font-black uppercase ${
+                    item.complete
+                      ? 'bg-emerald-100 text-emerald-800'
+                      : item.optional
+                        ? 'bg-[#e6eef2] text-[#526874]'
+                        : 'bg-amber-100 text-amber-900'
+                  }`}
+                >
+                  {item.complete ? 'Done' : item.optional ? 'Optional' : 'Missing'}
+                </span>
+              </div>
               {item.hint && (
                 <p className="mt-1 text-xs leading-5 text-[#657176]">
                   {item.hint}
                 </p>
+              )}
+              {!item.complete && item.actionHref && item.actionLabel && (
+                <Link
+                  href={item.actionHref}
+                  className="mt-2 inline-flex text-xs font-black text-[#008ca6]"
+                >
+                  {item.actionLabel}
+                </Link>
               )}
             </div>
           </div>

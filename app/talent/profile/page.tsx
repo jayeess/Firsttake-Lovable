@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { AppShell } from '@/components/app-shell';
 import { useAuth } from '@/context/auth-context';
@@ -47,6 +48,8 @@ const initialProfile: TalentProfile = {
   instagramUrl: '',
   youtubeUrl: '',
   websiteUrl: '',
+  skills: [],
+  languages: [],
   isPublic: true,
 };
 
@@ -71,6 +74,8 @@ const talentPresets: Array<{
       instagramUrl: 'https://instagram.com/aarav.demo',
       youtubeUrl: 'https://youtube.com/@aarav-demo',
       websiteUrl: 'https://aarav-demo.example.com',
+      skills: ['Screen acting', 'Improvisation', 'Theatre'],
+      languages: ['Hindi', 'English'],
       isPublic: true,
     },
   },
@@ -90,6 +95,8 @@ const talentPresets: Array<{
       instagramUrl: 'https://instagram.com/maya.moves.demo',
       youtubeUrl: 'https://youtube.com/@maya-moves-demo',
       websiteUrl: '',
+      skills: ['Contemporary dance', 'Hip-hop', 'Camera choreography'],
+      languages: ['English', 'Kannada'],
       isPublic: true,
     },
   },
@@ -109,6 +116,8 @@ const talentPresets: Array<{
       instagramUrl: '',
       youtubeUrl: 'https://youtube.com/@kabir-voice-demo',
       websiteUrl: 'https://kabirvoice.example.com',
+      skills: ['Voice acting', 'Dubbing', 'Narration'],
+      languages: ['Hindi', 'English'],
       isPublic: true,
     },
   },
@@ -128,6 +137,8 @@ const talentPresets: Array<{
       instagramUrl: 'https://instagram.com/ananya.portfolio.demo',
       youtubeUrl: '',
       websiteUrl: 'https://ananya-model.example.com',
+      skills: ['Editorial posing', 'E-commerce shoots', 'Movement direction'],
+      languages: ['Tamil', 'English'],
       isPublic: true,
     },
   },
@@ -147,6 +158,8 @@ const talentPresets: Array<{
       instagramUrl: 'https://instagram.com/rohan.anchor.demo',
       youtubeUrl: 'https://youtube.com/@rohan-anchor-demo',
       websiteUrl: '',
+      skills: ['Anchoring', 'Teleprompter', 'Live interviews'],
+      languages: ['Telugu', 'English', 'Hindi'],
       isPublic: true,
     },
   },
@@ -166,6 +179,8 @@ const talentPresets: Array<{
       instagramUrl: '',
       youtubeUrl: '',
       websiteUrl: '',
+      skills: ['Theatre workshops', 'Ensemble acting'],
+      languages: ['Hindi', 'Marathi'],
       isPublic: true,
     },
   },
@@ -209,15 +224,31 @@ export default function TalentProfilePage() {
     profile.talentVerificationStatus ??
     'not_submitted';
   const checklist = completeness.checklist;
+  const missingCount = completeness.missingFields.length;
+  const missingSummary =
+    missingCount > 0
+      ? `Missing: ${completeness.missingFields.slice(0, 2).join(', ')}${
+          missingCount > 2 ? `, and ${missingCount - 2} more` : ''
+        }`
+      : 'Everything required for the current profile score is complete.';
   const fullName =
     [profile.firstName, profile.lastName].filter(Boolean).join(' ') ||
     'Talent profile';
   const publicStatus = profile.publicProfileEnabled || profile.isPublic;
+  const profileActionHref = missingCount > 0 ? '#profile-completeness' : '#profile-form';
 
   const update = <K extends keyof TalentProfile>(
     key: K,
     value: TalentProfile[K]
   ) => setProfile((current) => ({ ...current, [key]: value }));
+  const updateList = (key: 'skills' | 'languages', value: string) =>
+    update(
+      key,
+      value
+        .split(',')
+        .map((item) => item.trim())
+        .filter(Boolean)
+    );
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -288,7 +319,11 @@ export default function TalentProfilePage() {
             </>
           }
           primaryAction={
-            canSubmitTalentVerification(
+            missingCount > 0 ? (
+              <Link href={profileActionHref} className="primary-button sm:w-auto">
+                Complete missing items
+              </Link>
+            ) : canSubmitTalentVerification(
               verificationStatus,
               completeness.score
             ) ? (
@@ -314,7 +349,10 @@ export default function TalentProfilePage() {
         />
 
         <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
-          <section className="rounded-md border border-[#d7e2e6] bg-white p-4 shadow-sm sm:p-5">
+          <section
+            id="profile-completeness"
+            className="scroll-mt-24 rounded-md border border-[#d7e2e6] bg-white p-4 shadow-sm sm:p-5"
+          >
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <p className="eyebrow">Profile readiness</p>
@@ -322,9 +360,10 @@ export default function TalentProfilePage() {
                   {completeness.score}% complete
                 </h2>
                 <p className="mt-2 max-w-2xl text-sm leading-6 text-[#657176]">
-                  Verification is optional and does not block auditions or
-                  applications. Reach {TALENT_VERIFICATION_MINIMUM_SCORE}% to
-                  request a trust review.
+                  {missingSummary} Verification is optional and does not block
+                  auditions or applications. Reach{' '}
+                  {TALENT_VERIFICATION_MINIMUM_SCORE}% to request a trust
+                  review.
                 </p>
               </div>
               {verificationStatus === 'verified' && <VerifiedBadge subject="talent" />}
@@ -354,16 +393,68 @@ export default function TalentProfilePage() {
                 resubmitting.
               </p>
             )}
+            {missingCount > 0 && (
+              <div className="mt-5 rounded-md border border-amber-200 bg-amber-50 p-4">
+                <p className="text-sm font-black text-amber-950">
+                  Complete these to reach 100%
+                </p>
+                <ul className="mt-3 grid gap-2 text-sm leading-6 text-amber-900 sm:grid-cols-2">
+                  {completeness.missingFields.map((item) => (
+                    <li key={item} className="border-l-2 border-amber-300 pl-3">
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </section>
           <ReadinessChecklist
             title="What recruiters look for"
+            description="Every missing item below contributes to the displayed completeness score."
             items={[
-              { label: 'Basic identity', complete: checklist.basicInfo },
-              { label: 'Casting details', complete: checklist.category && checklist.experience },
-              { label: 'Location and bio', complete: checklist.location && checklist.bio },
-              { label: 'Photo and portfolio', complete: checklist.profilePhoto && checklist.portfolioMedia },
-              { label: 'Skills and languages', complete: checklist.skillsAndLanguages },
-              { label: 'Public profile ready', complete: publicStatus },
+              {
+                label: 'Basic identity',
+                complete: checklist.basicInfo && checklist.demographics,
+                hint: 'Name, age, gender, and height help recruiters understand your casting fit.',
+                actionHref: '#basic-details',
+                actionLabel: 'Edit basics',
+              },
+              {
+                label: 'Casting details',
+                complete: checklist.category && checklist.experience,
+                hint: 'Category and experience make auditions and recommendations more relevant.',
+                actionHref: '#casting-details',
+                actionLabel: 'Edit casting details',
+              },
+              {
+                label: 'Location and bio',
+                complete: checklist.location && checklist.bio,
+                hint: 'A clear location and 80+ character bio reduce recruiter guesswork.',
+                actionHref: '#casting-details',
+                actionLabel: 'Improve bio',
+              },
+              {
+                label: 'Photo and portfolio',
+                complete: checklist.profilePhoto && checklist.portfolioMedia,
+                hint: 'A profile photo and at least one media item make the profile reviewable.',
+                actionHref: '#media-portfolio',
+                actionLabel: 'Manage media',
+              },
+              {
+                label: 'Skills and languages',
+                complete: checklist.skillsAndLanguages,
+                hint: 'List performance skills and spoken languages for better matching.',
+                actionHref: '#skills-languages',
+                actionLabel: 'Add skills',
+              },
+              {
+                label: 'Public profile ready',
+                complete: publicStatus,
+                hint: 'Useful for sharing your profile externally; it does not affect the trust score.',
+                actionHref: '#public-profile',
+                actionLabel: 'Review public settings',
+                optional: true,
+              },
             ]}
           />
         </div>
@@ -375,19 +466,23 @@ export default function TalentProfilePage() {
         </PrivacyNote>
         {user && profileSaved ? (
           <>
-            <TalentMediaManager
-              uid={user.uid}
-              profile={profile}
-              onProfileChange={(updates) =>
-                setProfile((current) => ({ ...current, ...updates }))
-              }
-            />
-            <PublicTalentProfileSettings
-              profile={profile}
-              onProfileChange={(updates) =>
-                setProfile((current) => ({ ...current, ...updates }))
-              }
-            />
+            <div id="media-portfolio" className="scroll-mt-24">
+              <TalentMediaManager
+                uid={user.uid}
+                profile={profile}
+                onProfileChange={(updates) =>
+                  setProfile((current) => ({ ...current, ...updates }))
+                }
+              />
+            </div>
+            <div id="public-profile" className="scroll-mt-24">
+              <PublicTalentProfileSettings
+                profile={profile}
+                onProfileChange={(updates) =>
+                  setProfile((current) => ({ ...current, ...updates }))
+                }
+              />
+            </div>
             <NotificationPreferencesForm uid={user.uid} />
           </>
         ) : (
@@ -429,8 +524,9 @@ export default function TalentProfilePage() {
             {error || message}
           </p>
         )}
-        <form onSubmit={handleSubmit} className="mt-6 grid gap-5">
+        <form id="profile-form" onSubmit={handleSubmit} className="mt-6 grid gap-5">
           <ProfileSection
+            id="basic-details"
             eyebrow="Basic identity"
             title="Who recruiters are reviewing"
             description="These details establish your basic casting profile and are shown when you apply."
@@ -462,6 +558,7 @@ export default function TalentProfilePage() {
           </ProfileSection>
 
           <ProfileSection
+            id="casting-details"
             eyebrow="Casting details"
             title="Your professional positioning"
             description="Make it easy for casting teams to understand the kinds of roles you fit."
@@ -482,6 +579,32 @@ export default function TalentProfilePage() {
                   <textarea maxLength={500} rows={5} value={profile.bio} onChange={(e) => update('bio', e.target.value)} className="field py-3" />
                 </Field>
               </div>
+            </div>
+          </ProfileSection>
+
+          <ProfileSection
+            id="skills-languages"
+            eyebrow="Skills and languages"
+            title="Matching signals"
+            description="These improve audition recommendations and help recruiters scan your strengths quickly."
+          >
+            <div className="grid gap-5 md:grid-cols-2">
+              <Field label="Skills">
+                <input
+                  value={(profile.skills ?? []).join(', ')}
+                  onChange={(e) => updateList('skills', e.target.value)}
+                  placeholder="Screen acting, dance, dubbing"
+                  className="field"
+                />
+              </Field>
+              <Field label="Languages">
+                <input
+                  value={(profile.languages ?? []).join(', ')}
+                  onChange={(e) => updateList('languages', e.target.value)}
+                  placeholder="Telugu, Hindi, English"
+                  className="field"
+                />
+              </Field>
             </div>
           </ProfileSection>
 
