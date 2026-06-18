@@ -13,15 +13,21 @@ export function AuditionCard({
   audition,
   saved = false,
   saving = false,
+  applied = false,
   recommendationScore,
   onToggleSaved,
 }: {
   audition: Audition;
   saved?: boolean;
   saving?: boolean;
+  applied?: boolean;
   recommendationScore?: number;
   onToggleSaved?: () => void;
 }) {
+  const deadlineSoon = isDeadlineSoon(audition.deadline);
+  const postedRecently = isPostedRecently(audition.createdAt);
+  const compensationLabel = getCompensationLabel(audition);
+
   return (
     <article className="surface group overflow-hidden rounded-md p-4 hover:border-[#8dbbb6] sm:p-5">
       <div className="flex items-start justify-between gap-3">
@@ -38,6 +44,11 @@ export function AuditionCard({
           {recommendationScore !== undefined && recommendationScore > 0 && (
             <span className="bg-[#fff4d6] px-2.5 py-1 text-xs font-bold text-[#8a5b00]">
               {recommendationScore}% match
+            </span>
+          )}
+          {applied && (
+            <span className="border border-[#9fc9c4] bg-[#edf7f5] px-2.5 py-1 text-xs font-black uppercase text-[#006d7f]">
+              Applied
             </span>
           )}
           <StatusBadge status={audition.status} />
@@ -60,6 +71,21 @@ export function AuditionCard({
         </div>
       </div>
       <div className="mt-4 flex flex-wrap gap-2 text-xs font-semibold text-[#536066]">
+        {audition.recruiterVerified && (
+          <span className="border border-[#9fc9c4] bg-[#edf7f5] px-2.5 py-1 text-[#006d7f]">
+            Verified recruiter
+          </span>
+        )}
+        {postedRecently && (
+          <span className="border border-[#d4e5ea] bg-white px-2.5 py-1 text-[#1f5f91]">
+            New
+          </span>
+        )}
+        {deadlineSoon && (
+          <span className="border border-[#f2c46b] bg-[#fff4d6] px-2.5 py-1 text-[#8a5b00]">
+            Deadline soon
+          </span>
+        )}
         <span className="bg-[#edf7f5] px-2.5 py-1 text-[#008ca6]">
           {CATEGORY_LABELS[audition.category]}
         </span>
@@ -67,6 +93,16 @@ export function AuditionCard({
           {EXPERIENCE_LABELS[audition.experienceLevel]}
         </span>
         <span className="bg-[#f0f1ee] px-2.5 py-1">{audition.location}</span>
+        {audition.workMode && (
+          <span className="bg-[#f0f1ee] px-2.5 py-1">
+            {WORK_MODE_LABELS[audition.workMode]}
+          </span>
+        )}
+        {compensationLabel && (
+          <span className="bg-[#f0f1ee] px-2.5 py-1">
+            {compensationLabel}
+          </span>
+        )}
         {audition.selfTapeEnabled && (
           <span className="bg-[#fff4d6] px-2.5 py-1 text-[#8a5b00]">
             {audition.selfTapeRequired
@@ -93,4 +129,58 @@ export function AuditionCard({
       </div>
     </article>
   );
+}
+
+const WORK_MODE_LABELS = {
+  ONSITE: 'Onsite',
+  REMOTE: 'Remote',
+  HYBRID: 'Hybrid',
+} as const;
+
+const PAYMENT_LABELS = {
+  PAID: 'Paid',
+  HONORARIUM: 'Honorarium',
+  UNPAID: 'Unpaid',
+  UNSPECIFIED: 'Compensation not specified',
+} as const;
+
+function getCompensationLabel(audition: Audition) {
+  if (audition.paymentType && audition.paymentType !== 'UNSPECIFIED') {
+    return PAYMENT_LABELS[audition.paymentType];
+  }
+  if (audition.payInfo?.trim()) {
+    return 'Compensation listed';
+  }
+  return audition.paymentType === 'UNSPECIFIED'
+    ? PAYMENT_LABELS.UNSPECIFIED
+    : '';
+}
+
+function isDeadlineSoon(deadline: Audition['deadline']) {
+  const date = toDate(deadline);
+  if (!date) return false;
+  const daysRemaining = (date.getTime() - Date.now()) / 86_400_000;
+  return daysRemaining >= 0 && daysRemaining <= 7;
+}
+
+function isPostedRecently(createdAt: Audition['createdAt']) {
+  const date = toDate(createdAt);
+  if (!date) return false;
+  const ageDays = (Date.now() - date.getTime()) / 86_400_000;
+  return ageDays >= 0 && ageDays <= 7;
+}
+
+function toDate(value: Audition['deadline'] | Audition['createdAt']) {
+  if (!value) return null;
+  if (value instanceof Date) return value;
+  if (
+    typeof value === 'object' &&
+    value !== null &&
+    'toDate' in value &&
+    typeof value.toDate === 'function'
+  ) {
+    const date = value.toDate();
+    return date instanceof Date ? date : null;
+  }
+  return null;
 }

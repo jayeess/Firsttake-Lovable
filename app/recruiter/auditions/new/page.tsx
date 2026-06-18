@@ -461,13 +461,13 @@ export default function NewAuditionPage() {
                         </label>
                         <label className="flex items-center gap-2 font-bold text-[#839199]">
                           <input type="checkbox" disabled />
-                          Upload video coming soon
+                          Direct upload coming soon
                         </label>
                       </div>
                       <p className="mt-3 text-sm leading-6 text-[#657176]">
                         For beta safety, self-tapes use unlisted/private links
-                        from trusted video platforms. Direct uploads will be
-                        added after private video serving is finalized.
+                        from trusted video platforms. Direct uploads remain a
+                        future feature.
                       </p>
                     </fieldset>
 
@@ -519,6 +519,10 @@ export default function NewAuditionPage() {
               <p className="mt-2">
                 Review the deadline, location, pay details, and requirements.
                 Published auditions become visible to talent immediately.
+              </p>
+              <p className="mt-3 font-semibold">
+                Never ask Talent to pay to audition. Keep requests transparent
+                and on-platform.
               </p>
             </section>
             <div className="grid gap-3">

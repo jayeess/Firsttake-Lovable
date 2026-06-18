@@ -329,8 +329,8 @@ Talent review test records should use an `E2E_TEST_` name and should be removed
 from `talentVerifications`, the Talent profile, and `auditLogs` after destructive
 manual testing.
 
-Document upload must remain disabled while Firebase Storage billing is
-unavailable.
+Document upload must remain disabled during beta verification until a secure
+document-review workflow is available.
 
 ## Talent media manual verification
 

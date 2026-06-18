@@ -30,6 +30,9 @@ Recent previous polish also improved:
 
 - `/auditions`
 - `/applications`
+- `/recruiter/auditions`
+- `/recruiter/auditions/new`
+- `/recruiter/verification`
 
 ## Dashboard CTA Logic
 
@@ -162,9 +165,11 @@ The Talent journey is now clearer:
 
 1. Dashboard surfaces next best action.
 2. Profile explains completeness, verification, media, and public profile readiness.
-3. Auditions page has a clear saved-auditions view.
-4. Applications page groups statuses into All, Active, Shortlisted, and Closed.
-5. Messages now feel like a real casting inbox.
+3. Auditions page has a clear saved-auditions view and marks already-applied roles.
+4. Audition cards surface verified recruiters, new roles, deadline urgency, work mode, compensation, and self-tape needs.
+5. Applications page groups statuses into Active, Shortlisted, Completed, and All.
+6. Application cards show deadline, recruiter, next-step copy, self-tape status, messaging, withdrawal, and a direct audition link.
+7. Messages now feel like a real casting inbox.
 
 Remaining Talent opportunities:
 
@@ -180,9 +185,18 @@ The Recruiter dashboard copy was also aligned to the same product language:
 verified audition posting, applicant review, self-tape review, shortlisting, and
 safe on-platform messaging.
 
+The Recruiter audition workspace now includes summary metrics for active calls,
+total applicants, self-tape briefs, and drafts. Both mobile cards and desktop
+tables now emphasize the primary next action: review applicants, then shortlist,
+message, select, or close the pipeline.
+
+Recruiter verification keeps document upload disabled during beta, but no longer
+mentions infrastructure constraints. The page now points recruiters toward
+company details, website, social proof links, and production context for review.
+
 Remaining Recruiter opportunities:
 
-- Apply the same sectioned form treatment to `/recruiter/auditions/new`.
+- Continue refining `/recruiter/auditions/new` with richer inline validation and preview.
 - Add dashboard next-best-action logic for profile incomplete, verification pending, no auditions, and applicant responses.
 - Add clearer self-tape review summaries in recruiter applicant views.
 

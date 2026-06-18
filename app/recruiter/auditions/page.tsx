@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { AppShell } from '@/components/app-shell';
 import { StatusBadge } from '@/components/status-badge';
 import { getRecruiterAuditions } from '@/app/lib/firestore-service';
@@ -26,6 +26,19 @@ export default function RecruiterAuditionsPage() {
       )
       .finally(() => setLoading(false));
   }, [reloadKey, user]);
+
+  const stats = useMemo(
+    () => ({
+      active: auditions.filter((item) => item.status === 'ACTIVE').length,
+      applicants: auditions.reduce(
+        (total, item) => total + (item.applicantCount ?? 0),
+        0
+      ),
+      selfTape: auditions.filter((item) => item.selfTapeEnabled).length,
+      drafts: auditions.filter((item) => item.status === 'DRAFT').length,
+    }),
+    [auditions]
+  );
 
   return (
     <AppShell requiredRole="RECRUITER">
@@ -53,6 +66,17 @@ export default function RecruiterAuditionsPage() {
             setReloadKey((current) => current + 1);
           }}
         />
+      )}
+      {!loading && !error && auditions.length > 0 && (
+        <section
+          aria-label="Casting pipeline summary"
+          className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
+        >
+          <PipelineStat label="Active calls" value={stats.active} />
+          <PipelineStat label="Total applicants" value={stats.applicants} />
+          <PipelineStat label="Self-tape briefs" value={stats.selfTape} />
+          <PipelineStat label="Drafts" value={stats.drafts} />
+        </section>
       )}
       {loading ? (
         <LoadingState label="Loading your casting pipeline..." />
@@ -109,6 +133,10 @@ export default function RecruiterAuditionsPage() {
                 View brief
               </Link>
             </div>
+            <p className="mt-3 text-xs font-semibold text-[#657176]">
+              Next action: open applicants to shortlist, message, select, or
+              close the pipeline.
+            </p>
           </article>
         ))}
       </div>
@@ -132,7 +160,22 @@ export default function RecruiterAuditionsPage() {
                     {audition.applicantCount === 1 ? 'applicant' : 'applicants'}
                   </Link>
                 </td>
-                <td className="p-4"><Link href={`/auditions/${audition.id}`} className="text-sm font-semibold text-[#1f5f91]">View brief</Link></td>
+                <td className="p-4">
+                  <div className="flex flex-wrap gap-3">
+                    <Link
+                      href={`/recruiter/auditions/${audition.id}/applicants`}
+                      className="text-sm font-black text-[#008ca6]"
+                    >
+                      Review applicants
+                    </Link>
+                    <Link
+                      href={`/auditions/${audition.id}`}
+                      className="text-sm font-semibold text-[#1f5f91]"
+                    >
+                      View brief
+                    </Link>
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -141,5 +184,16 @@ export default function RecruiterAuditionsPage() {
       </>
       )}
     </AppShell>
+  );
+}
+
+function PipelineStat({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-md border border-[#d7e0e4] bg-white p-4">
+      <p className="text-2xl font-black">{value}</p>
+      <p className="mt-1 text-xs font-bold uppercase text-[#657176]">
+        {label}
+      </p>
+    </div>
   );
 }

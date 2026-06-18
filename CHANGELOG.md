@@ -1,5 +1,18 @@
 # Changelog
 
+### Audition Discovery and Application Tracking Polish
+
+- Made saved auditions more visible on `/auditions` and added applied-state
+  badges to audition cards
+- Added clearer marketplace badges for verified recruiters, new roles,
+  deadline-soon roles, work mode, compensation, and self-tape requirements
+- Reworked application tracker groups into Active, Shortlisted, Completed, and
+  All with clearer next-step messaging and audition links
+- Added recruiter audition summary metrics and stronger review-applicants
+  actions on mobile and desktop
+- Removed beta verification copy that referenced infrastructure constraints and
+  clarified that document uploads are a future secure workflow
+
 ### UX Alignment and Email Verification Flow
 
 - Realigned Talent dashboard CTAs around auditions, applications, self-tapes,

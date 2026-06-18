@@ -153,11 +153,12 @@ export default function RecruiterVerificationPage() {
           <section className="border border-dashed border-[#9fb6bf] bg-[#f2f7f9] p-5 sm:col-span-2">
             <p className="font-black">Verification documents</p>
             <p className="mt-2 text-sm leading-6 text-[#657176]">
-              Document upload is coming soon. It remains optional and disabled
-              until Firebase Storage billing is enabled.
+              Document uploads are coming soon. For beta verification, submit
+              your company details, website, social proof links, and production
+              context here.
             </p>
             <button type="button" disabled className="secondary-button mt-4 opacity-45">
-              Upload documents unavailable
+              Document upload coming soon
             </button>
           </section>
           {canSubmit && (

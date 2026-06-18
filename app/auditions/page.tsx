@@ -14,12 +14,14 @@ import { getErrorMessage } from '@/app/lib/error-utils';
 import {
   getAuditions,
   getSavedAuditions,
+  getTalentApplications,
   getTalentProfile,
   setAuditionSaved,
 } from '@/app/lib/firestore-service';
 import {
   CATEGORY_LABELS,
   EXPERIENCE_LABELS,
+  type Application,
   type Audition,
   type AuditionType,
   type ExperienceLevel,
@@ -75,11 +77,15 @@ const getActiveFilters = (
   return labels;
 };
 
+const getApplicationStatusForSavedView = (application: Application) =>
+  (application.recruiterStatus ?? application.status) !== 'WITHDRAWN';
+
 export default function AuditionsPage() {
   const { user } = useAuth();
   const [auditions, setAuditions] = useState<Audition[]>([]);
   const [profile, setProfile] = useState<TalentProfile | null>(null);
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
+  const [appliedIds, setAppliedIds] = useState<Set<string>>(new Set());
   const [filters, setFilters] = useState(initialAuditionFilters);
   const [sort, setSort] = useState<AuditionSort>('NEWEST');
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -105,11 +111,19 @@ export default function AuditionsPage() {
       getAuditions(),
       getTalentProfile(user.uid).catch(() => null),
       getSavedAuditions(user.uid).catch(() => []),
+      getTalentApplications(user.uid).catch(() => []),
     ])
-      .then(([auditionData, profileData, saved]) => {
+      .then(([auditionData, profileData, saved, applications]) => {
         setAuditions(auditionData);
         setProfile(profileData);
         setSavedIds(new Set(saved.map((item) => item.auditionId)));
+        setAppliedIds(
+          new Set(
+            applications
+              .filter(getApplicationStatusForSavedView)
+              .map((item) => item.auditionId)
+          )
+        );
       })
       .catch((err: unknown) =>
         setError(getErrorMessage(err, 'Unable to load auditions'))
@@ -449,7 +463,7 @@ export default function AuditionsPage() {
           title={filters.savedOnly ? 'No saved auditions yet' : 'No matching auditions'}
           message={
             filters.savedOnly
-              ? 'Use the bookmark button on any audition card to build your saved list.'
+              ? 'Save roles you like and return before the deadline.'
               : 'Try removing a filter or broadening your search.'
           }
         />
@@ -460,6 +474,7 @@ export default function AuditionsPage() {
               key={audition.id}
               audition={audition}
               saved={savedIds.has(audition.id)}
+              applied={appliedIds.has(audition.id)}
               saving={savingId === audition.id}
               recommendationScore={
                 sort === 'RECOMMENDED'

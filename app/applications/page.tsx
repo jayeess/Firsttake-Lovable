@@ -32,7 +32,7 @@ import {
   validateSelfTapeLink,
 } from '@/app/lib/self-tape-policy';
 
-type ApplicationView = 'ALL' | 'ACTIVE' | 'SHORTLISTED' | 'CLOSED';
+type ApplicationView = 'ACTIVE' | 'SHORTLISTED' | 'COMPLETED' | 'ALL';
 
 const applicationViews: Array<{
   value: ApplicationView;
@@ -40,12 +40,6 @@ const applicationViews: Array<{
   description: string;
   statuses: ApplicationStatus[] | null;
 }> = [
-  {
-    value: 'ALL',
-    label: 'All',
-    description: 'Every application',
-    statuses: null,
-  },
   {
     value: 'ACTIVE',
     label: 'Active',
@@ -56,13 +50,19 @@ const applicationViews: Array<{
     value: 'SHORTLISTED',
     label: 'Shortlisted',
     description: 'Strong progress',
-    statuses: ['SHORTLISTED', 'SELECTED'],
+    statuses: ['SHORTLISTED'],
   },
   {
-    value: 'CLOSED',
-    label: 'Closed',
-    description: 'Ended or withdrawn',
-    statuses: ['REJECTED', 'WITHDRAWN'],
+    value: 'COMPLETED',
+    label: 'Completed',
+    description: 'Selected, closed, or withdrawn',
+    statuses: ['SELECTED', 'REJECTED', 'WITHDRAWN'],
+  },
+  {
+    value: 'ALL',
+    label: 'All',
+    description: 'Every application',
+    statuses: null,
   },
 ];
 
@@ -75,21 +75,21 @@ const positiveTimeline: ApplicationStatus[] = [
 ];
 
 const nextStepMessages: Record<ApplicationStatus, string> = {
-  APPLIED: 'Waiting for recruiter review',
-  VIEWED: 'Recruiter viewed your application',
-  UNDER_REVIEW: 'Your profile is being reviewed',
-  MAYBE: 'Recruiter may consider you later',
-  SHORTLISTED: 'You are shortlisted',
-  SELECTED: 'You were selected',
-  REJECTED: 'This application is closed',
-  WITHDRAWN: 'You withdrew this application',
+  APPLIED: 'Your application was sent.',
+  VIEWED: 'Recruiter has opened your application.',
+  UNDER_REVIEW: 'Recruiter is reviewing your profile and materials.',
+  MAYBE: 'You are still in consideration for a possible next step.',
+  SHORTLISTED: 'You are being considered for the next step.',
+  SELECTED: 'You were selected for this opportunity.',
+  REJECTED: 'This role moved forward with someone else.',
+  WITHDRAWN: 'You withdrew this application.',
 };
 
 const emptyMessages: Record<ApplicationView, string> = {
-  ALL: 'No applications yet. Apply to your first audition.',
   ACTIVE: 'No active applications right now.',
   SHORTLISTED: 'No shortlisted applications yet.',
-  CLOSED: 'No closed applications yet.',
+  COMPLETED: 'No completed applications yet.',
+  ALL: 'No applications yet. Apply to your first audition.',
 };
 
 const getViewCount = (
@@ -104,7 +104,7 @@ const getViewCount = (
 export default function ApplicationsPage() {
   const { user, userType } = useAuth();
   const [applications, setApplications] = useState<Application[]>([]);
-  const [view, setView] = useState<ApplicationView>('ALL');
+  const [view, setView] = useState<ApplicationView>('ACTIVE');
   const [statusFilter, setStatusFilter] = useState<ApplicationStatus | 'ALL'>(
     'ALL'
   );
@@ -396,6 +396,24 @@ export default function ApplicationsPage() {
                 </div>
                 <StatusBadge status={status} />
               </div>
+              <div className="mt-4 grid gap-3 text-sm sm:grid-cols-3">
+                <ApplicationMeta
+                  label="Submitted"
+                  value={formatDate(application.createdAt)}
+                />
+                <ApplicationMeta
+                  label="Deadline"
+                  value={
+                    application.audition?.deadline
+                      ? formatDate(application.audition.deadline)
+                      : 'Not listed'
+                  }
+                />
+                <ApplicationMeta
+                  label="Recruiter"
+                  value={application.audition?.recruiterName ?? 'Recruiter'}
+                />
+              </div>
               <div className="mt-4 rounded-md border border-[#d9e4e6] bg-[#f7fbfb] p-3">
                 <p className="text-xs font-black uppercase text-[#008ca6]">
                   Next step
@@ -453,6 +471,12 @@ export default function ApplicationsPage() {
                   disabled={status === 'WITHDRAWN'}
                   className="w-full sm:w-auto"
                 />
+                <Link
+                  href={`/auditions/${application.auditionId}`}
+                  className="secondary-button w-full sm:w-auto"
+                >
+                  View audition
+                </Link>
               {!['REJECTED', 'SELECTED', 'WITHDRAWN'].includes(status) && (
                   <button
                     type="button"
@@ -473,6 +497,15 @@ export default function ApplicationsPage() {
         )}
       </div>
     </AppShell>
+  );
+}
+
+function ApplicationMeta({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-md border border-[#e1e6ea] bg-white p-3">
+      <p className="text-xs font-black uppercase text-[#657176]">{label}</p>
+      <p className="mt-1 font-bold text-[#183139]">{value}</p>
+    </div>
   );
 }
 
