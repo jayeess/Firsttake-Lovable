@@ -11,6 +11,8 @@ import { User } from 'firebase/auth';
 import {
   onAuthStateChange,
   prepareTabSession,
+  reloadUserVerification,
+  sendVerificationEmail,
 } from '@/app/lib/auth-service';
 import {
   ensureUserAccount,
@@ -26,6 +28,9 @@ interface AuthContextType {
   error: string | null;
   isAdmin: boolean;
   accountStatus: 'ACTIVE' | 'SUSPENDED' | null;
+  emailVerified: boolean;
+  sendEmailVerification: () => Promise<void>;
+  refreshEmailVerification: () => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -39,7 +44,38 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [accountStatus, setAccountStatus] = useState<
     'ACTIVE' | 'SUSPENDED' | null
   >(null);
+  const [emailVerified, setEmailVerified] = useState(false);
   const authChangeId = useRef(0);
+
+  const syncEmailVerification = async (currentUser: User) => {
+    const token = await currentUser.getIdToken(true);
+    await fetch('/api/auth/sync-email-verification', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }).catch(() => undefined);
+  };
+
+  const handleSendEmailVerification = async () => {
+    if (!user) {
+      throw new Error('Sign in before requesting email verification.');
+    }
+    await sendVerificationEmail(user);
+  };
+
+  const refreshEmailVerification = async () => {
+    if (!user) {
+      throw new Error('Sign in before refreshing email verification.');
+    }
+    const verified = await reloadUserVerification(user);
+    setEmailVerified(verified);
+    setUser(user);
+    if (verified) {
+      await syncEmailVerification(user);
+    }
+    return verified;
+  };
 
   useEffect(() => {
     let active = true;
@@ -52,6 +88,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUserType(null);
       setIsAdmin(false);
       setAccountStatus(null);
+      setEmailVerified(false);
       setError(
         'Authentication initialization timed out. Please refresh and try again.'
       );
@@ -70,6 +107,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setError(null);
         setIsAdmin(false);
         setAccountStatus(null);
+        setEmailVerified(Boolean(currentUser?.emailVerified));
 
         if (currentUser) {
           try {
@@ -85,6 +123,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               if (changeId !== authChangeId.current) return;
               setUserType(account.userType);
               setAccountStatus(account.accountStatus);
+              setEmailVerified(currentUser.emailVerified);
+              if (currentUser.emailVerified) {
+                void syncEmailVerification(currentUser);
+              }
               localStorage.setItem(
                 `userType_${currentUser.uid}`,
                 account.userType
@@ -101,6 +143,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               if (changeId !== authChangeId.current) return;
               setUserType(storedUserType);
               setAccountStatus('ACTIVE');
+              setEmailVerified(currentUser.emailVerified);
+              if (currentUser.emailVerified) {
+                void syncEmailVerification(currentUser);
+              }
             } else {
               if (changeId !== authChangeId.current) return;
               setUserType(null);
@@ -135,6 +181,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUserType(null);
         setIsAdmin(false);
         setAccountStatus(null);
+        setEmailVerified(false);
         setError(getErrorMessage(authError, 'Failed to initialize authentication'));
         setLoading(false);
       });
@@ -165,7 +212,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, userType, loading, error, isAdmin, accountStatus }}
+      value={{
+        user,
+        userType,
+        loading,
+        error,
+        isAdmin,
+        accountStatus,
+        emailVerified,
+        sendEmailVerification: handleSendEmailVerification,
+        refreshEmailVerification,
+      }}
     >
       {children}
     </AuthContext.Provider>

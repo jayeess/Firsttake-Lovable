@@ -19,7 +19,8 @@ controlled private testing. It is not ready for a public production launch.
 
 ## Current Capabilities
 
-- Email/password signup, login, logout, and password reset
+- Email/password signup, login, logout, password reset, and real Firebase
+  email verification send/refresh controls
 - Separate Talent and Recruiter account roles
 - Tab-scoped Firebase sessions for testing different accounts concurrently
 - Talent and recruiter profile forms

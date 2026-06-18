@@ -42,6 +42,15 @@ Older builds used browser-wide persistence. After updating, log out once in
 each open Nata Connect window, then log in again. From that point, each tab
 keeps its own Firebase session.
 
+## Email verification
+
+Dashboard and profile pages show an email verification trust prompt when the
+current Firebase user is unverified. Use **Send verification email** to trigger
+Firebase Auth, open the email link, then return to the app and use **I verified,
+refresh status**. The refresh reloads the Firebase user, forces a fresh ID token,
+and syncs `emailVerified: true` to the signed-in user document through a secure
+server route.
+
 ## Disable or remove
 
 To hide the panel locally without changing code, add this to `.env.local`:

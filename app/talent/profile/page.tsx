@@ -27,6 +27,7 @@ import { VerifiedBadge } from '@/components/verified-badge';
 import { TalentMediaManager } from '@/components/talent-media-manager';
 import { PublicTalentProfileSettings } from '@/components/public-talent-profile-settings';
 import { NotificationPreferencesForm } from '@/components/notification-preferences-form';
+import { EmailVerificationPrompt } from '@/components/email-verification-prompt';
 import {
   PrivacyNote,
   ProfileHero,
@@ -187,7 +188,7 @@ const talentPresets: Array<{
 ];
 
 export default function TalentProfilePage() {
-  const { user } = useAuth();
+  const { user, emailVerified } = useAuth();
   const [profile, setProfile] = useState<TalentProfile>(initialProfile);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
@@ -464,6 +465,11 @@ export default function TalentProfilePage() {
           control what appears on your shareable profile. Verification notes and
           private account data stay internal.
         </PrivacyNote>
+        {!emailVerified && (
+          <div className="mt-4">
+            <EmailVerificationPrompt />
+          </div>
+        )}
         {user && profileSaved ? (
           <>
             <div id="media-portfolio" className="scroll-mt-24">

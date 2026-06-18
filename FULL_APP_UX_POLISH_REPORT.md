@@ -12,6 +12,11 @@ verified auditions, professional portfolios, self-tape workflows, application
 tracking, recruiter review, and platform trust instead of generic dashboard
 actions.
 
+Email verification is now a real account-trust flow instead of static guidance.
+Talent and Recruiter users can send a Firebase verification email, return after
+opening the email link, refresh the Firebase user, and sync verified state to
+their own user document through a secure token-verified server route.
+
 ## Pages Improved
 
 - `/talent/profile`
@@ -47,6 +52,26 @@ action.
 The dashboard now includes opportunity-first sections for audition discovery,
 application momentum, self-tape reminders, saved auditions, recruiter replies,
 and safety/support.
+
+## Email Verification Implementation
+
+Added a reusable verification prompt for signed-in unverified users:
+
+- Send verification email through Firebase Auth.
+- Use the configured app URL when available, with browser origin fallback.
+- Refresh verification status by reloading the Firebase user and forcing a
+  fresh ID token.
+- Sync `emailVerified: true` through `/api/auth/sync-email-verification` only
+  after Firebase Admin verifies the current user's ID token.
+- Keep email verification as a secondary trust banner/card, not the primary
+  casting journey CTA.
+
+The prompt appears on:
+
+- Talent dashboard
+- Recruiter dashboard
+- Talent profile
+- Recruiter profile
 
 ## Landing Page Alignment
 

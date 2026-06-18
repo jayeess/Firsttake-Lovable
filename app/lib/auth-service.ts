@@ -13,6 +13,7 @@ import {
 import { getFirebaseAuth, getFirestoreDb } from './firebase';
 import { doc, setDoc, updateDoc } from 'firebase/firestore';
 import { getErrorMessage } from './error-utils';
+import { normalizeAppUrl } from './app-url';
 
 const getAuth = () => {
   return getFirebaseAuth();
@@ -54,6 +55,34 @@ export const prepareTabSession = async () => {
   await setPersistence(getAuth(), browserSessionPersistence);
 };
 
+const getEmailVerificationRedirectUrl = () => {
+  const configuredUrl = normalizeAppUrl(process.env.NEXT_PUBLIC_APP_URL);
+  const browserUrl =
+    typeof window === 'undefined' ? '' : normalizeAppUrl(window.location.origin);
+  return `${configuredUrl || browserUrl || 'http://localhost:3000'}/dashboard`;
+};
+
+export const sendVerificationEmail = async (user: User) => {
+  try {
+    await sendEmailVerification(user, {
+      url: getEmailVerificationRedirectUrl(),
+      handleCodeInApp: false,
+    });
+  } catch (error: unknown) {
+    throw new Error(getErrorMessage(error, 'Verification email could not be sent'));
+  }
+};
+
+export const reloadUserVerification = async (user: User) => {
+  try {
+    await user.reload();
+    await user.getIdToken(true);
+    return user.emailVerified;
+  } catch (error: unknown) {
+    throw new Error(getErrorMessage(error, 'Verification status could not be refreshed'));
+  }
+};
+
 // Sign up with email and password
 export const signUp = async (data: SignUpData) => {
   try {
@@ -83,7 +112,7 @@ export const signUp = async (data: SignUpData) => {
     }
 
     localStorage.setItem(`userType_${user.uid}`, data.userType);
-    void sendEmailVerification(user).catch(() => undefined);
+    void sendVerificationEmail(user).catch(() => undefined);
 
     return user;
   } catch (error: unknown) {

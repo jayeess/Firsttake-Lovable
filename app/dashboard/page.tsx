@@ -15,6 +15,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { AppShell } from '@/components/app-shell';
 import { StatusBadge } from '@/components/status-badge';
+import { EmailVerificationPrompt } from '@/components/email-verification-prompt';
 import {
   getRecruiterAuditions,
   getRecruiterProfile,
@@ -64,7 +65,7 @@ const nextStepMessages: Record<ApplicationStatus, string> = {
 
 export default function Dashboard() {
   const router = useRouter();
-  const { user, userType, loading, error } = useAuth();
+  const { user, userType, loading, error, emailVerified } = useAuth();
   const [applications, setApplications] = useState<Application[]>([]);
   const [auditions, setAuditions] = useState<Audition[]>([]);
   const [savedAuditions, setSavedAuditions] = useState<SavedAudition[]>([]);
@@ -171,10 +172,9 @@ export default function Dashboard() {
         </p>
       )}
 
-      {!user?.emailVerified && userType === 'RECRUITER' && (
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border border-[#bad7d3] bg-[#edf7f5] p-4 text-sm text-[#234b47]">
-          <p><span className="font-bold">Email verification pending.</span> Open the Firebase message in your inbox to strengthen account trust.</p>
-          <span className="font-bold text-[#008ca6]">{user?.email}</span>
+      {!emailVerified && userType === 'RECRUITER' && (
+        <div className="mt-6">
+          <EmailVerificationPrompt compact />
         </div>
       )}
 
@@ -195,8 +195,7 @@ export default function Dashboard() {
         userType === 'TALENT' ? (
           <TalentWorkspace
             applications={applications}
-            email={user?.email ?? ''}
-            emailVerified={Boolean(user?.emailVerified)}
+            emailVerified={emailVerified}
             firstName={firstName}
             profile={profile}
             savedAuditions={savedAuditions}
@@ -263,7 +262,6 @@ export default function Dashboard() {
 
 function TalentWorkspace({
   applications,
-  email,
   emailVerified,
   firstName,
   profile,
@@ -271,7 +269,6 @@ function TalentWorkspace({
   unreadConversationCount,
 }: {
   applications: Application[];
-  email: string;
   emailVerified: boolean;
   firstName: string;
   profile: TalentProfile | null;
@@ -374,25 +371,9 @@ function TalentWorkspace({
       </section>
 
       {!emailVerified && (
-        <section
-          id="email-verification"
-          className="mt-5 scroll-mt-24 rounded-md border border-[#d8a843] bg-[#fff8df] p-4 text-sm text-[#5e4b13]"
-        >
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-            <p className="font-black text-[#07111f]">
-              Verify your email to strengthen account trust.
-            </p>
-            <p className="mt-1">
-              Open the Firebase verification email in your inbox, then refresh
-              this dashboard after confirming.
-            </p>
-            </div>
-            <span className="rounded-md bg-white px-3 py-2 font-bold text-[#88680f]">
-              {email}
-            </span>
-          </div>
-        </section>
+        <div className="mt-5">
+          <EmailVerificationPrompt compact />
+        </div>
       )}
 
       <section className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(300px,0.85fr)]">

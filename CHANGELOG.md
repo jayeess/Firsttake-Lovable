@@ -1,5 +1,16 @@
 # Changelog
 
+### UX Alignment and Email Verification Flow
+
+- Realigned Talent dashboard CTAs around auditions, applications, self-tapes,
+  saved auditions, recruiter replies, and profile readiness
+- Updated Recruiter dashboard copy toward casting-pipeline operations
+- Updated the landing page around "Where Talent Meets Opportunity"
+- Added real Firebase email verification send/resend and refresh controls
+- Added secure Admin-SDK token verified email-verification sync route for the
+  current user document
+- Updated UX polish, README, and testing documentation
+
 ### Phase 5B: Email Notifications Foundation and PWA Readiness
 
 - Added server-only email provider architecture with safe no-op mode and Resend

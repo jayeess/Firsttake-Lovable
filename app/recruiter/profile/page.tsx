@@ -14,6 +14,7 @@ import { getErrorMessage } from '@/app/lib/error-utils';
 import { DevFormPresets } from '@/components/dev-form-presets';
 import { VerifiedBadge } from '@/components/verified-badge';
 import { NotificationPreferencesForm } from '@/components/notification-preferences-form';
+import { EmailVerificationPrompt } from '@/components/email-verification-prompt';
 import {
   PrivacyNote,
   ProfileHero,
@@ -106,7 +107,7 @@ const recruiterPresets: Array<{
 
 export default function RecruiterProfilePage() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, emailVerified } = useAuth();
   const [profile, setProfile] = useState(initialProfile);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
@@ -279,6 +280,11 @@ export default function RecruiterProfilePage() {
           team. Do not request pay-to-audition fees, personal contact details
           too early, or unsafe off-platform communication.
         </PrivacyNote>
+        {!emailVerified && (
+          <div className="mt-4">
+            <EmailVerificationPrompt />
+          </div>
+        )}
 
         <div className="mt-6">
           <DevFormPresets
