@@ -1,16 +1,10 @@
 'use client';
 
-import {
-  ChevronDown,
-  ExternalLink,
-  Search,
-  Star,
-} from 'lucide-react';
+import { ChevronDown, ExternalLink, Search, Star } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import {
-  APPLICATION_PIPELINE_STATUSES,
   APPLICATION_STATUS_LABELS,
   filterApplicants,
   getApplicationStatus,
@@ -63,13 +57,27 @@ const initialFilters: ApplicantFilters = {
   language: '',
 };
 
+const applicantStageTabs: Array<{
+  label: string;
+  status: ApplicationStatus | 'ALL';
+}> = [
+  { label: 'All', status: 'ALL' },
+  { label: 'New', status: 'APPLIED' },
+  { label: 'Viewed', status: 'VIEWED' },
+  { label: 'Shortlisted', status: 'SHORTLISTED' },
+  { label: 'Callback', status: 'CALLBACK' },
+  { label: 'Final Round', status: 'FINAL_ROUND' },
+  { label: 'Selected', status: 'SELECTED' },
+  { label: 'Rejected', status: 'REJECTED' },
+];
+
 const quickStatuses: ApplicationStatus[] = [
   'VIEWED',
-  'UNDER_REVIEW',
   'SHORTLISTED',
-  'MAYBE',
-  'REJECTED',
+  'CALLBACK',
+  'FINAL_ROUND',
   'SELECTED',
+  'REJECTED',
 ];
 
 export default function AuditionApplicantsPage() {
@@ -118,6 +126,14 @@ export default function AuditionApplicantsPage() {
   }, [id, reloadKey, router, user]);
 
   const counts = useMemo(() => getPipelineCounts(applicants), [applicants]);
+  const selfTapeSubmittedCount = useMemo(
+    () =>
+      applicants.filter(({ application }) => {
+        const status = getSelfTapeStatus(application, audition);
+        return status === 'submitted' || status === 'reviewed';
+      }).length,
+    [applicants, audition]
+  );
   const visibleApplicants = useMemo(
     () => sortApplicants(filterApplicants(applicants, filters), sort),
     [applicants, filters, sort]
@@ -137,6 +153,7 @@ export default function AuditionApplicantsPage() {
         review,
         rejectionReason
       );
+      const changedAt = new Date();
       setApplicants((current) =>
         current.map((item) =>
           item.application.id === applicant.application.id
@@ -148,6 +165,17 @@ export default function AuditionApplicantsPage() {
                     ? {
                         status: review.status,
                         recruiterStatus: review.status,
+                        statusUpdatedAt: changedAt,
+                        statusUpdatedBy: user?.uid,
+                        lastStatusChange: changedAt,
+                        statusHistory: [
+                          ...(item.application.statusHistory ?? []),
+                          {
+                            status: review.status,
+                            changedBy: user?.uid ?? 'recruiter',
+                            changedAt,
+                          },
+                        ],
                       }
                     : {}),
                   ...(review.recruiterNote !== undefined
@@ -226,30 +254,35 @@ export default function AuditionApplicantsPage() {
             decisions in one private workspace.
           </p>
         </div>
-        <div className="rounded-md border border-[#d7e0e4] bg-white p-4 sm:border-l-2 sm:border-l-[#d8a843]">
-          <p className="text-2xl font-black">{applicants.length}</p>
-          <p className="text-xs font-bold uppercase text-[#657176]">
-            Total applicants
-          </p>
-        </div>
       </header>
+
+      <section
+        aria-label="Casting review summary"
+        className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
+      >
+        <ReviewMetric label="Role" value={audition ? CATEGORY_LABELS[audition.category] : 'Loading'} />
+        <ReviewMetric label="Deadline" value={audition ? formatDate(audition.deadline) : 'Loading'} />
+        <ReviewMetric label="Audition status" value={audition?.status ?? 'Loading'} />
+        <ReviewMetric label="Total applicants" value={String(applicants.length)} />
+        <ReviewMetric label="New submissions" value={String(counts.APPLIED)} />
+        <ReviewMetric label="Viewed or reviewing" value={String(counts.VIEWED + counts.UNDER_REVIEW)} />
+        <ReviewMetric label="Shortlisted" value={String(counts.SHORTLISTED)} />
+        <ReviewMetric label="Callback" value={String(counts.CALLBACK + counts.MAYBE)} />
+        <ReviewMetric label="Final round" value={String(counts.FINAL_ROUND)} />
+        <ReviewMetric label="Selected / rejected" value={`${counts.SELECTED} / ${counts.REJECTED}`} />
+        <ReviewMetric label="Self-tapes submitted" value={String(selfTapeSubmittedCount)} />
+      </section>
 
       <section
         aria-label="Applicant status filters"
         className="mt-6 overflow-x-auto border-b border-[#d9dee5]"
       >
         <div className="flex min-w-max">
-          <PipelineTab
-            label="All"
-            count={applicants.length}
-            active={filters.status === 'ALL'}
-            onClick={() => setFilters((current) => ({ ...current, status: 'ALL' }))}
-          />
-          {APPLICATION_PIPELINE_STATUSES.map((status) => (
+          {applicantStageTabs.map(({ label, status }) => (
             <PipelineTab
               key={status}
-              label={APPLICATION_STATUS_LABELS[status]}
-              count={counts[status]}
+              label={label}
+              count={status === 'ALL' ? applicants.length : counts[status]}
               active={filters.status === status}
               onClick={() => setFilters((current) => ({ ...current, status }))}
             />
@@ -480,6 +513,17 @@ function PipelineTab({
   );
 }
 
+function ReviewMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-md border border-[#d7e0e4] bg-white p-4">
+      <p className="text-xl font-black capitalize text-[#07111f]">{value}</p>
+      <p className="mt-1 text-xs font-bold uppercase text-[#657176]">
+        {label}
+      </p>
+    </div>
+  );
+}
+
 function FilterToggle({
   label,
   checked,
@@ -529,6 +573,8 @@ function ApplicantCard({
   const { application, talent, media } = applicant;
   const status = getApplicationStatus(application);
   const selfTapeStatus = getSelfTapeStatus(application, audition);
+  const selfTapeRequired = audition?.selfTapeRequired === true;
+  const selfTapeAvailable = Boolean(application.selfTapeSubmission?.url);
   const showSelfTape =
     audition?.selfTapeEnabled === true || selfTapeStatus !== 'not_requested';
   const name = talent
@@ -585,21 +631,35 @@ function ApplicantCard({
                 <span>
                   {talent?.profileCompletenessScore ?? 0}% complete
                 </span>
+                {(talent?.languages ?? []).slice(0, 2).map((language) => (
+                  <span key={language}>{language}</span>
+                ))}
+                {(talent?.skills ?? []).slice(0, 2).map((skill) => (
+                  <span key={skill}>{skill}</span>
+                ))}
                 {media.length > 0 && <span>{media.length} media items</span>}
               </div>
             </div>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            {showSelfTape && (
-              <span
-                className={`inline-flex min-h-8 items-center rounded-md border px-3 text-xs font-black uppercase ${selfTapeToneClass(
-                  getSelfTapeBadgeTone(selfTapeStatus)
-                )}`}
-              >
-                Self-tape: {SELF_TAPE_STATUS_LABELS[selfTapeStatus]}
-              </span>
-            )}
+            <span
+              className={`inline-flex min-h-8 items-center rounded-md border px-3 text-xs font-black uppercase ${selfTapeToneClass(
+                getSelfTapeBadgeTone(selfTapeStatus)
+              )}`}
+            >
+              {getRecruiterSelfTapeLabel(selfTapeStatus, selfTapeRequired)}
+            </span>
             <StatusBadge status={status} />
+            {selfTapeAvailable && (
+              <a
+                href={application.selfTapeSubmission?.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="secondary-button sm:w-auto"
+              >
+                Open self-tape
+              </a>
+            )}
             <button
               type="button"
               onClick={onToggle}
@@ -610,6 +670,17 @@ function ApplicantCard({
             </button>
           </div>
         </div>
+
+        {application.coverMessage && (
+          <div className="mt-5 rounded-md border border-[#d9e4e6] bg-[#f7fbfb] p-3">
+            <p className="text-xs font-black uppercase text-[#008ca6]">
+              Application note
+            </p>
+            <p className="mt-1 line-clamp-2 text-sm leading-6 text-[#4f5963]">
+              {application.coverMessage}
+            </p>
+          </div>
+        )}
 
         {status === 'WITHDRAWN' ? (
           <p className="mt-5 border-l-2 border-[#9aa4aa] pl-4 text-sm text-[#657176]">
@@ -646,6 +717,10 @@ function ApplicantCard({
                 <p className="leading-7 text-[#4f5963]">
                   {application.coverMessage || 'No cover message was provided.'}
                 </p>
+              </ReviewSection>
+
+              <ReviewSection title="Status timeline">
+                <StatusTimeline application={application} />
               </ReviewSection>
 
               {showSelfTape && (
@@ -914,6 +989,65 @@ function ApplicantDetail({ label, value }: { label: string; value: string }) {
       <p className="mt-1 font-semibold capitalize">{value}</p>
     </div>
   );
+}
+
+function StatusTimeline({ application }: { application: AuditionApplicant['application'] }) {
+  const currentStatus = getApplicationStatus(application);
+  const history = application.statusHistory?.length
+    ? application.statusHistory
+    : [
+        {
+          status: application.status,
+          changedBy: application.statusUpdatedBy ?? application.talentId,
+          changedAt:
+            application.statusUpdatedAt ??
+            application.lastStatusChange ??
+            application.createdAt,
+        },
+      ];
+
+  return (
+    <ol className="space-y-3">
+      {history.map((item, index) => (
+        <li
+          key={`${item.status}-${index}`}
+          className="rounded-md border border-[#dce3e7] bg-white p-3"
+        >
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <StatusBadge status={item.status} />
+            <span className="text-xs font-semibold text-[#657176]">
+              {item.changedAt ? formatDate(item.changedAt) : 'Date unavailable'}
+            </span>
+          </div>
+          <p className="mt-2 text-sm leading-6 text-[#4f5963]">
+            {getRecruiterTimelineCopy(item.status, currentStatus)}
+          </p>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function getRecruiterTimelineCopy(
+  status: ApplicationStatus,
+  currentStatus: ApplicationStatus
+) {
+  if (status === currentStatus) {
+    return 'Current casting stage for this applicant.';
+  }
+  return 'Previous casting stage recorded for this application.';
+}
+
+function getRecruiterSelfTapeLabel(
+  status: ReturnType<typeof getSelfTapeStatus>,
+  required: boolean
+) {
+  if (status === 'not_requested') return 'No self-tape required';
+  if (status === 'missing' && required) return 'Self-tape required';
+  if (status === 'requested') return 'Self-tape optional';
+  if (status === 'submitted') return 'Self-tape submitted';
+  if (status === 'reviewed') return 'Self-tape reviewed';
+  return SELF_TAPE_STATUS_LABELS[status];
 }
 
 function selfTapeToneClass(tone: string) {

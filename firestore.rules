@@ -498,6 +498,8 @@ service cloud.firestore {
               'VIEWED',
               'UNDER_REVIEW',
               'SHORTLISTED',
+              'CALLBACK',
+              'FINAL_ROUND',
               'MAYBE',
               'REJECTED',
               'SELECTED'

@@ -50,7 +50,7 @@ const applicationViews: Array<{
     value: 'SHORTLISTED',
     label: 'Shortlisted',
     description: 'Strong progress',
-    statuses: ['SHORTLISTED'],
+    statuses: ['SHORTLISTED', 'CALLBACK', 'FINAL_ROUND'],
   },
   {
     value: 'COMPLETED',
@@ -71,6 +71,8 @@ const positiveTimeline: ApplicationStatus[] = [
   'VIEWED',
   'UNDER_REVIEW',
   'SHORTLISTED',
+  'CALLBACK',
+  'FINAL_ROUND',
   'SELECTED',
 ];
 
@@ -80,6 +82,8 @@ const nextStepMessages: Record<ApplicationStatus, string> = {
   UNDER_REVIEW: 'Recruiter is reviewing your profile and materials.',
   MAYBE: 'You are still in consideration for a possible next step.',
   SHORTLISTED: 'You are being considered for the next step.',
+  CALLBACK: 'The recruiter may contact you for another round.',
+  FINAL_ROUND: 'You moved to the final review stage.',
   SELECTED: 'You were selected for this opportunity.',
   REJECTED: 'This role moved forward with someone else.',
   WITHDRAWN: 'You withdrew this application.',
@@ -637,7 +641,7 @@ function ApplicationProgress({ status }: { status: ApplicationStatus }) {
 
   return (
     <div className="mt-5" aria-label="Application progress">
-      <div className="grid grid-cols-5 gap-1.5 sm:gap-2">
+      <div className="grid grid-cols-3 gap-1.5 sm:grid-cols-7 sm:gap-2">
         {positiveTimeline.map((item, index) => {
           const reached = index <= currentIndex;
           const current = item === status;

@@ -10,6 +10,8 @@ const styles: Record<ApplicationStatus | AuditionStatus, string> = {
   VIEWED: 'bg-amber-100 text-amber-800',
   UNDER_REVIEW: 'bg-cyan-100 text-cyan-900',
   SHORTLISTED: 'bg-green-100 text-green-800',
+  CALLBACK: 'bg-indigo-100 text-indigo-900',
+  FINAL_ROUND: 'bg-purple-100 text-purple-900',
   MAYBE: 'bg-violet-100 text-violet-800',
   REJECTED: 'bg-red-100 text-red-800',
   SELECTED: 'bg-emerald-100 text-emerald-900',

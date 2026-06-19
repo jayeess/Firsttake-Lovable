@@ -53,13 +53,15 @@ const activeStatuses: ApplicationStatus[] = [
 ];
 
 const nextStepMessages: Record<ApplicationStatus, string> = {
-  APPLIED: 'Waiting for recruiter review',
-  VIEWED: 'Recruiter viewed your application',
-  UNDER_REVIEW: 'Your profile is being reviewed',
-  MAYBE: 'Recruiter may consider you later',
-  SHORTLISTED: 'You are shortlisted',
+  APPLIED: 'Your application was sent',
+  VIEWED: 'Recruiter opened your application',
+  UNDER_REVIEW: 'Recruiter is reviewing your profile',
+  MAYBE: 'You are still in consideration',
+  SHORTLISTED: 'You are being considered for next steps',
+  CALLBACK: 'Recruiter may contact you for another round',
+  FINAL_ROUND: 'You moved to final review',
   SELECTED: 'You were selected',
-  REJECTED: 'This application is closed',
+  REJECTED: 'This role moved forward with someone else',
   WITHDRAWN: 'You withdrew this application',
 };
 
@@ -290,7 +292,10 @@ function TalentWorkspace({
     activeStatuses.includes(getApplicationStatus(item))
   ).length;
   const shortlistedApplications =
-    statusValue(applications, 'SHORTLISTED') + statusValue(applications, 'SELECTED');
+    statusValue(applications, 'SHORTLISTED') +
+    statusValue(applications, 'CALLBACK') +
+    statusValue(applications, 'FINAL_ROUND') +
+    statusValue(applications, 'SELECTED');
   const nextAction = getTalentNextAction({
     applications,
     completion,

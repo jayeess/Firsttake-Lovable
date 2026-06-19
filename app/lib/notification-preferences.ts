@@ -34,6 +34,8 @@ export const getEmailCategoryForNotification = (
   if (
     [
       'application_shortlisted',
+      'application_callback',
+      'application_final_round',
       'application_rejected',
       'application_selected',
     ].includes(type)

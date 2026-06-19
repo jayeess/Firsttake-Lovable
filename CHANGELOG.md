@@ -1,5 +1,21 @@
 # Changelog
 
+### Applicant Review and Self-Tape Workflow Polish
+
+- Added `CALLBACK` and `FINAL_ROUND` application statuses through the existing
+  recruiter-owned application review flow
+- Upgraded `/recruiter/auditions/[id]/applicants` into a clearer casting review
+  workspace with audition summary metrics, stage tabs, self-tape state, cover
+  note previews, status timeline, and faster review actions
+- Improved Talent application progress copy for Callback and Final Round stages
+  across `/applications` and dashboard summaries
+- Added application-update notifications and email preference mapping for the
+  new advanced casting stages
+- Updated Firestore rules/tests to keep status updates restricted to the
+  owning approved Recruiter
+- No payment, subscription, document upload, or Firebase Storage upload work was
+  added
+
 ### Audition Discovery and Application Tracking Polish
 
 - Made saved auditions more visible on `/auditions` and added applied-state

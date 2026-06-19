@@ -50,6 +50,8 @@ test('legacy application status remains the display fallback', () => {
 test('recruiter transitions allow pipeline states but keep withdrawn terminal', () => {
   assert.equal(canRecruiterTransition('APPLIED', 'UNDER_REVIEW'), true);
   assert.equal(canRecruiterTransition('SHORTLISTED', 'SELECTED'), true);
+  assert.equal(canRecruiterTransition('SHORTLISTED', 'CALLBACK'), true);
+  assert.equal(canRecruiterTransition('CALLBACK', 'FINAL_ROUND'), true);
   assert.equal(canRecruiterTransition('WITHDRAWN', 'SHORTLISTED'), false);
   assert.equal(canRecruiterTransition('APPLIED', 'WITHDRAWN'), false);
 });
@@ -136,7 +138,7 @@ test('pipeline counts and sorting use normalized statuses', () => {
       auditionId: 'audition-a',
       talentId: 'older',
       status: 'APPLIED',
-      recruiterStatus: 'MAYBE',
+      recruiterStatus: 'CALLBACK',
       recruiterRating: 2,
       createdAt: new Date('2026-05-01T00:00:00Z'),
     },
@@ -152,7 +154,7 @@ test('pipeline counts and sorting use normalized statuses', () => {
     },
   });
   const counts = getPipelineCounts([older, newer]);
-  assert.equal(counts.MAYBE, 1);
+  assert.equal(counts.CALLBACK, 1);
   assert.equal(counts.SELECTED, 1);
   assert.deepEqual(
     sortApplicants([older, newer], 'RATING').map(

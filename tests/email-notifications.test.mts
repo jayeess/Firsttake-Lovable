@@ -28,6 +28,14 @@ test('notification types map only critical events to email categories', () => {
     getEmailCategoryForNotification('application_selected'),
     'application'
   );
+  assert.equal(
+    getEmailCategoryForNotification('application_callback'),
+    'application'
+  );
+  assert.equal(
+    getEmailCategoryForNotification('application_final_round'),
+    'application'
+  );
   assert.equal(getEmailCategoryForNotification('self_tape_submitted'), 'selfTape');
   assert.equal(
     getEmailCategoryForNotification('recruiter_verification_rejected'),

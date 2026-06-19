@@ -169,7 +169,8 @@ The Talent journey is now clearer:
 4. Audition cards surface verified recruiters, new roles, deadline urgency, work mode, compensation, and self-tape needs.
 5. Applications page groups statuses into Active, Shortlisted, Completed, and All.
 6. Application cards show deadline, recruiter, next-step copy, self-tape status, messaging, withdrawal, and a direct audition link.
-7. Messages now feel like a real casting inbox.
+7. Callback and Final Round now appear as explicit casting stages with respectful Talent-facing explanations.
+8. Messages now feel like a real casting inbox.
 
 Remaining Talent opportunities:
 
@@ -190,6 +191,15 @@ total applicants, self-tape briefs, and drafts. Both mobile cards and desktop
 tables now emphasize the primary next action: review applicants, then shortlist,
 message, select, or close the pipeline.
 
+The Recruiter applicant review workspace now shows audition context, deadline,
+status, applicant totals, new/viewed/shortlisted/callback/final-round counts,
+selected/rejected counts, and self-tape submissions. Applicant cards surface
+Talent category, location, skills/languages, profile completeness, cover-note
+preview, self-tape state, and fast actions to review, open self-tapes, shortlist,
+move to Callback, move to Final Round, select, or reject. Expanded review keeps
+the existing private notes, tags, ratings, portfolio preview, self-tape review,
+messaging, and now includes a status timeline.
+
 Recruiter verification keeps document upload disabled during beta, but no longer
 mentions infrastructure constraints. The page now points recruiters toward
 company details, website, social proof links, and production context for review.
@@ -198,7 +208,7 @@ Remaining Recruiter opportunities:
 
 - Continue refining `/recruiter/auditions/new` with richer inline validation and preview.
 - Add dashboard next-best-action logic for profile incomplete, verification pending, no auditions, and applicant responses.
-- Add clearer self-tape review summaries in recruiter applicant views.
+- Add richer applicant comparison tools once beta usage shows common review patterns.
 
 ## Admin Journey Improvements
 

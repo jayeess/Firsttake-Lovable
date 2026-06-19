@@ -945,8 +945,8 @@ test('audition owner can update allowed recruiter pipeline fields', async () => 
   const ref = doc(db, 'auditions/pipeline-a/applications/talent-a');
   await assertSucceeds(
     updateDoc(ref, {
-      status: 'UNDER_REVIEW',
-      recruiterStatus: 'UNDER_REVIEW',
+      status: 'CALLBACK',
+      recruiterStatus: 'CALLBACK',
       statusUpdatedBy: 'recruiter-a',
       statusUpdatedAt: serverTimestamp(),
       lastRecruiterActionAt: serverTimestamp(),
