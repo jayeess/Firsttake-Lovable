@@ -19,10 +19,12 @@ import {
 import { getErrorMessage } from '@/app/lib/error-utils';
 import { DevFormPresets } from '@/components/dev-form-presets';
 import {
-  calculateTalentProfileCompleteness,
   canSubmitTalentVerification,
-  TALENT_VERIFICATION_MINIMUM_SCORE,
 } from '@/app/lib/talent-trust-policy';
+import {
+  calculateTalentProfileCompleteness,
+  TALENT_VERIFICATION_MINIMUM_SCORE,
+} from '@/app/lib/profile-completeness';
 import { VerifiedBadge } from '@/components/verified-badge';
 import { TalentMediaManager } from '@/components/talent-media-manager';
 import { PublicTalentProfileSettings } from '@/components/public-talent-profile-settings';
@@ -415,8 +417,8 @@ export default function TalentProfilePage() {
             items={[
               {
                 label: 'Basic identity',
-                complete: checklist.basicInfo && checklist.demographics,
-                hint: 'Name, age, gender, and height help recruiters understand your casting fit.',
+                complete: checklist.basicInfo,
+                hint: 'First and last name anchor your Talent profile across applications.',
                 actionHref: '#basic-details',
                 actionLabel: 'Edit basics',
               },
@@ -435,18 +437,29 @@ export default function TalentProfilePage() {
                 actionLabel: 'Improve bio',
               },
               {
-                label: 'Photo and portfolio',
-                complete: checklist.profilePhoto && checklist.portfolioMedia,
-                hint: 'A profile photo and at least one media item make the profile reviewable.',
+                label: 'Portfolio evidence',
+                complete: checklist.portfolioMedia,
+                hint: 'Add portfolio media, a YouTube reel, or a portfolio website so recruiters can review your work.',
                 actionHref: '#media-portfolio',
                 actionLabel: 'Manage media',
               },
               {
                 label: 'Skills and languages',
                 complete: checklist.skillsAndLanguages,
-                hint: 'List performance skills and spoken languages for better matching.',
+                hint: 'List at least one performance skill and one spoken language for better matching.',
                 actionHref: '#skills-languages',
                 actionLabel: 'Add skills',
+              },
+              {
+                label: 'Extra casting context',
+                complete:
+                  checklist.demographics &&
+                  checklist.professionalLinks &&
+                  checklist.profilePhoto,
+                hint: 'Age, gender, height, social links, and profile photo are useful but do not reduce completeness.',
+                actionHref: '#basic-details',
+                actionLabel: 'Add optional context',
+                optional: true,
               },
               {
                 label: 'Public profile ready',

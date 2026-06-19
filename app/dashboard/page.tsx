@@ -42,6 +42,7 @@ import {
   getSelfTapeStatus,
   SELF_TAPE_STATUS_LABELS,
 } from '@/app/lib/self-tape-policy';
+import { calculateTalentProfileCompleteness } from '@/app/lib/profile-completeness';
 
 const statusValue = (items: Application[], status: Application['status']) =>
   items.filter((item) => getApplicationStatus(item) === status).length;
@@ -279,7 +280,9 @@ function TalentWorkspace({
   savedAuditions: SavedAudition[];
   unreadConversationCount: number;
 }) {
-  const completion = profile?.profileCompletenessScore ?? 0;
+  const completion = profile
+    ? calculateTalentProfileCompleteness(profile).score
+    : 0;
   const verificationStatus = profile?.talentVerificationStatus ?? 'not_submitted';
   const publicProfileReady = Boolean(profile?.publicProfileEnabled || profile?.isPublic);
   const missingSelfTapes = applications.filter(

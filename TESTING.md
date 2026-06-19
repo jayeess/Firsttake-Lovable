@@ -107,6 +107,7 @@ The dependency-free Node test suite currently covers application eligibility:
 - Removed auditions are hidden from discovery
 - Non-admin users fail the privileged-action policy
 - Talent completeness and minimum verification eligibility
+- Shared Talent/Admin profile completeness rules
 - Rejected Talent verification resubmission
 - Admin-only Talent verification transitions
 - Verified Talent badge policy
@@ -328,15 +329,24 @@ Then verify:
 
 1. Log in as Talent and open `/talent/profile`.
 2. Confirm the completeness percentage reacts to profile edits.
-3. Confirm missing fields and recommended actions are clear.
+3. Confirm required missing fields and recommended actions are clear.
 4. Confirm verification cannot be submitted below 70%.
 5. Save a profile at or above 70% and submit it for review.
 6. Confirm the status becomes `pending` without blocking auditions/applications.
 7. Log in as Admin and open `/admin/talents`.
-8. Reject with a reason, then confirm Talent can fix the profile and resubmit.
-9. Verify the Talent and confirm the badge appears in the recruiter applicant
+8. Confirm the Admin profile completeness percentage matches `/talent/profile`.
+9. Confirm verification status, public profile status, and portfolio moderation
+   are shown separately from profile completeness.
+10. Reject with a reason, then confirm Talent can fix the profile and resubmit.
+11. Verify the Talent and confirm the badge appears in the recruiter applicant
    pipeline.
-10. Suspend and restore the Talent, confirming both audit-log events appear.
+12. Suspend and restore the Talent, confirming both audit-log events appear.
+
+Completeness should reach 100% when the required profile source-of-truth items
+are present: name, category, experience, location, 80+ character bio, at least
+one portfolio signal, and at least one skill plus one language. Email
+verification, Talent verification, public-profile state, profile photo, and
+portfolio moderation are separate trust or presentation signals.
 
 Talent review test records should use an `E2E_TEST_` name and should be removed
 from `talentVerifications`, the Talent profile, and `auditLogs` after destructive

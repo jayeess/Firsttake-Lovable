@@ -1,5 +1,17 @@
 # Changelog
 
+### Profile Completeness Consistency
+
+- Centralized Talent profile completeness calculation in a shared helper used by
+  Talent, Admin, dashboard, and recruiter-facing profile reads
+- Fixed Admin Talent review showing stale verification snapshot scores instead
+  of the current live profile completeness
+- Separated profile completeness from Talent verification, public profile state,
+  and portfolio moderation in the Admin Talent view
+- Clarified that optional trust signals such as verification status, email
+  verification, profile photo, and moderation state do not reduce the profile
+  completeness percentage
+
 ### Messaging and Notifications Workflow Polish
 
 - Reworked `/notifications` into category-based activity views for

@@ -8,6 +8,7 @@ import type {
   TalentVerification,
   TalentMedia,
 } from '@/app/lib/types';
+import { calculateTalentProfileCompleteness } from '@/app/lib/profile-completeness';
 import { AdminActionButton } from '@/components/admin-action-button';
 import { AdminShell } from '@/components/admin-shell';
 import { EmptyState, ErrorState, LoadingState } from '@/components/async-state';
@@ -72,6 +73,14 @@ export default function AdminTalentsPage() {
             const name = item.profile
               ? `${item.profile.firstName} ${item.profile.lastName}`.trim()
               : item.talentEmail || item.id;
+            const completeness = item.profile
+              ? calculateTalentProfileCompleteness(item.profile)
+              : null;
+            const completenessScore =
+              completeness?.score ?? item.profileCompletenessScore ?? 0;
+            const activeMediaCount =
+              item.media?.filter((media) => media.moderationStatus === 'active')
+                .length ?? 0;
             return (
               <article
                 key={item.id}
@@ -105,15 +114,40 @@ export default function AdminTalentsPage() {
                     <p className="mt-1 text-sm text-[#657176]">
                       {item.talentEmail || item.id}
                     </p>
-                    <p className="mt-3 font-bold">
-                      Profile completeness: {item.profileCompletenessScore}%
-                    </p>
-                    <p className="mt-2 text-sm font-bold text-[#657176]">
-                      Public profile:{' '}
-                      {item.profile?.publicProfileEnabled
-                        ? `/t/${item.profile.publicSlug}`
-                        : 'Disabled'}
-                    </p>
+                    <dl className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                      <AdminInfo
+                        label="Profile completeness"
+                        value={`${completenessScore}%`}
+                      />
+                      <AdminInfo
+                        label="Talent verification"
+                        value={item.talentVerificationStatus.replace('_', ' ')}
+                      />
+                      <AdminInfo
+                        label="Public profile"
+                        value={
+                          item.profile?.publicProfileEnabled
+                            ? `Enabled /t/${item.profile.publicSlug}`
+                            : 'Disabled'
+                        }
+                      />
+                      <AdminInfo
+                        label="Portfolio moderation"
+                        value={`${activeMediaCount} active item${
+                          activeMediaCount === 1 ? '' : 's'
+                        }`}
+                      />
+                    </dl>
+                    {completeness && completeness.missingFields.length > 0 && (
+                      <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+                        <p className="font-black">Missing completeness items</p>
+                        <ul className="mt-2 grid gap-1 sm:grid-cols-2">
+                          {completeness.missingFields.map((label) => (
+                            <li key={label}>- {label}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                   </div>
                   <div className="grid gap-3">
                     {item.talentVerificationStatus === 'pending' && (

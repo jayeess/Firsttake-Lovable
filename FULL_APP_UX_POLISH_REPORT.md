@@ -99,22 +99,30 @@ FirstTake as a centralized verified casting workflow for Talent and Recruiters.
 
 ## Profile Completion Logic
 
-The Talent profile now explains why the score is not 100%. The score still uses
-the existing trust policy, but the UI now surfaces the exact missing items and
-turns them into actions.
+The Talent profile now explains why the score is not 100%. The score uses one
+shared profile-completeness helper so Talent, Admin, dashboard, and
+recruiter-facing reads do not drift.
 
 Tracked completeness signals:
 
 - Basic identity
-- Age, gender, and height
 - Category
 - Experience
 - Location
 - Bio of at least 80 characters
-- Instagram, YouTube, or portfolio website
+- At least one portfolio signal: media, YouTube reel, or portfolio website
+- Skills and languages
+
+Optional trust and presentation signals are intentionally shown separately and
+do not reduce the profile completeness percentage:
+
+- Age, gender, and height
+- Instagram/social context
 - Profile photo
-- Portfolio media
-- Skills or languages
+- Email verification
+- Talent verification
+- Public profile state
+- Portfolio moderation state
 
 The profile now shows:
 
@@ -123,6 +131,11 @@ The profile now shows:
 - "Complete these to reach 100%" guidance
 - Done, Missing, and Optional states
 - Action links to the relevant profile section
+
+The Admin Talent review view now uses the same live profile calculation, then
+shows verification status, public profile state, and portfolio moderation in
+separate fields. This prevents a stale verification submission snapshot from
+showing a different percentage than the Talent profile.
 
 Skills and languages are now editable from the Talent profile, so the user is
 not blocked from reaching 100% by a hidden field.

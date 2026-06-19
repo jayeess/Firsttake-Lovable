@@ -41,7 +41,7 @@ import type {
   NotificationPreferences,
 } from './types';
 import type { RecruiterReviewInput } from './application-pipeline';
-import { calculateTalentProfileCompleteness } from './talent-trust-policy';
+import { calculateTalentProfileCompleteness } from './profile-completeness';
 import { buildAuditionSearchFields } from './audition-discovery';
 import { normalizeNotificationPreferences } from './notification-preferences';
 
@@ -232,7 +232,14 @@ export const getTalentProfile = async (
     const profileDoc = await getDoc(
       doc(getFirestoreDb(), 'users', uid, 'talentProfiles', uid)
     );
-    return profileDoc.exists() ? (profileDoc.data() as TalentProfile) : null;
+    if (!profileDoc.exists()) return null;
+    const profile = profileDoc.data() as TalentProfile;
+    const completeness = calculateTalentProfileCompleteness(profile);
+    return {
+      ...profile,
+      profileCompletenessScore: completeness.score,
+      profileCompletenessChecklist: completeness.checklist,
+    };
   } catch (error: unknown) {
     throw new Error(getErrorMessage(error, 'Failed to load talent profile'));
   }

@@ -6,10 +6,8 @@ import {
   writeAuditLog,
 } from '@/app/lib/admin-server';
 import { getAdminDb } from '@/app/lib/firebase-admin';
-import {
-  calculateTalentProfileCompleteness,
-  canSubmitTalentVerification,
-} from '@/app/lib/talent-trust-policy';
+import { calculateTalentProfileCompleteness } from '@/app/lib/profile-completeness';
+import { canSubmitTalentVerification } from '@/app/lib/talent-trust-policy';
 import type { TalentProfile, TalentVerificationStatus } from '@/app/lib/types';
 import {
   createNotification,

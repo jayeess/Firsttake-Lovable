@@ -5,6 +5,8 @@ import {
 } from '@/app/lib/env-validation';
 import { getAdminDb } from '@/app/lib/firebase-admin';
 import { getEmailProviderStatus } from '@/app/lib/email/email-provider';
+import { calculateTalentProfileCompleteness } from '@/app/lib/profile-completeness';
+import type { TalentProfile } from '@/app/lib/types';
 
 export const runtime = 'nodejs';
 
@@ -58,22 +60,30 @@ export async function GET(request: Request) {
             .collection('media')
             .orderBy('sortOrder', 'asc')
             .get();
+          const profileData = profile.exists
+            ? (profile.data() as TalentProfile)
+            : null;
+          const completeness = profileData
+            ? calculateTalentProfileCompleteness(profileData)
+            : null;
           return {
             id: account.id,
             talentId: account.id,
             talentEmail: account.data().email ?? null,
+            ...verification,
             talentVerificationStatus:
               verification?.talentVerificationStatus ?? 'not_submitted',
             profileCompletenessScore:
+              completeness?.score ??
+              profileData?.profileCompletenessScore ??
               verification?.profileCompletenessScore ??
-              profile.data()?.profileCompletenessScore ??
               0,
             profileCompletenessChecklist:
+              completeness?.checklist ??
+              profileData?.profileCompletenessChecklist ??
               verification?.profileCompletenessChecklist ??
-              profile.data()?.profileCompletenessChecklist ??
               {},
-            ...verification,
-            profile: profile.exists ? profile.data() : null,
+            profile: profileData,
             media: serialize(media),
           };
         })

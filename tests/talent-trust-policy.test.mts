@@ -1,12 +1,14 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
-  calculateTalentProfileCompleteness,
   canAdminSetTalentVerification,
   canSubmitTalentVerification,
   isVerifiedTalent,
-  TALENT_VERIFICATION_MINIMUM_SCORE,
 } from '../app/lib/talent-trust-policy.ts';
+import {
+  calculateTalentProfileCompleteness,
+  TALENT_VERIFICATION_MINIMUM_SCORE,
+} from '../app/lib/profile-completeness.ts';
 import type { TalentProfile } from '../app/lib/types.ts';
 
 const completeProfile: TalentProfile = {
@@ -20,25 +22,29 @@ const completeProfile: TalentProfile = {
   experienceLevel: '1_3_YRS',
   location: 'Hyderabad',
   websiteUrl: 'https://example.test/portfolio',
+  skills: ['Screen acting'],
+  languages: ['Telugu'],
   isPublic: true,
 };
 
-test('complete core Talent profile reaches verification eligibility', () => {
+test('complete required Talent profile reaches 100%', () => {
   const result = calculateTalentProfileCompleteness(completeProfile);
-  assert.equal(result.score, 80);
+  assert.equal(result.score, 100);
+  assert.equal(result.percent, 100);
+  assert.deepEqual(result.missingRequiredItems, []);
   assert.equal(result.eligibleForVerification, true);
 });
 
-test('profile photo and portfolio media increase completeness', () => {
-  const withoutMedia = calculateTalentProfileCompleteness(completeProfile);
-  const withMedia = calculateTalentProfileCompleteness({
+test('optional verification and profile photo do not reduce completeness', () => {
+  const unverified = calculateTalentProfileCompleteness(completeProfile);
+  const verifiedWithPhoto = calculateTalentProfileCompleteness({
     ...completeProfile,
+    talentVerificationStatus: 'verified',
     profilePhotoUrl: 'https://example.test/profile.jpg',
-    portfolioMediaCount: 1,
   });
-  assert.equal(withMedia.score, withoutMedia.score + 10);
-  assert.equal(withMedia.checklist.profilePhoto, true);
-  assert.equal(withMedia.checklist.portfolioMedia, true);
+  assert.equal(unverified.score, 100);
+  assert.equal(verifiedWithPhoto.score, 100);
+  assert.equal(verifiedWithPhoto.checklist.profilePhoto, true);
 });
 
 test('incomplete Talent profile cannot submit verification', () => {
@@ -50,6 +56,25 @@ test('incomplete Talent profile cannot submit verification', () => {
   });
   assert.ok(result.score < TALENT_VERIFICATION_MINIMUM_SCORE);
   assert.equal(canSubmitTalentVerification('not_submitted', result.score), false);
+});
+
+test('missing skills, languages, and portfolio signal reduce the shared score', () => {
+  const result = calculateTalentProfileCompleteness({
+    ...completeProfile,
+    websiteUrl: '',
+    youtubeUrl: '',
+    portfolioMediaCount: 0,
+    skills: [],
+    languages: [],
+  });
+
+  assert.equal(result.score, 69);
+  assert.equal(result.checklist.skillsAndLanguages, false);
+  assert.equal(result.checklist.portfolioMedia, false);
+  assert.deepEqual(result.missingFields, [
+    'Add at least one portfolio image, YouTube reel, or portfolio website',
+    'Add at least one skill and one language',
+  ]);
 });
 
 test('rejected Talent can resubmit after reaching the minimum score', () => {
