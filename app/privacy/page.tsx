@@ -3,10 +3,10 @@ import { PublicInfoPage } from '@/components/public-info-page';
 export default function PrivacyPage() {
   return (
     <PublicInfoPage
-      eyebrow="Beta legal placeholder"
+      eyebrow="Beta privacy notice"
       title="Privacy Policy"
       description="This draft explains the main types of data Nata Connect may process during beta testing and how visibility works."
-      notice="This is a beta placeholder and should be reviewed by a qualified legal professional before wider launch. It is not legal advice."
+      notice="This beta policy is provided for product testing and should be reviewed by a qualified legal professional before wider launch. It is not legal advice."
       sections={[
         {
           title: 'Information Collected',
@@ -46,7 +46,7 @@ export default function PrivacyPage() {
         },
         {
           title: 'Security',
-          body: 'The product uses Firebase authentication, role checks, server-side admin APIs, security rules, and moderation controls, but no beta system should be treated as risk-free.',
+          body: 'The product uses secure sign-in, role checks, server-side moderation tools, security rules, and audit controls, but no beta system should be treated as risk-free.',
         },
         {
           title: 'Minors and Guardian Note',

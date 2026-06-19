@@ -12,7 +12,7 @@ export const getErrorMessage = (error: unknown, fallback: string): string => {
     'auth/too-many-requests':
       'Too many attempts. Wait a moment, then try again.',
     'auth/network-request-failed':
-      'Firebase could not reach the network. Check your connection and retry.',
+      'The service could not reach the network. Check your connection and retry.',
     'auth/user-disabled': 'This account has been disabled.',
   };
 

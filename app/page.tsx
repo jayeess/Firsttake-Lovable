@@ -125,6 +125,33 @@ export default function Home() {
         ))}
       </section>
 
+      <section className="mx-auto max-w-7xl px-5 pb-16">
+        <div className="surface rounded-md p-6 sm:p-8">
+          <p className="eyebrow">How it works</p>
+          <div className="mt-5 grid gap-4 md:grid-cols-3">
+            {[
+              [
+                'Build a credible profile',
+                'Talent adds role details, skills, languages, portfolio signals, and trust indicators.',
+              ],
+              [
+                'Apply with context',
+                'Audition briefs show recruiter trust, deadline, location, self-tape needs, and next actions.',
+              ],
+              [
+                'Manage casting decisions',
+                'Recruiters review applicants, move stages, request callbacks, and message safely.',
+              ],
+            ].map(([title, body]) => (
+              <article key={title} className="border-l-2 border-[#e7ad2d] pl-4">
+                <h2 className="text-xl font-black">{title}</h2>
+                <p className="mt-2 text-sm leading-6 text-[#657176]">{body}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section className="bg-[#07111f] px-5 py-16 text-white">
         <div className="mx-auto flex max-w-7xl flex-col justify-between gap-8 md:flex-row md:items-end">
           <div>

@@ -35,8 +35,8 @@ export default function ForgotPasswordPage() {
         </p>
         <h1 className="mt-2 text-3xl font-bold">Reset your password</h1>
         <p className="mt-3 text-sm leading-6 text-[#606a74]">
-          Enter the email connected to your account. Firebase will send a
-          secure recovery link.
+          Enter the email connected to your account. We will send a secure
+          recovery link if the account exists.
         </p>
         {message && (
           <p className="mt-5 border border-green-300 bg-green-50 p-3 text-sm text-green-800">

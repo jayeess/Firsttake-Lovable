@@ -91,7 +91,7 @@ export const signUp = async (data: SignUpData) => {
     await prepareTabSession();
     const { user } = await withTimeout(
       createUserWithEmailAndPassword(getAuth(), data.email, data.password),
-      'Firebase sign up timed out. Check Email/Password auth and network access.'
+      'Sign up timed out. Check your connection and try again.'
     );
 
     try {
@@ -106,7 +106,7 @@ export const signUp = async (data: SignUpData) => {
           updatedAt: new Date(),
           lastLogin: new Date(),
         }),
-        'Firestore profile creation timed out. Check Firestore setup and rules.'
+        'Profile setup timed out. Refresh and try again.'
       );
     } catch (profileError: unknown) {
       await deleteUser(user).catch(() => undefined);
@@ -128,7 +128,7 @@ export const login = async (data: LoginData) => {
     await prepareTabSession();
     const { user } = await withTimeout(
       signInWithEmailAndPassword(getAuth(), data.email, data.password),
-      'Firebase login timed out. Check Email/Password auth and network access.'
+      'Login timed out. Check your connection and try again.'
     );
 
     // Never create a partial user record during login. Missing account records
@@ -137,7 +137,7 @@ export const login = async (data: LoginData) => {
       updateDoc(doc(getFirestoreDb(), 'users', user.uid), {
         lastLogin: new Date(),
       }),
-      'Firestore login update timed out. Check Firestore setup and rules.'
+      'Login setup timed out. Refresh and try again.'
     ).catch(() => undefined);
 
     return user;

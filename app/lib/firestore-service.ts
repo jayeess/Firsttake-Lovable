@@ -388,7 +388,7 @@ export const createAudition = async (
     const message = getErrorMessage(error, 'Failed to create audition');
     if (message.includes('permission-denied')) {
       throw new Error(
-        'Firebase denied this write. Your recruiter account has been repaired, but the project Firestore rules still need to allow recruiter audition creation.'
+        'Your recruiter account is ready, but posting is not available for this session. Refresh, sign in again, and contact support if it continues.'
       );
     }
     throw new Error(message);
@@ -702,7 +702,7 @@ export const submitApplication = async (
       message.includes('permission-denied')
     ) {
       throw new Error(
-        'Firebase could not confirm this account as Talent. Log out, log in again, and retry. If it continues, the account role document or deployed Firestore rules need repair.'
+        'We could not confirm this account as Talent. Log out, log in again, and retry. Contact support if it continues.'
       );
     }
     throw new Error(message);

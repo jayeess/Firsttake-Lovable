@@ -202,6 +202,31 @@ after the run.
 10. Confirm Talent cannot access recruiter creation/review actions.
 11. Confirm Recruiter cannot submit a Talent application.
 
+## Product experience QA checklist
+
+Use this after marketplace or workspace UI changes:
+
+1. Open `/` on mobile and desktop and confirm the hero, how-it-works section,
+   Talent/Recruiter value props, trust section, and footer feel connected.
+2. Log in as Talent and open `/auditions`. Confirm search, saved/all toggle,
+   metrics, filter chips, sort dropdown, saved state, applied state, and empty
+   states do not overlap or overflow.
+3. Open `/applications` and confirm Active, Shortlisted, Completed, and All
+   views show meaningful counts, next actions, self-tape state, messages, and
+   respectful closed-state copy.
+4. Log in as Recruiter and open `/recruiter/auditions`. Confirm active calls,
+   applicant totals, self-tape briefs, drafts, review applicant CTAs, and the
+   professional safety reminder are visible on mobile and desktop.
+5. Open `/messages` and `/notifications` for both roles and confirm unread
+   states, action labels, and related audition/application context are clear.
+6. Open Admin pages and confirm trust, verification, moderation, public profile,
+   and completeness concepts are not mixed together.
+7. Search visible UI for implementation wording such as database/index/provider
+   setup details. Normal Talent and Recruiter users should see product-safe
+   guidance instead.
+8. Confirm no payment, subscription, document-upload, or billing workflow was
+   introduced.
+
 ## Self-tape submission checks
 
 1. As Recruiter, publish a future-dated audition with self-tape enabled.

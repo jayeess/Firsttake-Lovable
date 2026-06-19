@@ -62,7 +62,7 @@ export default function EmailVerifiedPage() {
           ? 'We could not confirm verification yet. Return to your inbox and open the latest verification link, or sign in and check your status again.'
           : state === 'error'
             ? message
-            : 'FirstTake is refreshing your secure Firebase account status.';
+            : 'FirstTake is refreshing your secure account status.';
 
   return (
     <AuthFrame

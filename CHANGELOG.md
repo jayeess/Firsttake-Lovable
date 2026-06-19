@@ -1,5 +1,21 @@
 # Changelog
 
+### Product Experience and Platform Consistency
+
+- Added shared product UI primitives for workspace heroes, metric cards,
+  section headers, and safety notices
+- Upgraded `/auditions` into a stronger marketplace feed with opportunity
+  metrics, verified recruiter count, saved role count, and application context
+- Upgraded `/applications` with tracker metrics, clearer status orientation,
+  self-tape task visibility, and less technical error copy
+- Upgraded `/recruiter/auditions` into a casting command-center view with
+  recruiter metrics and a visible professional safety standard
+- Improved landing-page credibility with a clearer how-it-works section
+- Removed normal-user technical wording from support, recovery, verification,
+  and service error messages
+- No payment, subscription, document upload, Firebase rules, or billing work was
+  added
+
 ### Profile Completeness Consistency
 
 - Centralized Talent profile completeness calculation in a shared helper used by

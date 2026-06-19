@@ -19,6 +19,9 @@ their own user document through a secure token-verified server route.
 
 ## Pages Improved
 
+- `/auditions`
+- `/applications`
+- `/recruiter/auditions`
 - `/talent/profile`
 - `/recruiter/profile`
 - `/dashboard`
@@ -96,6 +99,44 @@ The public landing page now leads with the core FirstTake pitch:
 It also explains the market problem of scattered audition discovery across
 Instagram, WhatsApp, informal contacts, and unclear forms, then positions
 FirstTake as a centralized verified casting workflow for Talent and Recruiters.
+
+The latest consistency pass added a more explicit "How it works" section so the
+public story connects Talent profiles, audition context, and recruiter casting
+decisions in one professional workflow.
+
+## Shared Product UI
+
+Added `components/product-ui.tsx` for shared product-facing primitives:
+
+- `WorkspaceHero`
+- `MetricCard`
+- `SectionHeader`
+- `SafetyNotice`
+
+These are intentionally small and are used where they remove repeated page
+header, metric, and safety-note patterns without forcing a full app rewrite.
+
+## Marketplace and Tracker Polish
+
+The audition discovery page now feels more like a marketplace feed:
+
+- Stronger page hero.
+- Visible result, verified recruiter, saved role, and applied counts.
+- Clearer transition between All auditions and Saved auditions.
+- Search/filter controls remain compact and responsive.
+
+The applications tracker now feels more like a casting status workspace:
+
+- Active, Shortlisted, Self-tape, and Unread-thread metrics.
+- Clearer primary actions to browse auditions or open messages.
+- Product-safe error copy instead of implementation details.
+
+The recruiter auditions page now reads more like a casting command center:
+
+- Active call, applicant, self-tape, and draft metrics.
+- Stronger review-applicants path.
+- Professional safety standard reminding recruiters not to ask Talent to pay to
+  audition.
 
 ## Profile Completion Logic
 

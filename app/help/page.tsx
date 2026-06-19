@@ -45,7 +45,7 @@ export default function HelpPage() {
         },
         {
           title: 'Beta Known Limitations',
-          body: 'The beta may still have manual support, placeholder legal copy, incomplete analytics, limited email delivery, and changing product workflows.',
+          body: 'The beta may still have manual support, evolving policies, limited analytics, limited email delivery, and changing product workflows.',
         },
       ]}
       cta={{ href: '/contact', label: 'Contact support' }}

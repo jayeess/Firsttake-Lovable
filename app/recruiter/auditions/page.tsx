@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { BriefcaseBusiness, ClipboardList, FilePenLine, Video } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { AppShell } from '@/components/app-shell';
 import { StatusBadge } from '@/components/status-badge';
@@ -9,6 +10,7 @@ import { formatDate, type Audition } from '@/app/lib/types';
 import { getErrorMessage } from '@/app/lib/error-utils';
 import { useAuth } from '@/context/auth-context';
 import { EmptyState, ErrorState, LoadingState } from '@/components/async-state';
+import { MetricCard, SafetyNotice, WorkspaceHero } from '@/components/product-ui';
 
 export default function RecruiterAuditionsPage() {
   const { user } = useAuth();
@@ -42,20 +44,15 @@ export default function RecruiterAuditionsPage() {
 
   return (
     <AppShell requiredRole="RECRUITER">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="eyebrow">Recruiter tools</p>
-          <h1 className="mt-2 text-3xl font-black leading-tight sm:text-4xl">
-            My auditions
-          </h1>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-[#657176] sm:text-base">
-            Manage live briefs, review applicant flow, and open the next casting decision quickly.
-          </p>
-        </div>
-        <Link href="/recruiter/auditions/new" className="primary-button sm:w-auto">
-          Post audition
-        </Link>
-      </div>
+      <WorkspaceHero
+        eyebrow="Casting command center"
+        title="Manage auditions and keep applicant decisions moving."
+        description="Track active briefs, applicant flow, self-tape requests, drafts, and the next review action from one recruiter workspace."
+        actionHref="/recruiter/auditions/new"
+        actionLabel="Post audition"
+        secondaryHref="/messages"
+        secondaryLabel="Open messages"
+      />
       {error && (
         <ErrorState
           title="Your casting calls could not be loaded"
@@ -72,12 +69,39 @@ export default function RecruiterAuditionsPage() {
           aria-label="Casting pipeline summary"
           className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
         >
-          <PipelineStat label="Active calls" value={stats.active} />
-          <PipelineStat label="Total applicants" value={stats.applicants} />
-          <PipelineStat label="Self-tape briefs" value={stats.selfTape} />
-          <PipelineStat label="Drafts" value={stats.drafts} />
+          <MetricCard
+            label="Active calls"
+            value={stats.active}
+            detail="Published and visible"
+            icon={BriefcaseBusiness}
+          />
+          <MetricCard
+            label="Total applicants"
+            value={stats.applicants}
+            detail="Across your auditions"
+            icon={ClipboardList}
+            tone={stats.applicants > 0 ? 'attention' : 'neutral'}
+          />
+          <MetricCard
+            label="Self-tape briefs"
+            value={stats.selfTape}
+            detail="Roles requesting media links"
+            icon={Video}
+          />
+          <MetricCard
+            label="Drafts"
+            value={stats.drafts}
+            detail="Not visible to Talent"
+            icon={FilePenLine}
+          />
         </section>
       )}
+      <div className="mt-5">
+        <SafetyNotice title="Casting safety standard">
+          Keep all audition-related communication professional and never ask
+          Talent to pay to audition.
+        </SafetyNotice>
+      </div>
       {loading ? (
         <LoadingState label="Loading your casting pipeline..." />
       ) : error ? null : auditions.length === 0 ? (
@@ -184,16 +208,5 @@ export default function RecruiterAuditionsPage() {
       </>
       )}
     </AppShell>
-  );
-}
-
-function PipelineStat({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="rounded-md border border-[#d7e0e4] bg-white p-4">
-      <p className="text-2xl font-black">{value}</p>
-      <p className="mt-1 text-xs font-bold uppercase text-[#657176]">
-        {label}
-      </p>
-    </div>
   );
 }

@@ -3,10 +3,10 @@ import { PublicInfoPage } from '@/components/public-info-page';
 export default function TermsPage() {
   return (
     <PublicInfoPage
-      eyebrow="Beta legal placeholder"
+      eyebrow="Beta terms"
       title="Terms of Service"
       description="These draft terms explain the basic expectations for using Nata Connect during a controlled beta."
-      notice="This is a beta placeholder and should be reviewed by a qualified legal professional before wider launch. It is not legal advice."
+      notice="These beta terms are provided for controlled product testing and should be reviewed by a qualified legal professional before wider launch. They are not legal advice."
       sections={[
         {
           title: 'Acceptance of Terms',

@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { CheckCircle2, ClipboardList, MessageSquare, Video } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { AppShell } from '@/components/app-shell';
 import { StatusBadge } from '@/components/status-badge';
@@ -31,6 +32,7 @@ import {
   SELF_TAPE_STATUS_LABELS,
   validateSelfTapeLink,
 } from '@/app/lib/self-tape-policy';
+import { MetricCard, WorkspaceHero } from '@/components/product-ui';
 
 type ApplicationView = 'ACTIVE' | 'SHORTLISTED' | 'COMPLETED' | 'ALL';
 
@@ -159,6 +161,16 @@ export default function ApplicationsPage() {
       }),
     [activeView, applications, statusFilter]
   );
+  const activeCount = getViewCount(applications, ['APPLIED', 'VIEWED', 'UNDER_REVIEW', 'MAYBE']);
+  const shortlistedCount = getViewCount(applications, [
+    'SHORTLISTED',
+    'CALLBACK',
+    'FINAL_ROUND',
+  ]);
+  const selfTapeNeeds = applications.filter((application) => {
+    const selfTapeStatus = getSelfTapeStatus(application, application.audition);
+    return selfTapeStatus === 'missing' || selfTapeStatus === 'requested';
+  }).length;
 
   const withdraw = async (application: Application) => {
     if (!window.confirm('Withdraw this application?')) return;
@@ -259,14 +271,44 @@ export default function ApplicationsPage() {
 
   return (
     <AppShell requiredRole="TALENT">
-      <p className="eyebrow">Application tracker</p>
-      <h1 className="mt-2 text-3xl font-black leading-tight sm:text-4xl">
-        My applications
-      </h1>
-      <p className="mt-3 max-w-2xl text-sm leading-6 text-[#657176] sm:text-base sm:leading-7">
-        Follow every role from submission through recruiter review and final
-        status.
-      </p>
+      <WorkspaceHero
+        eyebrow="Application tracker"
+        title="Know exactly where every audition stands."
+        description="Follow submissions from applied to viewed, shortlist, callback, final round, selected, rejected, or withdrawn."
+        actionHref="/auditions"
+        actionLabel="Find more auditions"
+        secondaryHref="/messages"
+        secondaryLabel="Open messages"
+      />
+
+      <section className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <MetricCard
+          label="Active"
+          value={activeCount}
+          detail="Submitted or under review"
+          icon={ClipboardList}
+        />
+        <MetricCard
+          label="Shortlisted"
+          value={shortlistedCount}
+          detail="Callback and final-round momentum"
+          icon={CheckCircle2}
+          tone="success"
+        />
+        <MetricCard
+          label="Self-tape tasks"
+          value={selfTapeNeeds}
+          detail="Links requested or missing"
+          icon={Video}
+          tone={selfTapeNeeds > 0 ? 'attention' : 'neutral'}
+        />
+        <MetricCard
+          label="Unread threads"
+          value={unreadConversationIds.size}
+          detail="Recruiter replies to review"
+          icon={MessageSquare}
+        />
+      </section>
 
       <div className="mt-6 rounded-md border border-[#cbd6db] bg-white/95 p-3 shadow-sm sm:p-4">
         <div
@@ -343,7 +385,7 @@ export default function ApplicationsPage() {
           <p className="font-bold">Applications could not be loaded</p>
           <p className="mt-1">
             {error.includes('index')
-              ? 'The Firestore application index or security rules have not finished deploying.'
+              ? 'Application tracking is still being prepared. Please retry in a moment.'
               : error}
           </p>
           <button

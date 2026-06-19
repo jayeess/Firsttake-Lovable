@@ -75,8 +75,8 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           <p className="eyebrow">Restricted workspace</p>
           <h1 className="mt-3 text-3xl font-black">Administrator access required</h1>
           <p className="mt-3 leading-7 text-[#657176]">
-            This account does not have the trusted Firebase admin claim. Normal
-            Talent and Recruiter accounts cannot enter moderation tools.
+            This account is not assigned to the trust and safety operations
+            team. Talent and Recruiter accounts cannot enter moderation tools.
           </p>
           <Link href="/dashboard" className="primary-button mt-6">
             Return to workspace

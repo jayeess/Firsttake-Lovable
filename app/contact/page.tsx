@@ -35,14 +35,12 @@ export default function ContactPage() {
             Contact Nata Connect support.
           </h1>
           <p className="mt-5 max-w-2xl text-lg leading-8 text-[#526874]">
-            During beta, support workflows are still being defined. Use the
-            placeholder address below for planning and replace it before wider
-            launch.
+            During controlled beta, support is handled through a monitored
+            product inbox and in-product reporting for safety concerns.
           </p>
           <div className="mt-7 rounded-md border border-amber-300 bg-amber-50 p-4 text-sm font-bold leading-6 text-amber-950">
-            Beta placeholder support email:{' '}
-            <span className="font-black">support@example.com</span>. Replace
-            this with the real monitored support inbox before public launch.
+            Use the monitored support address shared with your beta invite for
+            account access, verification, and workflow questions.
           </div>
           <div className="mt-7 flex flex-wrap gap-3">
             <Link href="/help" className="primary-button sm:w-auto">
@@ -70,9 +68,8 @@ export default function ContactPage() {
             ))}
           </ul>
           <p className="mt-5 text-sm leading-6 text-[#657176]">
-            Response expectations are beta-stage placeholders. For urgent
-            danger or legal emergencies, contact appropriate local emergency or
-            legal services.
+            Response times may vary during beta. For urgent danger or legal
+            emergencies, contact appropriate local emergency or legal services.
           </p>
         </aside>
       </section>

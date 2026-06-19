@@ -1,6 +1,14 @@
 'use client';
 
-import { Bookmark, ChevronDown, Search, SlidersHorizontal } from 'lucide-react';
+import {
+  Bookmark,
+  BriefcaseBusiness,
+  CheckCircle2,
+  ChevronDown,
+  Search,
+  ShieldCheck,
+  SlidersHorizontal,
+} from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import {
   filterAuditions,
@@ -34,6 +42,7 @@ import { AppShell } from '@/components/app-shell';
 import { EmptyState, ErrorState, LoadingState } from '@/components/async-state';
 import { AuditionCard } from '@/components/audition-card';
 import { useAuth } from '@/context/auth-context';
+import { MetricCard, WorkspaceHero } from '@/components/product-ui';
 
 const getActiveFilters = (
   filters: AuditionDiscoveryFilters
@@ -151,6 +160,8 @@ export default function AuditionsPage() {
       ),
     [auditions, filters, profile, savedIds, sort]
   );
+  const verifiedCount = auditions.filter((item) => item.recruiterVerified).length;
+  const appliedCount = appliedIds.size;
 
   const toggleSaved = async (auditionId: string) => {
     const nextSaved = !savedIds.has(auditionId);
@@ -191,24 +202,42 @@ export default function AuditionsPage() {
 
   return (
     <AppShell requiredRole="TALENT">
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="eyebrow">Opportunity discovery</p>
-          <h1 className="mt-2 text-3xl font-black leading-tight sm:text-4xl">
-            Find the right next role.
-          </h1>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-[#657176] sm:text-base sm:leading-7">
-            Search verified casting calls, save promising briefs, and surface
-            opportunities that fit your profile.
-          </p>
-        </div>
-        <div className="rounded-md border border-[#d7e0e4] bg-white p-4 sm:border-l-2 sm:border-l-[#d8a843]">
-          <p className="text-2xl font-black">{visible.length}</p>
-          <p className="text-xs font-bold uppercase text-[#657176]">
-            {filters.savedOnly ? 'Saved opportunities' : 'Active opportunities'}
-          </p>
-        </div>
-      </header>
+      <WorkspaceHero
+        eyebrow="Opportunity discovery"
+        title="Find your next casting opportunity."
+        description="Search verified casting calls, save promising briefs, and compare roles with the context you need before applying."
+        actionHref="/applications"
+        actionLabel="Track applications"
+      />
+
+      <section className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <MetricCard
+          label={filters.savedOnly ? 'Saved matches' : 'Visible matches'}
+          value={visible.length}
+          detail="Current search result"
+          icon={BriefcaseBusiness}
+        />
+        <MetricCard
+          label="Verified recruiters"
+          value={verifiedCount}
+          detail="Trust-checked casting teams"
+          icon={ShieldCheck}
+          tone="success"
+        />
+        <MetricCard
+          label="Saved roles"
+          value={savedAvailableCount}
+          detail="Bookmarked for follow-up"
+          icon={Bookmark}
+          tone="attention"
+        />
+        <MetricCard
+          label="Already applied"
+          value={appliedCount}
+          detail="Active application records"
+          icon={CheckCircle2}
+        />
+      </section>
 
       <section
         aria-label="Audition search and filters"
@@ -430,7 +459,7 @@ export default function AuditionsPage() {
                 onClick={() => clearFilter(item.key)}
                 className="min-h-9 rounded-md border border-[#9fc9c4] bg-[#edf7f5] px-3 py-1.5 text-xs font-bold text-[#006d7f]"
               >
-                {item.label} ×
+                {item.label} x
               </button>
             ))}
             <button
