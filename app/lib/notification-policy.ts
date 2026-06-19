@@ -120,28 +120,34 @@ export const buildApplicationStatusNotification = ({
       Pick<NotificationInput, 'type' | 'title' | 'message' | 'priority'>
     >
   > = {
+    VIEWED: {
+      type: 'application_viewed',
+      title: 'Your application was viewed',
+      message: `A recruiter opened your application for ${auditionTitle}.`,
+      priority: 'NORMAL',
+    },
     SHORTLISTED: {
       type: 'application_shortlisted',
-      title: 'You have been shortlisted',
-      message: `Your application for ${auditionTitle} has been shortlisted.`,
+      title: 'You were shortlisted',
+      message: `You were shortlisted for ${auditionTitle}.`,
       priority: 'HIGH',
     },
     CALLBACK: {
       type: 'application_callback',
-      title: 'Callback stage',
-      message: `The recruiter may contact you for another round for ${auditionTitle}.`,
+      title: 'Callback requested',
+      message: `You may be contacted for another round for ${auditionTitle}.`,
       priority: 'HIGH',
     },
     FINAL_ROUND: {
       type: 'application_final_round',
-      title: 'Final review stage',
-      message: `Your application for ${auditionTitle} moved to final review.`,
+      title: 'You moved to Final Round',
+      message: `You moved to the final review stage for ${auditionTitle}.`,
       priority: 'HIGH',
     },
     REJECTED: {
       type: 'application_rejected',
       title: 'Application update',
-      message: `The recruiter has completed their review for ${auditionTitle}.`,
+      message: `This role moved forward with someone else for ${auditionTitle}.`,
       priority: 'NORMAL',
     },
     SELECTED: {

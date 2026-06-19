@@ -41,6 +41,11 @@ const getInitials = (name?: string) =>
     .map((part) => part[0]?.toUpperCase())
     .join('') || 'NC';
 
+const getThreadSafetyReminder = (userType?: string | null) =>
+  userType === 'RECRUITER'
+    ? 'Use messages only for audition-related communication. Keep communication on FirstTake and never ask Talent to pay to audition.'
+    : 'Keep communication on FirstTake. Do not share sensitive personal documents or payment details in chat.';
+
 export default function ConversationPage() {
   const { conversationId } = useParams<{ conversationId: string }>();
   const { user, userType } = useAuth();
@@ -236,8 +241,7 @@ export default function ConversationPage() {
               <div className="mb-3 flex items-start gap-2 rounded-md bg-[#f7fbfc] p-3 text-xs leading-5 text-[#657176]">
                 <ShieldCheck className="mt-0.5 size-4 shrink-0 text-[#008ca6]" />
                 <p>
-                  Keep communication inside Nata Connect for safety. Do not share
-                  personal contact details until you trust the other party.
+                  {getThreadSafetyReminder(userType)}
                 </p>
               </div>
               <div className="flex items-end gap-2 sm:gap-3">
@@ -279,8 +283,15 @@ export default function ConversationPage() {
             <div className="mt-4 rounded-md bg-[#edf7f5] p-3 text-sm text-[#234b47]">
               <p className="font-black">Trust reminder</p>
               <p className="mt-1 leading-6">
-                Keep casting details and next steps here so both sides have a clear record.
+                Keep casting details and next steps here so both sides have a
+                clear record. Never request or send payment to audition in chat.
               </p>
+            </div>
+            <div className="mt-4 rounded-md border border-[#d7e0e4] p-3 text-sm">
+              <p className="font-black">Application status</p>
+              <div className="mt-2">
+                <StatusBadge status={conversation.applicationStatus} />
+              </div>
             </div>
             <Link
               href={

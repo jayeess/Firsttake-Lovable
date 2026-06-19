@@ -22,6 +22,7 @@ their own user document through a secure token-verified server route.
 - `/talent/profile`
 - `/recruiter/profile`
 - `/dashboard`
+- `/notifications`
 - `/`
 - `/messages`
 - `/messages/[conversationId]`
@@ -171,6 +172,7 @@ The Talent journey is now clearer:
 6. Application cards show deadline, recruiter, next-step copy, self-tape status, messaging, withdrawal, and a direct audition link.
 7. Callback and Final Round now appear as explicit casting stages with respectful Talent-facing explanations.
 8. Messages now feel like a real casting inbox.
+9. Notifications now group application, message, audition, and trust updates so Talent can understand what changed without scanning a mixed feed.
 
 Remaining Talent opportunities:
 
@@ -203,6 +205,38 @@ messaging, and now includes a status timeline.
 Recruiter verification keeps document upload disabled during beta, but no longer
 mentions infrastructure constraints. The page now points recruiters toward
 company details, website, social proof links, and production context for review.
+
+Recruiters now also have a clearer route back to notifications from the
+dashboard, so applicant messages, status activity, and trust updates are not
+buried behind the bell alone.
+
+## Messaging and Notifications Polish
+
+The activity center now behaves more like a product inbox:
+
+- Category tabs separate Applications, Messages, Auditions, and Trust / Account
+  updates.
+- Notification cards show an icon, category badge, unread state, timestamp, and
+  a clear action label.
+- Application-status copy is more human for Viewed, Shortlisted, Callback, Final
+  Round, Selected, Rejected, and Withdrawn states.
+- Viewed creates in-app activity, but remains out of email preference mapping to
+  avoid noisy email delivery.
+
+The message inbox now shows:
+
+- Participant context by role.
+- Audition title.
+- Application status badge.
+- Unread, active, and archived filters.
+- Role-aware empty states.
+
+The conversation thread now reinforces:
+
+- Audition/application context.
+- Current application status.
+- Platform safety reminders.
+- No payment requests and no sensitive document sharing in chat.
 
 Remaining Recruiter opportunities:
 

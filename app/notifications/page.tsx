@@ -1,6 +1,13 @@
 'use client';
 
-import { Bell, CheckCheck } from 'lucide-react';
+import {
+  Bell,
+  CheckCheck,
+  ClipboardList,
+  Film,
+  MessageSquare,
+  ShieldCheck,
+} from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
@@ -12,6 +19,13 @@ import type { AppNotification } from '@/app/lib/types';
 import { AdminShell } from '@/components/admin-shell';
 import { AppShell } from '@/components/app-shell';
 import { useAuth } from '@/context/auth-context';
+
+type NotificationFilter =
+  | 'ALL'
+  | 'APPLICATIONS'
+  | 'MESSAGES'
+  | 'AUDITIONS'
+  | 'TRUST';
 
 const formatNotificationTime = (value?: AppNotification['createdAt']) => {
   if (!value) return 'Just now';
@@ -29,10 +43,72 @@ const formatNotificationTime = (value?: AppNotification['createdAt']) => {
   }).format(date);
 };
 
+const notificationFilters: Array<{
+  value: NotificationFilter;
+  label: string;
+}> = [
+  { value: 'ALL', label: 'All' },
+  { value: 'APPLICATIONS', label: 'Applications' },
+  { value: 'MESSAGES', label: 'Messages' },
+  { value: 'AUDITIONS', label: 'Auditions' },
+  { value: 'TRUST', label: 'Trust / Account' },
+];
+
+const getNotificationCategory = (
+  notification: AppNotification
+): NotificationFilter => {
+  if (
+    notification.relatedEntityType === 'conversation' ||
+    notification.type === 'new_message' ||
+    notification.type === 'conversation_started'
+  ) {
+    return 'MESSAGES';
+  }
+  if (
+    notification.relatedEntityType === 'application' ||
+    notification.type.startsWith('application_') ||
+    notification.type.startsWith('self_tape_')
+  ) {
+    return 'APPLICATIONS';
+  }
+  if (
+    notification.relatedEntityType === 'audition' ||
+    notification.type.startsWith('audition_')
+  ) {
+    return 'AUDITIONS';
+  }
+  return 'TRUST';
+};
+
+const getNotificationBadge = (notification: AppNotification) => {
+  const category = getNotificationCategory(notification);
+  if (category === 'APPLICATIONS') return 'Application';
+  if (category === 'MESSAGES') return 'Message';
+  if (category === 'AUDITIONS') return 'Audition';
+  return 'Trust';
+};
+
+const getNotificationActionLabel = (notification: AppNotification) => {
+  if (!notification.actionUrl) return 'Open';
+  if (notification.actionUrl.startsWith('/messages')) return 'Open message';
+  if (notification.actionUrl.startsWith('/applications')) return 'View application';
+  if (notification.actionUrl.startsWith('/auditions')) return 'View audition';
+  if (notification.actionUrl.includes('/profile')) return 'Go to profile';
+  if (notification.actionUrl.startsWith('/admin')) return 'Open admin queue';
+  return 'View update';
+};
+
+const getCategoryIcon = (category: NotificationFilter) => {
+  if (category === 'MESSAGES') return MessageSquare;
+  if (category === 'APPLICATIONS') return ClipboardList;
+  if (category === 'AUDITIONS') return Film;
+  return ShieldCheck;
+};
+
 function NotificationCenter() {
   const router = useRouter();
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
-  const [filter, setFilter] = useState<'ALL' | 'UNREAD'>('ALL');
+  const [filter, setFilter] = useState<NotificationFilter>('ALL');
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -52,9 +128,11 @@ function NotificationCenter() {
 
   const visible = useMemo(
     () =>
-      filter === 'UNREAD'
-        ? notifications.filter((notification) => !notification.read)
-        : notifications,
+      filter === 'ALL'
+        ? notifications
+        : notifications.filter(
+            (notification) => getNotificationCategory(notification) === filter
+          ),
     [filter, notifications]
   );
   const unreadCount = notifications.filter((item) => !item.read).length;
@@ -116,8 +194,9 @@ function NotificationCenter() {
         </button>
       </div>
 
-      <div className="mt-7 flex gap-1 border-b border-[#ccd3da]">
-        {(['ALL', 'UNREAD'] as const).map((value) => (
+      <div className="mt-7 overflow-x-auto border-b border-[#ccd3da]">
+        <div className="flex min-w-max gap-1">
+        {notificationFilters.map(({ value, label }) => (
           <button
             key={value}
             type="button"
@@ -128,9 +207,11 @@ function NotificationCenter() {
                 : 'text-[#66717c]'
             }`}
           >
-            {value === 'ALL' ? 'All' : `Unread (${unreadCount})`}
+            {label}
+            {value === 'ALL' && unreadCount > 0 ? ` (${unreadCount} unread)` : ''}
           </button>
         ))}
+        </div>
       </div>
 
       {error && (
@@ -152,42 +233,68 @@ function NotificationCenter() {
               size={30}
             />
             <h2 className="mt-4 text-xl font-black">
-              {filter === 'UNREAD' ? 'You are all caught up' : 'No activity yet'}
+              {filter === 'ALL' ? 'You are all caught up' : 'No updates here'}
             </h2>
             <p className="mt-2 text-[#68727c]">
-              Important account and workflow updates will appear here.
+              Application updates and recruiter messages will appear here.
             </p>
           </section>
         ) : (
-          visible.map((notification) => (
-            <button
-              key={notification.id}
-              type="button"
-              onClick={() => void openNotification(notification)}
-              className={`surface grid w-full grid-cols-[12px_1fr] gap-3 rounded-md p-4 text-left transition hover:border-[#008ca6]/45 sm:grid-cols-[12px_1fr_auto] sm:gap-4 sm:p-5 ${
-                notification.read ? 'bg-white/70' : 'border-[#00a8c6] bg-white'
-              }`}
-            >
-              <span
-                className={`mt-1.5 size-2.5 rounded-full ${
-                  notification.read
-                    ? 'bg-[#c8d2d8]'
-                    : notification.priority === 'HIGH'
-                      ? 'bg-[#e7ad2d]'
-                      : 'bg-[#00a8c6]'
+          visible.map((notification) => {
+            const category = getNotificationCategory(notification);
+            const Icon = getCategoryIcon(category);
+            return (
+              <button
+                key={notification.id}
+                type="button"
+                onClick={() => void openNotification(notification)}
+                className={`surface grid w-full gap-3 rounded-md p-4 text-left transition hover:border-[#008ca6]/45 sm:grid-cols-[44px_1fr_auto] sm:gap-4 sm:p-5 ${
+                  notification.read ? 'bg-white/70' : 'border-[#00a8c6] bg-white'
                 }`}
-              />
-              <span>
-                <span className="block font-black">{notification.title}</span>
-                <span className="mt-1 block text-sm leading-6 text-[#59666b]">
-                  {notification.message}
+              >
+                <span className="flex items-center gap-3 sm:block">
+                  <span className="flex size-10 items-center justify-center rounded-md bg-[#edf7f5] text-[#008ca6]">
+                    <Icon aria-hidden="true" className="size-5" />
+                  </span>
+                  {!notification.read && (
+                    <span
+                      className={`size-2.5 rounded-full sm:mx-auto sm:mt-2 sm:block ${
+                        notification.priority === 'HIGH'
+                          ? 'bg-[#e7ad2d]'
+                          : 'bg-[#00a8c6]'
+                      }`}
+                    />
+                  )}
                 </span>
-              </span>
-              <span className="col-start-2 whitespace-nowrap text-xs font-semibold text-[#7a878d] sm:col-start-auto">
-                {formatNotificationTime(notification.createdAt)}
-              </span>
-            </button>
-          ))
+                <span className="min-w-0">
+                  <span className="flex flex-wrap items-center gap-2">
+                    <span className="rounded bg-[#f0f4f5] px-2 py-0.5 text-[10px] font-black uppercase text-[#526168]">
+                      {getNotificationBadge(notification)}
+                    </span>
+                    {!notification.read && (
+                      <span className="rounded bg-[#fff4d6] px-2 py-0.5 text-[10px] font-black uppercase text-[#8a5b00]">
+                        Unread
+                      </span>
+                    )}
+                  </span>
+                  <span className="mt-2 block font-black">{notification.title}</span>
+                  <span className="mt-1 block text-sm leading-6 text-[#59666b]">
+                    {notification.message}
+                  </span>
+                </span>
+                <span className="flex items-center justify-between gap-4 sm:block sm:text-right">
+                  <span className="whitespace-nowrap text-xs font-semibold text-[#7a878d]">
+                    {formatNotificationTime(notification.createdAt)}
+                  </span>
+                  {notification.actionUrl && (
+                    <span className="mt-3 inline-flex min-h-9 items-center rounded-md border border-[#9fc9c4] px-3 text-xs font-black text-[#008ca6]">
+                      {getNotificationActionLabel(notification)}
+                    </span>
+                  )}
+                </span>
+              </button>
+            );
+          })
         )}
       </div>
     </>

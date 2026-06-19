@@ -7,9 +7,10 @@ import { getConversations } from '@/app/lib/messaging-client';
 import type { Conversation } from '@/app/lib/types';
 import { AppShell } from '@/components/app-shell';
 import { EmptyState, ErrorState, LoadingState } from '@/components/async-state';
+import { StatusBadge } from '@/components/status-badge';
 import { useAuth } from '@/context/auth-context';
 
-type InboxFilter = 'ALL' | 'UNREAD' | 'ACTIVE';
+type InboxFilter = 'ALL' | 'UNREAD' | 'ACTIVE' | 'ARCHIVED';
 
 const formatTime = (value?: Conversation['updatedAt']) => {
   if (!value) return '';
@@ -62,6 +63,9 @@ export default function MessagesPage() {
     ? conversations.filter((item) => item.unreadBy.includes(user.uid)).length
     : 0;
   const activeCount = conversations.filter((item) => item.status === 'active').length;
+  const archivedCount = conversations.filter(
+    (item) => item.status === 'archived'
+  ).length;
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
     return conversations.filter((conversation) => {
@@ -79,7 +83,8 @@ export default function MessagesPage() {
       return (
         (!query || searchable.includes(query)) &&
         (filter !== 'UNREAD' || Boolean(user && conversation.unreadBy.includes(user.uid))) &&
-        (filter !== 'ACTIVE' || conversation.status === 'active')
+        (filter !== 'ACTIVE' || conversation.status === 'active') &&
+        (filter !== 'ARCHIVED' || conversation.status === 'archived')
       );
     });
   }, [conversations, filter, search, user, userType]);
@@ -139,11 +144,12 @@ export default function MessagesPage() {
               className="field rounded-md !pl-11 !pr-4 text-sm placeholder:font-normal"
             />
           </label>
-          <div className="grid grid-cols-3 gap-1 rounded-md bg-[#f3f7f8] p-1">
+          <div className="grid grid-cols-2 gap-1 rounded-md bg-[#f3f7f8] p-1 sm:grid-cols-4">
             {[
               ['ALL', `All ${conversations.length}`],
               ['UNREAD', `Unread ${unreadCount}`],
               ['ACTIVE', `Active ${activeCount}`],
+              ['ARCHIVED', `Archived ${archivedCount}`],
             ].map(([value, label]) => (
               <button
                 key={value}
@@ -171,8 +177,8 @@ export default function MessagesPage() {
             title="No conversations yet"
             message={
               userType === 'RECRUITER'
-                ? 'Open an applicant in your casting pipeline to start a conversation.'
-                : 'Open one of your applications to message its verified recruiter.'
+                ? 'Applicant conversations will appear here when you message Talent about an audition.'
+                : 'Recruiter conversations will appear here when casting teams contact you.'
             }
           />
         ) : !error && filtered.length === 0 ? (
@@ -213,6 +219,14 @@ export default function MessagesPage() {
                   </span>
                   <span className="mt-1 block truncate text-sm font-bold text-[#51656e]">
                     {conversation.auditionTitleSnapshot}
+                  </span>
+                  <span className="mt-2 flex flex-wrap items-center gap-2">
+                    <StatusBadge status={conversation.applicationStatus} />
+                    <span className="rounded bg-[#f0f4f5] px-2 py-1 text-xs font-bold text-[#657176]">
+                      {userType === 'RECRUITER'
+                        ? 'Applicant conversation'
+                        : 'Recruiter conversation'}
+                    </span>
                   </span>
                   <span className="mt-2 block truncate text-sm text-[#68777e]">
                     {conversation.lastMessageText || 'Conversation ready'}

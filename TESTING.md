@@ -144,10 +144,15 @@ route gating.
 3. Select `Message Talent` and send a casting-related message.
 4. Confirm Talent sees an unread label, notification, and the same thread.
 5. Reply as Talent and verify Recruiter unread state.
-6. Confirm email addresses and phone numbers are blocked.
-7. Confirm unrelated accounts cannot access the conversation.
-8. Withdraw the application and confirm messaging becomes unavailable.
-9. As Admin, block the conversation from `/admin/messages` with a reason.
+6. Confirm the inbox shows participant, audition title, application status,
+   unread state, and last-message time.
+7. Confirm All, Unread, Active, and Archived filters behave as expected.
+8. Confirm the thread sidebar shows audition context and application status.
+9. Confirm role-aware safety reminders appear in the message composer.
+10. Confirm email addresses and phone numbers are blocked.
+11. Confirm unrelated accounts cannot access the conversation.
+12. Withdraw the application and confirm messaging becomes unavailable.
+13. As Admin, block the conversation from `/admin/messages` with a reason.
 
 ## Playwright E2E
 
@@ -279,13 +284,21 @@ After deploying rules and indexes:
    the applicant pipeline.
 4. Mark the application Viewed, Shortlisted, and Rejected as Recruiter.
 5. Confirm each new Talent activity item opens `/applications`.
-6. Withdraw a non-rejected application and confirm both roles receive the
+6. Confirm the Applications, Messages, Auditions, and Trust / Account filters
+   show only their matching activity types.
+7. Confirm notification cards show a category badge, readable message, unread
+   marker, timestamp, and clear action label.
+8. Confirm Viewed appears as in-app activity but does not map to an email
+   preference category.
+9. Confirm Callback and Final Round remain application email categories when
+   email delivery is configured.
+10. Withdraw a non-rejected application and confirm both roles receive the
    correct update.
-7. Submit Talent and Recruiter verification requests and confirm the submitting
+11. Submit Talent and Recruiter verification requests and confirm the submitting
    user and each Admin receive their appropriate notification.
-8. Mark one item read, then use **Mark all as read** and verify the bell count
+12. Mark one item read, then use **Mark all as read** and verify the bell count
    reaches zero.
-9. Confirm a second signed-in account cannot read or modify the first account's
+13. Confirm a second signed-in account cannot read or modify the first account's
    notifications.
 
 ## Phase 1 manual verification

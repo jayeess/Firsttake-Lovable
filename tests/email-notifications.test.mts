@@ -43,6 +43,7 @@ test('notification types map only critical events to email categories', () => {
   );
   assert.equal(getEmailCategoryForNotification('report_resolved'), 'safety');
   assert.equal(getEmailCategoryForNotification('application_submitted'), null);
+  assert.equal(getEmailCategoryForNotification('application_viewed'), null);
 });
 
 test('email preference policy allows safety while respecting user opt-outs', () => {

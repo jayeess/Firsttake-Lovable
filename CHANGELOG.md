@@ -1,5 +1,22 @@
 # Changelog
 
+### Messaging and Notifications Workflow Polish
+
+- Reworked `/notifications` into category-based activity views for
+  Applications, Messages, Auditions, and Trust / Account updates
+- Upgraded notification cards with category icons, unread badges, clearer action
+  labels, and more respectful application-status copy
+- Added Talent-facing Viewed application notifications while keeping Viewed out
+  of email delivery to avoid noisy inboxes
+- Polished `/messages` with archived filtering, application-status badges,
+  participant context, and role-aware empty states
+- Improved message thread context with application status and stronger casting
+  safety reminders
+- Added dashboard continuity links so Talent and Recruiter users can reach
+  messages and notifications from their workspace
+- No payment, subscription, document upload, Firebase Storage, or billing work
+  was added
+
 ### Applicant Review and Self-Tape Workflow Polish
 
 - Added `CALLBACK` and `FINAL_ROUND` application statuses through the existing

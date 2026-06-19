@@ -2,6 +2,7 @@
 
 import {
   ArrowRight,
+  Bell,
   Bookmark,
   ClipboardList,
   Film,
@@ -205,11 +206,12 @@ export default function Dashboard() {
           />
         ) : (
           <>
-            <section className="mt-6 grid gap-3 md:grid-cols-3">
+            <section className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
               {[
                 ['Review applicants', 'Open your live casting calls and keep decisions moving.', '/recruiter/auditions'],
                 ['Post a brief', 'Create a clear casting call with deadline, requirements, and role context.', '/recruiter/auditions/new'],
                 ['Check messages', 'Reply to applicants while keeping communication protected on-platform.', '/messages'],
+                ['View notifications', 'Track applicant messages, status changes, and trust updates in one place.', '/notifications'],
               ].map(([title, body, href]) => (
                 <Link key={title} href={href} className="mobile-card block rounded-md p-5 hover:border-[#008ca6]">
                   <p className="eyebrow">{title}</p>
@@ -576,6 +578,23 @@ function TalentWorkspace({
             </p>
             <Link href="/messages" className="secondary-button mt-5 sm:w-auto">
               Open messages
+            </Link>
+          </article>
+
+          <article className="surface p-5">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="eyebrow">Notifications</p>
+                <h2 className="mt-2 text-xl font-black">Casting updates</h2>
+              </div>
+              <Bell className="size-5 text-[#008ca6]" />
+            </div>
+            <p className="mt-4 text-sm leading-6 text-[#657176]">
+              Application updates, recruiter messages, and trust notices stay
+              organized in your activity center.
+            </p>
+            <Link href="/notifications" className="secondary-button mt-5 sm:w-auto">
+              View notifications
             </Link>
           </article>
 

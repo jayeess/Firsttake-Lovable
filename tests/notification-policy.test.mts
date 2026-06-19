@@ -69,6 +69,13 @@ test('user-facing casting decisions notify Talent without exposing internal revi
     auditionTitle: 'Lead role',
     status: 'SHORTLISTED',
   });
+  const viewed = buildApplicationStatusNotification({
+    talentId: 'talent-a',
+    recruiterId: 'recruiter-a',
+    auditionId: 'audition-a',
+    auditionTitle: 'Lead role',
+    status: 'VIEWED',
+  });
   const selected = buildApplicationStatusNotification({
     talentId: 'talent-a',
     recruiterId: 'recruiter-a',
@@ -98,6 +105,8 @@ test('user-facing casting decisions notify Talent without exposing internal revi
     status: 'UNDER_REVIEW',
   });
 
+  assert.equal(viewed?.type, 'application_viewed');
+  assert.match(viewed?.message ?? '', /opened your application/);
   assert.equal(shortlisted?.type, 'application_shortlisted');
   assert.equal(callback?.type, 'application_callback');
   assert.equal(finalRound?.type, 'application_final_round');
