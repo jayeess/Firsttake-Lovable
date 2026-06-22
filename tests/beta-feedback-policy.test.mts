@@ -36,6 +36,26 @@ test('beta feedback validation rejects unsupported type and short message', () =
   );
 });
 
+test('beta feedback validation accepts performance type and severity', () => {
+  const result = validateBetaFeedback({
+    type: 'performance',
+    severity: 'blocking',
+    message: 'The applicant list takes over 10 seconds to load on mobile.',
+  });
+  assert.equal(result.type, 'performance');
+  assert.equal(result.severity, 'blocking');
+  assert.equal(result.rating, null);
+});
+
+test('beta feedback validation defaults severity to medium for unknown value', () => {
+  const result = validateBetaFeedback({
+    type: 'bug',
+    severity: 'catastrophic',
+    message: 'Something broke and I cannot describe how severely.',
+  });
+  assert.equal(result.severity, 'medium');
+});
+
 test('beta feedback validation bounds rating, message, and email', () => {
   assert.throws(
     () =>

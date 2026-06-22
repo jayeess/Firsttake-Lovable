@@ -3,7 +3,7 @@
 **Telugu name:** నట కనెక్ట్  
 **Document date:** June 22, 2026
 **Repository:** `jayeess/Firsttake-Lovable`  
-**Current stage:** Beta launch readiness pass — controlled private beta ready
+**Current stage:** Private beta launch system — onboarding, feedback upgrade, beta ops
 
 ## 1. Product Summary
 

@@ -6,21 +6,32 @@ import { BrandLogo } from '@/components/brand-logo';
 import { PublicFooter } from '@/components/public-footer';
 import {
   BETA_FEEDBACK_TYPES,
+  BETA_FEEDBACK_SEVERITIES,
   type BetaFeedbackType,
+  type BetaFeedbackSeverity,
 } from '@/app/lib/beta-feedback-policy';
 import { useAuth } from '@/context/auth-context';
 
 const typeLabels: Record<BetaFeedbackType, string> = {
-  bug: 'Bug',
-  confusion: 'Confusion',
-  feature_request: 'Feature request',
+  bug: 'Bug — something is broken',
+  confusion: 'Confusing flow — unclear or disorienting',
+  feature_request: 'Missing feature — something I expected',
+  performance: 'Performance issue — slow or unresponsive',
+  safety: 'Safety concern — harmful or risky content',
   general: 'General feedback',
-  safety: 'Safety concern',
+};
+
+const severityLabels: Record<BetaFeedbackSeverity, string> = {
+  low: 'Low — minor, does not block me',
+  medium: 'Medium — noticeable, slows me down',
+  high: 'High — serious, hard to work around',
+  blocking: 'Blocking — cannot continue without a fix',
 };
 
 export default function BetaFeedbackPage() {
   const { user, userType } = useAuth();
   const [type, setType] = useState<BetaFeedbackType>('general');
+  const [severity, setSeverity] = useState<BetaFeedbackSeverity>('medium');
   const [rating, setRating] = useState('');
   const [route, setRoute] = useState('');
   const [contactEmail, setContactEmail] = useState('');
@@ -44,6 +55,7 @@ export default function BetaFeedbackPage() {
         headers,
         body: JSON.stringify({
           type,
+          severity,
           rating,
           route,
           contactEmail,
@@ -58,6 +70,7 @@ export default function BetaFeedbackPage() {
       setMessage('');
       setRoute('');
       setRating('');
+      setSeverity('medium');
     } catch (submitError: unknown) {
       setError(
         submitError instanceof Error
@@ -86,23 +99,31 @@ export default function BetaFeedbackPage() {
 
       <section className="mx-auto grid max-w-6xl gap-7 px-5 py-12 lg:grid-cols-[0.82fr_1.18fr]">
         <div>
-          <p className="eyebrow">Beta feedback</p>
+          <p className="eyebrow">Private beta — controlled rollout</p>
           <h1 className="mt-3 text-4xl font-black leading-tight sm:text-5xl">
-            Help make Nata Connect safer and easier to use.
+            Help shape Nata Connect.
           </h1>
           <p className="mt-5 text-lg leading-8 text-[#526874]">
-            Share bugs, confusing moments, feature ideas, and safety concerns
-            from your beta testing. Please avoid adding passwords, government
-            IDs, private financial details, or other sensitive information.
+            You are part of a small, trusted group testing the platform before
+            public launch. Your reports directly influence what gets fixed and
+            what ships next.
           </p>
-          <div className="mt-7 rounded-md border border-amber-300 bg-amber-50 p-4 text-sm font-bold leading-6 text-amber-950">
+          <p className="mt-4 leading-7 text-[#526874]">
+            Share bugs, confusing flows, performance problems, feature
+            expectations, and safety signals. Please avoid adding passwords,
+            government IDs, private financial details, or other sensitive
+            information.
+          </p>
+          <div className="mt-6 rounded-md border border-amber-300 bg-amber-50 p-4 text-sm font-bold leading-6 text-amber-950">
             For urgent danger or illegal activity, contact local emergency or
             legal authorities. Nata Connect beta support is not an emergency
             service.
           </div>
           <p className="mt-5 text-sm font-bold text-[#657176]">
             Current session:{' '}
-            {user ? `${user.email ?? 'Signed in'} / ${userType ?? 'role loading'}` : 'Anonymous'}
+            {user
+              ? `${user.email ?? 'Signed in'} / ${userType ?? 'role loading'}`
+              : 'Anonymous'}
           </p>
         </div>
 
@@ -124,21 +145,40 @@ export default function BetaFeedbackPage() {
                 ))}
               </select>
             </label>
+
             <label className="font-black">
-              Rating
+              Severity
+              <select
+                className="field mt-2"
+                value={severity}
+                onChange={(event) =>
+                  setSeverity(event.target.value as BetaFeedbackSeverity)
+                }
+              >
+                {BETA_FEEDBACK_SEVERITIES.map((option) => (
+                  <option key={option} value={option}>
+                    {severityLabels[option]}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="font-black">
+              Overall rating
               <select
                 className="field mt-2"
                 value={rating}
                 onChange={(event) => setRating(event.target.value)}
               >
                 <option value="">Optional</option>
-                <option value="5">5 - Excellent</option>
-                <option value="4">4 - Good</option>
-                <option value="3">3 - Okay</option>
-                <option value="2">2 - Difficult</option>
-                <option value="1">1 - Blocked</option>
+                <option value="5">5 — Excellent</option>
+                <option value="4">4 — Good</option>
+                <option value="3">3 — Okay</option>
+                <option value="2">2 — Difficult</option>
+                <option value="1">1 — Blocked</option>
               </select>
             </label>
+
             <label className="font-black">
               Page or route
               <input
@@ -149,12 +189,13 @@ export default function BetaFeedbackPage() {
                 onChange={(event) => setRoute(event.target.value)}
               />
             </label>
-            <label className="font-black">
+
+            <label className="font-black sm:col-span-2">
               Contact email
               <input
                 className="field mt-2"
                 type="email"
-                placeholder="Optional"
+                placeholder="Optional — if you want a follow-up"
                 value={contactEmail}
                 maxLength={180}
                 onChange={(event) => setContactEmail(event.target.value)}
@@ -170,7 +211,7 @@ export default function BetaFeedbackPage() {
               minLength={10}
               maxLength={2000}
               onChange={(event) => setMessage(event.target.value)}
-              placeholder="Describe the bug, confusing step, safety concern, or feature idea."
+              placeholder="Describe the bug, confusing step, performance problem, safety concern, or feature idea. Include steps to reproduce if relevant."
               required
             />
           </label>
@@ -185,7 +226,8 @@ export default function BetaFeedbackPage() {
           )}
           {status === 'success' && (
             <p className="mt-4 border border-emerald-200 bg-emerald-50 p-3 text-sm font-bold text-emerald-800">
-              Thank you. Your beta feedback was submitted for review.
+              Thank you. Your beta feedback was submitted and will be reviewed by
+              the team.
             </p>
           )}
 

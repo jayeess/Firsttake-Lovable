@@ -207,6 +207,10 @@ export default function Dashboard() {
           />
         ) : (
           <>
+            {auditions.length === 0 && (
+              <RecruiterOnboardingChecklist emailVerified={emailVerified} />
+            )}
+
             <section className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
               {[
                 ['Review applicants', 'Open your live casting calls and keep decisions moving.', '/recruiter/auditions'],
@@ -384,6 +388,14 @@ function TalentWorkspace({
         <div className="mt-5">
           <EmailVerificationPrompt />
         </div>
+      )}
+
+      {applications.length === 0 && (
+        <TalentOnboardingChecklist
+          emailVerified={emailVerified}
+          completion={profile ? calculateTalentProfileCompleteness(profile).score : 0}
+          hasSavedAuditions={savedAuditions.length > 0}
+        />
       )}
 
       <section className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(280px,0.85fr)]">
@@ -764,6 +776,126 @@ function verificationLabel(status: TalentProfile['talentVerificationStatus']) {
   if (status === 'rejected') return 'Needs fixes';
   if (status === 'suspended') return 'Suspended';
   return 'Not submitted';
+}
+
+function TalentOnboardingChecklist({
+  emailVerified,
+  completion,
+  hasSavedAuditions,
+}: {
+  emailVerified: boolean;
+  completion: number;
+  hasSavedAuditions: boolean;
+}) {
+  const steps = [
+    {
+      label: 'Verify your email',
+      done: emailVerified,
+      href: undefined as string | undefined,
+    },
+    {
+      label: 'Build your talent profile (60%+ completeness)',
+      done: completion >= 60,
+      href: '/talent/profile',
+    },
+    {
+      label: 'Browse or save an audition',
+      done: hasSavedAuditions,
+      href: '/auditions',
+    },
+    {
+      label: 'Submit your first application',
+      done: false,
+      href: '/auditions',
+    },
+  ];
+  const doneCount = steps.filter((s) => s.done).length;
+
+  return (
+    <article className="surface mt-5 rounded-md p-4 sm:p-5">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="eyebrow">Private beta — getting started</p>
+          <h2 className="mt-1 text-lg font-black">Your onboarding checklist</h2>
+        </div>
+        <p className="shrink-0 text-sm font-black text-[#008ca6]">
+          {doneCount}/{steps.length} done
+        </p>
+      </div>
+      <ol className="mt-4 space-y-2">
+        {steps.map((step, i) => (
+          <li key={i} className="flex items-center gap-3">
+            <span
+              className={`flex size-5 shrink-0 items-center justify-center rounded-full text-xs font-black ${
+                step.done
+                  ? 'bg-[#008ca6] text-white'
+                  : 'border-2 border-[#c4ced4] text-[#c4ced4]'
+              }`}
+            >
+              {step.done ? '✓' : i + 1}
+            </span>
+            {step.href && !step.done ? (
+              <Link href={step.href} className="text-sm font-bold text-[#008ca6] hover:underline">
+                {step.label}
+              </Link>
+            ) : (
+              <span className={`text-sm font-bold ${step.done ? 'text-[#526874] line-through' : 'text-[#07111f]'}`}>
+                {step.label}
+              </span>
+            )}
+          </li>
+        ))}
+      </ol>
+    </article>
+  );
+}
+
+function RecruiterOnboardingChecklist({ emailVerified }: { emailVerified: boolean }) {
+  const steps = [
+    { label: 'Verify your email', done: emailVerified, href: undefined as string | undefined },
+    { label: 'Complete your company profile', done: true, href: '/recruiter/profile' },
+    { label: 'Post your first audition', done: false, href: '/recruiter/auditions/new' },
+    { label: 'Review applicants', done: false, href: '/recruiter/auditions' },
+  ];
+  const doneCount = steps.filter((s) => s.done).length;
+
+  return (
+    <article className="surface mt-5 rounded-md p-4 sm:p-5">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="eyebrow">Private beta — getting started</p>
+          <h2 className="mt-1 text-lg font-black">Your onboarding checklist</h2>
+        </div>
+        <p className="shrink-0 text-sm font-black text-[#008ca6]">
+          {doneCount}/{steps.length} done
+        </p>
+      </div>
+      <ol className="mt-4 space-y-2">
+        {steps.map((step, i) => (
+          <li key={i} className="flex items-center gap-3">
+            <span
+              className={`flex size-5 shrink-0 items-center justify-center rounded-full text-xs font-black ${
+                step.done
+                  ? 'bg-[#008ca6] text-white'
+                  : 'border-2 border-[#c4ced4] text-[#c4ced4]'
+              }`}
+            >
+              {step.done ? '✓' : i + 1}
+            </span>
+            {step.href && !step.done ? (
+              <Link href={step.href} className="text-sm font-bold text-[#008ca6] hover:underline">
+                {step.label}
+              </Link>
+            ) : (
+              <span className={`text-sm font-bold ${step.done ? 'text-[#526874] line-through' : 'text-[#07111f]'}`}>
+                {step.label}
+              </span>
+            )}
+          </li>
+        ))}
+      </ol>
+    </article>
+  );
 }
 
 function TrustPill({ label, value }: { label: string; value: string }) {

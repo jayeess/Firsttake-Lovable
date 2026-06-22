@@ -5,6 +5,7 @@ import {
   Activity,
   ClipboardCheck,
   FileText,
+  MessageSquare,
   ShieldAlert,
   UserCheck,
   Users,
@@ -196,7 +197,53 @@ export default function AdminDashboardPage() {
             />
           </section>
 
-          <section className="surface mt-7 rounded-md">
+          <section className="surface mt-6 rounded-md p-5">
+            <SectionHeader
+              eyebrow="Private beta operations"
+              title="Beta control center"
+              description="Monitor feedback, review readiness, and run admin checks during the controlled rollout."
+            />
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {[
+                {
+                  label: 'Beta feedback',
+                  body: 'Review bugs, confusing flows, and safety signals from testers.',
+                  href: '/admin/beta-feedback',
+                  Icon: MessageSquare,
+                },
+                {
+                  label: 'Beta readiness',
+                  body: 'Check launch blockers, environment readiness, and rule status.',
+                  href: '/admin/beta-readiness',
+                  Icon: ClipboardCheck,
+                },
+                {
+                  label: 'Audit logs',
+                  body: 'Every privileged admin action traceable by time and actor.',
+                  href: '/admin/audit-logs',
+                  Icon: Activity,
+                },
+                {
+                  label: 'Reports queue',
+                  body: 'Safety and trust reports filed by users during the beta.',
+                  href: '/admin/reports',
+                  Icon: ShieldAlert,
+                },
+              ].map(({ label, body, href, Icon }) => (
+                <Link
+                  key={label}
+                  href={href}
+                  className="flex flex-col gap-2 rounded-md border border-[#d8e2e6] bg-[#f8fbfc] p-4 hover:border-[#008ca6]"
+                >
+                  <Icon className="size-4 text-[#008ca6]" />
+                  <p className="font-black">{label}</p>
+                  <p className="text-sm leading-5 text-[#657176]">{body}</p>
+                </Link>
+              ))}
+            </div>
+          </section>
+
+          <section className="surface mt-6 rounded-md">
             <div className="flex flex-col gap-2 border-b border-[#d9e1e5] p-5 sm:flex-row sm:items-center sm:justify-between">
               <SectionHeader
                 eyebrow="Recent changes"

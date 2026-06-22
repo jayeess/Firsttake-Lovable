@@ -1,5 +1,29 @@
 # Changelog
 
+### Private Beta Launch System
+
+- Added role-aware onboarding checklists to the Talent and Recruiter dashboards;
+  checklists show when the user has not yet completed core activation steps and
+  disappear once the condition is met
+- Upgraded beta feedback policy: added `performance` type (slow or unresponsive
+  flows) and `severity` field with values `low`, `medium`, `high`, `blocking`
+- Updated `validateBetaFeedback()` to validate severity; unknown values silently
+  default to `medium`
+- Updated `/api/beta-feedback` route handler to accept and write `severity` to
+  Firestore
+- Updated `app/beta-feedback/page.tsx`: severity dropdown, humanized type labels,
+  private beta trust copy above the form, improved textarea placeholder
+- Updated `app/admin/beta-feedback/page.tsx`: type filter, severity badge per
+  item (color-coded: blocking=danger, high=attention, medium=neutral, low=muted),
+  sort by severity, blocking metric card
+- Added private beta trust notice to signup page (informational only — no invite
+  code gating)
+- Added "Beta control center" card to admin dashboard linking to feedback,
+  readiness, audit logs, and reports
+- Added severity validation tests to `tests/beta-feedback-policy.test.mts`
+- Created `PRIVATE_BETA_LAUNCH_SYSTEM.md` with full feature documentation
+- No Firestore rules, authentication, payment, AI, or storage features changed
+
 ### Live Production Beta Smoke Test Pass
 
 - Ran remote static HTML inspection against https://firsttake-lovable.vercel.app

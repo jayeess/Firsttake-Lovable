@@ -55,6 +55,21 @@ placeholders and should be completed before a wider public launch.
 **Production URL smoke test:** https://firsttake-lovable.vercel.app — PASS (no P0 blockers found)
 **Custom 404 page:** Added (`app/not-found.tsx`) — branded page with Back to home + Help center links
 
+## Phase 3D Private Beta Launch System
+
+Role-aware onboarding checklists appear on the Talent and Recruiter dashboards
+for first-time users. Checklists are driven by real data (email verification,
+profile completeness, saved auditions, application count) and disappear once the
+activation condition is met.
+
+Beta feedback now captures severity (`low`, `medium`, `high`, `blocking`) and a
+`performance` type. The admin feedback review page includes severity color-coding,
+a type filter, and blocking-first sort order. A "Beta control center" card on the
+admin dashboard links directly to feedback, readiness, audit logs, and reports.
+
+A private beta trust notice appears on the signup page. No invite code gating or
+hard user blocking was introduced — the notice is purely informational.
+
 ## Completed Features
 
 - Talent and Recruiter email/password authentication

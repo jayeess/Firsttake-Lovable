@@ -95,6 +95,35 @@ npm run test:e2e:ui
 npm run emulators:test
 ```
 
+## Private beta launch system checks
+
+After deploying the private beta launch system, verify the following manually:
+
+**Beta feedback form** (`/beta-feedback`):
+- [ ] "Private beta — controlled rollout" banner visible above form
+- [ ] Severity dropdown shows all four options: Low, Medium, High, Blocking
+- [ ] `performance` type appears in the Feedback type dropdown
+- [ ] Submitting with `blocking` severity saves to Firestore with `severity: 'blocking'`
+
+**Dashboard onboarding checklists**:
+- [ ] Sign in as a new Talent with zero applications — checklist appears below hero
+- [ ] Complete a step (e.g. verify email) — corresponding item shows ticked/strikethrough
+- [ ] Submit one application — checklist disappears from Talent dashboard
+- [ ] Sign in as a new Recruiter with zero auditions — checklist appears below hero
+- [ ] Post one audition — checklist disappears from Recruiter dashboard
+
+**Signup page**:
+- [ ] Private beta notice visible above the signup form in production
+
+**Admin beta feedback** (`/admin/beta-feedback`):
+- [ ] Type filter dropdown shows all six types
+- [ ] Blocking items display a danger-tone severity badge
+- [ ] Feedback list sorted: blocking before high before medium before low
+
+**Admin dashboard** (`/admin`):
+- [ ] "Beta control center" card visible with four links
+- [ ] All four links resolve to the correct admin routes
+
 ## Admin experience continuity checks
 
 Use an admin account and review the following routes after the Admin continuity

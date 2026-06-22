@@ -2,14 +2,25 @@ export const BETA_FEEDBACK_TYPES = [
   'bug',
   'confusion',
   'feature_request',
+  'performance',
   'general',
   'safety',
 ] as const;
 
 export type BetaFeedbackType = (typeof BETA_FEEDBACK_TYPES)[number];
 
+export const BETA_FEEDBACK_SEVERITIES = [
+  'low',
+  'medium',
+  'high',
+  'blocking',
+] as const;
+
+export type BetaFeedbackSeverity = (typeof BETA_FEEDBACK_SEVERITIES)[number];
+
 export type BetaFeedbackInput = {
   type?: string;
+  severity?: string;
   rating?: number | string | null;
   message?: string;
   route?: string;
@@ -18,6 +29,7 @@ export type BetaFeedbackInput = {
 
 export type ValidatedBetaFeedback = {
   type: BetaFeedbackType;
+  severity: BetaFeedbackSeverity;
   rating: number | null;
   message: string;
   route: string;
@@ -27,6 +39,9 @@ export type ValidatedBetaFeedback = {
 const isFeedbackType = (value: string): value is BetaFeedbackType =>
   BETA_FEEDBACK_TYPES.includes(value as BetaFeedbackType);
 
+const isSeverity = (value: string): value is BetaFeedbackSeverity =>
+  BETA_FEEDBACK_SEVERITIES.includes(value as BetaFeedbackSeverity);
+
 export const validateBetaFeedback = (
   input: BetaFeedbackInput
 ): ValidatedBetaFeedback => {
@@ -34,6 +49,11 @@ export const validateBetaFeedback = (
   if (!isFeedbackType(type)) {
     throw new Error('Choose a valid feedback type.');
   }
+
+  const rawSeverity = input.severity?.trim() ?? 'medium';
+  const severity: BetaFeedbackSeverity = isSeverity(rawSeverity)
+    ? rawSeverity
+    : 'medium';
 
   const message = input.message?.trim() ?? '';
   if (message.length < 10) {
@@ -62,6 +82,7 @@ export const validateBetaFeedback = (
 
   return {
     type,
+    severity,
     rating: ratingValue,
     message,
     route,

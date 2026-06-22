@@ -9,6 +9,7 @@ export async function POST(request: Request) {
   try {
     const body = await parseJsonBody<{
       type?: string;
+      severity?: string;
       rating?: number | string | null;
       message?: string;
       route?: string;
@@ -23,6 +24,7 @@ export async function POST(request: Request) {
       userId: user?.uid ?? null,
       role,
       type: feedback.type,
+      severity: feedback.severity,
       rating: feedback.rating,
       message: feedback.message,
       route: feedback.route || null,
