@@ -22,33 +22,38 @@ export function WorkspaceHero({
   secondaryLabel?: string;
 }) {
   return (
-    <header className="relative overflow-hidden rounded-md border border-[#cbd6db] bg-white p-4 shadow-sm sm:p-5 lg:p-6">
+    <header className="relative overflow-hidden rounded-md border border-[#cbd6db] bg-white shadow-sm">
+      {/* Gold left accent — cinematic identity stripe */}
       <div className="absolute inset-y-0 left-0 w-1 bg-[#e7ad2d]" />
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-        <div className="min-w-0">
-          <p className="eyebrow">{eyebrow}</p>
-          <h1 className="mt-2 max-w-4xl text-2xl font-black leading-tight sm:text-3xl lg:text-4xl">
-            {title}
-          </h1>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-[#657176] sm:mt-2">
-            {description}
-          </p>
-          {children}
-        </div>
-        {(actionHref || secondaryHref) && (
-          <div className="flex shrink-0 flex-col gap-2 sm:flex-row lg:justify-end">
-            {secondaryHref && secondaryLabel && (
-              <Link href={secondaryHref} className="secondary-button sm:w-auto">
-                {secondaryLabel}
-              </Link>
-            )}
-            {actionHref && actionLabel && (
-              <Link href={actionHref} className="primary-button sm:w-auto">
-                {actionLabel}
-              </Link>
-            )}
+      {/* Subtle teal radial glow at top-right — cinematic depth */}
+      <div className="pointer-events-none absolute right-0 top-0 h-full w-1/2 bg-[radial-gradient(circle_at_top_right,rgba(0,194,224,0.07),transparent_65%)]" />
+      <div className="relative p-4 sm:p-5 lg:p-6">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <div className="min-w-0">
+            <p className="eyebrow">{eyebrow}</p>
+            <h1 className="mt-2 max-w-4xl text-2xl font-black leading-tight sm:text-3xl lg:text-4xl">
+              {title}
+            </h1>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-[#657176]">
+              {description}
+            </p>
+            {children}
           </div>
-        )}
+          {(actionHref || secondaryHref) && (
+            <div className="flex shrink-0 flex-col gap-2 sm:flex-row lg:justify-end">
+              {secondaryHref && secondaryLabel && (
+                <Link href={secondaryHref} className="secondary-button sm:w-auto">
+                  {secondaryLabel}
+                </Link>
+              )}
+              {actionHref && actionLabel && (
+                <Link href={actionHref} className="primary-button sm:w-auto">
+                  {actionLabel}
+                </Link>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );

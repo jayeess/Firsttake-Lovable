@@ -95,6 +95,42 @@ npm run test:e2e:ui
 npm run emulators:test
 ```
 
+## Design system evolution checks
+
+After deploying the cinematic trust marketplace design system pass, verify manually:
+
+**Status badges** (visible on all pages with audition/application cards):
+- [ ] `ACTIVE` badge → teal border/bg (not `green-100`)
+- [ ] `DRAFT` badge → gold/amber palette
+- [ ] `APPLIED` → steel-blue palette
+- [ ] `SHORTLISTED` → gold; `CALLBACK` → deeper gold; `FINAL_ROUND` → deepest gold
+- [ ] `SELECTED` → emerald; `REJECTED` → muted red; `WITHDRAWN` → grey
+- [ ] All badges have `rounded-md`, no sharp corners
+
+**Audition cards** (`/auditions`):
+- [ ] Hovering a card: slight lift (`-translate-y-0.5`), border turns teal, shadow appears
+- [ ] Left-border accent: invisible at rest, teal on hover
+- [ ] CTA reads "View casting brief" (not "View details")
+- [ ] Chips: location has MapPin icon, self-tape has Video icon
+- [ ] Applied role: left-border is gold instead of teal
+
+**WorkspaceHero** (all workspace pages):
+- [ ] Subtle teal radial gradient visible at top-right of hero header
+- [ ] Gold left stripe still visible on left edge
+
+**Recruiter auditions desktop** (`/recruiter/auditions` on desktop):
+- [ ] Card rows (not HTML table) visible on lg+ screens
+- [ ] Mobile view unchanged (card layout as before)
+- [ ] Hover state: border teal, title turns teal, card lifts
+
+**Applications page** (`/applications`):
+- [ ] Application meta boxes: dark navy label text, teal-`f7fafb` surface
+- [ ] "Next step" panel has teal dot indicator + teal left border
+
+**Applicant review** (`/recruiter/auditions/[id]/applicants`):
+- [ ] Talent metadata shows as small branded chips (not plain text)
+- [ ] Completeness chip is teal; media count chip is gold
+
 ## Private beta launch system checks
 
 After deploying the private beta launch system, verify the following manually:

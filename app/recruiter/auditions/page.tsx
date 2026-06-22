@@ -164,46 +164,52 @@ export default function RecruiterAuditionsPage() {
           </article>
         ))}
       </div>
-      <div className="mt-6 hidden overflow-x-auto border border-[#d9dee5] bg-white lg:block">
-        <table className="w-full text-left">
-          <thead className="bg-[#eef2f5] text-xs uppercase text-[#64707b]">
-            <tr><th className="p-4">Audition</th><th className="p-4">Status</th><th className="p-4">Deadline</th><th className="p-4">Applicants</th><th className="p-4">Action</th></tr>
-          </thead>
-          <tbody>
-            {auditions.map((audition) => (
-              <tr key={audition.id} className="border-t border-[#e1e5ea]">
-                <td className="p-4 font-semibold">{audition.title}</td>
-                <td className="p-4"><StatusBadge status={audition.status} /></td>
-                <td className="p-4 text-sm">{formatDate(audition.deadline)}</td>
-                <td className="p-4 text-sm">
-                  <Link
-                    href={`/recruiter/auditions/${audition.id}/applicants`}
-                    className="font-semibold text-[#008ca6]"
-                  >
-                    {audition.applicantCount}{' '}
-                    {audition.applicantCount === 1 ? 'applicant' : 'applicants'}
-                  </Link>
-                </td>
-                <td className="p-4">
-                  <div className="flex flex-wrap gap-3">
-                    <Link
-                      href={`/recruiter/auditions/${audition.id}/applicants`}
-                      className="text-sm font-black text-[#008ca6]"
-                    >
-                      Review applicants
-                    </Link>
-                    <Link
-                      href={`/auditions/${audition.id}`}
-                      className="text-sm font-semibold text-[#1f5f91]"
-                    >
-                      View brief
-                    </Link>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="mt-6 hidden space-y-3 lg:block">
+        {auditions.map((audition) => (
+          <article
+            key={audition.id}
+            className="group flex items-center justify-between gap-5 rounded-md border border-[#d3dde2] bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-[#008ca6] hover:shadow-md"
+          >
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-3">
+                <StatusBadge status={audition.status} />
+                {audition.selfTapeEnabled && (
+                  <span className="rounded-md border border-[#e0c364] bg-[#fdf9eb] px-2 py-1 text-[10px] font-black uppercase tracking-wide text-[#7a5500]">
+                    Self-tape
+                  </span>
+                )}
+              </div>
+              <h2 className="mt-2 text-base font-black leading-snug group-hover:text-[#008ca6]">
+                {audition.title}
+              </h2>
+              <div className="mt-2 flex flex-wrap gap-4 text-xs font-bold text-[#69727c]">
+                <span>Closes {formatDate(audition.deadline)}</span>
+                <span className="text-[#aab5bb]">·</span>
+                <Link
+                  href={`/recruiter/auditions/${audition.id}/applicants`}
+                  className="font-black text-[#008ca6] hover:underline"
+                >
+                  {audition.applicantCount ?? 0}{' '}
+                  {audition.applicantCount === 1 ? 'applicant' : 'applicants'}
+                </Link>
+              </div>
+            </div>
+            <div className="flex shrink-0 gap-2">
+              <Link
+                href={`/auditions/${audition.id}`}
+                className="secondary-button min-h-10 py-2 text-sm sm:w-auto"
+              >
+                View brief
+              </Link>
+              <Link
+                href={`/recruiter/auditions/${audition.id}/applicants`}
+                className="primary-button min-h-10 py-2 text-sm sm:w-auto"
+              >
+                Review applicants
+              </Link>
+            </div>
+          </article>
+        ))}
       </div>
       </>
       )}

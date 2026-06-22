@@ -1,5 +1,29 @@
 # Changelog
 
+### Cinematic Trust Marketplace Design System Evolution
+
+- Redesigned `components/status-badge.tsx`: replaced generic Tailwind color
+  classes with brand-aligned palette — teal for active/applied, gold arc for
+  shortlisted/callback/final-round, emerald for selected, muted for
+  closed/withdrawn; all badges now `rounded-md border tracking-wide`
+- Redesigned `components/audition-card.tsx`: new `Chip` component with 6 brand
+  variants, cinematic left-border hover accent (teal on hover, gold when
+  applied), `hover:-translate-y-0.5 hover:shadow-md`, CTA renamed "View casting
+  brief", `MapPin` icon in location chip, `Video` icon in self-tape chip
+- Updated `components/product-ui.tsx` `WorkspaceHero`: added subtle teal radial
+  glow gradient at top-right for cinematic depth; gold stripe and layout unchanged
+- Replaced HTML table in `app/recruiter/auditions/page.tsx` desktop view with
+  card-row layout: `<article>` elements with group hover, teal title transition,
+  status + self-tape badges, deadline + applicant count row, primary/secondary
+  actions — matches mobile card language
+- Improved `app/applications/page.tsx`: `ApplicationMeta` chips use brand label
+  sizing (`text-[10px] font-black uppercase tracking-wide`); "Next step" panel
+  gained teal dot indicator and teal border accent
+- Added `TalentChip` component to applicant review page with three brand-palette
+  tones (neutral, score=teal, media=gold) replacing plain unstyled spans
+- Created `DESIGN_SYSTEM_EVOLUTION_REPORT.md`
+- No Firestore rules, APIs, schemas, authentication, or backend features changed
+
 ### Private Beta Launch System
 
 - Added role-aware onboarding checklists to the Talent and Recruiter dashboards;

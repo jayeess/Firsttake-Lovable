@@ -458,13 +458,16 @@ export default function ApplicationsPage() {
                   value={application.audition?.recruiterName ?? 'Recruiter'}
                 />
               </div>
-              <div className="mt-4 rounded-md border border-[#d9e4e6] bg-[#f7fbfb] p-3">
-                <p className="text-xs font-black uppercase text-[#008ca6]">
-                  Next step
-                </p>
-                <p className="mt-1 text-sm font-bold text-[#183139]">
-                  {nextStepMessages[status]}
-                </p>
+              <div className="mt-4 flex items-start gap-3 rounded-md border border-[#9fc9c4] bg-[#edf7f5] p-3">
+                <div className="mt-0.5 size-1.5 shrink-0 rounded-full bg-[#008ca6]" />
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-wide text-[#008ca6]">
+                    Next step
+                  </p>
+                  <p className="mt-0.5 text-sm font-bold text-[#183139]">
+                    {nextStepMessages[status]}
+                  </p>
+                </div>
               </div>
 
               <ApplicationProgress status={status} />
@@ -546,9 +549,9 @@ export default function ApplicationsPage() {
 
 function ApplicationMeta({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-md border border-[#e1e6ea] bg-white p-3">
-      <p className="text-xs font-black uppercase text-[#657176]">{label}</p>
-      <p className="mt-1 font-bold text-[#183139]">{value}</p>
+    <div className="rounded-md border border-[#d8e3e8] bg-[#f7fafb] p-3">
+      <p className="text-[10px] font-black uppercase tracking-wide text-[#657176]">{label}</p>
+      <p className="mt-1 text-sm font-black text-[#07111f]">{value}</p>
     </div>
   );
 }

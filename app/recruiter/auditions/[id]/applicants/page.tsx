@@ -3,7 +3,7 @@
 import { ChevronDown, ExternalLink, Search, Star } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { type ReactNode, useEffect, useMemo, useState } from 'react';
 import {
   APPLICATION_STATUS_LABELS,
   filterApplicants,
@@ -513,6 +513,26 @@ function PipelineTab({
   );
 }
 
+function TalentChip({
+  children,
+  tone = 'neutral',
+}: {
+  children: ReactNode;
+  tone?: 'neutral' | 'score' | 'media';
+}) {
+  const classes =
+    tone === 'score'
+      ? 'border-[#9fc9c4] bg-[#edf7f5] text-[#006b60]'
+      : tone === 'media'
+        ? 'border-[#e0c364] bg-[#fdf9eb] text-[#7a5500]'
+        : 'border-[#d5dee3] bg-[#f4f6f8] text-[#4e5e66]';
+  return (
+    <span className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${classes}`}>
+      {children}
+    </span>
+  );
+}
+
 function ReviewMetric({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-md border border-[#d7e0e4] bg-white p-3">
@@ -623,21 +643,23 @@ function ApplicantCard({
                 {application.lastRecruiterActionAt &&
                   ` · Last action ${formatDate(application.lastRecruiterActionAt)}`}
               </p>
-              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm font-semibold">
-                <span>
+              <div className="mt-3 flex flex-wrap gap-1.5">
+                <TalentChip>
                   {talent ? CATEGORY_LABELS[talent.category] : 'Category unavailable'}
-                </span>
-                <span>{talent?.location || 'Location unavailable'}</span>
-                <span>
+                </TalentChip>
+                <TalentChip>{talent?.location || 'Location unavailable'}</TalentChip>
+                <TalentChip tone="score">
                   {talent?.profileCompletenessScore ?? 0}% complete
-                </span>
+                </TalentChip>
                 {(talent?.languages ?? []).slice(0, 2).map((language) => (
-                  <span key={language}>{language}</span>
+                  <TalentChip key={language}>{language}</TalentChip>
                 ))}
                 {(talent?.skills ?? []).slice(0, 2).map((skill) => (
-                  <span key={skill}>{skill}</span>
+                  <TalentChip key={skill}>{skill}</TalentChip>
                 ))}
-                {media.length > 0 && <span>{media.length} media items</span>}
+                {media.length > 0 && (
+                  <TalentChip tone="media">{media.length} media</TalentChip>
+                )}
               </div>
             </div>
           </div>

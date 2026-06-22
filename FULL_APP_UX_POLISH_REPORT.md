@@ -1,5 +1,20 @@
 # Full App UX Polish Report
 
+## Design System Evolution Pass — June 22, 2026
+
+**Goal:** Cinematic Trust Marketplace / Casting Operating System
+
+Key improvements in this pass:
+
+- **Status badge system**: Brand-aligned color palette (teal/gold arc/emerald/muted) replacing generic Tailwind colors. Every badge now has `border`, `rounded-md`, `tracking-wide`, `font-black uppercase`.
+- **Audition cards**: New `Chip` component with 6 variants, cinematic left-border hover accent, card lift on hover, "View casting brief" CTA language, icon-annotated location and self-tape chips.
+- **WorkspaceHero**: Subtle teal radial glow gradient for cinematic depth.
+- **Recruiter auditions desktop**: HTML table replaced with card-row layout matching the mobile experience.
+- **Application meta chips**: Brand label sizing consistent with global chip system.
+- **Applicant talent chips**: `TalentChip` component with score (teal) and media (gold) tones replacing plain unstyled spans.
+
+See `DESIGN_SYSTEM_EVOLUTION_REPORT.md` for the complete audit and component inventory.
+
 ## UX Audit Summary
 
 Nata Connect now has a strong product foundation across Talent, Recruiter, and Admin workflows, but the audit found uneven page maturity. The most polished areas are the Talent dashboard, auditions discovery, applications tracker, messaging, notifications, and Admin command center. The weakest areas were profile pages and long forms, where users had to understand trust, public visibility, verification, media, and profile completeness from scattered sections.
