@@ -102,15 +102,15 @@ export default function RecruiterVerificationPage() {
     <AppShell requiredRole="RECRUITER">
       <div className="max-w-4xl">
         <p className="eyebrow">Recruiter trust</p>
-        <div className="mt-2 flex flex-wrap items-end justify-between gap-4">
+        <div className="mt-2 flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h1 className="text-4xl font-black">Private-beta verification</h1>
-            <p className="mt-3 max-w-2xl leading-7 text-[#657176]">
+            <h1 className="text-3xl font-black">Private-beta verification</h1>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-[#657176]">
               Tell the review team who you are, what you produce, and where your
               professional work can be verified.
             </p>
           </div>
-          <span className="border border-[#b9cdd4] bg-white px-4 py-2 text-sm font-black uppercase text-[#008ca6]">
+          <span className="rounded-md border border-[#b9cdd4] bg-white px-3 py-1.5 text-xs font-black uppercase tracking-wide text-[#008ca6]">
             {status.replace('_', ' ')}
           </span>
         </div>
@@ -135,7 +135,7 @@ export default function RecruiterVerificationPage() {
           </div>
         )}
 
-        <form onSubmit={submit} className="surface mt-7 grid gap-5 p-6 sm:grid-cols-2">
+        <form onSubmit={submit} className="surface mt-5 grid gap-5 p-5 sm:grid-cols-2">
           <Field label="Legal/company name" value={form.legalName} onChange={(value) => update('legalName', value)} disabled={!canSubmit} />
           <Field label="Contact person" value={form.contactPerson} onChange={(value) => update('contactPerson', value)} disabled={!canSubmit} />
           <Field label="Phone" value={form.phone} onChange={(value) => update('phone', value)} disabled={!canSubmit} />

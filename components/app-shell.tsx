@@ -31,6 +31,7 @@ type NavLink = {
   mark: string;
   icon: LucideIcon;
   activePattern?: string;
+  exact?: boolean;
 };
 
 const talentLinks: NavLink[] = [
@@ -43,7 +44,7 @@ const talentLinks: NavLink[] = [
 
 const recruiterLinks: NavLink[] = [
   { href: '/dashboard', label: 'Workspace', shortLabel: 'Dashboard', mark: '01', icon: LayoutDashboard },
-  { href: '/recruiter/auditions', label: 'Casting calls', shortLabel: 'Auditions', mark: '02', icon: BriefcaseBusiness },
+  { href: '/recruiter/auditions', label: 'Casting calls', shortLabel: 'Auditions', mark: '02', icon: BriefcaseBusiness, exact: true },
   { href: '/recruiter/auditions', label: 'Applicants', shortLabel: 'Applicants', mark: '03', icon: UsersRound, activePattern: '/recruiter/auditions/' },
   { href: '/messages', label: 'Messages', shortLabel: 'Messages', mark: '04', icon: MessageSquare },
   { href: '/recruiter/profile', label: 'Company profile', shortLabel: 'Profile', mark: '05', icon: UserRound },
@@ -55,6 +56,7 @@ const mobileRecruiterLinks = recruiterLinks.slice(0, 5);
 
 const isActiveLink = (pathname: string, link: NavLink) => {
   if (link.activePattern) return pathname.startsWith(link.activePattern);
+  if (link.exact) return pathname === link.href;
   return pathname === link.href || (link.href !== '/dashboard' && pathname.startsWith(link.href));
 };
 

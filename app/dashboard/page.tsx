@@ -146,19 +146,19 @@ export default function Dashboard() {
     <AppShell>
       {userType === 'RECRUITER' && (
         <section
-          className="relative overflow-hidden rounded-md bg-[#07111f] bg-cover bg-center p-5 text-white sm:p-8"
+          className="relative overflow-hidden rounded-md bg-[#07111f] bg-cover bg-center p-5 text-white sm:p-6"
           style={{ backgroundImage: "url('/nata-connect-brand-poster.png')" }}
         >
           <div className="absolute inset-0 bg-[#10191d]/70" />
-          <div className="relative z-10 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+          <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="text-xs font-black uppercase text-[#7fd0c7]">
                 Recruiter workspace
               </p>
-              <h1 className="mt-2 text-3xl font-black leading-tight sm:text-4xl">
+              <h1 className="mt-2 text-2xl font-black leading-tight sm:text-3xl lg:text-4xl">
                 Manage your casting pipeline.
               </h1>
-              <p className="mt-3 max-w-2xl text-white/75">
+              <p className="mt-2 max-w-2xl text-sm text-white/75">
                 Post verified auditions, review Talent profiles and self-tapes,
                 shortlist applicants, and keep safer conversations moving.
               </p>
@@ -178,7 +178,7 @@ export default function Dashboard() {
 
       {!emailVerified && userType === 'RECRUITER' && (
         <div className="mt-6">
-          <EmailVerificationPrompt compact />
+          <EmailVerificationPrompt />
         </div>
       )}
 
@@ -207,36 +207,36 @@ export default function Dashboard() {
           />
         ) : (
           <>
-            <section className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            <section className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
               {[
                 ['Review applicants', 'Open your live casting calls and keep decisions moving.', '/recruiter/auditions'],
                 ['Post a brief', 'Create a clear casting call with deadline, requirements, and role context.', '/recruiter/auditions/new'],
                 ['Check messages', 'Reply to applicants while keeping communication protected on-platform.', '/messages'],
                 ['View notifications', 'Track applicant messages, status changes, and trust updates in one place.', '/notifications'],
               ].map(([title, body, href]) => (
-                <Link key={title} href={href} className="mobile-card block rounded-md p-5 hover:border-[#008ca6]">
+                <Link key={title} href={href} className="mobile-card block rounded-md p-4 hover:border-[#008ca6]">
                   <p className="eyebrow">{title}</p>
-                  <p className="mt-2 text-sm leading-6 text-[#526874]">{body}</p>
+                  <p className="mt-1.5 text-sm leading-6 text-[#526874]">{body}</p>
                 </Link>
               ))}
             </section>
 
-            <section className="mt-6 grid gap-4 sm:grid-cols-3">
+            <section className="mt-4 grid gap-3 sm:grid-cols-3">
               {recruiterStats.map(([label, value], index) => (
-                <article key={label} className="surface relative overflow-hidden p-5 sm:p-6">
-                  <div className={`absolute inset-x-0 top-0 h-1 ${index === 0 ? 'bg-[#008ca6]' : index === 1 ? 'bg-[#d8a843]' : 'bg-[#e7ad2d]'}`} />
-                  <p className="text-sm font-bold text-[#657176]">{label}</p>
-                  <p className="mt-3 text-3xl font-black text-[#07111f] sm:text-4xl">{value}</p>
-                  <p className="mt-2 text-xs uppercase text-[#8a9697]">Live workspace total</p>
+                <article key={label} className="surface relative overflow-hidden p-4">
+                  <div className={`absolute inset-x-0 top-0 h-0.5 ${index === 0 ? 'bg-[#008ca6]' : index === 1 ? 'bg-[#d8a843]' : 'bg-[#e7ad2d]'}`} />
+                  <p className="text-xs font-bold uppercase text-[#657176]">{label}</p>
+                  <p className="mt-2 text-3xl font-black text-[#07111f]">{value}</p>
+                  <p className="mt-1 text-xs uppercase text-[#8a9697]">Live workspace total</p>
                 </article>
               ))}
             </section>
 
-            <section className="surface mt-7">
-              <div className="flex items-center justify-between gap-3 border-b border-[#e1e5ea] p-5 sm:p-6">
+            <section className="surface mt-5">
+              <div className="flex items-center justify-between gap-3 border-b border-[#e1e5ea] p-4 sm:p-5">
                 <div>
                   <p className="eyebrow">Recent activity</p>
-                  <h2 className="mt-2 text-xl font-black sm:text-2xl">
+                  <h2 className="mt-1 text-xl font-black">
                     Recent auditions
                   </h2>
                 </div>
@@ -246,13 +246,13 @@ export default function Dashboard() {
               </div>
               <div className="divide-y divide-[#e1e5ea]">
                 {auditions.slice(0, 5).map((audition) => (
-                  <div key={audition.id} className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
-                    <div><p className="font-bold">{audition.title}</p><p className="mt-1 text-sm text-[#68727c]">{audition.applicantCount} applicants in pipeline</p></div>
+                  <div key={audition.id} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+                    <div><p className="font-bold">{audition.title}</p><p className="mt-0.5 text-sm text-[#68727c]">{audition.applicantCount} applicants in pipeline</p></div>
                     <StatusBadge status={audition.status} />
                   </div>
                 ))}
                 {auditions.length === 0 && (
-                  <p className="p-8 text-center text-[#68727c]">
+                  <p className="p-7 text-center text-[#68727c]">
                     No activity yet. Use the primary action above to get started.
                   </p>
                 )}
@@ -345,7 +345,7 @@ function TalentWorkspace({
   return (
     <>
       <section
-        className="relative overflow-hidden rounded-md bg-[#07111f] bg-cover bg-center p-5 text-white shadow-xl sm:p-7"
+        className="relative overflow-hidden rounded-md bg-[#07111f] bg-cover bg-center p-5 text-white shadow-xl sm:p-6"
         style={{ backgroundImage: "url('/nata-connect-brand-poster.png')" }}
       >
         <div className="absolute inset-0 bg-[#051019]/75" />
@@ -353,15 +353,15 @@ function TalentWorkspace({
           <p className="text-xs font-black uppercase text-[#7fd0c7]">
             Talent home
           </p>
-          <h2 className="mt-2 text-3xl font-black leading-tight sm:text-5xl">
+          <h2 className="mt-2 text-2xl font-black leading-tight sm:text-4xl">
             Find your next casting opportunity.
           </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-white/80 sm:text-base">
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-white/80">
             Welcome{firstName ? `, ${firstName}` : ''}. Build your profile,
             apply to verified roles, submit self-tapes, and track every
             recruiter response in one place.
           </p>
-          <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row">
             <Link href={nextAction.href} className="primary-button sm:w-auto">
               {nextAction.cta}
               <ArrowRight className="size-4" />
@@ -382,20 +382,20 @@ function TalentWorkspace({
 
       {!emailVerified && (
         <div className="mt-5">
-          <EmailVerificationPrompt compact />
+          <EmailVerificationPrompt />
         </div>
       )}
 
-      <section className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(300px,0.85fr)]">
-        <article className="surface relative overflow-hidden p-5 sm:p-6">
+      <section className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(280px,0.85fr)]">
+        <article className="surface relative overflow-hidden p-4 sm:p-5">
           <div className="absolute left-0 top-0 h-full w-1 bg-[#d8a843]" />
-          <div className="flex items-start gap-4">
-            <div className="rounded-md bg-[#07111f] p-3 text-[#7fd0c7]">
+          <div className="flex items-start gap-3">
+            <div className="rounded-md bg-[#07111f] p-2.5 text-[#7fd0c7]">
               <nextAction.Icon className="size-5" />
             </div>
             <div className="min-w-0 flex-1">
               <p className="eyebrow">Next best action</p>
-              <h2 className="mt-2 text-2xl font-black leading-tight">
+              <h2 className="mt-1.5 text-xl font-black leading-tight">
                 {nextAction.title}
               </h2>
               <p className="mt-2 text-sm leading-6 text-[#5b6872]">
@@ -409,35 +409,35 @@ function TalentWorkspace({
           </div>
         </article>
 
-        <article className="surface p-5 sm:p-6">
+        <article className="surface p-4 sm:p-5">
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="eyebrow">Profile readiness</p>
-              <h2 className="mt-2 text-xl font-black">Recruiter-facing trust</h2>
+              <h2 className="mt-1.5 text-lg font-black">Recruiter-facing trust</h2>
             </div>
-            <p className="text-3xl font-black text-[#008ca6]">{completion}%</p>
+            <p className="text-2xl font-black text-[#008ca6]">{completion}%</p>
           </div>
-          <div className="mt-4 h-2 rounded-full bg-[#dce6e8]">
+          <div className="mt-3 h-2 rounded-full bg-[#dce6e8]">
             <div
               className="h-2 rounded-full bg-[#008ca6]"
               style={{ width: `${Math.min(completion, 100)}%` }}
             />
           </div>
-          <div className="mt-4 grid gap-2 text-sm sm:grid-cols-2">
+          <div className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
             <TrustPill label="Verification" value={verificationLabel(verificationStatus)} />
             <TrustPill
               label="Public profile"
               value={publicProfileReady ? 'Enabled' : 'Not enabled'}
             />
           </div>
-          <div className="mt-4 space-y-2">
+          <div className="mt-3 space-y-1.5">
             {readinessHints.map((hint) => (
-              <p key={hint} className="text-sm leading-6 text-[#5b6872]">
+              <p key={hint} className="text-sm leading-5 text-[#5b6872]">
                 {hint}
               </p>
             ))}
           </div>
-          <div className="mt-5 flex flex-col gap-2 sm:flex-row">
+          <div className="mt-4 flex flex-col gap-2 sm:flex-row">
             <Link href="/talent/profile" className="secondary-button sm:w-auto">
               Edit profile
             </Link>
@@ -512,12 +512,12 @@ function TalentWorkspace({
         ))}
       </section>
 
-      <section className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
+      <section className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
         <article className="surface overflow-hidden">
-          <div className="flex items-center justify-between gap-3 border-b border-[#e1e5ea] p-5 sm:p-6">
+          <div className="flex items-center justify-between gap-3 border-b border-[#e1e5ea] p-4 sm:p-5">
             <div>
               <p className="eyebrow">Application momentum</p>
-              <h2 className="mt-2 text-xl font-black sm:text-2xl">
+              <h2 className="mt-1 text-xl font-black">
                 Recent applications
               </h2>
             </div>
@@ -543,74 +543,74 @@ function TalentWorkspace({
           </div>
         </article>
 
-        <div className="grid gap-4">
-          <article className="surface p-5">
-            <div className="flex items-start justify-between gap-3">
+        <div className="grid gap-3">
+          <article className="surface p-4">
+            <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="eyebrow">Self-tapes</p>
-                <h2 className="mt-2 text-xl font-black">
+                <h2 className="mt-1 text-lg font-black">
                   {missingSelfTapes.length ? 'Submission needed' : 'Digital auditions'}
                 </h2>
               </div>
-              <Video className="size-5 text-[#008ca6]" />
+              <Video className="size-5 shrink-0 text-[#008ca6]" />
             </div>
-            <p className="mt-4 text-sm leading-6 text-[#657176]">
+            <p className="mt-2 text-sm leading-6 text-[#657176]">
               {missingSelfTapes.length
                 ? `${missingSelfTapes.length} application${missingSelfTapes.length === 1 ? '' : 's'} need self-tape material before review.`
                 : 'Self-tape requests will appear here when a role requires digital audition material.'}
             </p>
-            <Link href="/applications" className="secondary-button mt-5 sm:w-auto">
+            <Link href="/applications" className="secondary-button mt-4 sm:w-auto">
               {missingSelfTapes.length ? 'Submit self-tape' : 'View applications'}
             </Link>
           </article>
 
-          <article className="surface p-5">
-            <div className="flex items-start justify-between gap-3">
+          <article className="surface p-4">
+            <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="eyebrow">Recruiter replies</p>
-                <h2 className="mt-2 text-xl font-black">
+                <h2 className="mt-1 text-lg font-black">
                   {unreadConversationCount ? 'Reply waiting' : 'Messages'}
                 </h2>
               </div>
-              <MessageCircle className="size-5 text-[#d8a843]" />
+              <MessageCircle className="size-5 shrink-0 text-[#d8a843]" />
             </div>
-            <p className="mt-4 text-sm leading-6 text-[#657176]">
+            <p className="mt-2 text-sm leading-6 text-[#657176]">
               {unreadConversationCount
                 ? `${unreadConversationCount} unread recruiter conversation${unreadConversationCount === 1 ? '' : 's'} need attention.`
                 : 'Recruiter conversations stay organized and protected once casting teams respond.'}
             </p>
-            <Link href="/messages" className="secondary-button mt-5 sm:w-auto">
+            <Link href="/messages" className="secondary-button mt-4 sm:w-auto">
               Open messages
             </Link>
           </article>
 
-          <article className="surface p-5">
-            <div className="flex items-start justify-between gap-3">
+          <article className="surface p-4">
+            <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="eyebrow">Notifications</p>
-                <h2 className="mt-2 text-xl font-black">Casting updates</h2>
+                <h2 className="mt-1 text-lg font-black">Casting updates</h2>
               </div>
-              <Bell className="size-5 text-[#008ca6]" />
+              <Bell className="size-5 shrink-0 text-[#008ca6]" />
             </div>
-            <p className="mt-4 text-sm leading-6 text-[#657176]">
+            <p className="mt-2 text-sm leading-6 text-[#657176]">
               Application updates, recruiter messages, and trust notices stay
               organized in your activity center.
             </p>
-            <Link href="/notifications" className="secondary-button mt-5 sm:w-auto">
+            <Link href="/notifications" className="secondary-button mt-4 sm:w-auto">
               View notifications
             </Link>
           </article>
 
-          <article className="surface p-5">
-            <div className="flex items-start justify-between gap-3">
+          <article className="surface p-4">
+            <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="eyebrow">Saved auditions</p>
-                <h2 className="mt-2 text-xl font-black">Revisit your shortlist</h2>
+                <h2 className="mt-1 text-lg font-black">Revisit your shortlist</h2>
               </div>
-              <Bookmark className="size-5 text-[#d8a843]" />
+              <Bookmark className="size-5 shrink-0 text-[#d8a843]" />
             </div>
             {savedAuditions.length > 0 ? (
-              <div className="mt-4 space-y-3">
+              <div className="mt-3 space-y-2">
                 {savedAuditions.slice(0, 2).map((item) => (
                   <p key={item.auditionId} className="text-sm font-bold leading-5 text-[#263943]">
                     {item.titleSnapshot}
@@ -618,25 +618,25 @@ function TalentWorkspace({
                 ))}
               </div>
             ) : (
-              <p className="mt-4 text-sm leading-6 text-[#657176]">
+              <p className="mt-2 text-sm leading-6 text-[#657176]">
                 No saved auditions yet. Bookmark promising casting calls and return here later.
               </p>
             )}
-            <Link href="/auditions?view=saved" className="secondary-button mt-5 sm:w-auto">
+            <Link href="/auditions?view=saved" className="secondary-button mt-4 sm:w-auto">
               View saved auditions
             </Link>
           </article>
 
-          <article className="surface p-5">
+          <article className="surface p-4">
             <div className="flex items-start gap-3">
-              <ShieldCheck className="mt-1 size-5 text-[#008ca6]" />
+              <ShieldCheck className="mt-0.5 size-5 shrink-0 text-[#008ca6]" />
               <div>
                 <p className="eyebrow">Safety and support</p>
-                <h2 className="mt-2 text-xl font-black">Audition with confidence</h2>
+                <h2 className="mt-1 text-lg font-black">Audition with confidence</h2>
                 <p className="mt-2 text-sm leading-6 text-[#657176]">
-                  New to casting calls? Review platform safety tips and help resources before sharing work.
+                  Review platform safety tips and help resources before sharing your work.
                 </p>
-                <div className="mt-4 flex flex-wrap gap-3">
+                <div className="mt-3 flex flex-wrap gap-3">
                   <Link href="/safety" className="text-sm font-black text-[#008ca6]">
                     Safety tips
                   </Link>

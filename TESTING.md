@@ -732,6 +732,31 @@ Verbally confirm each limitation is acceptable for the invited beta cohort:
 - A support contact point is monitored
 - At least one admin operator is available for the first beta week
 
+## Laptop UX Polish Regression Checks
+
+Run after any deployment that includes the Laptop Screen Recording UX Polish Pass:
+
+1. Open `/dashboard` as Talent at 1280px width. Confirm the next-best-action
+   card and profile readiness card are visible above the fold without scrolling.
+2. Open `/dashboard` as Recruiter at 1280px. Confirm stat cards appear without
+   excessive vertical space.
+3. Open `/recruiter/auditions/[id]/applicants`. Confirm metrics show 2 rows
+   (6 columns on xl, 3 on sm), not 3 rows.
+4. Navigate to `/recruiter/auditions/[id]/applicants` and confirm only
+   "Applicants" is highlighted in the sidebar — not "Casting calls".
+5. Navigate to `/recruiter/auditions` (exact URL) and confirm only "Casting
+   calls" is highlighted — not "Applicants".
+6. Open a read-only conversation (closed application) and confirm the amber
+   read-only banner appears above the message composer.
+7. Open `/notifications`. Confirm cards are compact with no redundant "Unread"
+   badge — unread items should only show a colored dot and blue border.
+8. Open `/recruiter/verification` and confirm the status badge is a compact
+   rounded pill.
+9. Open `/recruiter/auditions/new` and confirm the "Before you publish" sidebar
+   card shows a structured checklist with four items.
+10. Confirm email verification prompt shows the compact design on both Talent
+    and Recruiter dashboards (no large banners).
+
 ## Phase 4A Vercel Production Smoke Flow
 
 Run this after the first Vercel production deployment:

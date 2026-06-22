@@ -84,7 +84,7 @@ export default function AdminDashboardPage() {
         <LoadingState label="Loading trust operations..." />
       ) : data ? (
         <>
-          <section className="mt-7 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <section className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
             <MetricCard
               label="Pending recruiter checks"
               value={data.stats.pendingVerifications ?? 0}

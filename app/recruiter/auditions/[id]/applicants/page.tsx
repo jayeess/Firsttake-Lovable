@@ -243,13 +243,13 @@ export default function AuditionApplicantsPage() {
         Back to casting calls
       </Link>
 
-      <header className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <header className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="eyebrow">Applicant pipeline</p>
-          <h1 className="mt-2 text-3xl font-black leading-tight sm:text-4xl">
+          <h1 className="mt-2 text-2xl font-black leading-tight sm:text-3xl">
             {audition?.title ?? 'Casting workspace'}
           </h1>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-[#657176] sm:text-base sm:leading-7">
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-[#657176]">
             Compare profiles, organize your shortlist, and keep casting
             decisions in one private workspace.
           </p>
@@ -258,7 +258,7 @@ export default function AuditionApplicantsPage() {
 
       <section
         aria-label="Casting review summary"
-        className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
+        className="mt-4 grid gap-2 grid-cols-2 sm:grid-cols-3 xl:grid-cols-6"
       >
         <ReviewMetric label="Role" value={audition ? CATEGORY_LABELS[audition.category] : 'Loading'} />
         <ReviewMetric label="Deadline" value={audition ? formatDate(audition.deadline) : 'Loading'} />
@@ -515,9 +515,9 @@ function PipelineTab({
 
 function ReviewMetric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-md border border-[#d7e0e4] bg-white p-4">
-      <p className="text-xl font-black capitalize text-[#07111f]">{value}</p>
-      <p className="mt-1 text-xs font-bold uppercase text-[#657176]">
+    <div className="rounded-md border border-[#d7e0e4] bg-white p-3">
+      <p className="text-base font-black capitalize text-[#07111f] leading-tight">{value}</p>
+      <p className="mt-1 text-[10px] font-bold uppercase text-[#657176]">
         {label}
       </p>
     </div>

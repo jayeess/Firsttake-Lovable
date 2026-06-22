@@ -172,13 +172,13 @@ function NotificationCenter() {
 
   return (
     <>
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="eyebrow">Activity center</p>
-          <h1 className="mt-2 text-3xl font-black leading-tight sm:text-4xl">
+          <h1 className="mt-2 text-2xl font-black leading-tight sm:text-3xl">
             Notifications
           </h1>
-          <p className="mt-3 text-sm leading-6 text-[#657176] sm:text-base">
+          <p className="mt-2 text-sm leading-6 text-[#657176]">
             Reviews, applications, casting decisions, and trust updates in one
             place.
           </p>
@@ -194,7 +194,7 @@ function NotificationCenter() {
         </button>
       </div>
 
-      <div className="mt-7 overflow-x-auto border-b border-[#ccd3da]">
+      <div className="mt-5 overflow-x-auto border-b border-[#ccd3da]">
         <div className="flex min-w-max gap-1">
         {notificationFilters.map(({ value, label }) => (
           <button
@@ -248,17 +248,17 @@ function NotificationCenter() {
                 key={notification.id}
                 type="button"
                 onClick={() => void openNotification(notification)}
-                className={`surface grid w-full gap-3 rounded-md p-4 text-left transition hover:border-[#008ca6]/45 sm:grid-cols-[44px_1fr_auto] sm:gap-4 sm:p-5 ${
+                className={`surface grid w-full gap-3 rounded-md p-4 text-left transition hover:border-[#008ca6]/45 sm:grid-cols-[40px_1fr_auto] sm:gap-3 ${
                   notification.read ? 'bg-white/70' : 'border-[#00a8c6] bg-white'
                 }`}
               >
-                <span className="flex items-center gap-3 sm:block">
-                  <span className="flex size-10 items-center justify-center rounded-md bg-[#edf7f5] text-[#008ca6]">
-                    <Icon aria-hidden="true" className="size-5" />
+                <span className="flex items-start gap-3 sm:block">
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-[#edf7f5] text-[#008ca6]">
+                    <Icon aria-hidden="true" className="size-4" />
                   </span>
                   {!notification.read && (
                     <span
-                      className={`size-2.5 rounded-full sm:mx-auto sm:mt-2 sm:block ${
+                      className={`mt-1 size-2 shrink-0 rounded-full sm:mx-auto sm:mt-1.5 sm:block ${
                         notification.priority === 'HIGH'
                           ? 'bg-[#e7ad2d]'
                           : 'bg-[#00a8c6]'
@@ -267,18 +267,18 @@ function NotificationCenter() {
                   )}
                 </span>
                 <span className="min-w-0">
-                  <span className="flex flex-wrap items-center gap-2">
+                  <span className="flex flex-wrap items-center gap-1.5">
                     <span className="rounded bg-[#f0f4f5] px-2 py-0.5 text-[10px] font-black uppercase text-[#526168]">
                       {getNotificationBadge(notification)}
                     </span>
-                    {!notification.read && (
+                    {!notification.read && notification.priority === 'HIGH' && (
                       <span className="rounded bg-[#fff4d6] px-2 py-0.5 text-[10px] font-black uppercase text-[#8a5b00]">
-                        Unread
+                        Priority
                       </span>
                     )}
                   </span>
-                  <span className="mt-2 block font-black">{notification.title}</span>
-                  <span className="mt-1 block text-sm leading-6 text-[#59666b]">
+                  <span className="mt-1.5 block font-black leading-5">{notification.title}</span>
+                  <span className="mt-0.5 block text-sm leading-5 text-[#59666b]">
                     {notification.message}
                   </span>
                 </span>
@@ -287,7 +287,7 @@ function NotificationCenter() {
                     {formatNotificationTime(notification.createdAt)}
                   </span>
                   {notification.actionUrl && (
-                    <span className="mt-3 inline-flex min-h-9 items-center rounded-md border border-[#9fc9c4] px-3 text-xs font-black text-[#008ca6]">
+                    <span className="mt-2 inline-flex min-h-8 items-center rounded-md border border-[#9fc9c4] px-3 text-xs font-black text-[#008ca6]">
                       {getNotificationActionLabel(notification)}
                     </span>
                   )}

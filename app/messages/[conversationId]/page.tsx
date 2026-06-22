@@ -162,7 +162,7 @@ export default function ConversationPage() {
               </div>
             </header>
 
-            <div className="h-[56vh] min-h-[380px] overflow-y-auto bg-[#eef4f7] p-3 sm:p-6">
+            <div className="h-[48vh] min-h-[260px] overflow-y-auto bg-[#eef4f7] p-3 lg:h-[52vh] sm:p-6">
               {messages.length === 0 ? (
                 <div className="flex h-full items-center justify-center text-center">
                   <div className="rounded-md border border-[#d5e2e7] bg-white p-6 shadow-sm">
@@ -233,6 +233,12 @@ export default function ConversationPage() {
             </div>
 
             <form onSubmit={submit} className="border-t border-[#d7e0e4] bg-white p-3 sm:p-4">
+              {readOnly && (
+                <div className="mb-3 flex items-center gap-2 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm font-bold text-amber-900">
+                  <ShieldCheck className="size-4 shrink-0 text-amber-600" aria-hidden="true" />
+                  This conversation is read-only. The application is no longer active.
+                </div>
+              )}
               {error && (
                 <p className="mb-3 border border-red-300 bg-red-50 p-3 text-sm text-red-800">
                   We could not complete this action. Try again in a moment.

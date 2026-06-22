@@ -1,5 +1,31 @@
 # Changelog
 
+### Laptop Screen Recording UX Polish Pass
+
+- Compacted `WorkspaceHero` and `MetricCard` in `product-ui.tsx` for tighter
+  desktop density: smaller padding, title sizes, and icon sizes
+- Unified `EmailVerificationPrompt` to one compact design; removed `compact`
+  prop; both dashboard usages updated
+- Fixed recruiter nav active-state bug: "Casting calls" and "Applicants" were
+  both highlighted when visiting `/recruiter/auditions/[id]/applicants`; fixed
+  with `exact: true` flag and updated `isActiveLink` logic in `app-shell.tsx`
+- Compacted Talent and Recruiter dashboard hero sections, stat cards, next-
+  best-action card, profile readiness card, and sidebar articles in
+  `dashboard/page.tsx`
+- Reduced chat area height in `messages/[conversationId]/page.tsx` from 56vh to
+  48vh; added amber read-only banner when conversation status is not active
+- Compacted recruiter applicant metrics from 3 rows to 2 rows: changed grid
+  from `sm:grid-cols-2 xl:grid-cols-4` to `grid-cols-2 sm:grid-cols-3
+  xl:grid-cols-6`; reduced `ReviewMetric` padding and font size
+- Replaced "Before you publish" plain-text sidebar with a structured checklist
+  in `recruiter/auditions/new/page.tsx`
+- Compacted recruiter verification page header, status badge, and form spacing
+- Compacted notifications page header, filter tab spacing, and notification
+  cards; removed redundant "Unread" text badge
+- Compacted admin dashboard metric grid spacing
+- Created `LAPTOP_SCREEN_RECORDING_UX_AUDIT.md` with full audit inventory
+- No Firestore rules, APIs, schemas, authentication, or backend features changed
+
 ### Beta Launch Readiness Pass
 
 - Updated README.md to reflect controlled private beta readiness status

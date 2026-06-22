@@ -462,3 +462,28 @@ These components make profile and trust-related pages feel like one system inste
 ## Deployment Notes
 
 No Firebase rules or schema changes are required for this UX pass. Vercel redeploy is required for the UI changes.
+
+---
+
+## Laptop Screen Recording UX Polish Pass (2026-06-22)
+
+A targeted laptop-density pass based on screen recordings at 1280–1440px.
+Observations covered 13 pages across all three roles.
+
+### Key changes
+
+- `WorkspaceHero` and `MetricCard` compacted globally
+- Recruiter nav active-state bug fixed (`exact: true` on "Casting calls")
+- `EmailVerificationPrompt` unified to one compact design
+- Talent and Recruiter dashboard heroes compacted; sidebar cards tightened
+- Messages chat area reduced; amber read-only banner added for closed conversations
+- Recruiter applicant metrics grid reduced from 3 rows to 2 (6-column xl layout)
+- "Before you publish" sidebar replaced with structured checklist
+- Recruiter verification header and form spacing compacted
+- Notifications header, filters, and cards tightened; redundant "Unread" badge removed
+- Admin dashboard metric section spacing reduced
+
+### Not changed
+
+Talent profile long form, admin list-page hierarchy, and talent auditions/
+applications density — all safe to defer. No backend, auth, or schema changes.

@@ -8,11 +8,7 @@ import { useAuth } from '@/context/auth-context';
 const POLL_INTERVAL_MS = 5000;
 const POLL_TIMEOUT_MS = 120000;
 
-export function EmailVerificationPrompt({
-  compact = false,
-}: {
-  compact?: boolean;
-}) {
+export function EmailVerificationPrompt() {
   const {
     user,
     emailVerified,
@@ -142,42 +138,30 @@ export function EmailVerificationPrompt({
   return (
     <section
       id="email-verification"
-      className={`scroll-mt-24 rounded-md border border-[#bad7d3] bg-[#edf7f5] text-sm text-[#234b47] ${
-        compact ? 'p-3 sm:p-4' : 'p-5'
-      }`}
+      className="scroll-mt-24 rounded-md border border-[#bad7d3] bg-[#edf7f5] p-3 text-sm text-[#234b47] sm:p-4"
     >
-      <div
-        className={`flex flex-col lg:flex-row lg:items-center lg:justify-between ${
-          compact ? 'gap-3' : 'gap-4'
-        }`}
-      >
-        <div className={compact ? 'flex gap-2.5' : 'flex gap-3'}>
-          <ShieldCheck
-            className={`mt-1 shrink-0 text-[#008c80] ${
-              compact ? 'size-4' : 'size-5'
-            }`}
-          />
-          <div>
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex gap-2.5">
+          <ShieldCheck className="mt-0.5 size-4 shrink-0 text-[#008c80]" />
+          <div className="min-w-0">
             <p className="font-black text-[#07111f]">
               {emailSent
                 ? 'Verification email sent'
                 : 'Verify your email to protect your account'}
             </p>
-            <p className="mt-1 leading-6">
+            <p className="mt-0.5 leading-5">
               {emailSent
-                ? 'Open the link in your inbox, then return here. FirstTake will check your account status automatically.'
-                : compact
-                  ? `We'll send a secure link to ${user.email}.`
-                  : `We'll send a secure verification link to ${user.email}. This helps keep FirstTake trusted for Talent and Recruiters.`}
+                ? 'Open the link in your inbox, then return here.'
+                : `We'll send a secure link to ${user.email}.`}
             </p>
             {emailSent && (
-              <p className="mt-2 text-xs font-bold leading-5 text-[#3d6862]">
-                Did not receive it? Check Spam or Promotions before resending.
+              <p className="mt-1 text-xs font-bold leading-5 text-[#3d6862]">
+                Check Spam or Promotions if you did not receive it.
               </p>
             )}
             {(status || error) && (
               <p
-                className={`mt-2 font-bold ${
+                className={`mt-1 text-xs font-bold ${
                   error ? 'text-red-700' : 'text-[#007c5f]'
                 }`}
               >
@@ -186,15 +170,12 @@ export function EmailVerificationPrompt({
             )}
           </div>
         </div>
-        <div className="flex flex-col gap-2 sm:flex-row lg:shrink-0">
+        <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
           <button
             type="button"
             onClick={() => void handleSend()}
             disabled={sending || refreshing}
-            style={compact ? { minHeight: 44 } : undefined}
-            className={`primary-button disabled:opacity-50 sm:w-auto ${
-              compact ? 'min-h-10 py-2 text-sm' : ''
-            }`}
+            className="primary-button min-h-10 py-2 text-sm disabled:opacity-50 sm:w-auto"
           >
             {sending
               ? 'Sending...'
@@ -206,10 +187,7 @@ export function EmailVerificationPrompt({
             type="button"
             onClick={() => void handleRefresh()}
             disabled={sending || refreshing}
-            style={compact ? { minHeight: 44 } : undefined}
-            className={`secondary-button bg-white disabled:opacity-50 sm:w-auto ${
-              compact ? 'min-h-10 py-2 text-sm' : ''
-            }`}
+            className="secondary-button min-h-10 bg-white py-2 text-sm disabled:opacity-50 sm:w-auto"
           >
             {refreshing ? 'Checking...' : 'Check verification status'}
           </button>

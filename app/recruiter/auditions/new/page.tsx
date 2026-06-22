@@ -509,15 +509,28 @@ export default function NewAuditionPage() {
                 <label className="block text-sm font-bold">Compensation type<select value={form.paymentType} onChange={(e) => update('paymentType', e.target.value)} className="field mt-2"><option value="PAID">Paid</option><option value="HONORARIUM">Honorarium</option><option value="UNPAID">Unpaid</option><option value="UNSPECIFIED">Not specified</option></select></label>
               </div>
             </section>
-            <section className="border border-[#bad7d3] bg-[#edf7f5] p-5 text-sm leading-6 text-[#234b47]">
-              <p className="font-bold">Before you publish</p>
-              <p className="mt-2">
-                Review the deadline, location, pay details, and requirements.
-                Published auditions become visible to talent immediately.
-              </p>
-              <p className="mt-3 font-semibold">
-                Never ask Talent to pay to audition. Keep requests transparent
-                and on-platform.
+            <section className="rounded-md border border-[#bad7d3] bg-[#edf7f5] p-4 text-sm text-[#234b47]">
+              <p className="font-black text-[#123936]">Before you publish</p>
+              <ul className="mt-3 space-y-2 leading-5">
+                <li className="flex items-start gap-2">
+                  <span className="mt-0.5 text-[#008ca6]">✓</span>
+                  <span>Deadline and location are accurate</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="mt-0.5 text-[#008ca6]">✓</span>
+                  <span>Pay details and type are specified</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="mt-0.5 text-[#008ca6]">✓</span>
+                  <span>Requirements clearly describe the role</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="mt-0.5 text-[#e7ad2d]">!</span>
+                  <span className="font-semibold">Never ask Talent to pay to audition</span>
+                </li>
+              </ul>
+              <p className="mt-3 text-xs leading-5 text-[#3d6862]">
+                Published auditions are visible to Talent immediately.
               </p>
             </section>
             <div className="grid gap-3">
