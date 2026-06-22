@@ -95,6 +95,26 @@ npm run test:e2e:ui
 npm run emulators:test
 ```
 
+## Admin experience continuity checks
+
+Use an admin account and review the following routes after the Admin continuity
+pass:
+
+- `/admin` shows the command-center hero, trust metrics, verification queue,
+  platform trust summary, and recent privileged actions.
+- `/admin/verifications` shows recruiter verification metrics, trust-focused
+  guidance, status badges, and clear approve/reject/suspend/restore actions.
+- `/admin/talents` separates profile completion, verification signals,
+  portfolio review, and account safety.
+- `/admin/auditions` distinguishes active, closed/draft, visible, and removed
+  casting calls with clearer marketplace enforcement actions.
+- `/admin/audit-logs` shows human-readable action labels, actor, target, note,
+  time, and action filtering.
+- Secondary admin routes use safe recovery copy when data cannot be loaded.
+
+This pass is UI and copy only. It does not change Firestore rules, admin
+claims, API permissions, database schema, or Firebase deployment requirements.
+
 The dependency-free Node test suite currently covers application eligibility:
 
 - Active audition before its deadline can accept an application

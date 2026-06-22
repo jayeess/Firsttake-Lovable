@@ -236,8 +236,8 @@ export default function AdminBetaReadinessPage() {
 
       {error && (
         <ErrorState
-          title="Readiness checks could not run"
-          message="The admin service could not load beta readiness data. Confirm the admin claim and Admin SDK configuration, then retry."
+          title="We could not load this section"
+          message="Try refreshing the page. If it continues, check admin access and launch configuration."
           onRetry={() => {
             setError('');
             load();

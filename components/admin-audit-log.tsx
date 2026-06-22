@@ -43,6 +43,14 @@ export const getAuditActionTone = (action?: string | null): AdminStatusTone => {
   return 'neutral';
 };
 
+export function formatAuditActionLabel(value?: string | null) {
+  const words = (value || 'admin_action')
+    .split('_')
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1));
+  return words.join(' ');
+}
+
 export function AdminAuditLogList({
   logs,
   compact = false,
@@ -75,7 +83,7 @@ export function AdminAuditLogItem({
 }) {
   const actor = log.actorEmail || log.actorUid || 'Admin';
   const target = log.targetId || log.targetUid || 'Unknown target';
-  const note = log.reason || log.note || 'No note supplied';
+  const note = log.reason || log.note || 'No note recorded';
   const time = formatAuditTime(log.timestamp ?? log.createdAt);
   const action = log.action || 'admin_action';
 
@@ -87,11 +95,11 @@ export function AdminAuditLogItem({
     >
       <AuditCell label="Action">
         <AdminStatusBadge tone={getAuditActionTone(action)}>
-          {formatAction(action)}
+          {formatAuditActionLabel(action)}
         </AdminStatusBadge>
         {log.targetType && (
           <p className="mt-2 text-[11px] font-bold uppercase text-[#89969c]">
-            {formatAction(log.targetType)}
+            {formatAuditActionLabel(log.targetType)}
           </p>
         )}
       </AuditCell>
@@ -112,7 +120,7 @@ export function AdminAuditLogItem({
       <AuditCell label="Note">
         <p
           className={`text-sm leading-6 ${
-            note === 'No note supplied' ? 'text-[#8a969c]' : 'text-[#3d5560]'
+            note === 'No note recorded' ? 'text-[#8a969c]' : 'text-[#3d5560]'
           }`}
         >
           {note}
@@ -140,10 +148,6 @@ function AuditCell({
       {children}
     </div>
   );
-}
-
-function formatAction(value: string) {
-  return value.split('_').join(' ');
 }
 
 function formatAuditTime(value: unknown) {

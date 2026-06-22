@@ -63,7 +63,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   if (loading) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#07111f] font-bold text-white/70">
-        Verifying administrator access...
+        Opening trust operations...
       </main>
     );
   }
@@ -75,8 +75,8 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           <p className="eyebrow">Restricted workspace</p>
           <h1 className="mt-3 text-3xl font-black">Administrator access required</h1>
           <p className="mt-3 leading-7 text-[#657176]">
-            This account is not assigned to the trust and safety operations
-            team. Talent and Recruiter accounts cannot enter moderation tools.
+            Admin access is not enabled for this account. Talent and Recruiter
+            accounts cannot enter moderation tools.
           </p>
           <Link href="/dashboard" className="primary-button mt-6">
             Return to workspace
@@ -94,7 +94,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           <NotificationBell dark />
         </div>
         <p className="mt-5 border-l-2 border-[#e7ad2d] pl-3 text-xs font-black uppercase text-white/45">
-          Trust and safety
+          Trust operations
         </p>
         <nav className="mt-5 grid max-h-[58vh] gap-4 overflow-y-auto pr-1 lg:max-h-none" aria-label="Admin navigation">
           {navGroups.map((group) => (
@@ -131,7 +131,9 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           Exit admin workspace
         </Link>
       </aside>
-      <main className="min-w-0 p-4 sm:p-8 lg:p-10">{children}</main>
+      <main className="mx-auto min-w-0 max-w-[1440px] p-4 sm:p-8 lg:p-10">
+        {children}
+      </main>
     </div>
   );
 }

@@ -1,6 +1,14 @@
 'use client';
 
 import Link from 'next/link';
+import {
+  Activity,
+  ClipboardCheck,
+  FileText,
+  ShieldAlert,
+  UserCheck,
+  Users,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { AdminShell } from '@/components/admin-shell';
 import { fetchAdminData } from '@/app/lib/admin-client';
@@ -11,10 +19,14 @@ import {
 } from '@/components/admin-audit-log';
 import {
   AdminEmptyState,
-  AdminMetricCard,
-  AdminPageHeader,
   AdminStatusBadge,
 } from '@/components/admin-ui';
+import {
+  MetricCard,
+  SafetyNotice,
+  SectionHeader,
+  WorkspaceHero,
+} from '@/components/product-ui';
 
 type Overview = {
   stats: Record<string, number>;
@@ -48,15 +60,19 @@ export default function AdminDashboardPage() {
 
   return (
     <AdminShell>
-      <AdminPageHeader
-        eyebrow="Trust command centre"
+      <WorkspaceHero
+        eyebrow="Trust command center"
         title="Platform integrity at a glance."
-        description="Review pending work, moderation pressure, account health, and recent privileged actions from one controlled workspace."
+        description="Review verification queues, moderation pressure, account health, and recent privileged actions from one controlled workspace."
+        actionHref="/admin/audit-logs"
+        actionLabel="View audit logs"
+        secondaryHref="/admin/reports"
+        secondaryLabel="Open reports"
       />
       {error && (
         <ErrorState
-          title="Admin data is unavailable"
-          message="The secure service could not load platform data. Confirm this account still has the admin claim, then retry."
+          title="We could not load this section"
+          message="Try refreshing the page. If it continues, confirm this account still has admin access."
           onRetry={() => {
             setError('');
             setData(null);
@@ -65,47 +81,59 @@ export default function AdminDashboardPage() {
         />
       )}
       {!data && !error ? (
-        <LoadingState label="Loading trust signals..." />
+        <LoadingState label="Loading trust operations..." />
       ) : data ? (
         <>
           <section className="mt-7 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <AdminMetricCard
+            <MetricCard
               label="Pending recruiter checks"
               value={data.stats.pendingVerifications ?? 0}
               detail="Needs admin review"
+              icon={UserCheck}
               tone={(data.stats.pendingVerifications ?? 0) > 0 ? 'attention' : 'success'}
-              href="/admin/verifications"
             />
-            <AdminMetricCard
+            <MetricCard
               label="Pending Talent checks"
               value={data.stats.pendingTalentVerifications ?? 0}
               detail="Trust queue"
+              icon={ClipboardCheck}
               tone={(data.stats.pendingTalentVerifications ?? 0) > 0 ? 'attention' : 'success'}
-              href="/admin/talents"
             />
-            <AdminMetricCard
-              label="Suspended users"
+            <MetricCard
+              label="Flagged accounts"
               value={data.stats.suspendedUsers ?? 0}
               detail="Restricted accounts"
+              icon={ShieldAlert}
               tone={(data.stats.suspendedUsers ?? 0) > 0 ? 'danger' : 'success'}
-              href="/admin/users"
             />
-            <AdminMetricCard
+            <MetricCard
               label="Active auditions"
               value={data.stats.activeAuditions ?? 0}
               detail="Visible casting calls"
-              href="/admin/auditions"
+              icon={FileText}
             />
           </section>
 
-          <section className="mt-6 grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
+          <section className="mt-6">
+            <SafetyNotice title="Admin operating principle" icon={ShieldAlert}>
+              Keep profile completeness, verification, moderation, and account
+              safety decisions separate. Every action should be traceable and
+              proportionate.
+            </SafetyNotice>
+          </section>
+
+          <section className="mt-7 grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
             <div className="surface rounded-md p-5">
-              <p className="eyebrow">Needs attention first</p>
+              <SectionHeader
+                eyebrow="Verification queue"
+                title="Needs attention first"
+                description="Open the queues where an admin decision can unblock users or reduce marketplace risk."
+              />
               <div className="mt-4 grid gap-3">
                 {[
                   ['Recruiter verifications', data.stats.pendingVerifications ?? 0, '/admin/verifications'],
                   ['Talent verifications', data.stats.pendingTalentVerifications ?? 0, '/admin/talents'],
-                  ['Suspended users', data.stats.suspendedUsers ?? 0, '/admin/users'],
+                  ['Flagged accounts', data.stats.suspendedUsers ?? 0, '/admin/users'],
                 ].map(([label, value, href]) => (
                   <Link
                     key={label}
@@ -129,7 +157,11 @@ export default function AdminDashboardPage() {
             </div>
 
             <div className="surface rounded-md p-5">
-              <p className="eyebrow">Queue summary</p>
+              <SectionHeader
+                eyebrow="Platform trust"
+                title="Operational summary"
+                description="A compact scan of users, auditions, applications, and trust workflows."
+              />
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 {Object.entries(data.stats).map(([key, value]) => (
                   <div key={key} className="rounded-md border border-[#d8e2e6] p-3">
@@ -143,12 +175,34 @@ export default function AdminDashboardPage() {
             </div>
           </section>
 
+          <section className="mt-7 grid gap-4 lg:grid-cols-3">
+            <MetricCard
+              label="Recent audit actions"
+              value={data.logs.length}
+              detail="Latest privileged events loaded"
+              icon={Activity}
+            />
+            <MetricCard
+              label="Total users"
+              value={data.stats.totalUsers ?? 0}
+              detail="Talent, Recruiter, and Admin records"
+              icon={Users}
+            />
+            <MetricCard
+              label="Applications"
+              value={data.stats.totalApplications ?? 0}
+              detail="Casting activity across roles"
+              icon={ClipboardCheck}
+            />
+          </section>
+
           <section className="surface mt-7 rounded-md">
             <div className="flex flex-col gap-2 border-b border-[#d9e1e5] p-5 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p className="eyebrow">Recent audit activity</p>
-                <h2 className="mt-2 text-xl font-black">Latest privileged actions</h2>
-              </div>
+              <SectionHeader
+                eyebrow="Recent changes"
+                title="Latest privileged actions"
+                description="Approvals, suspensions, restorations, moderation, and other admin decisions."
+              />
               <Link href="/admin/audit-logs" className="text-sm font-black text-[#008ca6]">
                 View all logs
               </Link>

@@ -1,5 +1,20 @@
 # Changelog
 
+### Admin Experience Continuity Pass
+
+- Brought the Admin command center, recruiter verification, Talent review,
+  audition moderation, and audit logs onto the shared workspace hero, metric
+  card, section header, and safety notice patterns
+- Added clearer Admin trust metrics for pending reviews, active auditions,
+  flagged accounts, removed briefs, enforcement events, and recent audit
+  activity
+- Improved Admin empty, loading, and error copy so normal admin users see
+  product-safe recovery language instead of implementation details
+- Made audit-log action labels easier to read while preserving the underlying
+  action values and permissions
+- No Firestore rules, database schema, API contract, server action, or
+  permission logic was changed
+
 ### Product Experience and Platform Consistency
 
 - Added shared product UI primitives for workspace heroes, metric cards,

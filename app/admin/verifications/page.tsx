@@ -1,5 +1,6 @@
 'use client';
 
+import { Building2, CheckCircle2, ShieldAlert, UserCheck } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { AdminShell } from '@/components/admin-shell';
 import { AdminActionButton } from '@/components/admin-action-button';
@@ -10,10 +11,14 @@ import {
   AdminActionGroup,
   AdminDangerActionGroup,
   AdminInfo,
-  AdminPageHeader,
   AdminStatusBadge,
   type AdminStatusTone,
 } from '@/components/admin-ui';
+import {
+  MetricCard,
+  SafetyNotice,
+  WorkspaceHero,
+} from '@/components/product-ui';
 
 type Item = RecruiterVerification & { id: string };
 
@@ -37,18 +42,53 @@ export default function AdminVerificationsPage() {
       .finally(() => setLoading(false));
   }, []);
   useEffect(load, [load]);
+  const pendingCount = items.filter((item) => item.status === 'pending').length;
+  const approvedCount = items.filter((item) => item.status === 'approved').length;
+  const suspendedCount = items.filter((item) => item.status === 'suspended').length;
 
   return (
     <AdminShell>
-      <AdminPageHeader
+      <WorkspaceHero
         eyebrow="Recruiter trust"
         title="Recruiter verification queue"
         description="Approve only organisations with credible, consistent production details. Pending submissions should be reviewed before audition publishing."
+        secondaryHref="/admin/audit-logs"
+        secondaryLabel="Review audit history"
       />
+      <section className="mt-6 grid gap-4 sm:grid-cols-3">
+        <MetricCard
+          label="Pending review"
+          value={pendingCount}
+          detail="Needs admin decision"
+          icon={UserCheck}
+          tone={pendingCount > 0 ? 'attention' : 'success'}
+        />
+        <MetricCard
+          label="Approved recruiters"
+          value={approvedCount}
+          detail="Eligible to publish"
+          icon={CheckCircle2}
+          tone="success"
+        />
+        <MetricCard
+          label="Suspended"
+          value={suspendedCount}
+          detail="Publishing restricted"
+          icon={ShieldAlert}
+          tone={suspendedCount > 0 ? 'danger' : 'success'}
+        />
+      </section>
+      <div className="mt-5">
+        <SafetyNotice title="Verification purpose" icon={Building2}>
+          Confirm company identity, production context, and public proof before
+          enabling audition publishing. Reject unclear submissions with a useful
+          note; suspend only when risk requires enforcement.
+        </SafetyNotice>
+      </div>
       {error && (
         <ErrorState
-          title="Verification queue could not be loaded"
-          message={error}
+          title="We could not load this section"
+          message="Try refreshing the page. If it continues, check admin access and network status."
           onRetry={() => {
             setLoading(true);
             setError('');
@@ -74,29 +114,33 @@ export default function AdminVerificationsPage() {
                 <p className="mt-1 text-sm text-[#657176]">
                   {item.recruiterEmail}
                 </p>
+                <p className="mt-3 max-w-2xl text-sm leading-6 text-[#657176]">
+                  Review whether this organisation can safely publish casting
+                  calls and contact Talent through FirstTake.
+                </p>
               </div>
               <div className="grid gap-3">
-                <AdminActionGroup>
+                <AdminActionGroup title="Verification decision">
                   <AdminActionButton
                     action="approve_recruiter"
                     targetId={item.id}
-                    label="Approve"
+                    label="Approve recruiter"
                     onComplete={load}
                   />
                   <AdminActionButton
                     action="reject_recruiter"
                     targetId={item.id}
-                    label="Reject"
+                    label="Reject with note"
                     tone="secondary"
                     onComplete={load}
                   />
                 </AdminActionGroup>
-                <AdminDangerActionGroup>
+                <AdminDangerActionGroup title="Account safety">
                   {item.status === 'suspended' ? (
                     <AdminActionButton
                       action="restore_recruiter"
                       targetId={item.id}
-                      label="Restore"
+                      label="Restore recruiter"
                       tone="secondary"
                       onComplete={load}
                     />
@@ -104,7 +148,7 @@ export default function AdminVerificationsPage() {
                     <AdminActionButton
                       action="suspend_recruiter"
                       targetId={item.id}
-                      label="Suspend"
+                      label="Suspend recruiter"
                       tone="danger"
                       onComplete={load}
                     />
@@ -147,7 +191,7 @@ export default function AdminVerificationsPage() {
         {!loading && items.length === 0 && !error && (
           <EmptyState
             title="No verification requests"
-            message="New recruiter submissions will appear here for review."
+            message="New recruiter submissions will appear here with company identity, contact, website, and production context."
           />
         )}
       </div>

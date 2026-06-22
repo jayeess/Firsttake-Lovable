@@ -116,6 +116,32 @@ Added `components/product-ui.tsx` for shared product-facing primitives:
 These are intentionally small and are used where they remove repeated page
 header, metric, and safety-note patterns without forcing a full app rewrite.
 
+## Admin Experience Continuity
+
+The Admin workspace now uses the same premium product language and layout
+patterns as Talent and Recruiter areas while keeping all admin permissions and
+data flows unchanged.
+
+Improved Admin routes:
+
+- `/admin`
+- `/admin/verifications`
+- `/admin/talents`
+- `/admin/auditions`
+- `/admin/audit-logs`
+
+The dashboard now reads as a trust command center with verification queues,
+platform trust metrics, moderation activity, and recent privileged actions.
+Recruiter verification and Talent review now separate identity, profile
+quality, portfolio state, and account safety decisions. Audition moderation now
+distinguishes active, closed/draft, visible, and removed briefs. Audit logs now
+translate internal action keys into readable labels while preserving the stored
+action values.
+
+Secondary admin routes also received safer error copy so admins see clear
+recovery language instead of implementation details. No Firestore rules,
+schema, server actions, API permissions, or claim logic changed in this pass.
+
 ## Marketplace and Tracker Polish
 
 The audition discovery page now feels more like a marketplace feed:

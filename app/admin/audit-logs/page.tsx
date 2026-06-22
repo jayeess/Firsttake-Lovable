@@ -1,18 +1,21 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { Activity, Filter, ShieldAlert } from 'lucide-react';
 import { fetchAdminData } from '@/app/lib/admin-client';
 import { AdminShell } from '@/components/admin-shell';
 import { EmptyState, ErrorState, LoadingState } from '@/components/async-state';
 import {
   AdminAuditLogList,
+  formatAuditActionLabel,
   getAuditActionTone,
   type AdminAuditLogEntry,
 } from '@/components/admin-audit-log';
 import {
-  AdminMetricCard,
-  AdminPageHeader,
-} from '@/components/admin-ui';
+  MetricCard,
+  SectionHeader,
+  WorkspaceHero,
+} from '@/components/product-ui';
 
 export default function AdminAuditLogsPage() {
   const [logs, setLogs] = useState<AdminAuditLogEntry[]>([]);
@@ -46,37 +49,44 @@ export default function AdminAuditLogsPage() {
 
   return (
     <AdminShell>
-      <AdminPageHeader
-        eyebrow="Privileged history"
-        title="Audit logs"
-        description="Review admin actions by actor, target, and note. This page is the operating history for verification, moderation, and account safety decisions."
+      <WorkspaceHero
+        eyebrow="Audit history"
+        title="Readable history for every privileged action."
+        description="Review who acted, what changed, which profile or audition was affected, and why the decision was made."
       />
       <section className="mt-7 grid gap-4 sm:grid-cols-3">
-        <AdminMetricCard label="Total events" value={logs.length} />
-        <AdminMetricCard
+        <MetricCard label="Total events" value={logs.length} icon={Activity} />
+        <MetricCard
           label="Action types"
           value={actions.length}
           detail="Unique operations"
+          icon={Filter}
         />
-        <AdminMetricCard
+        <MetricCard
           label="Enforcement events"
           value={enforcementCount}
           tone={enforcementCount > 0 ? 'danger' : 'success'}
           detail="Suspend/remove/block/hide"
+          icon={ShieldAlert}
         />
       </section>
       <div className="surface mt-6 rounded-md p-4">
+        <SectionHeader
+          eyebrow="Review history"
+          title="Filter admin actions"
+          description="Use action filters to inspect verification, moderation, account safety, and restoration decisions."
+        />
         <label className="text-xs font-black uppercase text-[#5c6c73]">
-          Filter by action
+          <span className="sr-only">Filter by action</span>
           <select
-            className="field mt-2 max-w-sm normal-case"
+            className="field mt-4 max-w-sm normal-case"
             value={action}
             onChange={(event) => setAction(event.target.value)}
           >
             <option value="">All actions</option>
             {actions.map((value) => (
               <option key={value} value={value}>
-                {value}
+                {formatAuditActionLabel(value)}
               </option>
             ))}
           </select>
@@ -85,8 +95,8 @@ export default function AdminAuditLogsPage() {
 
       {error && (
         <ErrorState
-          title="Audit history could not be loaded"
-          message={error}
+          title="We could not load this section"
+          message="Try refreshing the page. If it continues, check admin access and network status."
           onRetry={() => {
             setLoading(true);
             setError('');

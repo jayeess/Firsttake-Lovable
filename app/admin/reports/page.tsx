@@ -159,8 +159,8 @@ export default function AdminReportsPage() {
 
       {error && (
         <ErrorState
-          title="Reports could not be loaded"
-          message={error}
+          title="We could not load this section"
+          message="Try refreshing the page. If it continues, check admin access and network status."
           onRetry={() => {
             setError('');
             load();
