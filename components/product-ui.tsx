@@ -22,15 +22,15 @@ export function WorkspaceHero({
   secondaryLabel?: string;
 }) {
   return (
-    <header className="relative overflow-hidden rounded-md border border-[#cbd6db] bg-white p-5 shadow-sm sm:p-6 lg:p-7">
+    <header className="relative overflow-hidden rounded-md border border-[#cbd6db] bg-white p-4 shadow-sm sm:p-6 lg:p-7">
       <div className="absolute inset-y-0 left-0 w-1 bg-[#e7ad2d]" />
-      <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div className="min-w-0">
           <p className="eyebrow">{eyebrow}</p>
-          <h1 className="mt-2 max-w-4xl text-3xl font-black leading-tight sm:text-4xl lg:text-5xl">
+          <h1 className="mt-2 max-w-4xl text-2xl font-black leading-tight sm:text-4xl lg:text-5xl">
             {title}
           </h1>
-          <p className="mt-3 max-w-3xl text-sm leading-6 text-[#657176] sm:text-base sm:leading-7">
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-[#657176] sm:mt-3 sm:text-base sm:leading-7">
             {description}
           </p>
           {children}
@@ -69,28 +69,28 @@ export function MetricCard({
 }) {
   const accent =
     tone === 'danger'
-      ? 'bg-red-500'
+      ? 'bg-red-500/70'
       : tone === 'attention'
-        ? 'bg-[#e7ad2d]'
+        ? 'bg-[#e7ad2d]/80'
         : tone === 'success'
-          ? 'bg-emerald-500'
-          : 'bg-[#00c2e0]';
+          ? 'bg-emerald-500/70'
+          : 'bg-[#00c2e0]/70';
   return (
     <article className="surface relative overflow-hidden rounded-md p-4 sm:p-5">
-      <div className={`absolute inset-x-0 top-0 h-1 ${accent}`} />
+      <div className={`absolute inset-x-0 top-0 h-0.5 ${accent}`} />
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-xs font-black uppercase text-[#657176]">{label}</p>
-          <p className="mt-2 text-3xl font-black">{value}</p>
+          <p className="mt-1.5 text-2xl font-black sm:mt-2 sm:text-3xl">{value}</p>
         </div>
         {Icon && (
-          <span className="flex size-10 items-center justify-center rounded-md bg-[#edf7f5] text-[#008ca6]">
-            <Icon aria-hidden="true" className="size-5" />
+          <span className="flex size-9 items-center justify-center rounded-md bg-[#edf7f5] text-[#008ca6] sm:size-10">
+            <Icon aria-hidden="true" className="size-4 sm:size-5" />
           </span>
         )}
       </div>
       {detail && (
-        <p className="mt-3 text-sm font-semibold leading-6 text-[#657176]">
+        <p className="mt-2 text-sm font-semibold leading-6 text-[#657176] sm:mt-3">
           {detail}
         </p>
       )}

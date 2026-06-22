@@ -145,8 +145,7 @@ Recruiter workspaces:
 - Notification and menu controls aligned with the product shell.
 - Full admin navigation moved into a mobile menu instead of a full-height
   sidebar.
-- Bottom quick navigation for Dashboard, Verifications, Moderation, Audit logs,
-  and More.
+- Bottom quick navigation for Dashboard, Verify, Moderate, Logs, and More.
 - Main content starts immediately below the header with mobile-safe bottom
   padding for the navigation bar.
 
@@ -172,6 +171,11 @@ Safe UI fixes from the pass:
 
 No backend features, Firestore rules, APIs, schemas, permissions, auth logic, or
 Firebase configuration changed.
+
+The final mobile micro-polish pass tightened shared mobile hero spacing, softened
+metric-card accent bars, increased shell bottom safe-area padding, shortened
+Admin bottom navigation labels, and made compact email verification prompts less
+bulky on mobile dashboards.
 
 ## Marketplace and Tracker Polish
 

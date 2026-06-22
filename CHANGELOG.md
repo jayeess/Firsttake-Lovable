@@ -1,5 +1,18 @@
 # Changelog
 
+### Final Mobile Micro-Polish Pass
+
+- Tightened mobile workspace hero spacing so Admin command-center metrics appear
+  sooner without losing the premium product feel
+- Increased mobile shell bottom safe-area padding across Talent, Recruiter, and
+  Admin workspaces so cards and actions clear app navigation and browser bars
+- Softened shared metric-card accent bars for calmer visual consistency
+- Shortened Admin mobile bottom labels to Verify, Moderate, and Logs
+- Made the compact email verification prompt lighter on mobile dashboards while
+  keeping the trust message and actions clear
+- No backend logic, Firestore rules, APIs, schemas, permissions, auth logic, or
+  Firebase configuration changed
+
 ### Admin Experience Continuity Pass
 
 - Brought the Admin command center, recruiter verification, Talent review,

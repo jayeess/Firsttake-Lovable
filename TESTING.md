@@ -117,8 +117,8 @@ Mobile QA checklist:
 - In an iPhone-sized viewport, `/admin` shows the Nata Connect brand header,
   notification control, compact admin menu button, and immediate command-center
   content without a full desktop sidebar.
-- The Admin bottom navigation shows Dashboard, Verifications, Moderation,
-  Audit logs, and More, and the active state follows the current admin section.
+- The Admin bottom navigation shows Dashboard, Verify, Moderate, Logs, and
+  More, and the active state follows the current admin section.
 - More opens the full trust-operations menu without horizontal overflow.
 - `/admin/verifications`, `/admin/talents`, `/admin/auditions`, and
   `/admin/audit-logs` keep cards, metrics, actions, and audit rows readable on
@@ -151,6 +151,9 @@ Admin as one product:
 - Confirm there is no content hidden behind the browser bottom bar or app
   bottom navigation, and no raw service, index, permission, claim, or document
   wording appears to normal users.
+- Confirm the final micro-polish pass keeps mobile heroes compact, metric-card
+  accents subtle, bottom safe-area spacing comfortable, and dashboard email
+  verification prompts clear without feeling oversized.
 
 The dependency-free Node test suite currently covers application eligibility:
 

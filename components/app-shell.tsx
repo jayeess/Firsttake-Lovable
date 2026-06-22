@@ -256,7 +256,7 @@ export function AppShell({
           )}
         </header>
 
-        <main className="mx-auto w-full max-w-[1440px] px-4 pb-28 pt-6 sm:px-7 lg:px-10 lg:py-9">
+        <main className="mx-auto w-full max-w-[1440px] px-4 pb-[calc(7.5rem+env(safe-area-inset-bottom))] pt-5 sm:px-7 sm:pt-6 lg:px-10 lg:py-9">
           {children}
         </main>
 

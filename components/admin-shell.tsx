@@ -73,21 +73,21 @@ const mobileAdminLinks: AdminNavLink[] = [
   {
     href: '/admin/verifications',
     label: 'Verification queue',
-    shortLabel: 'Verifications',
+    shortLabel: 'Verify',
     icon: UserCheck,
     activePatterns: ['/admin/verifications', '/admin/talents'],
   },
   {
     href: '/admin/reports',
     label: 'Moderation review',
-    shortLabel: 'Moderation',
+    shortLabel: 'Moderate',
     icon: ShieldAlert,
     activePatterns: ['/admin/reports', '/admin/auditions', '/admin/messages'],
   },
   {
     href: '/admin/audit-logs',
     label: 'Recent audit activity',
-    shortLabel: 'Audit logs',
+    shortLabel: 'Logs',
     icon: ScrollText,
   },
 ];
@@ -262,7 +262,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           )}
         </header>
 
-        <main className="mx-auto min-w-0 max-w-[1440px] px-4 pb-28 pt-5 sm:px-8 sm:pt-7 lg:p-10">
+        <main className="mx-auto min-w-0 max-w-[1440px] px-4 pb-[calc(7.5rem+env(safe-area-inset-bottom))] pt-5 sm:px-8 sm:pt-7 lg:p-10">
           {children}
         </main>
 
@@ -282,7 +282,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                 key={link.shortLabel}
                 href={link.href}
                 onClick={() => setMenuOpen(false)}
-                className={`relative flex min-h-14 flex-col items-center justify-center gap-1 rounded-md text-[9px] font-black ${
+                className={`relative flex min-h-14 flex-col items-center justify-center gap-1 rounded-md text-[10px] font-black ${
                   active ? 'bg-[#e9f8fb] text-[#008ca6]' : 'text-[#6d7e87]'
                 }`}
               >
@@ -299,7 +299,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           <button
             type="button"
             onClick={() => setMenuOpen((open) => !open)}
-            className={`relative flex min-h-14 flex-col items-center justify-center gap-1 rounded-md text-[9px] font-black ${
+            className={`relative flex min-h-14 flex-col items-center justify-center gap-1 rounded-md text-[10px] font-black ${
               menuOpen ? 'bg-[#e9f8fb] text-[#008ca6]' : 'text-[#6d7e87]'
             }`}
             aria-expanded={menuOpen}

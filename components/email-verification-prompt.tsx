@@ -143,12 +143,20 @@ export function EmailVerificationPrompt({
     <section
       id="email-verification"
       className={`scroll-mt-24 rounded-md border border-[#bad7d3] bg-[#edf7f5] text-sm text-[#234b47] ${
-        compact ? 'p-4' : 'p-5'
+        compact ? 'p-3 sm:p-4' : 'p-5'
       }`}
     >
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex gap-3">
-          <ShieldCheck className="mt-1 size-5 shrink-0 text-[#008c80]" />
+      <div
+        className={`flex flex-col lg:flex-row lg:items-center lg:justify-between ${
+          compact ? 'gap-3' : 'gap-4'
+        }`}
+      >
+        <div className={compact ? 'flex gap-2.5' : 'flex gap-3'}>
+          <ShieldCheck
+            className={`mt-1 shrink-0 text-[#008c80] ${
+              compact ? 'size-4' : 'size-5'
+            }`}
+          />
           <div>
             <p className="font-black text-[#07111f]">
               {emailSent
@@ -158,7 +166,9 @@ export function EmailVerificationPrompt({
             <p className="mt-1 leading-6">
               {emailSent
                 ? 'Open the link in your inbox, then return here. FirstTake will check your account status automatically.'
-                : `We'll send a secure verification link to ${user.email}. This helps keep FirstTake trusted for Talent and Recruiters.`}
+                : compact
+                  ? `We'll send a secure link to ${user.email}.`
+                  : `We'll send a secure verification link to ${user.email}. This helps keep FirstTake trusted for Talent and Recruiters.`}
             </p>
             {emailSent && (
               <p className="mt-2 text-xs font-bold leading-5 text-[#3d6862]">
@@ -181,7 +191,10 @@ export function EmailVerificationPrompt({
             type="button"
             onClick={() => void handleSend()}
             disabled={sending || refreshing}
-            className="primary-button disabled:opacity-50 sm:w-auto"
+            style={compact ? { minHeight: 44 } : undefined}
+            className={`primary-button disabled:opacity-50 sm:w-auto ${
+              compact ? 'min-h-10 py-2 text-sm' : ''
+            }`}
           >
             {sending
               ? 'Sending...'
@@ -193,7 +206,10 @@ export function EmailVerificationPrompt({
             type="button"
             onClick={() => void handleRefresh()}
             disabled={sending || refreshing}
-            className="secondary-button bg-white disabled:opacity-50 sm:w-auto"
+            style={compact ? { minHeight: 44 } : undefined}
+            className={`secondary-button bg-white disabled:opacity-50 sm:w-auto ${
+              compact ? 'min-h-10 py-2 text-sm' : ''
+            }`}
           >
             {refreshing ? 'Checking...' : 'Check verification status'}
           </button>
