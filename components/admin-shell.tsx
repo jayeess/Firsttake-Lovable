@@ -162,7 +162,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                     <Link
                       key={href}
                       href={href}
-                    className={`grid min-h-11 grid-cols-[28px_1fr] items-center gap-2 rounded-md px-3 py-2.5 text-sm font-bold ${
+                      className={`grid min-h-11 grid-cols-[28px_1fr] items-center gap-2 rounded-md px-3 py-2.5 text-sm font-bold ${
                         active
                           ? 'bg-[#102438] text-[#55e6f7] shadow-[inset_3px_0_0_#00c2e0]'
                           : 'text-white/65 hover:bg-white/5 hover:text-white'
@@ -282,7 +282,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                 key={link.shortLabel}
                 href={link.href}
                 onClick={() => setMenuOpen(false)}
-                className={`relative flex min-h-14 flex-col items-center justify-center gap-1 rounded-md text-[10px] font-black ${
+                className={`relative flex min-h-14 flex-col items-center justify-center gap-1 rounded-md text-[9px] font-black ${
                   active ? 'bg-[#e9f8fb] text-[#008ca6]' : 'text-[#6d7e87]'
                 }`}
               >
@@ -299,7 +299,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           <button
             type="button"
             onClick={() => setMenuOpen((open) => !open)}
-            className={`relative flex min-h-14 flex-col items-center justify-center gap-1 rounded-md text-[10px] font-black ${
+            className={`relative flex min-h-14 flex-col items-center justify-center gap-1 rounded-md text-[9px] font-black ${
               menuOpen ? 'bg-[#e9f8fb] text-[#008ca6]' : 'text-[#6d7e87]'
             }`}
             aria-expanded={menuOpen}

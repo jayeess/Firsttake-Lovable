@@ -172,7 +172,7 @@ export default function Dashboard() {
 
       {error && (
         <p className="mt-6 border border-amber-300 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
-          {error}
+          We could not confirm account access. Try refreshing the page.
         </p>
       )}
 
@@ -185,7 +185,7 @@ export default function Dashboard() {
       {dataError && (
         <ErrorState
           title="Workspace data is unavailable"
-          message={dataError}
+          message="We could not load this section. Try refreshing the page."
           onRetry={() => {
             setDataLoading(true);
             setDataError('');

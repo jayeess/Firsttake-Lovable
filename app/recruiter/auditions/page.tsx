@@ -56,7 +56,7 @@ export default function RecruiterAuditionsPage() {
       {error && (
         <ErrorState
           title="Your casting calls could not be loaded"
-          message={error}
+          message="We could not load this section. Try refreshing the page."
           onRetry={() => {
             setLoading(true);
             setError('');

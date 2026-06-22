@@ -384,9 +384,7 @@ export default function ApplicationsPage() {
         <div className="mt-5 border border-amber-300 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
           <p className="font-bold">Applications could not be loaded</p>
           <p className="mt-1">
-            {error.includes('index')
-              ? 'Application tracking is still being prepared. Please retry in a moment.'
-              : error}
+            We could not load this section. Try refreshing the page.
           </p>
           <button
             type="button"

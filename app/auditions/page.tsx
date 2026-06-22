@@ -476,7 +476,7 @@ export default function AuditionsPage() {
       {error && (
         <ErrorState
           title="Audition discovery needs attention"
-          message={error}
+          message="We could not load this section. Try refreshing the page."
           onRetry={() => {
             setLoading(true);
             setError('');

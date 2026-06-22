@@ -120,7 +120,7 @@ export default function MessagesPage() {
       {error && (
         <ErrorState
           title="Messages could not be loaded"
-          message={error}
+          message="We could not load this section. Try refreshing the page."
           onRetry={() => {
             setLoading(true);
             setError('');

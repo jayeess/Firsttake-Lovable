@@ -130,6 +130,28 @@ Mobile QA checklist:
 This pass is UI and copy only. It does not change Firestore rules, admin
 claims, API permissions, database schema, or Firebase deployment requirements.
 
+## Full mobile product QA checklist
+
+Run this pass in a narrow phone viewport and compare Talent, Recruiter, and
+Admin as one product:
+
+- `/` shows the brand, Telugu name, primary actions, readable hero text, and no
+  horizontal overflow.
+- `/dashboard`, `/auditions`, `/applications`, `/messages`, and `/profile`
+  use the unified mobile header and bottom navigation with reachable controls.
+- `/profile` redirects the signed-in user to the correct role-specific profile
+  or Admin workspace.
+- `/recruiter/auditions` and `/recruiter/verification` keep hero copy, cards,
+  safety notices, forms, and action buttons readable on mobile.
+- `/admin`, `/admin/verifications`, `/admin/talents`, `/admin/auditions`, and
+  `/admin/audit-logs` use the compact Admin header, bottom trust navigation,
+  and safe admin copy.
+- Empty, loading, and error states use product-safe language such as "We could
+  not load this section. Try refreshing the page."
+- Confirm there is no content hidden behind the browser bottom bar or app
+  bottom navigation, and no raw service, index, permission, claim, or document
+  wording appears to normal users.
+
 The dependency-free Node test suite currently covers application eligibility:
 
 - Active audition before its deadline can accept an application

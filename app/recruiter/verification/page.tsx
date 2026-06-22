@@ -119,7 +119,7 @@ export default function RecruiterVerificationPage() {
         {error && (
           <ErrorState
             title="Verification details could not be loaded"
-            message={error}
+            message="We could not load this section. Try refreshing the page."
             onRetry={() => {
               setLoading(true);
               setError('');

@@ -78,9 +78,21 @@ export default function Home() {
 
       <section className="mx-auto grid max-w-7xl px-5 py-14 lg:grid-cols-3">
         {[
-          ['01', 'Opportunities are scattered', 'Casting calls often disappear inside Instagram posts, WhatsApp forwards, contacts, and unclear forms.'],
-          ['02', 'FirstTake centralizes discovery', 'Talent can browse verified auditions with clear requirements, deadlines, and recruiter context.'],
-          ['03', 'Digital auditions reduce friction', 'Profiles, applications, self-tapes, messages, and status updates stay connected in one workflow.'],
+          [
+            '01',
+            'Opportunities are scattered',
+            'Casting calls often disappear inside Instagram posts, WhatsApp forwards, contacts, and unclear forms.',
+          ],
+          [
+            '02',
+            'FirstTake centralizes discovery',
+            'Talent can browse verified auditions with clear requirements, deadlines, and recruiter context.',
+          ],
+          [
+            '03',
+            'Digital auditions reduce friction',
+            'Profiles, applications, self-tapes, messages, and status updates stay connected in one workflow.',
+          ],
         ].map(([number, title, body]) => (
           <article
             key={number}

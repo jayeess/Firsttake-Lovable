@@ -154,6 +154,25 @@ Secondary admin routes also received safer error copy so admins see clear
 recovery language instead of implementation details. No Firestore rules,
 schema, server actions, API permissions, or claim logic changed in this pass.
 
+## Full Mobile Product QA
+
+The latest mobile QA pass checked the public landing page plus Talent,
+Recruiter, and Admin workspaces as one production product. The pass focused on
+header consistency, bottom navigation, spacing, card readability, button reach,
+loading and empty states, safe error copy, and avoiding horizontal overflow.
+
+Safe UI fixes from the pass:
+
+- Added `/profile` as a role-aware frontend bridge to the correct profile or
+  Admin workspace.
+- Replaced raw audited-route error messages with simple refresh guidance.
+- Corrected the Telugu Nata Connect brand text in the shared logo and landing
+  hero.
+- Tuned Admin mobile bottom navigation labels for narrow phone widths.
+
+No backend features, Firestore rules, APIs, schemas, permissions, auth logic, or
+Firebase configuration changed.
+
 ## Marketplace and Tracker Polish
 
 The audition discovery page now feels more like a marketplace feed:

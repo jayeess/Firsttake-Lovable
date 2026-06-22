@@ -18,6 +18,18 @@
 - No Firestore rules, database schema, API contract, server action, or
   permission logic was changed
 
+### Full Mobile Product QA Pass
+
+- Added a role-aware `/profile` bridge so mobile profile links resolve to the
+  right Talent, Recruiter, or Admin workspace
+- Normalized audited mobile route error states to safe refresh guidance instead
+  of raw service messages
+- Corrected the Telugu Nata Connect brand text in the shared logo and landing
+  hero
+- Tuned Admin mobile bottom navigation labels for narrow phone widths
+- No backend features, Firestore rules, APIs, schemas, permissions, auth logic,
+  or Firebase configuration changed
+
 ### Product Experience and Platform Consistency
 
 - Added shared product UI primitives for workspace heroes, metric cards,
