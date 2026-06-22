@@ -299,8 +299,8 @@ export default function NewAuditionPage() {
         status,
       });
       router.push('/recruiter/auditions');
-    } catch (err: unknown) {
-      setError(getErrorMessage(err, 'Unable to save audition'));
+    } catch {
+      setError('The audition could not be saved. Try again in a moment.');
     } finally {
       setSaving(false);
     }
@@ -459,15 +459,10 @@ export default function NewAuditionPage() {
                           />
                           External video link
                         </label>
-                        <label className="flex items-center gap-2 font-bold text-[#839199]">
-                          <input type="checkbox" disabled />
-                          Direct upload coming soon
-                        </label>
                       </div>
                       <p className="mt-3 text-sm leading-6 text-[#657176]">
                         For beta safety, self-tapes use unlisted/private links
-                        from trusted video platforms. Direct uploads remain a
-                        future feature.
+                        from trusted video platforms.
                       </p>
                     </fieldset>
 

@@ -216,7 +216,7 @@ function NotificationCenter() {
 
       {error && (
         <div className="mt-5 border border-red-300 bg-red-50 p-4 text-sm text-red-800">
-          {error}
+          Notifications could not be updated. Try refreshing the page.
         </div>
       )}
 

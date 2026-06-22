@@ -50,8 +50,8 @@ export function AdminActionButton({
     try {
       await runAdminAction(action, targetId, reason);
       onComplete();
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Action failed.');
+    } catch {
+      setError('We could not complete this action. Try again in a moment.');
     } finally {
       setBusy(false);
     }

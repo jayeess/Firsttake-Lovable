@@ -60,6 +60,51 @@ The dashboard now includes opportunity-first sections for audition discovery,
 application momentum, self-tape reminders, saved auditions, recruiter replies,
 and safety/support.
 
+## End-to-End Product Flow QA Pass
+
+A full flow audit was completed across all Talent, Recruiter, and Admin routes
+after the mobile product polish series. Nine P1 issues were identified and fixed.
+
+### Issues Fixed
+
+**Error copy sanitization (8 locations)**
+
+Raw Firebase / Firestore error messages were being passed directly to the user
+across audition detail, messages conversation, notifications, recruiter applicant
+pipeline, create-audition form, admin action buttons, and application message
+button. Each was replaced with a static product-safe recovery string ("We could
+not complete this action. Try again in a moment." or "We could not load this
+section. Try refreshing the page.").
+
+**Unsupported CTA removal (2 locations)**
+
+- `app/recruiter/auditions/new/page.tsx`: A disabled "Direct upload coming soon"
+  checkbox was visible inside the self-tape section. It was removed along with the
+  adjacent "Direct uploads remain a future feature" copy. Recruiters now see only
+  the supported "External video link" option with appropriate guidance.
+- `app/recruiter/verification/page.tsx`: A disabled "Document upload coming soon"
+  button was visible at the bottom of the document section. It was removed and
+  replaced with a security guidance note telling recruiters to keep sensitive
+  identity documents out of public fields.
+
+### What Remained the Same
+
+- All Firestore rules, APIs, database schema, authentication logic, and Firebase
+  configuration are unchanged.
+- Dev presets (`DevFormPresets`, `DevTestCases`) are correctly gated behind
+  `NODE_ENV === 'development'` and are not visible in production.
+- The `/profile` route bridge works correctly for all three roles.
+- Mobile safe-area padding is applied in `AppShell` and `AdminShell`.
+- Admin action buttons correctly require a reason for all destructive actions.
+
+### Test Results After This Pass
+
+```
+npm run lint   → Clean
+npm test       → 68 / 68 pass
+npm run build  → Success, 55 routes, 0 errors
+```
+
 ## Email Verification Implementation
 
 Added a reusable verification prompt for signed-in unverified users:

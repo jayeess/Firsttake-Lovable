@@ -440,7 +440,7 @@ export default function AuditionApplicantsPage() {
       {error && (
         <ErrorState
           title="Applicant pipeline needs attention"
-          message={error}
+          message="We could not load this section. Try refreshing the page."
           onRetry={() => {
             setLoading(true);
             setError('');

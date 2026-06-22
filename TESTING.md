@@ -155,6 +155,51 @@ Admin as one product:
   accents subtle, bottom safe-area spacing comfortable, and dashboard email
   verification prompts clear without feeling oversized.
 
+## End-to-end product flow QA checklist
+
+Run this pass after any significant UI change to confirm that core user
+journeys are still intact across all three roles:
+
+Talent:
+- Dashboard shows workspace hero, next-best-action CTA, application metrics,
+  and secondary cards without dead buttons or broken links.
+- `/auditions` loads active casting calls, filters by category/experience/
+  location/language, sorts by relevance/deadline, and saves/unsaves roles.
+- `/auditions/[id]` shows role detail, apply form, self-tape note if enabled,
+  and a recruiter-owned view for the recruiting account.
+- `/applications` shows all statuses, self-tape panel where needed, message
+  button, and a working withdraw flow.
+- `/notifications` filters by type, marks all read, and shows empty state.
+- `/messages` shows conversation list with search and filters.
+- `/messages/[id]` loads and sends messages safely.
+- All error states use product-safe copy — no Firebase, Firestore, or
+  permission wording visible to users.
+
+Recruiter:
+- `/recruiter/verification` shows the current status, form, and trust guidance
+  — no "coming soon" or disabled-upload CTAs visible.
+- `/recruiter/auditions/new` creates an audition with all required fields —
+  no "Direct upload coming soon" checkbox visible in the self-tape section.
+- `/recruiter/auditions` lists live briefs with applicant counts linking to
+  the pipeline.
+- `/recruiter/auditions/[id]/applicants` lets the recruiter move applicants
+  through stages, send messages, set ratings and notes, and reject with reason.
+
+Admin:
+- `/admin` shows the command-center hero with correct verification queue counts
+  and recent audit log rows.
+- `/admin/verifications` and `/admin/talents` show correct pending counts and
+  clear approve/reject/suspend actions.
+- All admin action buttons require a reason for destructive actions and display
+  user-safe error copy on failure.
+- Empty states use `AdminEmptyState` rather than raw empty list renders.
+
+Cross-role:
+- No broken links or dead buttons across all three roles.
+- Mobile bottom nav clears browser bottom bar on iPhone-sized viewport.
+- Switching between Talent and Recruiter accounts in separate tabs shows the
+  correct role-aware shell without cross-contamination.
+
 The dependency-free Node test suite currently covers application eligibility:
 
 - Active audition before its deadline can accept an application

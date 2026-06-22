@@ -33,12 +33,8 @@ export function ApplicationMessageButton({
           try {
             const result = await createConversation(auditionId, applicationId);
             router.push(`/messages/${result.conversationId}`);
-          } catch (requestError: unknown) {
-            setError(
-              requestError instanceof Error
-                ? requestError.message
-                : 'Conversation could not be opened.'
-            );
+          } catch {
+            setError('Conversation could not be opened. Try again in a moment.');
           } finally {
             setBusy(false);
           }

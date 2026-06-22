@@ -91,7 +91,7 @@ export default function AuditionDetailPage() {
         ) : error ? (
           <ErrorState
             title="This audition could not be loaded"
-            message={error}
+            message="We could not load this section. Try refreshing the page."
             onRetry={() => {
               setLoading(true);
               setError('');
@@ -220,7 +220,11 @@ export default function AuditionDetailPage() {
                   className="field mt-2 py-3"
                 />
               </label>
-              {error && <p className="mt-3 text-sm text-red-700">{error}</p>}
+              {error && (
+                <p className="mt-3 text-sm text-red-700">
+                  We could not complete this action. Try again in a moment.
+                </p>
+              )}
               <button
                 type="button"
                 disabled={applying || audition.status !== 'ACTIVE'}

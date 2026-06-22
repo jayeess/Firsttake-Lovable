@@ -121,7 +121,7 @@ export default function ConversationPage() {
       ) : error && !conversation ? (
         <ErrorState
           title="Conversation could not be opened"
-          message={error}
+          message="We could not load this section. Try refreshing the page."
           onRetry={() => {
             setLoading(true);
             setError('');
@@ -235,7 +235,7 @@ export default function ConversationPage() {
             <form onSubmit={submit} className="border-t border-[#d7e0e4] bg-white p-3 sm:p-4">
               {error && (
                 <p className="mb-3 border border-red-300 bg-red-50 p-3 text-sm text-red-800">
-                  {error}
+                  We could not complete this action. Try again in a moment.
                 </p>
               )}
               <div className="mb-3 flex items-start gap-2 rounded-md bg-[#f7fbfc] p-3 text-xs leading-5 text-[#657176]">

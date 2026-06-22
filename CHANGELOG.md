@@ -1,5 +1,23 @@
 # Changelog
 
+### Real End-to-End Product Flow QA Pass
+
+- Audited all Talent, Recruiter, and Admin flows for raw error copy,
+  broken links, dead buttons, unsupported CTAs, and mobile issues
+- Replaced nine raw Firebase / technical error outputs with
+  user-friendly static recovery messages across audition detail,
+  messages conversation, notifications, recruiter applicant pipeline,
+  create-audition, admin action button, and application message button
+- Removed the disabled "Direct upload coming soon" checkbox and
+  future-feature copy from the create-audition self-tape section
+- Removed the disabled "Document upload coming soon" button from
+  recruiter verification; replaced with guidance to keep sensitive
+  documents out of public fields
+- Added FLOW_QA_REPORT.md with full issue inventory, priority list,
+  test results, and recommended fixes
+- No Firestore rules, Firebase configuration, APIs, schemas,
+  authentication logic, payment, storage, or backend features changed
+
 ### Final Mobile Micro-Polish Pass
 
 - Tightened mobile workspace hero spacing so Admin command-center metrics appear

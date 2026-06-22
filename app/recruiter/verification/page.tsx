@@ -153,13 +153,15 @@ export default function RecruiterVerificationPage() {
           <section className="border border-dashed border-[#9fb6bf] bg-[#f2f7f9] p-5 sm:col-span-2">
             <p className="font-black">Verification documents</p>
             <p className="mt-2 text-sm leading-6 text-[#657176]">
-              Document uploads are coming soon. For beta verification, submit
-              your company details, website, social proof links, and production
-              context here.
+              For beta verification, the trust team reviews your company
+              details, website, social proof links, and production context from
+              this form.
             </p>
-            <button type="button" disabled className="secondary-button mt-4 opacity-45">
-              Document upload coming soon
-            </button>
+            <p className="mt-4 rounded-md border border-[#bad7d3] bg-white p-3 text-sm font-bold leading-6 text-[#234b47]">
+              Keep sensitive identity documents out of public profile and
+              audition fields. The team will request anything additional
+              through a safer review process.
+            </p>
           </section>
           {canSubmit && (
             <button disabled={saving} className="primary-button sm:col-span-2 sm:w-fit disabled:opacity-50">
