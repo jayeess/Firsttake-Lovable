@@ -732,6 +732,64 @@ Verbally confirm each limitation is acceptable for the invited beta cohort:
 - A support contact point is monitored
 - At least one admin operator is available for the first beta week
 
+## Live Production Beta Smoke Test Checklist
+
+Run this checklist against the live Vercel deployment before inviting beta users.
+
+### Public routes (verifiable without auth)
+1. Open `/` and confirm brand ("FirstTake by MVA Studios", "Nata Connect",
+   "నట కనెక్ట్"), headline, and CTA buttons render correctly.
+2. Open `/auth/login` and confirm no test panel is visible. No raw Firebase
+   errors. Email + password form loads.
+3. Open `/auth/signup` and confirm Talent/Recruiter role selection. No billing,
+   storage, or "coming soon" upload copy.
+4. Open `/auth/forgot-password` and confirm email field + reset link button.
+5. Open `/auth/email-verified` and confirm verification-check page loads.
+6. Open `/help`, `/safety`, `/community-guidelines`, `/terms`, `/privacy`,
+   `/contact`, `/beta-feedback` and confirm all load with no placeholder text
+   and appropriate beta disclaimers.
+7. Open an unknown route (e.g. `/does-not-exist`) and confirm the branded
+   404 page shows ("This page does not exist" + Back to home + Help center).
+8. Confirm no secrets, Firebase SDK keys, or service account values appear in
+   browser DevTools → Network → page source.
+
+### Auth behavior (verifiable with accounts)
+9. Sign up as a new Talent user. Confirm email verification prompt appears.
+10. Send verification email. Confirm email arrives with the production URL (not
+    `localhost:3000`).
+11. Open the email link. Confirm `/auth/email-verified` is the redirect target.
+12. Return to dashboard. Confirm verification prompt disappears.
+13. Log out. Confirm redirect to `/auth/login`.
+14. Try to access `/dashboard` without logging in. Confirm redirect to login.
+15. Log in as a non-admin. Try to access `/admin`. Confirm "Administrator access
+    required" page shows.
+
+### Talent flow (authenticated)
+16. Open `/dashboard` as Talent at 1280px. Confirm hero and workspace cards are
+    above the fold.
+17. Open `/talent/profile`. Confirm completeness score and save works.
+18. Open `/auditions`. Confirm audition cards load and filters work.
+19. Apply to an active audition. Confirm application appears in `/applications`.
+20. Open `/messages`. Confirm conversations load.
+21. Open a read-only conversation (closed application). Confirm amber read-only
+    banner shows above composer.
+22. Open `/notifications`. Confirm mark-all-read works.
+
+### Recruiter flow (authenticated)
+23. Open `/recruiter/verification`. Confirm status badge pill renders.
+24. Open `/recruiter/auditions/new`. Confirm "Before you publish" shows
+    structured checklist.
+25. Open `/recruiter/auditions/[id]/applicants`. Confirm metrics show 2 rows
+    (6-col grid on xl screen, 3-col on sm).
+26. Confirm "Casting calls" nav item is NOT active when on the applicants page.
+27. Confirm "Applicants" nav item IS active on the applicants page.
+
+### Admin flow (admin account required)
+28. Log in as admin. Confirm admin dashboard loads with metric cards.
+29. Open `/admin/verifications`. Confirm pending queue loads.
+30. Open `/admin/beta-readiness`. Confirm known limitations checklist renders.
+31. Confirm admin moderation actions require confirmation before executing.
+
 ## Laptop UX Polish Regression Checks
 
 Run after any deployment that includes the Laptop Screen Recording UX Polish Pass:

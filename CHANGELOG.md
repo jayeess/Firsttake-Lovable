@@ -1,5 +1,26 @@
 # Changelog
 
+### Live Production Beta Smoke Test Pass
+
+- Ran remote static HTML inspection against https://firsttake-lovable.vercel.app
+  for all public routes: homepage, auth, help, safety, community guidelines,
+  terms, privacy, contact, beta feedback, email-verified
+- Confirmed no secrets, raw Firebase errors, or test panels in public HTML
+- Confirmed test case panel is gated on `NODE_ENV !== 'development'` (absent
+  in production)
+- Confirmed admin routes display "Administrator access required" for non-admin
+  users via `!user || !isAdmin` guard
+- Confirmed no billing, storage, or payment promises visible in any page
+- Confirmed `localhost:3000` fallback in email verification URL is correctly
+  unreachable in browser (overridden by `window.location.origin`)
+- Confirmed all anti-payment safety warnings present in messages and community
+  guidelines
+- Added `app/not-found.tsx`: custom branded 404 page with Back to home and Help
+  center links — replaces Next.js default 404
+- Created `LIVE_PRODUCTION_BETA_SMOKE_TEST.md` with full audit inventory,
+  P0/P1/P2 findings, manual check list, and launch recommendation
+- No Firestore rules, APIs, schemas, authentication, or backend features changed
+
 ### Laptop Screen Recording UX Polish Pass
 
 - Compacted `WorkspaceHero` and `MetricCard` in `product-ui.tsx` for tighter

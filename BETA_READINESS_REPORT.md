@@ -49,8 +49,11 @@ Community Guidelines, data deletion process, and minor safety policy are still
 placeholders and should be completed before a wider public launch.
 
 **Assessment date:** June 22, 2026
+**Smoke test date:** June 22, 2026
 **Recommended stage:** Controlled private beta — ready with limitations
 **Readiness score:** 8.5/10
+**Production URL smoke test:** https://firsttake-lovable.vercel.app — PASS (no P0 blockers found)
+**Custom 404 page:** Added (`app/not-found.tsx`) — branded page with Back to home + Help center links
 
 ## Completed Features
 

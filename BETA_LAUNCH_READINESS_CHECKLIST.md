@@ -365,6 +365,37 @@ Work through this with a real or test Recruiter account.
 - [ ] SUSPENDED accounts see the restricted-account screen, not an error.
 - [ ] Unverified recruiter sees verification status, not an error.
 - [ ] Non-existent audition shows "no longer available" empty state.
+- [ ] An invalid route (e.g. `/xyzzy`) shows the branded 404 page, not the
+      Next.js default 404.
+
+---
+
+## 8A. Production Smoke Test Checklist
+
+This section tracks the results of the live site smoke test against
+https://firsttake-lovable.vercel.app (see `LIVE_PRODUCTION_BETA_SMOKE_TEST.md`).
+
+### Remote/code-verified (pass = confirmed clean)
+- [x] Homepage loads: brand, headline, CTAs, footer — no errors
+- [x] No secrets or Firebase keys in public HTML
+- [x] Test panel absent in production (gated on `NODE_ENV !== 'development'`)
+- [x] Admin routes gated: "Administrator access required" for non-admin
+- [x] No billing/payment/storage promises in any page
+- [x] Email verification URL fallback safe (`window.location.origin` takes precedence)
+- [x] Custom branded 404 page deployed (`app/not-found.tsx`)
+- [x] All auth routes clean: login, signup, forgot-password, email-verified
+- [x] Help, safety, community guidelines, terms, privacy, contact, beta-feedback load
+- [x] Anti-payment safety warnings in messages and community guidelines
+- [x] Laptop UX polish verified at code level (hero density, metrics grid, nav states)
+
+### Requires live session to confirm
+- [ ] Email verification send/receive end-to-end with production Firebase
+- [ ] Firestore rules and indexes deployed to `nata-connect-prod`
+- [ ] Admin custom claim set for launch admin account
+- [ ] Full Talent journey: signup → profile → apply → notifications
+- [ ] Full Recruiter journey: verification → audition → review
+- [ ] Admin moderation: approve verification, view audit logs, resolve report
+- [ ] Mobile device check at 375px
 
 ---
 
