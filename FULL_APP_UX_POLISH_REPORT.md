@@ -138,6 +138,18 @@ distinguishes active, closed/draft, visible, and removed briefs. Audit logs now
 translate internal action keys into readable labels while preserving the stored
 action values.
 
+The mobile Admin shell now follows the same app-like pattern as Talent and
+Recruiter workspaces:
+
+- Compact top brand header.
+- Notification and menu controls aligned with the product shell.
+- Full admin navigation moved into a mobile menu instead of a full-height
+  sidebar.
+- Bottom quick navigation for Dashboard, Verifications, Moderation, Audit logs,
+  and More.
+- Main content starts immediately below the header with mobile-safe bottom
+  padding for the navigation bar.
+
 Secondary admin routes also received safer error copy so admins see clear
 recovery language instead of implementation details. No Firestore rules,
 schema, server actions, API permissions, or claim logic changed in this pass.

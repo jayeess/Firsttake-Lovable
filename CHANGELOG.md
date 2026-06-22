@@ -5,6 +5,9 @@
 - Brought the Admin command center, recruiter verification, Talent review,
   audition moderation, and audit logs onto the shared workspace hero, metric
   card, section header, and safety notice patterns
+- Reworked the Admin mobile shell so phones use the unified product header,
+  compact menu, and bottom trust-operations navigation instead of a full
+  desktop sidebar
 - Added clearer Admin trust metrics for pending reviews, active auditions,
   flagged accounts, removed briefs, enforcement events, and recent audit
   activity

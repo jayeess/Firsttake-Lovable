@@ -112,6 +112,21 @@ pass:
   time, and action filtering.
 - Secondary admin routes use safe recovery copy when data cannot be loaded.
 
+Mobile QA checklist:
+
+- In an iPhone-sized viewport, `/admin` shows the Nata Connect brand header,
+  notification control, compact admin menu button, and immediate command-center
+  content without a full desktop sidebar.
+- The Admin bottom navigation shows Dashboard, Verifications, Moderation,
+  Audit logs, and More, and the active state follows the current admin section.
+- More opens the full trust-operations menu without horizontal overflow.
+- `/admin/verifications`, `/admin/talents`, `/admin/auditions`, and
+  `/admin/audit-logs` keep cards, metrics, actions, and audit rows readable on
+  mobile.
+- Compare `/dashboard`, `/auditions`, `/applications`, and
+  `/recruiter/auditions` with Admin mobile pages to confirm they feel like one
+  application shell.
+
 This pass is UI and copy only. It does not change Firestore rules, admin
 claims, API permissions, database schema, or Firebase deployment requirements.
 
