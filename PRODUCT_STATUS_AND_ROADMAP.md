@@ -1,9 +1,9 @@
 # Nata Connect Product Status and Roadmap
 
 **Telugu name:** నట కనెక్ట్  
-**Document date:** June 12, 2026
+**Document date:** June 22, 2026
 **Repository:** `jayeess/Firsttake-Lovable`  
-**Current stage:** Phase 5B email notifications foundation and PWA readiness
+**Current stage:** Beta launch readiness pass — controlled private beta ready
 
 ## 1. Product Summary
 

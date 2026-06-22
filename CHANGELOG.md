@@ -1,5 +1,21 @@
 # Changelog
 
+### Beta Launch Readiness Pass
+
+- Updated README.md to reflect controlled private beta readiness status
+- Rewrote BETA_LAUNCH_READINESS_CHECKLIST.md with comprehensive step-by-step
+  manual QA checklists for Talent, Recruiter, Admin, cross-device, mobile,
+  error-state, and notification/message flows
+- Updated BETA_READINESS_REPORT.md: assessment date June 22, 2026; readiness
+  score raised to 8.5/10 reflecting completed QA pass
+- Updated PRODUCT_STATUS_AND_ROADMAP.md: document date June 22, 2026; stage
+  updated to beta launch readiness pass
+- Documented known beta limitations: no document upload, no direct self-tape
+  upload, no payments, manual verification review, email delivery conditional
+  on provider config
+- Launch decision: Ready with limitations for controlled private beta
+- No Firestore rules, APIs, schemas, authentication, or backend features changed
+
 ### Real End-to-End Product Flow QA Pass
 
 - Audited all Talent, Recruiter, and Admin flows for raw error copy,

@@ -48,9 +48,9 @@ Legal readiness remains a beta limitation: Terms of Service, Privacy Policy,
 Community Guidelines, data deletion process, and minor safety policy are still
 placeholders and should be completed before a wider public launch.
 
-**Assessment date:** June 12, 2026
-**Recommended stage:** Controlled internal/private testing only  
-**Readiness score:** 7.5/10
+**Assessment date:** June 22, 2026
+**Recommended stage:** Controlled private beta — ready with limitations
+**Readiness score:** 8.5/10
 
 ## Completed Features
 

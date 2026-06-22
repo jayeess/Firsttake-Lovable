@@ -635,6 +635,103 @@ git diff --check
    recruiter audition post, application submit, applicant review, media upload,
    public profile load, message send, report submit, admin report resolve.
 
+## Beta Launch Readiness Checks
+
+Run this pass immediately before inviting first beta users. It combines the
+production smoke flow with first-user-experience validation.
+
+### Pre-launch commands
+
+```powershell
+npm run lint
+npm test
+npm run build
+git diff --check
+```
+
+All four must pass before proceeding.
+
+### Production environment verification
+
+1. Confirm all required Vercel environment variables are set (see
+   `BETA_LAUNCH_READINESS_CHECKLIST.md` section 1.2).
+2. Confirm `NEXT_PUBLIC_SHOW_TEST_CASES` is NOT set in Vercel.
+3. Open the production URL and confirm the landing page loads without a
+   browser console error.
+4. Open browser DevTools Network tab and confirm no Firebase API keys or
+   service-account values appear in any response body.
+5. Open `/admin/beta-readiness` as Admin and confirm environment check results.
+
+### First-user onboarding validation
+
+1. Open the production URL in a private browser window (no cookies, no session).
+2. Confirm the landing page has a "Join the beta" or "Get started" CTA.
+3. Sign up as a new Talent account using a real email address.
+4. Confirm redirect to the correct role workspace.
+5. Email verification prompt appears when email is unverified.
+6. Complete the Talent profile from scratch (no presets available in production).
+7. Confirm profile completeness score increases with each saved field.
+8. Browse `/auditions` and apply to one audition.
+9. Open `/applications` and confirm the application appears with the correct status.
+10. Open `/beta-feedback` and submit one test feedback item.
+
+### Public and trust page verification
+
+- [ ] `/` — landing page loads correctly
+- [ ] `/terms` — renders as a beta draft, clearly labeled
+- [ ] `/privacy` — renders as a beta draft, clearly labeled
+- [ ] `/community-guidelines` — renders with appropriate beta copy
+- [ ] `/safety` — "Never Pay to Audition" warning is visible
+- [ ] `/help` — help center loads correctly
+- [ ] `/contact` — loads without a hardcoded placeholder email
+- [ ] `/beta-feedback` — form loads and can be submitted while signed out
+
+### Error copy audit
+
+In an incognito window with DevTools network throttle set to Slow 3G:
+
+- Apply to an audition and confirm slow-load states show retry actions.
+- Confirm no error state ever shows "Firebase", "Firestore",
+  "permission denied", "Missing or insufficient permissions", or a stack trace.
+- Confirm all error messages use product-safe language.
+
+### Mobile launch checklist
+
+Run in Chrome DevTools mobile simulation at 390×844 (iPhone 14):
+
+- [ ] Landing page — no horizontal scroll
+- [ ] Auth pages — usable on mobile keyboard
+- [ ] Talent dashboard — bottom nav clears browser bar
+- [ ] Auditions list — scrollable, filterable
+- [ ] Audition detail — apply button is reachable
+- [ ] Applications — status readable, actions reachable
+- [ ] Messages — list and conversation usable
+- [ ] Notifications — list readable, mark-all-read works
+- [ ] Recruiter auditions — cards readable
+- [ ] Admin dashboard — compact header, bottom trust nav visible
+
+### Known limitations to confirm before launch
+
+Verbally confirm each limitation is acceptable for the invited beta cohort:
+
+- [ ] No document upload — manual review only
+- [ ] No direct self-tape video upload — external links only
+- [ ] No payments — compensation is recruiter-provided context only
+- [ ] Email delivery requires provider setup — in-app notifications only without it
+- [ ] Verification is manual admin review — no automated approval
+- [ ] Legal pages are beta drafts — not final legal documents
+
+### Launch go/no-go
+
+**Ready for controlled private beta when:**
+
+- All four pre-launch commands pass
+- Admin `/admin/beta-readiness` shows no critical gaps
+- At least one full Talent and one full Recruiter journey pass in production
+- All known limitations have been accepted and communicated to beta users
+- A support contact point is monitored
+- At least one admin operator is available for the first beta week
+
 ## Phase 4A Vercel Production Smoke Flow
 
 Run this after the first Vercel production deployment:

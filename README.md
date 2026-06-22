@@ -4,8 +4,11 @@ Nata Connect (`నట కనెక్ట్`) is a casting marketplace for talen
 recruiters. Talent can build profiles, discover auditions, apply, and track
 application status. Recruiters can create casting calls and review applicants.
 
-The project is currently a stabilized MVP intended for local development and
-controlled private testing. It is not ready for a public production launch.
+The project is ready for a controlled private beta. Core casting workflows,
+role-based access, trust and moderation systems, and end-to-end product flows
+have been QA-tested. It is not yet ready for a wide public launch — see
+[BETA_LAUNCH_READINESS_CHECKLIST.md](BETA_LAUNCH_READINESS_CHECKLIST.md) for
+the operator checklist and known limitations.
 
 ## Technology
 
