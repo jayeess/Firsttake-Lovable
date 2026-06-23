@@ -317,17 +317,17 @@ export default function NewAuditionPage() {
       <div className="max-w-6xl">
         <div className="flex flex-wrap items-end justify-between gap-5">
           <div>
-            <p className="eyebrow">Create casting call</p>
-            <h1 className="mt-2 text-4xl font-black">Shape the opportunity clearly.</h1>
+            <p className="eyebrow">New casting brief</p>
+            <h1 className="mt-2 text-4xl font-black">Build a casting call that attracts the right Talent.</h1>
             <p className="mt-3 max-w-2xl leading-7 text-[#657176]">
-              Strong briefs attract stronger applicants. Give talent enough
-              context to know whether the role truly fits.
+              Clear requirements, honest compensation, and a safe process attract stronger applicants.
+              Give Talent enough context to know whether the role truly fits.
             </p>
           </div>
           <div className="border-l-2 border-[#d8a843] pl-4 text-sm">
             <p className="font-bold">Recruiter access</p>
             <p className="mt-1 text-[#657176]">
-              {userType === 'RECRUITER' ? 'Ready to publish' : 'Role not detected'}
+              {userType === 'RECRUITER' ? 'Approved to publish' : 'Role not detected'}
             </p>
           </div>
         </div>
@@ -348,7 +348,7 @@ export default function NewAuditionPage() {
         </div>
 
         {error && (
-          <div className="mt-6 border border-red-300 bg-red-50 p-4 text-sm leading-6 text-red-800">
+          <div className="mt-6 rounded-md border border-amber-300 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
             <p className="font-bold">The audition was not saved</p>
             <p className="mt-1">{error}</p>
           </div>
@@ -366,24 +366,32 @@ export default function NewAuditionPage() {
               <p className="eyebrow">01 · Role basics</p>
               <div className="mt-5 grid gap-5 sm:grid-cols-2">
                 <div className="sm:col-span-2">
-                  <Input label="Audition title" value={form.title} onChange={(v) => update('title', v)} placeholder="e.g. Lead actor for regional drama" />
+                  <Input label="Audition title" value={form.title} onChange={(v) => update('title', v)} placeholder="e.g. Lead actor for regional drama" helper="Include the role type and project — be specific enough that Talent can tell at a glance if it fits their profile." />
                 </div>
                 <label className="block text-sm font-bold">Category<select value={form.category} onChange={(e) => update('category', e.target.value)} className="field mt-2">{Object.entries(CATEGORY_LABELS).map(([v,l]) => <option key={v} value={v}>{l}</option>)}</select></label>
                 <label className="block text-sm font-bold">Experience level<select value={form.experienceLevel} onChange={(e) => update('experienceLevel', e.target.value)} className="field mt-2">{Object.entries(EXPERIENCE_LABELS).map(([v,l]) => <option key={v} value={v}>{l}</option>)}</select></label>
-                <Input label="Location" value={form.location} onChange={(v) => update('location', v)} placeholder="City or remote" />
+                <Input label="Location" value={form.location} onChange={(v) => update('location', v)} placeholder="City or remote" helper="Talent use location to decide whether they can attend in person." />
                 <Input label="Project duration" value={form.duration} onChange={(v) => update('duration', v)} placeholder="e.g. 3 shooting days" />
                 <label className="block text-sm font-bold">Project type<select value={form.auditionType} onChange={(e) => update('auditionType', e.target.value)} className="field mt-2"><option value="FILM">Film</option><option value="SERIES">Series</option><option value="COMMERCIAL">Commercial</option><option value="THEATRE">Theatre</option><option value="VOICE_OVER">Voice over</option><option value="LIVE_EVENT">Live event</option><option value="OTHER">Other</option></select></label>
                 <label className="block text-sm font-bold">Work mode<select value={form.workMode} onChange={(e) => update('workMode', e.target.value)} className="field mt-2"><option value="ONSITE">Onsite</option><option value="REMOTE">Remote</option><option value="HYBRID">Hybrid</option></select></label>
                 <div className="sm:col-span-2">
-                  <Input label="Languages" value={form.languages.join(', ')} onChange={(v) => setForm((current) => ({ ...current, languages: v.split(',').map((item) => item.trim()).filter(Boolean) }))} required={false} placeholder="Hindi, Telugu, English" />
+                  <Input label="Languages" value={form.languages.join(', ')} onChange={(v) => setForm((current) => ({ ...current, languages: v.split(',').map((item) => item.trim()).filter(Boolean) }))} required={false} placeholder="Hindi, Telugu, English" helper="Comma-separated. Leave blank if the role is open to any language." />
                 </div>
               </div>
             </section>
 
             <section className="surface p-6">
               <p className="eyebrow">02 · Creative brief</p>
-              <label className="mt-5 block text-sm font-bold">Role description<textarea required rows={7} value={form.description} onChange={(e) => update('description', e.target.value)} className="field mt-2" placeholder="Describe the project, character, tone, and what makes this role distinctive." /></label>
-              <label className="mt-5 block text-sm font-bold">Requirements<textarea required rows={6} value={form.requirements} onChange={(e) => update('requirements', e.target.value)} className="field mt-2" placeholder="Skills, language, age range, availability, and portfolio expectations." /></label>
+              <label className="mt-5 block text-sm font-bold">
+                Role description
+                <textarea required rows={7} value={form.description} onChange={(e) => update('description', e.target.value)} className="field mt-2" placeholder="Describe the project, character, tone, and what makes this role distinctive." />
+                <p className="mt-1.5 text-xs font-normal leading-5 text-[#657176]">Talent uses this to decide if the role fits their skills — include the project context, character brief, and tone.</p>
+              </label>
+              <label className="mt-5 block text-sm font-bold">
+                Requirements
+                <textarea required rows={6} value={form.requirements} onChange={(e) => update('requirements', e.target.value)} className="field mt-2" placeholder="Skills, language, age range, availability, and portfolio expectations." />
+                <p className="mt-1.5 text-xs font-normal leading-5 text-[#657176]">Be specific but fair — only list requirements that genuinely affect eligibility.</p>
+              </label>
             </section>
 
             <section className="surface p-6">
@@ -478,10 +486,11 @@ export default function NewAuditionPage() {
                         className="field mt-2"
                         placeholder="Example: Record a 60-second introduction and one short scene. Use clear audio, natural light, and an unlisted video link."
                       />
+                      <p className="mt-1.5 text-xs font-normal leading-5 text-[#657176]">Do not ask Talent to contact you directly outside Nata Connect or to make any payment to participate.</p>
                     </label>
 
                     <Input
-                      label="Max duration in seconds"
+                      label="Clip duration limit (seconds)"
                       type="number"
                       value={String(form.selfTapeMaxDurationSeconds ?? '')}
                       onChange={(value) =>
@@ -492,6 +501,7 @@ export default function NewAuditionPage() {
                       }
                       required={false}
                       placeholder="Optional, e.g. 90"
+                      helper="Optional. For example, 90 means each submission must be 90 seconds or under."
                     />
                   </div>
                 )}
@@ -504,9 +514,13 @@ export default function NewAuditionPage() {
               <p className="eyebrow">04 · Publishing</p>
               <div className="mt-5 space-y-5">
                 <Input label="Positions" type="number" value={String(form.numberOfPositions)} onChange={(v) => update('numberOfPositions', Number(v))} />
-                <Input label="Application deadline" type="date" value={form.deadline} onChange={(v) => update('deadline', v)} />
-                <Input label="Pay information" value={form.payInfo} onChange={(v) => update('payInfo', v)} required={false} placeholder="Optional, but recommended" />
-                <label className="block text-sm font-bold">Compensation type<select value={form.paymentType} onChange={(e) => update('paymentType', e.target.value)} className="field mt-2"><option value="PAID">Paid</option><option value="HONORARIUM">Honorarium</option><option value="UNPAID">Unpaid</option><option value="UNSPECIFIED">Not specified</option></select></label>
+                <Input label="Application deadline" type="date" value={form.deadline} onChange={(v) => update('deadline', v)} helper="Give Talent at least 7 days to prepare and apply." />
+                <Input label="Pay information" value={form.payInfo} onChange={(v) => update('payInfo', v)} required={false} placeholder="Optional, but recommended" helper="Specific compensation helps Talent make an informed decision — mention rates, fees, or honorarium amounts." />
+                <label className="block text-sm font-bold">
+                  Compensation type
+                  <select value={form.paymentType} onChange={(e) => update('paymentType', e.target.value)} className="field mt-2"><option value="PAID">Paid</option><option value="HONORARIUM">Honorarium</option><option value="UNPAID">Unpaid</option><option value="UNSPECIFIED">Not specified</option></select>
+                  <p className="mt-1.5 text-xs font-normal leading-5 text-[#657176]">Paid = formal rate; Honorarium = token payment; Unpaid = credit or experience only.</p>
+                </label>
               </div>
             </section>
             <section className="rounded-md border border-[#bad7d3] bg-[#edf7f5] p-4 text-sm text-[#234b47]">
@@ -526,7 +540,7 @@ export default function NewAuditionPage() {
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="mt-0.5 text-[#e7ad2d]">!</span>
-                  <span className="font-semibold">Never ask Talent to pay to audition</span>
+                  <span className="font-bold">Never ask Talent to pay to audition</span>
                 </li>
               </ul>
               <p className="mt-3 text-xs leading-5 text-[#3d6862]">
@@ -548,6 +562,12 @@ export default function NewAuditionPage() {
   );
 }
 
-function Input({ label, value, onChange, type = 'text', placeholder, required = true }: { label: string; value: string; onChange: (value: string) => void; type?: string; placeholder?: string; required?: boolean }) {
-  return <label className="block text-sm font-bold">{label}<input type={type} required={required} min={type === 'number' ? 1 : undefined} value={value} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} className="field mt-2" /></label>;
+function Input({ label, value, onChange, type = 'text', placeholder, required = true, helper }: { label: string; value: string; onChange: (value: string) => void; type?: string; placeholder?: string; required?: boolean; helper?: string }) {
+  return (
+    <label className="block text-sm font-bold">
+      {label}
+      <input type={type} required={required} min={type === 'number' ? 1 : undefined} value={value} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} className="field mt-2" />
+      {helper && <p className="mt-1.5 text-xs font-normal leading-5 text-[#657176]">{helper}</p>}
+    </label>
+  );
 }

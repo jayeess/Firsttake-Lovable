@@ -191,6 +191,38 @@ After deploying the core application experience upgrade pass, verify the followi
 **Messages page** (`/messages`):
 - [ ] Page eyebrow reads "Casting inbox" (not "Private casting communication")
 
+## Recruiter audition publishing experience checks
+
+After deploying the recruiter audition publishing experience upgrade pass, verify the following manually:
+
+**New casting brief form** (`/recruiter/auditions/new`):
+- [ ] Page eyebrow reads "New casting brief"
+- [ ] h1 reads "Build a casting call that attracts the right Talent."
+- [ ] Body copy mentions "Clear requirements, honest compensation, and a safe process"
+- [ ] Recruiter access widget reads "Approved to publish"
+- [ ] Error block (trigger by submitting invalid form): amber border/background, no red styling
+- [ ] Audition title helper: "Include the role type and project — be specific enough that Talent can tell at a glance if it fits their profile."
+- [ ] Location helper: "Talent use location to decide whether they can attend in person."
+- [ ] Languages helper: "Comma-separated. Leave blank if the role is open to any language."
+- [ ] Role description helper: "Talent uses this to decide if the role fits their skills — include the project context, character brief, and tone."
+- [ ] Requirements helper: "Be specific but fair — only list requirements that genuinely affect eligibility."
+- [ ] Self-tape enabled: instructions textarea shows safety note "Do not ask Talent to contact you directly outside Nata Connect..."
+- [ ] Max duration field label reads "Clip duration limit (seconds)" with helper text about the 90-second example
+- [ ] Deadline helper: "Give Talent at least 7 days to prepare and apply."
+- [ ] Pay information helper: "Specific compensation helps Talent make an informed decision..."
+- [ ] Compensation type helper: "Paid = formal rate; Honorarium = token payment; Unpaid = credit or experience only."
+- [ ] "Before you publish" checklist: "Never ask Talent to pay to audition" renders in `font-bold`
+- [ ] Publish and Save as draft both work correctly
+
+**Recruiter auditions list** (`/recruiter/auditions`):
+- [ ] WorkspaceHero primary CTA reads "Post a casting brief"
+- [ ] Empty state title reads "No casting briefs yet"
+- [ ] Empty state message mentions "Verified recruiters see stronger applicant response."
+- [ ] Empty state action reads "Post a casting brief"
+
+**Recruiter verification** (`/recruiter/verification`):
+- [ ] Description reads "...Verified recruiters can publish casting briefs and build Talent trust with a verified badge on every listing."
+
 ## Messaging and notifications experience checks
 
 After deploying the messaging and notifications experience upgrade pass, verify the following manually:

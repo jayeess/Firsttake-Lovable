@@ -107,7 +107,8 @@ export default function RecruiterVerificationPage() {
             <h1 className="text-3xl font-black">Company verification</h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-[#657176]">
               Tell the review team who you are, what you produce, and where your
-              professional work can be verified.
+              professional work can be verified. Verified recruiters can publish casting briefs
+              and build Talent trust with a verified badge on every listing.
             </p>
           </div>
           <span className="rounded-md border border-[#b9cdd4] bg-white px-3 py-1.5 text-xs font-black uppercase tracking-wide text-[#008ca6]">

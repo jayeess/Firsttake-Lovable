@@ -49,7 +49,7 @@ export default function RecruiterAuditionsPage() {
         title="Manage auditions and keep applicant decisions moving."
         description="Track active briefs, applicant flow, self-tape requests, drafts, and the next review action from one recruiter workspace."
         actionHref="/recruiter/auditions/new"
-        actionLabel="Post audition"
+        actionLabel="Post a casting brief"
         secondaryHref="/messages"
         secondaryLabel="Open messages"
       />
@@ -106,10 +106,10 @@ export default function RecruiterAuditionsPage() {
         <LoadingState label="Loading your casting pipeline..." />
       ) : error ? null : auditions.length === 0 ? (
         <EmptyState
-          title="No auditions posted yet"
-          message="Create a clear casting brief when your recruiter verification is approved."
+          title="No casting briefs yet"
+          message="Post your first casting brief to start reaching Talent on Nata Connect. Verified recruiters see stronger applicant response."
           actionHref="/recruiter/auditions/new"
-          actionLabel="Post an audition"
+          actionLabel="Post a casting brief"
         />
       ) : (
       <>

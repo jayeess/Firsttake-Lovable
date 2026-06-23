@@ -1,5 +1,19 @@
 # Full App UX Polish Report
 
+## Recruiter Audition Creation and Publishing Experience Upgrade — June 23, 2026
+
+**Goal:** Make the recruiter audition creation workflow feel like a guided casting brief builder. Give recruiters field-level guidance, reinforce safety at the point of self-tape instructions, connect compensation type to real-world meaning, and tie verification to publishing access.
+
+Key improvements in this pass:
+
+- **New casting brief form** (`/recruiter/auditions/new`): Header updated from abstract ("Shape the opportunity clearly.") to outcome-focused ("Build a casting call that attracts the right Talent."); error block red → amber; `Input` component extended with optional `helper` prop; helper text added to 10 key fields across all four form sections; safety note added beneath self-tape instructions textarea; max duration label clarified to "Clip duration limit (seconds)"; "Before you publish" checklist safety item `font-semibold` → `font-bold`.
+- **Recruiter auditions list** (`/recruiter/auditions`): WorkspaceHero CTA "Post audition" → "Post a casting brief"; empty state updated to action-forward copy that names verified-recruiter response quality as a benefit.
+- **Recruiter verification** (`/recruiter/verification`): Description extended to explain that verification enables publishing casting briefs and adds a verified badge — motivating recruiters to complete the step.
+
+See `RECRUITER_AUDITION_PUBLISHING_EXPERIENCE_UPGRADE_REPORT.md` for the full audit, before/after table, and manual test checklist.
+
+---
+
 ## Messaging and Notifications Experience Upgrade — June 23, 2026
 
 **Goal:** Make messaging and notifications feel like a professional casting communication center. Give Talent and Recruiters the context they need to act on casting updates, stay safe, and return to the right place.

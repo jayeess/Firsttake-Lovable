@@ -1,5 +1,13 @@
 # Changelog
 
+### Recruiter Audition Creation and Publishing Experience Upgrade
+
+- **`app/recruiter/auditions/new/page.tsx`**: Page eyebrow "Create casting call" → "New casting brief"; h1 "Shape the opportunity clearly." → "Build a casting call that attracts the right Talent."; body copy updated to name requirements, compensation, and safety as the three drivers of applicant quality; recruiter access widget "Ready to publish" → "Approved to publish"; error block red styling → amber (consistent with app convention); `Input` component gains optional `helper` prop rendering small contextual text beneath each field; helper text added to Audition title, Location, Languages, Role description, Requirements, self-tape Instructions, Clip duration limit, Application deadline, Pay information, and Compensation type; max duration label "Max duration in seconds" → "Clip duration limit (seconds)"; safety note added beneath self-tape instructions textarea ("Do not ask Talent to contact you directly outside Nata Connect or to make any payment to participate."); "Before you publish" checklist safety item `font-semibold` → `font-bold`.
+- **`app/recruiter/auditions/page.tsx`**: WorkspaceHero `actionLabel` "Post audition" → "Post a casting brief"; empty state title "No auditions posted yet" → "No casting briefs yet"; empty state message updated to action-forward copy that mentions verified-recruiter response quality; empty state `actionLabel` "Post an audition" → "Post a casting brief".
+- **`app/recruiter/verification/page.tsx`**: Description extended to explain that verified recruiters can publish casting briefs and build Talent trust with a verified badge on every listing.
+- Created `RECRUITER_AUDITION_PUBLISHING_EXPERIENCE_UPGRADE_REPORT.md`
+- No Firestore rules, APIs, authentication, payment, AI, or storage features changed
+
 ### Messaging and Notifications Experience Upgrade
 
 - **`app/messages/page.tsx`**: Talent empty state updated from passive to active copy ("Conversations appear here when a recruiter messages you about an application, or when you message a casting team."); conversation card type chip made role-aware ("Audition conversation" for talent, "Applicant conversation" for recruiter) with "Archived" chip when archived; fallback last-message text "Conversation ready" → "No messages yet"; inbox habits aside: "Avoid sharing personal contact details early." → "Never share personal contact details in chat."
