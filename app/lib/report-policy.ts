@@ -76,16 +76,15 @@ export const normalizeReportReasonText = (
 export const getReportPriority = (
   reasonCode: ReportReasonCode
 ): ReportPriority => {
+  if (['scam_or_fraud', 'unsafe_contact_request'].includes(reasonCode)) {
+    return 'urgent';
+  }
   if (
-    ['scam_or_fraud', 'harassment', 'unsafe_contact_request'].includes(reasonCode)
+    ['harassment', 'impersonation', 'fake_audition'].includes(reasonCode)
   ) {
     return 'high';
   }
-  if (
-    ['impersonation', 'inappropriate_content', 'fake_audition'].includes(
-      reasonCode
-    )
-  ) {
+  if (['inappropriate_content', 'misleading_information'].includes(reasonCode)) {
     return 'medium';
   }
   return 'low';
@@ -169,7 +168,7 @@ export const buildReportNotifications = ({
     recipientRole: reporterRole,
     type: 'report_received',
     title: 'Report received',
-    message: 'Your report was received. Our trust team will review it.',
+    message: 'Your report was received and will be reviewed by the trust team. We will follow up if more information is needed.',
     relatedEntityType: 'report',
     relatedEntityId: reportId,
     actionUrl: '/notifications',

@@ -3,45 +3,49 @@ import { PublicInfoPage } from '@/components/public-info-page';
 export default function SafetyPage() {
   return (
     <PublicInfoPage
-      eyebrow="User safety"
-      title="Safer casting starts with clear boundaries."
-      description="Use this guidance before applying, posting, messaging, sharing media, or meeting someone connected to a casting opportunity."
-      notice="Nata Connect support is not an emergency service. If you are in immediate danger, contact local emergency services or trusted local authorities."
+      eyebrow="Platform safety"
+      title="Safer casting, every step."
+      description="Practical guidance for Talent, Recruiters, and the public. Know the warning signs, use the platform's safeguards, and report anything that feels unsafe."
+      notice="Nata Connect is not an emergency service. If you are in immediate danger, contact local emergency services."
       sections={[
         {
           title: 'Never Pay to Audition',
-          body: 'A recruiter or production team should not ask you to pay simply to audition, be shortlisted, or be considered. Treat payment requests as a serious warning sign and report them.',
+          body: 'Legitimate casting calls on Nata Connect do not charge Talent to apply, audition, be shortlisted, or receive a callback. If anyone asks for money at any stage of the casting process — treat it as a scam and report it immediately.',
+        },
+        {
+          title: 'Red Flags for Fake Casting Calls',
+          body: 'Watch for: payment requests at any stage, pressure to move conversations off the platform, vague role descriptions with unusually high pay, no verifiable production company or recruiter profile, requests for personal documents or financial details upfront, or sudden changes in meeting location or contact method. When something feels wrong, trust your instincts and report.',
         },
         {
           title: 'Keep Communication On-Platform',
-          body: 'Use Nata Connect messaging when possible so there is context and accountability. Be cautious if someone immediately pressures you to move to private channels.',
+          body: 'Use Nata Connect messaging for all audition communication. Never share your home address, personal phone number, or private email in chat. If someone pressures you to move conversations off the platform, that is a warning sign — report the thread.',
         },
         {
-          title: 'Verify Recruiter Badges',
-          body: 'Look for recruiter verification signals and complete company information. A badge is helpful, but still review the role details, production context, and behavior carefully.',
+          title: 'Verified Recruiter Trust Signals',
+          body: 'Look for the "Verified recruiter" badge on casting briefs and profiles. Verified recruiters have had their company and identity reviewed by the Nata Connect trust team. A badge improves confidence, but always review role details, production context, and recruiter behavior carefully before applying.',
         },
         {
-          title: 'Report Suspicious Behavior',
-          body: 'Report fake casting calls, unsafe contact requests, harassment, inappropriate content, payment pressure, identity concerns, or anything that feels suspicious.',
+          title: 'Protect Your Personal Information',
+          body: 'Do not share government IDs, financial details, home address, personal phone numbers, or private schedules in casting conversations. Your Nata Connect profile shares only what you choose to make public.',
         },
         {
-          title: 'Protect Personal Information',
-          body: 'Avoid sharing home address, government IDs, financial details, private phone numbers, or personal schedules unless you have independently verified the opportunity and need.',
+          title: 'How to Report',
+          body: 'Use the Report button on any audition, profile, message, or media item. Choose the reason that best describes the concern, add context if it helps, and submit. Your report goes to the Nata Connect trust team and reporter identity is kept confidential.',
         },
         {
-          title: 'Younger Users Should Involve a Guardian',
-          body: 'Younger Talent should involve a parent or guardian before uploading media, messaging recruiters, applying, or attending any audition or meeting.',
+          title: 'What Happens After You Report',
+          body: 'Reports are reviewed by the Nata Connect trust team. Depending on severity, the platform may remove content, disable profiles, block conversations, suspend accounts, or preserve an audit record. You will receive a notification confirming your report was received.',
         },
         {
-          title: 'Safe Meeting and Audition Reminders',
-          body: 'Meet in professional/public settings, tell someone you trust where you are going, verify location details, and be cautious with last-minute location or requirement changes.',
+          title: 'Safe Meeting Reminders',
+          body: 'If an audition requires an in-person meeting, use professional or public settings, inform a trusted contact of where you are going, verify the location independently, and be cautious about last-minute changes to location, time, or requirements.',
         },
         {
-          title: 'How Nata Connect Handles Reports',
-          body: 'Reports may be reviewed by administrators. Depending on severity, the platform may remove content, block conversations, suspend accounts, or preserve audit history.',
+          title: 'Younger Talent',
+          body: 'Talent under 18 should have a parent or guardian involved before messaging recruiters, submitting media, applying to auditions, or attending any in-person meeting.',
         },
       ]}
-      cta={{ href: '/beta-feedback', label: 'Share beta feedback' }}
+      cta={{ href: '/community-guidelines', label: 'Read community guidelines' }}
     />
   );
 }

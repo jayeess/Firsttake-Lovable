@@ -1,5 +1,22 @@
 # Full App UX Polish Report
 
+## Trust, Safety and Reporting Experience Upgrade — June 23, 2026
+
+**Goal:** Make FirstTake / Nata Connect feel safer and more trustworthy for real casting use. Give Talent clear guidance on scam prevention, reinforce safe communication across messaging, strengthen admin reports with priority context, and escalate the most dangerous report types.
+
+Key improvements in this pass:
+
+- **Safety page** (`/safety`): Completely restructured as a practical safety center. New "Red Flags for Fake Casting Calls" section names payment requests, off-platform pressure, and unverifiable recruiters. New "How to Report" and "What Happens After You Report" sections explain the reporting process and outcome. CTA changed from `/beta-feedback` to `/community-guidelines`. All nine sections rewritten for clarity and casting context.
+- **Community guidelines** (`/community-guidelines`): Description updated to name consequences. "Reporting Abuse" removes "where available" qualifier — the trust team always reviews reports. Section renamed "Consequences of Violations" with permanent suspension language added.
+- **Messages inbox** (`/messages`): Page description "until trust is established" removed — now reads "never share personal contact details in messages" (consistent with sidebar policy).
+- **Conversation detail** (`/messages/[conversationId]`): `getThreadSafetyReminder` fixed "FirstTake" → "Nata Connect" in both Talent and Recruiter variants — a branding inconsistency visible on every conversation load.
+- **Admin reports queue** (`/admin/reports`): AdminPageHeader explains what urgent and high priority reports represent. Empty state message is now filter-aware. Reporter note block gains a "Reporter note" label.
+- **Report priority policy** (`app/lib/report-policy.ts`): `scam_or_fraud` and `unsafe_contact_request` escalated from `'high'` to `'urgent'`; `impersonation` and `fake_audition` escalated from `'medium'` to `'high'`; `misleading_information` from `'low'` to `'medium'`. Reporter notification message improved. Tests updated.
+
+See `TRUST_SAFETY_REPORTING_EXPERIENCE_UPGRADE_REPORT.md` for the full audit, before/after table, and manual test checklist.
+
+---
+
 ## Recruiter Audition Creation and Publishing Experience Upgrade — June 23, 2026
 
 **Goal:** Make the recruiter audition creation workflow feel like a guided casting brief builder. Give recruiters field-level guidance, reinforce safety at the point of self-tape instructions, connect compensation type to real-world meaning, and tie verification to publishing access.

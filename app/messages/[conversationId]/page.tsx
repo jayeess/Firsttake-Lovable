@@ -43,8 +43,8 @@ const getInitials = (name?: string) =>
 
 const getThreadSafetyReminder = (userType?: string | null) =>
   userType === 'RECRUITER'
-    ? 'Use messages only for audition-related communication. Keep communication on FirstTake and never ask Talent to pay to audition.'
-    : 'Keep communication on FirstTake. Do not share sensitive personal documents or payment details in chat.';
+    ? 'Use messages only for audition-related communication. Keep all communication on Nata Connect and never ask Talent to pay to audition.'
+    : 'Keep all casting communication on Nata Connect. Never share personal contact details or financial information in messages.';
 
 export default function ConversationPage() {
   const { conversationId } = useParams<{ conversationId: string }>();

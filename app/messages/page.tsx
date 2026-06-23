@@ -101,7 +101,7 @@ export default function MessagesPage() {
             </h1>
             <p className="mt-3 max-w-3xl text-sm leading-6 text-[#657176] sm:text-base sm:leading-7">
               Application-linked conversations with casting teams and applicants.
-              Keep personal contact details private until trust is established.
+              Keep all casting communication on-platform — never share personal contact details in messages.
             </p>
           </div>
           <div className="grid grid-cols-2 gap-2 sm:flex">

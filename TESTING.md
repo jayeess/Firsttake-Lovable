@@ -191,6 +191,45 @@ After deploying the core application experience upgrade pass, verify the followi
 **Messages page** (`/messages`):
 - [ ] Page eyebrow reads "Casting inbox" (not "Private casting communication")
 
+## Trust, safety and reporting experience checks
+
+After deploying the trust, safety and reporting experience upgrade pass, verify the following manually:
+
+**Safety page** (`/safety`):
+- [ ] Eyebrow reads "Platform safety"
+- [ ] h1 reads "Safer casting, every step."
+- [ ] Section "Red Flags for Fake Casting Calls" is present
+- [ ] Section "How to Report" explains the Report button and confidentiality
+- [ ] Section "What Happens After You Report" is present
+- [ ] CTA reads "Read community guidelines" — no longer mentions beta feedback
+
+**Community guidelines** (`/community-guidelines`):
+- [ ] Description mentions "consequences when those standards are not met"
+- [ ] "Reporting Abuse" section does not contain "where available"
+- [ ] Last section is titled "Consequences of Violations" and mentions permanent suspension
+
+**Messages inbox** (`/messages`):
+- [ ] Page description reads "...never share personal contact details in messages."
+- [ ] Page description does not say "until trust is established"
+
+**Conversation detail** (`/messages/[conversationId]`):
+- [ ] Compose safety reminder (Talent): reads "Keep all casting communication on Nata Connect. Never share personal contact details or financial information in messages."
+- [ ] Compose safety reminder (Recruiter): reads "Keep all communication on Nata Connect and never ask Talent to pay to audition."
+- [ ] Neither variant contains "FirstTake"
+
+**Admin reports** (`/admin/reports`):
+- [ ] AdminPageHeader description mentions urgent and high priority report types
+- [ ] Empty state (open filter, no reports): "New trust and safety reports will appear here as they are submitted."
+- [ ] Empty state (other filter, no matches): "Try adjusting the status, target type, reason, or priority filter."
+- [ ] Reporter note block shows "Reporter note" label when reasonText is present
+
+**Report priority** (submit test reports to verify):
+- [ ] Scam or fraud report → "urgent" priority badge in queue
+- [ ] Unsafe contact request → "urgent" priority badge
+- [ ] Fake audition → "high" priority (previously medium)
+- [ ] Impersonation → "high" priority (previously medium)
+- [ ] Spam → "low" priority — unchanged
+
 ## Recruiter audition publishing experience checks
 
 After deploying the recruiter audition publishing experience upgrade pass, verify the following manually:

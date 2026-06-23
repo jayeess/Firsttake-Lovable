@@ -126,7 +126,7 @@ export default function AdminReportsPage() {
       <AdminPageHeader
         eyebrow="Trust moderation"
         title="Report queue"
-        description="Review private abuse reports, inspect minimal evidence, and apply proportionate platform actions. Reporter identity stays inside this administrator workspace."
+        description="Review private abuse reports, inspect sanitized evidence, and apply proportionate platform actions. Urgent and high priority reports involve fraud, unsafe contact, and harassment — review these first. Reporter identity is kept confidential within this workspace."
       />
 
       <div className="surface mt-7 grid gap-3 rounded-md p-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -178,7 +178,11 @@ export default function AdminReportsPage() {
                 ? 'No open reports right now'
                 : 'No reports match these filters'
             }
-            message="Open safety concerns will appear here as they are submitted."
+            message={
+              status === 'open'
+                ? 'New trust and safety reports will appear here as they are submitted.'
+                : 'Try adjusting the status, target type, reason, or priority filter.'
+            }
           />
         ) : (
           filtered.map((report) => {
@@ -280,6 +284,7 @@ export default function AdminReportsPage() {
 
                 {report.reasonText && (
                   <div className="mt-5 border-l-2 border-[#e7ad2d] bg-[#fffaf0] p-4 text-sm leading-6">
+                    <p className="mb-2 text-[10px] font-black uppercase tracking-wide text-[#6b5a00]">Reporter note</p>
                     {report.reasonText}
                   </div>
                 )}

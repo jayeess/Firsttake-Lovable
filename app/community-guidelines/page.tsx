@@ -5,7 +5,7 @@ export default function CommunityGuidelinesPage() {
     <PublicInfoPage
       eyebrow="Trust and conduct"
       title="Community Guidelines"
-      description="Nata Connect is built for serious creative work. These guidelines describe the behavior expected from Talent, Recruiters, and production teams."
+      description="Nata Connect is built for professional casting work. These guidelines set the standard for how Talent, Recruiters, and production teams treat each other — and the consequences when those standards are not met."
       sections={[
         {
           title: 'Respectful Behavior',
@@ -37,11 +37,11 @@ export default function CommunityGuidelinesPage() {
         },
         {
           title: 'Reporting Abuse',
-          body: 'Use reporting tools or contact support when something feels unsafe, misleading, suspicious, or abusive. Reports are reviewed by administrators where available.',
+          body: 'Use the Report button on any audition, profile, message, or media item when something feels unsafe, misleading, suspicious, or abusive. Reports are reviewed by the Nata Connect trust team and reporter identity is kept confidential. You will receive confirmation when your report is received.',
         },
         {
-          title: 'Admin Moderation Actions',
-          body: 'Nata Connect may remove auditions, hide media, disable public profiles, block conversations, suspend accounts, or preserve audit logs when needed for trust and safety.',
+          title: 'Consequences of Violations',
+          body: 'Nata Connect may remove auditions, hide media, disable public profiles, block conversations, suspend accounts, or preserve audit records when platform standards are violated. Serious or repeated violations may result in permanent suspension.',
         },
       ]}
       cta={{ href: '/safety', label: 'Read safety guidance' }}

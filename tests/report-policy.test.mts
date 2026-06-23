@@ -48,9 +48,13 @@ test('evidence sanitizer redacts contact details and excludes private fields', (
 });
 
 test('priority assignment escalates fraud and unsafe contact reports', () => {
-  assert.equal(getReportPriority('scam_or_fraud'), 'high');
-  assert.equal(getReportPriority('unsafe_contact_request'), 'high');
+  assert.equal(getReportPriority('scam_or_fraud'), 'urgent');
+  assert.equal(getReportPriority('unsafe_contact_request'), 'urgent');
+  assert.equal(getReportPriority('harassment'), 'high');
+  assert.equal(getReportPriority('impersonation'), 'high');
+  assert.equal(getReportPriority('fake_audition'), 'high');
   assert.equal(getReportPriority('inappropriate_content'), 'medium');
+  assert.equal(getReportPriority('misleading_information'), 'medium');
   assert.equal(getReportPriority('spam'), 'low');
 });
 
