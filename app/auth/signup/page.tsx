@@ -86,16 +86,9 @@ export default function SignUp() {
       title="Your next opportunity starts here."
       description="Choose how you use Nata Connect, then build the profile that represents your work."
     >
-        <div className="mb-5 rounded-md border border-[#d5e0e5] bg-[#f0f7fa] px-4 py-3 text-sm leading-6 text-[#3d5560]">
-          <span className="font-black">Private beta — controlled rollout.</span>{' '}
-          You are joining a small trusted group. Your feedback shapes what ships next.{' '}
-          <a href="/beta-feedback" className="font-black text-[#008ca6] hover:underline">
-            Share feedback
-          </a>
-        </div>
         <DevTestCases mode="signup" onSelect={applyTestCase} />
         {error && (
-          <div className="mb-5 border border-red-300 bg-red-50 p-3 text-sm text-red-800">
+          <div className="mb-5 rounded-md border border-amber-300 bg-amber-50 p-3 text-sm font-bold text-amber-900">
             {error}
           </div>
         )}

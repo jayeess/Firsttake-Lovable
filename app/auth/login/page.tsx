@@ -136,7 +136,7 @@ export default function Login() {
     >
         <DevTestCases mode="login" onSelect={applyTestCase} />
         {error && (
-          <div className="mb-5 border border-red-300 bg-red-50 p-3 text-sm text-red-800">
+          <div className="mb-5 rounded-md border border-amber-300 bg-amber-50 p-3 text-sm font-bold text-amber-900">
             {error}
           </div>
         )}

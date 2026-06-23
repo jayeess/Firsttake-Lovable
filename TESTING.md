@@ -396,6 +396,40 @@ After deploying the talent portfolio and recruiter profile experience upgrade pa
 - [ ] "View public portfolio →" link appears in expanded section when talent has publicSlug
 - [ ] `ApplicantDetail` values render `font-bold` (not `font-semibold`)
 
+## Role onboarding and first-session experience checks
+
+After deploying the role onboarding and first-session experience upgrade pass, verify the following manually:
+
+**Signup page** (`/auth/signup`):
+- [ ] No "Private beta — controlled rollout" banner above the role picker
+- [ ] No link to `/beta-feedback` appears on the signup page
+- [ ] Role picker and form are the first visible elements after the page header
+- [ ] Submit with mismatched passwords: error block is amber (`bg-amber-50 border-amber-300 text-amber-900`), `rounded-md`, `font-bold`
+- [ ] No red error styling visible anywhere on the signup page
+
+**Login page** (`/auth/login`):
+- [ ] Submit with wrong password: error block is amber (`bg-amber-50 border-amber-300 text-amber-900`), `rounded-md`, `font-bold`
+- [ ] No red error styling visible anywhere on the login page
+
+**Email verified page** (`/auth/email-verified`):
+- [ ] Open while signed in and verified: description reads "Your Nata Connect account trust status is up to date."
+- [ ] Open while signed out: description reads "Sign in to finish updating your Nata Connect account status."
+- [ ] During status check: description reads "Nata Connect is refreshing your secure account status."
+- [ ] Trust explanation body reads "Email verification helps keep Nata Connect trusted for Talent, Recruiters, and casting teams."
+- [ ] No occurrence of "FirstTake" anywhere on this page in any state
+
+**Email verification prompt** (visible on `/talent/profile`, `/recruiter/profile`, `/dashboard` while unverified):
+- [ ] Click "Send verification email"
+- [ ] Status message reads "Open the link in your inbox, then return here. Nata Connect will check your account status automatically."
+- [ ] No occurrence of "FirstTake" in this message
+
+**Recruiter onboarding checklist** (`/dashboard` — sign in as a new Recruiter with 0 auditions):
+- [ ] Checklist is visible below the hero when 0 auditions posted
+- [ ] "Verify your email" step is unchecked if email is unverified, checked if verified
+- [ ] "Complete your company profile" step reflects actual profile data — NOT pre-checked when profile fields are empty
+- [ ] Steps with `done: false` and an href render as teal links (not plain text, not strikethrough)
+- [ ] Counter "N/4 done" shows the real completion count
+
 ## Private beta launch system checks
 
 After deploying the private beta launch system, verify the following manually:

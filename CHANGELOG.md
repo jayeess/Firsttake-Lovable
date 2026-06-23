@@ -1,5 +1,15 @@
 # Changelog
 
+### Role Onboarding and First-Session Experience Upgrade
+
+- **`app/auth/signup/page.tsx`**: Removed "Private beta — controlled rollout" banner — the first thing new users saw above the role picker was beta language linking to `/beta-feedback`; removed entirely. Error block red styling → amber (`rounded-md border-amber-300 bg-amber-50 text-amber-900 font-bold`) — consistent with validation error convention.
+- **`app/auth/login/page.tsx`**: Error block red styling → amber — same reasoning.
+- **`app/auth/email-verified/page.tsx`**: Four "FirstTake" → "Nata Connect" branding fixes — `verified` state description, `signed_out` state description, `checking` state description, and trust-explanation body copy all contained the repository name instead of the product name.
+- **`components/email-verification-prompt.tsx`**: One "FirstTake" → "Nata Connect" branding fix — status message shown after sending a verification email said "FirstTake will check your account status automatically."
+- **`app/dashboard/page.tsx`**: `RecruiterProfile` type added to imports; `recruiterProfile` state added; RECRUITER `useEffect` renamed local `profile` variable to `rProfile` to avoid shadowing the Talent profile state, and stores the fetched recruiter profile. `RecruiterOnboardingChecklist` receives `profileReady` prop derived from `recruiterProfile?.companyName && recruiterProfile?.bio` — replaces hardcoded `done: true` on the "Complete your company profile" step.
+- Created `ROLE_ONBOARDING_FIRST_SESSION_EXPERIENCE_UPGRADE_REPORT.md`
+- No Firestore rules, APIs, authentication, payment, AI, or storage features changed
+
 ### Trust, Safety and Reporting Experience Upgrade
 
 - **`app/safety/page.tsx`**: Eyebrow "User safety" → "Platform safety"; title → "Safer casting, every step."; description → practical summary; emergency notice simplified; CTA changed from "Share beta feedback" (→ `/beta-feedback`) to "Read community guidelines" (→ `/community-guidelines`); added dedicated "Red Flags for Fake Casting Calls" section; added "How to Report" section explaining the Report button and reporter confidentiality; added "What Happens After You Report" replacing vague "may be reviewed" copy; strengthened Never Pay to Audition, Keep Communication On-Platform, Verified Recruiter Trust Signals; Safe Meeting and Younger Talent sections tightened.

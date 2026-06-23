@@ -1,5 +1,21 @@
 # Full App UX Polish Report
 
+## Role Onboarding and First-Session Experience Upgrade — June 23, 2026
+
+**Goal:** Make the first-session experience feel professional, guided, and clear. Remove the last of the beta language from the entry points, fix branding inconsistencies in the email verification flow, and surface real onboarding progress in the Recruiter dashboard checklist.
+
+Key improvements in this pass:
+
+- **Signup page** (`/auth/signup`): Removed the "Private beta — controlled rollout" banner that appeared above the role picker for every new user — the product should speak for itself at the most important conversion moment. Error block changed from red to amber styling, consistent with validation error convention throughout the app.
+- **Login page** (`/auth/login`): Error block changed from red to amber styling — wrong password is user-recoverable input feedback, not a system failure.
+- **Email verified page** (`/auth/email-verified`): Four "FirstTake" → "Nata Connect" branding fixes across the `verified`, `signed_out`, and `checking` state description strings, plus the trust-explanation body visible in all states. This page is the highest-trust moment in onboarding — the user has just proven they own their email address.
+- **Email verification prompt** (`components/email-verification-prompt.tsx`): One "FirstTake" → "Nata Connect" branding fix in the status message shown after a verification email is sent. This prompt appears on the Talent profile, Recruiter profile, and Recruiter dashboard.
+- **Recruiter onboarding checklist** (`/dashboard`): Fixed hardcoded `done: true` on the "Complete your company profile" step. The dashboard now tracks recruiter profile data in state (`recruiterProfile`), derives `profileReady = Boolean(companyName && bio)`, and passes it to the checklist. A new Recruiter no longer sees a pre-checked profile step the moment they land on the dashboard.
+
+See `ROLE_ONBOARDING_FIRST_SESSION_EXPERIENCE_UPGRADE_REPORT.md` for the full audit, before/after table, and manual test checklist.
+
+---
+
 ## Trust, Safety and Reporting Experience Upgrade — June 23, 2026
 
 **Goal:** Make FirstTake / Nata Connect feel safer and more trustworthy for real casting use. Give Talent clear guidance on scam prevention, reinforce safe communication across messaging, strengthen admin reports with priority context, and escalate the most dangerous report types.

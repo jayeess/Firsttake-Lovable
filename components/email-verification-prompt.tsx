@@ -121,7 +121,7 @@ export function EmailVerificationPrompt() {
       await sendEmailVerification();
       setEmailSent(true);
       setStatus(
-        'Open the link in your inbox, then return here. FirstTake will check your account status automatically.'
+        'Open the link in your inbox, then return here. Nata Connect will check your account status automatically.'
       );
       startPolling();
     } catch (err: unknown) {

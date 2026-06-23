@@ -55,14 +55,14 @@ export default function EmailVerifiedPage() {
           : 'Checking your verification status...';
   const description =
     state === 'verified'
-      ? 'Your FirstTake account trust status is up to date.'
+      ? 'Your Nata Connect account trust status is up to date.'
       : state === 'signed_out'
-        ? 'Sign in to finish updating your FirstTake account status.'
+        ? 'Sign in to finish updating your Nata Connect account status.'
         : state === 'pending'
           ? 'We could not confirm verification yet. Return to your inbox and open the latest verification link, or sign in and check your status again.'
           : state === 'error'
             ? message
-            : 'FirstTake is refreshing your secure account status.';
+            : 'Nata Connect is refreshing your secure account status.';
 
   return (
     <AuthFrame
@@ -84,7 +84,7 @@ export default function EmailVerifiedPage() {
                 : 'Keep your account protected.'}
             </p>
             <p className="mt-2 text-sm leading-6 text-[#657176]">
-              Email verification helps keep FirstTake trusted for Talent,
+              Email verification helps keep Nata Connect trusted for Talent,
               Recruiters, and casting teams.
             </p>
           </div>

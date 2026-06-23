@@ -31,6 +31,7 @@ import type {
   Application,
   ApplicationStatus,
   Audition,
+  RecruiterProfile,
   SavedAudition,
   TalentProfile,
 } from '@/app/lib/types';
@@ -74,6 +75,7 @@ export default function Dashboard() {
   const [auditions, setAuditions] = useState<Audition[]>([]);
   const [savedAuditions, setSavedAuditions] = useState<SavedAudition[]>([]);
   const [profile, setProfile] = useState<TalentProfile | null>(null);
+  const [recruiterProfile, setRecruiterProfile] = useState<RecruiterProfile | null>(null);
   const [firstName, setFirstName] = useState('');
   const [unreadConversationCount, setUnreadConversationCount] = useState(0);
   const [dataLoading, setDataLoading] = useState(true);
@@ -109,15 +111,16 @@ export default function Dashboard() {
       void Promise.all([
         getRecruiterProfile(user.uid),
         getRecruiterAuditions(user.uid),
-      ]).then(([profile, items]) => {
-        if (!profile) {
+      ]).then(([rProfile, items]) => {
+        if (!rProfile) {
           router.replace('/recruiter/profile');
           return;
         }
-        if (!hasRecruiterApproval(user.uid, profile)) {
+        if (!hasRecruiterApproval(user.uid, rProfile)) {
           router.replace('/recruiter/verification');
           return;
         }
+        setRecruiterProfile(rProfile);
         setAuditions(items);
       }).catch((loadError: unknown) => {
         setDataError(
@@ -208,7 +211,10 @@ export default function Dashboard() {
         ) : (
           <>
             {auditions.length === 0 && (
-              <RecruiterOnboardingChecklist emailVerified={emailVerified} />
+              <RecruiterOnboardingChecklist
+                emailVerified={emailVerified}
+                profileReady={Boolean(recruiterProfile?.companyName && recruiterProfile?.bio)}
+              />
             )}
 
             <section className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
@@ -850,10 +856,10 @@ function TalentOnboardingChecklist({
   );
 }
 
-function RecruiterOnboardingChecklist({ emailVerified }: { emailVerified: boolean }) {
+function RecruiterOnboardingChecklist({ emailVerified, profileReady }: { emailVerified: boolean; profileReady: boolean }) {
   const steps = [
     { label: 'Verify your email', done: emailVerified, href: undefined as string | undefined },
-    { label: 'Complete your company profile', done: true, href: '/recruiter/profile' },
+    { label: 'Complete your company profile', done: profileReady, href: '/recruiter/profile' },
     { label: 'Post your first audition', done: false, href: '/recruiter/auditions/new' },
     { label: 'Review applicants', done: false, href: '/recruiter/auditions' },
   ];
