@@ -197,26 +197,38 @@ function NotificationCenter() {
 
       <div className="mt-5 overflow-x-auto border-b border-[#ccd3da]">
         <div className="flex min-w-max gap-1">
-        {notificationFilters.map(({ value, label }) => (
-          <button
-            key={value}
-            type="button"
-            onClick={() => setFilter(value)}
-            className={`min-h-12 rounded-t-md px-4 text-sm font-bold ${
-              filter === value
-                ? 'border-b-2 border-[#008ca6] text-[#008ca6]'
-                : 'text-[#66717c]'
-            }`}
-          >
-            {label}
-            {value === 'ALL' && unreadCount > 0 ? ` (${unreadCount} unread)` : ''}
-          </button>
-        ))}
+        {notificationFilters.map(({ value, label }) => {
+          const categoryUnread =
+            value === 'ALL'
+              ? unreadCount
+              : notifications.filter(
+                  (n) => !n.read && getNotificationCategory(n) === value
+                ).length;
+          return (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setFilter(value)}
+              className={`min-h-12 rounded-t-md px-4 text-sm font-bold ${
+                filter === value
+                  ? 'border-b-2 border-[#008ca6] text-[#008ca6]'
+                  : 'text-[#66717c]'
+              }`}
+            >
+              {label}
+              {categoryUnread > 0
+                ? value === 'ALL'
+                  ? ` (${categoryUnread} unread)`
+                  : ` (${categoryUnread})`
+                : ''}
+            </button>
+          );
+        })}
         </div>
       </div>
 
       {error && (
-        <div className="mt-5 border border-red-300 bg-red-50 p-4 text-sm text-red-800">
+        <div className="mt-5 rounded-md border border-amber-300 bg-amber-50 p-4 text-sm font-bold text-amber-900">
           Notifications could not be updated. Try refreshing the page.
         </div>
       )}
@@ -232,10 +244,18 @@ function NotificationCenter() {
               size={30}
             />
             <h2 className="mt-4 text-xl font-black">
-              {filter === 'ALL' ? 'You are all caught up' : 'No updates here'}
+              {filter === 'ALL' ? 'You are all caught up' : 'Nothing here yet'}
             </h2>
             <p className="mt-2 text-[#68727c]">
-              Application updates and recruiter messages will appear here.
+              {filter === 'APPLICATIONS'
+                ? 'Application status updates — shortlist, callback, final round, and decisions — will appear here.'
+                : filter === 'MESSAGES'
+                  ? 'Notifications from new recruiter messages and conversation activity will appear here.'
+                  : filter === 'AUDITIONS'
+                    ? 'Updates about auditions you follow or have applied to will appear here.'
+                    : filter === 'TRUST'
+                      ? 'Account and trust notices — verification updates, safety alerts — will appear here.'
+                      : 'Application updates, recruiter messages, and casting decisions will appear here.'}
             </p>
           </section>
         ) : (
@@ -282,7 +302,7 @@ function NotificationCenter() {
                   </span>
                 </span>
                 <span className="flex items-center justify-between gap-4 sm:block sm:text-right">
-                  <span className="whitespace-nowrap text-xs font-semibold text-[#7a878d]">
+                  <span className="whitespace-nowrap text-xs font-bold text-[#7a878d]">
                     {formatNotificationTime(notification.createdAt)}
                   </span>
                   {notification.actionUrl && (

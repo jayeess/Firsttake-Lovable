@@ -178,7 +178,7 @@ export default function MessagesPage() {
             message={
               userType === 'RECRUITER'
                 ? 'Applicant conversations will appear here when you message Talent about an audition.'
-                : 'Recruiter conversations will appear here when casting teams contact you.'
+                : 'Conversations appear here when a recruiter messages you about an application, or when you message a casting team.'
             }
           />
         ) : !error && filtered.length === 0 ? (
@@ -223,13 +223,15 @@ export default function MessagesPage() {
                   <span className="mt-2 flex flex-wrap items-center gap-2">
                     <StatusBadge status={conversation.applicationStatus} />
                     <span className="rounded bg-[#f0f4f5] px-2 py-1 text-xs font-bold text-[#657176]">
-                      {userType === 'RECRUITER'
-                        ? 'Applicant conversation'
-                        : 'Recruiter conversation'}
+                      {conversation.status === 'archived'
+                        ? 'Archived'
+                        : userType === 'RECRUITER'
+                          ? 'Applicant conversation'
+                          : 'Audition conversation'}
                     </span>
                   </span>
                   <span className="mt-2 block truncate text-sm text-[#68777e]">
-                    {conversation.lastMessageText || 'Conversation ready'}
+                    {conversation.lastMessageText || 'No messages yet'}
                   </span>
                 </span>
                 <span className="flex items-start justify-between gap-2 text-xs font-bold text-[#7b898f] sm:block sm:text-right">
@@ -257,7 +259,7 @@ export default function MessagesPage() {
           <div className="mt-5 space-y-3 rounded-md border border-white/10 bg-white/5 p-4 text-sm">
             <p className="font-black text-[#ffd66d]">Inbox habits</p>
             <p className="text-white/70">Reply while roles are active.</p>
-            <p className="text-white/70">Avoid sharing personal contact details early.</p>
+            <p className="text-white/70">Never share personal contact details in chat.</p>
             <p className="text-white/70">Report anything that feels unsafe.</p>
           </div>
         </aside>

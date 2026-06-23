@@ -191,6 +191,43 @@ After deploying the core application experience upgrade pass, verify the followi
 **Messages page** (`/messages`):
 - [ ] Page eyebrow reads "Casting inbox" (not "Private casting communication")
 
+## Messaging and notifications experience checks
+
+After deploying the messaging and notifications experience upgrade pass, verify the following manually:
+
+**Messages inbox** (`/messages`):
+- [ ] Talent empty state reads: "Conversations appear here when a recruiter messages you about an application, or when you message a casting team."
+- [ ] Recruiter empty state unchanged: "Applicant conversations will appear here when you message Talent about an audition."
+- [ ] Conversation card with no messages shows "No messages yet" (not "Conversation ready")
+- [ ] Talent: active conversation type chip reads "Audition conversation"
+- [ ] Recruiter: active conversation type chip reads "Applicant conversation"
+- [ ] Archived conversation type chip reads "Archived" (regardless of userType)
+- [ ] Inbox habits aside (xl screen): third bullet reads "Never share personal contact details in chat."
+
+**Conversation detail page** (`/messages/[conversationId]`):
+- [ ] Talent: header eyebrow reads "Audition conversation"
+- [ ] Recruiter: header eyebrow reads "Applicant conversation"
+- [ ] Compose placeholder reads "Message about the role, next steps, or self-tape."
+- [ ] Compose error uses amber styling (not red)
+- [ ] Aside section header reads "Platform safety" (not "Trust reminder")
+- [ ] Aside description reads "This conversation is linked to the casting call application. Keep next steps and decisions here for a clear, shared record."
+- [ ] Talent: return link reads "View in My Applications" → goes to `/applications`
+- [ ] Recruiter: return link reads "Open applicant review" → goes to `/recruiter/auditions/{id}/applicants`
+
+**Notifications** (`/notifications`):
+- [ ] Applications tab shows `(N)` when there are unread application notifications
+- [ ] Messages tab shows `(N)` when there are unread message notifications
+- [ ] Tabs show no count badge when there are zero unread items in that category
+- [ ] Notification error block: amber styling (not red)
+- [ ] Notification timestamp: `font-bold`
+- [ ] Empty state on ALL tab: "Application updates, recruiter messages, and casting decisions will appear here."
+- [ ] Empty state on APPLICATIONS tab: contains "shortlist, callback, final round"
+- [ ] Empty state on MESSAGES tab: mentions "message notifications"
+- [ ] Empty state heading for category tabs: "Nothing here yet" (not "No updates here")
+
+**MetricCard detail text** (global, all pages):
+- [ ] MetricCard detail text renders `font-bold` on auditions, applications, and dashboard pages
+
 ## Applicant pipeline experience checks
 
 After deploying the applicant review and casting pipeline experience upgrade pass, verify the following manually:

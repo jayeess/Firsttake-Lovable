@@ -95,7 +95,7 @@ export function MetricCard({
         )}
       </div>
       {detail && (
-        <p className="mt-2 text-xs font-semibold leading-5 text-[#657176]">
+        <p className="mt-2 text-xs font-bold leading-5 text-[#657176]">
           {detail}
         </p>
       )}

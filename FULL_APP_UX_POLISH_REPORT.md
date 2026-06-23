@@ -1,5 +1,22 @@
 # Full App UX Polish Report
 
+## Messaging and Notifications Experience Upgrade — June 23, 2026
+
+**Goal:** Make messaging and notifications feel like a professional casting communication center. Give Talent and Recruiters the context they need to act on casting updates, stay safe, and return to the right place.
+
+Key improvements in this pass:
+
+- **Messages inbox** (`/messages`): Talent empty state made active; conversation type chip is now role-aware ("Audition conversation" for talent, "Applicant conversation" for recruiter) with "Archived" for archived threads; last-message fallback "Conversation ready" → "No messages yet"; inbox habits "early" → "Never" share contact details.
+- **Conversation detail** (`/messages/[conversationId]`): Header eyebrow is role-aware; compose placeholder is casting-specific ("Message about the role, next steps, or self-tape."); compose error uses amber styling; aside description updated to "This conversation is linked to the casting call application. Keep next steps and decisions here."; trust section renamed "Platform safety"; return link is role-aware ("View in My Applications" / "Open applicant review").
+- **Notifications** (`/notifications`): Per-category unread counts on all filter tabs (not just ALL); context-aware empty states per filter; error block uses amber styling; notification timestamp `font-semibold` → `font-bold`; empty heading for category tabs "No updates here" → "Nothing here yet".
+- **Messaging policy** (`app/lib/messaging-policy.ts`): `buildConversationNotification` uses "Casting conversation started" title and casting-contextual messages.
+- **MetricCard** (`components/product-ui.tsx`): Detail text `font-semibold` → `font-bold` globally.
+- **ApplicationMessageButton** (`components/application-message-button.tsx`): Error text uses amber styling.
+
+See `MESSAGING_NOTIFICATIONS_EXPERIENCE_UPGRADE_REPORT.md` for the full audit, before/after table, and manual test checklist.
+
+---
+
 ## Audition Discovery and Application Conversion Upgrade — June 23, 2026
 
 **Goal:** Make audition discovery feel like a serious casting marketplace. Give Talent the context they need to find the right roles, convert more save-to-apply, and submit with confidence.

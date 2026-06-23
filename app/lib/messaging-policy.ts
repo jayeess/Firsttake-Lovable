@@ -72,11 +72,11 @@ export const buildConversationNotification = ({
   recipientId,
   recipientRole,
   type,
-  title: type === 'conversation_started' ? 'Conversation started' : 'New message',
+  title: type === 'conversation_started' ? 'Casting conversation started' : 'New message',
   message:
     type === 'conversation_started'
-      ? `A conversation was opened for ${auditionTitle}.`
-      : `${preview?.slice(0, 120) || 'You received a new message.'}`,
+      ? `A casting conversation was opened for ${auditionTitle}. Open it to ask questions or discuss next steps.`
+      : `${preview?.slice(0, 120) || 'You received a new message about a casting call.'}`,
   relatedEntityType: 'conversation',
   relatedEntityId: conversationId,
   actionUrl: `/messages/${conversationId}`,

@@ -140,7 +140,7 @@ export default function ConversationPage() {
                   </span>
                   <div className="min-w-0">
                     <p className="text-xs font-black uppercase text-[#7fd0c7]">
-                      Application conversation
+                      {userType === 'RECRUITER' ? 'Applicant conversation' : 'Audition conversation'}
                     </p>
                     <h1 className="mt-2 truncate text-xl font-black sm:text-2xl">
                       {otherName}
@@ -240,7 +240,7 @@ export default function ConversationPage() {
                 </div>
               )}
               {error && (
-                <p className="mb-3 border border-red-300 bg-red-50 p-3 text-sm text-red-800">
+                <p className="mb-3 rounded-md border border-amber-300 bg-amber-50 p-3 text-sm font-bold text-amber-900">
                   We could not complete this action. Try again in a moment.
                 </p>
               )}
@@ -258,7 +258,9 @@ export default function ConversationPage() {
                   rows={3}
                   disabled={readOnly}
                   placeholder={
-                    readOnly ? 'This conversation is read-only.' : 'Write a message'
+                    readOnly
+                      ? 'This conversation is read-only.'
+                      : 'Message about the role, next steps, or self-tape.'
                   }
                   className="field min-h-20 resize-y rounded-md py-3 disabled:bg-[#edf1f3] sm:min-h-24"
                 />
@@ -283,14 +285,14 @@ export default function ConversationPage() {
               {conversation.auditionTitleSnapshot}
             </h2>
             <p className="mt-3 text-sm leading-6 text-[#657176]">
-              This thread exists only because the Talent member applied to this
-              casting call.
+              This conversation is linked to the casting call application. Keep
+              next steps and decisions here for a clear, shared record.
             </p>
             <div className="mt-4 rounded-md bg-[#edf7f5] p-3 text-sm text-[#234b47]">
-              <p className="font-black">Trust reminder</p>
+              <p className="font-black">Platform safety</p>
               <p className="mt-1 leading-6">
-                Keep casting details and next steps here so both sides have a
-                clear record. Never request or send payment to audition in chat.
+                Never share personal contact details or request payment in
+                casting conversations. Keep all communication here.
               </p>
             </div>
             <div className="mt-4 rounded-md border border-[#d7e0e4] p-3 text-sm">
@@ -307,7 +309,7 @@ export default function ConversationPage() {
               }
               className="secondary-button mt-5 flex justify-center"
             >
-              View linked application
+              {userType === 'RECRUITER' ? 'Open applicant review' : 'View in My Applications'}
             </Link>
           </aside>
         </div>

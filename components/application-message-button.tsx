@@ -44,7 +44,7 @@ export function ApplicationMessageButton({
         <MessageSquare aria-hidden="true" size={17} />
         {busy ? 'Opening...' : label}
       </button>
-      {error && <p className="mt-2 text-xs text-red-700">{error}</p>}
+      {error && <p className="mt-2 text-xs font-bold text-amber-700">{error}</p>}
     </div>
   );
 }

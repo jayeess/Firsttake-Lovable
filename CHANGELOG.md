@@ -1,5 +1,16 @@
 # Changelog
 
+### Messaging and Notifications Experience Upgrade
+
+- **`app/messages/page.tsx`**: Talent empty state updated from passive to active copy ("Conversations appear here when a recruiter messages you about an application, or when you message a casting team."); conversation card type chip made role-aware ("Audition conversation" for talent, "Applicant conversation" for recruiter) with "Archived" chip when archived; fallback last-message text "Conversation ready" → "No messages yet"; inbox habits aside: "Avoid sharing personal contact details early." → "Never share personal contact details in chat."
+- **`app/messages/[conversationId]/page.tsx`**: Header eyebrow made role-aware ("Audition conversation" for talent / "Applicant conversation" for recruiter); compose placeholder "Write a message" → "Message about the role, next steps, or self-tape."; compose error red styling → amber (consistent with app convention); aside description updated from clinical system copy to context-setting casting language; aside section "Trust reminder" → "Platform safety"; return link label made role-aware ("View in My Applications" for talent / "Open applicant review" for recruiter).
+- **`app/notifications/page.tsx`**: Per-category unread counts added to all filter tabs (Applications (N), Messages (N) etc.); error block red → amber; notification timestamp `font-semibold` → `font-bold`; empty states made context-aware by filter tab with casting-specific copy for each category; empty state heading for category tabs "No updates here" → "Nothing here yet".
+- **`app/lib/messaging-policy.ts`**: `buildConversationNotification` conversation_started title → "Casting conversation started"; message → "A casting conversation was opened for {title}. Open it to ask questions or discuss next steps."; new_message fallback "You received a new message." → "You received a new message about a casting call."
+- **`components/product-ui.tsx`**: MetricCard detail text `font-semibold` → `font-bold` — affects all MetricCard instances across the app.
+- **`components/application-message-button.tsx`**: Error text `text-red-700` → `font-bold text-amber-700`.
+- Created `MESSAGING_NOTIFICATIONS_EXPERIENCE_UPGRADE_REPORT.md`
+- No Firestore rules, APIs, authentication, payment, AI, or storage features changed
+
 ### Audition Discovery and Application Conversion Upgrade
 
 - **`app/auditions/page.tsx`**: `SafetyNotice` "Never pay to audition" added at page bottom (visible when loaded, whether results or empty state); view description updated from `font-semibold` to `font-bold` with improved copy ("All active casting calls. Use filters to narrow by category, location, or deadline." / "Roles you bookmarked — review and apply before the deadline closes."); MetricCard visible-match detail updated from "Current search result" to "Matching this search"; empty state messages improved — saved view now directs users to browse and bookmark; no-results view makes "clearing all" a concrete action.
