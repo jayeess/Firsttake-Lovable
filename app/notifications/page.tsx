@@ -18,6 +18,7 @@ import {
 import type { AppNotification } from '@/app/lib/types';
 import { AdminShell } from '@/components/admin-shell';
 import { AppShell } from '@/components/app-shell';
+import { LoadingState } from '@/components/async-state';
 import { useAuth } from '@/context/auth-context';
 
 type NotificationFilter =
@@ -222,9 +223,7 @@ function NotificationCenter() {
 
       <div className="mt-5 space-y-3">
         {loading ? (
-          <p className="text-sm font-semibold text-[#657176]">
-            Loading activity...
-          </p>
+          <LoadingState label="Loading activity..." />
         ) : visible.length === 0 ? (
           <section className="surface rounded-md p-7 text-center sm:p-10">
             <Bell

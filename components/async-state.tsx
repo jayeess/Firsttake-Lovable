@@ -16,10 +16,14 @@ export function ErrorState({
   title = 'Something went wrong',
   message,
   onRetry,
+  secondaryHref,
+  secondaryLabel,
 }: {
   title?: string;
   message: string;
   onRetry?: () => void;
+  secondaryHref?: string;
+  secondaryLabel?: string;
 }) {
   return (
     <div
@@ -28,14 +32,23 @@ export function ErrorState({
     >
       <p className="font-black">{title}</p>
       <p className="mt-2 text-sm leading-6">{message}</p>
-      {onRetry && (
-        <button
-          type="button"
-          onClick={onRetry}
-          className="secondary-button mt-4 min-h-10 px-4 text-sm sm:w-auto"
-        >
-          Try again
-        </button>
+      {(onRetry || (secondaryHref && secondaryLabel)) && (
+        <div className="mt-4 flex flex-wrap gap-3">
+          {onRetry && (
+            <button
+              type="button"
+              onClick={onRetry}
+              className="secondary-button min-h-10 px-4 text-sm"
+            >
+              Try again
+            </button>
+          )}
+          {secondaryHref && secondaryLabel && (
+            <Link href={secondaryHref} className="secondary-button min-h-10 px-4 text-sm">
+              {secondaryLabel}
+            </Link>
+          )}
+        </div>
       )}
     </div>
   );

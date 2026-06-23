@@ -131,6 +131,33 @@ After deploying the cinematic trust marketplace design system pass, verify manua
 - [ ] Talent metadata shows as small branded chips (not plain text)
 - [ ] Completeness chip is teal; media count chip is gold
 
+## Production reliability checks
+
+After deploying the production reliability and safe error-state hardening pass, verify
+the following manually:
+
+**Error boundaries:**
+- [ ] `app/error.tsx` — trigger a route-level error (temporarily throw in a page); the
+  branded "Something went wrong." page appears with "Try again" and "Go to workspace" CTAs
+- [ ] `app/global-error.tsx` — exists and is code-valid; triggering requires root layout
+  to fail; visual check in development via `throw new Error()` in layout
+- [ ] Raw `error.message` / `error.digest` content is not visible anywhere in the error UI
+
+**Loading states:**
+- [ ] `app/loading.tsx` — navigate between slow routes; branded teal pulse dot appears
+  during page transitions (may require network throttle to see)
+- [ ] `/notifications` initial load — shows teal pulse `LoadingState`, not plain grey text
+- [ ] `/applications` initial load — shows teal pulse `LoadingState`, not plain grey text
+
+**Suspended account state:**
+- [ ] Suspend a test account from `/admin/users`
+- [ ] Log in as the suspended account — "Contact support" link appears below "Log out"
+- [ ] Link navigates to `/help`
+
+**ErrorState secondary CTA:**
+- [ ] An `ErrorState` rendered with `secondaryHref="/dashboard"` and
+  `secondaryLabel="Go to workspace"` shows both buttons side by side in a flex-wrap row
+
 ## Private beta launch system checks
 
 After deploying the private beta launch system, verify the following manually:

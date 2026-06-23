@@ -3,7 +3,7 @@
 **Telugu name:** నట కనెక్ట్  
 **Document date:** June 23, 2026
 **Repository:** `jayeess/Firsttake-Lovable`  
-**Current stage:** Admin operations hardened — ready for controlled private beta
+**Current stage:** Production reliability hardened — ready for controlled private beta
 
 ## 1. Product Summary
 
@@ -44,6 +44,7 @@ Nata Connect is no longer a static demonstration. It is a working Firebase-backe
 | Security rules | MVP-level | Good role foundations, requires production review |
 | Automated testing | Partial | Policy tests and browser smoke tests exist; emulator tests remain |
 | Admin operations | Hardened | Reporter UID masked in reports, evidence display structured, emailVerified visible in user list, urgency callout on dashboard, card-row replaces HTML table |
+| Error resilience | Hardened | Route error boundary (`app/error.tsx`), root error boundary (`app/global-error.tsx`), page loading state (`app/loading.tsx`), raw error.message passthrough fixed, consistent loading components |
 | Notifications | Implemented in-app | Email foundation exists; real provider delivery and SMS remain future work |
 | Email foundation | Phase 5B implemented | No-op provider mode by default; Resend adapter ready |
 | PWA readiness | Phase 5B implemented | Manifest/installability added; push notifications pending |

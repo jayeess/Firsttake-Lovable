@@ -125,9 +125,17 @@ export function AppShell({
             Sensitive actions are unavailable while the trust and safety team
             reviews this account.
           </p>
-          <button type="button" onClick={handleLogout} className="primary-button mt-6">
-            Log out
-          </button>
+          <div className="mt-6 flex flex-col items-center gap-4">
+            <button type="button" onClick={handleLogout} className="primary-button w-full sm:w-auto">
+              Log out
+            </button>
+            <Link
+              href="/help"
+              className="text-sm font-bold text-[#008ca6] underline-offset-2 hover:underline"
+            >
+              Contact support
+            </Link>
+          </div>
         </section>
       </main>
     );

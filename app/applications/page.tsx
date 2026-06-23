@@ -32,6 +32,7 @@ import {
   SELF_TAPE_STATUS_LABELS,
   validateSelfTapeLink,
 } from '@/app/lib/self-tape-policy';
+import { LoadingState } from '@/components/async-state';
 import { MetricCard, WorkspaceHero } from '@/components/product-ui';
 
 type ApplicationView = 'ACTIVE' | 'SHORTLISTED' | 'COMPLETED' | 'ALL';
@@ -402,9 +403,7 @@ export default function ApplicationsPage() {
 
       <div className="mt-6 space-y-4">
         {loading ? (
-          <p className="text-sm font-semibold text-[#657176]">
-            Loading your applications...
-          </p>
+          <LoadingState label="Loading your applications..." />
         ) : error ? null : filtered.length === 0 ? (
           <div className="surface border-dashed p-10 text-center">
             <h2 className="text-xl font-black">

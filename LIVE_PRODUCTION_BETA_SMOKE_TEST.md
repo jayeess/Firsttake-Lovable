@@ -118,6 +118,9 @@
 | `VERCEL_URL` used as base URL fallback | ✓ | Code-verified in `app-url.ts` |
 | Suspended accounts blocked from sensitive actions | ✓ | Code-verified in auth checks |
 | Safety/community warnings in messages | ✓ | Anti-payment reminder in every conversation |
+| `getErrorMessage()` raw passthrough removed | ✓ | Code-verified: non-auth errors now return `fallback`, not raw SDK message |
+| Route error boundary deployed | ✓ | Code-verified: `app/error.tsx` added — branded, no raw errors |
+| Root error boundary deployed | ✓ | Code-verified: `app/global-error.tsx` added — inline styles, branded |
 
 ---
 

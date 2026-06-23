@@ -370,11 +370,19 @@ Work through this with a real or test Recruiter account.
 - [ ] Error messages use product-safe language (no "Firebase", "Firestore",
       "permission denied", or raw stack traces visible to users).
 - [ ] Empty states have clear messages and next-action CTAs.
-- [ ] SUSPENDED accounts see the restricted-account screen, not an error.
+- [ ] SUSPENDED accounts see the restricted-account screen with "Log out" and
+      "Contact support" link — not an error.
 - [ ] Unverified recruiter sees verification status, not an error.
 - [ ] Non-existent audition shows "no longer available" empty state.
 - [ ] An invalid route (e.g. `/xyzzy`) shows the branded 404 page, not the
       Next.js default 404.
+- [ ] A route-level crash shows the branded `app/error.tsx` page — no raw
+      error text, no Next.js default screen.
+- [ ] The notifications page and applications page show the branded teal pulse
+      loading indicator while data loads (not plain grey text).
+- [ ] `getErrorMessage()` non-auth errors return the safe fallback string —
+      confirmed by checking that no page shows "PERMISSION_DENIED",
+      "firebase", or "firestore" in its error UI.
 
 ---
 

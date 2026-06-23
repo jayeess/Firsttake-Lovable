@@ -1,5 +1,36 @@
 # Changelog
 
+### Production Reliability and Safe Error-State Hardening
+
+- **`app/error.tsx`** (CREATED): Branded route-level error boundary (`'use client'`,
+  `reset` callback). Shows calm "Something went wrong." page with brand header,
+  "Try again" (calls `reset`) and "Go to workspace" (Link to `/dashboard`). Raw
+  `error.message` and `error.digest` never exposed to users.
+- **`app/global-error.tsx`** (CREATED): Root-level error boundary required when
+  the root layout throws. Uses inline styles (Tailwind unavailable at this level),
+  includes `<html><body>` tags, midnight navy background, teal "Reload page" button.
+- **`app/loading.tsx`** (CREATED): Page-transition loading state for Next.js App
+  Router Suspense boundaries. Branded teal pulse dot matching `LoadingState` style.
+- **`app/lib/error-utils.ts`**: Fixed raw `error.message` passthrough at line 30
+  and line 36. Non-auth errors now return `fallback` instead of the raw SDK message.
+  Recognised auth codes (7 entries) still resolve to their friendly messages first.
+- **`components/async-state.tsx`**: Added `secondaryHref` and `secondaryLabel`
+  optional props to `ErrorState`. When provided, a secondary Link button appears
+  alongside "Try again" in a flex-wrap row. All existing callers are unaffected
+  (props are optional).
+- **`components/app-shell.tsx`**: Added "Contact support" Link to `/help` in the
+  suspended account section. Previously the only action was "Log out"; suspended
+  users now have a path to reach support without logging out first.
+- **`app/notifications/page.tsx`**: Replaced bare `<p className="text-sm...">Loading
+  activity...</p>` with `<LoadingState label="Loading activity..." />` for visual
+  consistency with all other loading states.
+- **`app/applications/page.tsx`**: Replaced bare `<p className="text-sm...">Loading
+  your applications...</p>` with `<LoadingState label="Loading your applications..." />`.
+- Created `PRODUCTION_RELIABILITY_HARDENING_REPORT.md` with full audit and
+  before/after summary
+- No Firestore rules, APIs, authentication, payment, AI, or storage features
+  changed
+
 ### Admin Operations Hardening for Private Beta
 
 - **`app/admin/reports/page.tsx`**: Reporter field now shows role only (no UID);

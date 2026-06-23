@@ -27,13 +27,13 @@ export const getErrorMessage = (error: unknown, fallback: string): string => {
     if (matchingCode) {
       return authMessages[matchingCode];
     }
-    return error.message;
+    return fallback;
   }
 
   if (typeof error === 'object' && error !== null && 'message' in error) {
     const message = (error as { message?: unknown }).message;
     if (typeof message === 'string' && message) {
-      return message;
+      return fallback;
     }
   }
 
