@@ -1,5 +1,15 @@
 # Changelog
 
+### Core Application Experience Upgrade
+
+- **`app/auditions/[id]/page.tsx`**: Comprehensive brand alignment — article and aside now use `surface` class; recruiter byline uses teal `font-black uppercase tracking-wide`; title uses `font-black`; apply button uses `primary-button` class; save button gains `rounded-md`; `Detail` and `Section` helper components expanded to multi-line with `font-black` typography; detail grid expanded from 6 to up to 10 fields (Project type, Work mode, Compensation, Languages added as conditional entries); `SafetyNotice` "Never pay to audition" added at bottom of article; back link fixed to `text-[#008ca6]`; apply error upgraded from bare `<p className="text-red-700">` to styled amber block; local label maps `AUDITION_TYPE_LABELS`, `WORK_MODE_LABELS`, `PAYMENT_LABELS` added.
+- **`app/applications/page.tsx`**: Inline amber error `<div>` replaced with `<ErrorState>` component; inline dashed empty-state `<div>` replaced with `<EmptyState actionHref actionLabel>`; recruiter byline separator changed from ` - ` to ` · `; status filter description changed from internal developer copy to user-facing "Narrow results to a specific pipeline stage."
+- **`app/dashboard/page.tsx`**: `TalentOnboardingChecklist` and `RecruiterOnboardingChecklist` eyebrow changed from "Private beta — getting started" to "Getting started" — permanent product guidance, not a beta qualifier.
+- **`app/recruiter/auditions/new/page.tsx`**: Self-tape submission type note changed from "For beta safety, self-tapes use unlisted/private links from trusted video platforms." to "Self-tapes use unlisted or private links from YouTube, Vimeo, or a similar platform." — frames a platform decision as policy, not a temporary restriction.
+- **`app/messages/page.tsx`**: Page eyebrow changed from "Private casting communication" to "Casting inbox" — the user mental model, not a technical description.
+- Created `CORE_APPLICATION_EXPERIENCE_UPGRADE_REPORT.md`
+- No Firestore rules, APIs, authentication, payment, AI, storage, or document upload features changed
+
 ### Production Reliability and Safe Error-State Hardening
 
 - **`app/error.tsx`** (CREATED): Branded route-level error boundary (`'use client'`,

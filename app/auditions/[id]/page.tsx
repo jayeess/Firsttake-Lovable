@@ -23,6 +23,29 @@ import { useAuth } from '@/context/auth-context';
 import { VerifiedBadge } from '@/components/verified-badge';
 import { EmptyState, ErrorState, LoadingState } from '@/components/async-state';
 import { ReportButton } from '@/components/report-button';
+import { SafetyNotice } from '@/components/product-ui';
+
+const AUDITION_TYPE_LABELS: Record<string, string> = {
+  FILM: 'Film',
+  SERIES: 'Series',
+  COMMERCIAL: 'Commercial',
+  THEATRE: 'Theatre',
+  VOICE_OVER: 'Voice over',
+  LIVE_EVENT: 'Live event',
+  OTHER: 'Other',
+};
+
+const WORK_MODE_LABELS: Record<string, string> = {
+  ONSITE: 'Onsite',
+  REMOTE: 'Remote',
+  HYBRID: 'Hybrid',
+};
+
+const PAYMENT_LABELS: Record<string, string> = {
+  PAID: 'Paid',
+  HONORARIUM: 'Honorarium',
+  UNPAID: 'Unpaid',
+};
 
 export default function AuditionDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -112,18 +135,18 @@ export default function AuditionDetailPage() {
 
   return (
     <AppShell>
-      <Link href="/auditions" className="text-sm font-semibold text-[#1f5f91]">
-        Back to auditions
+      <Link href="/auditions" className="text-sm font-bold text-[#008ca6]">
+        ← Back to auditions
       </Link>
       <div className="mt-5 grid gap-6 lg:grid-cols-[1fr_340px]">
-        <article className="border border-[#d9dee5] bg-white p-6">
+        <article className="surface p-5 sm:p-6">
           <div className="flex flex-wrap justify-between gap-4">
             <div>
-              <p className="flex flex-wrap items-center gap-2 font-semibold text-[#1f5f91]">
+              <p className="flex flex-wrap items-center gap-2 text-sm font-black uppercase tracking-wide text-[#008ca6]">
                 {audition.recruiterName ?? 'Recruiter'}
                 {audition.recruiterVerified && <VerifiedBadge />}
               </p>
-              <h1 className="mt-2 text-3xl font-bold">{audition.title}</h1>
+              <h1 className="mt-2 text-2xl font-black leading-tight sm:text-3xl">{audition.title}</h1>
             </div>
             <div className="flex items-center gap-2">
               <StatusBadge status={audition.status} />
@@ -140,7 +163,7 @@ export default function AuditionDetailPage() {
                   onClick={() => void toggleSaved()}
                   disabled={saving}
                   aria-label={saved ? 'Remove saved audition' : 'Save audition'}
-                  className="flex size-10 items-center justify-center border border-[#cbd6db] bg-white disabled:opacity-50"
+                  className="flex size-10 items-center justify-center rounded-md border border-[#cbd6db] bg-white disabled:opacity-50"
                 >
                   <Bookmark
                     className={`size-5 ${
@@ -160,13 +183,25 @@ export default function AuditionDetailPage() {
             <Detail label="Deadline" value={formatDate(audition.deadline)} />
             <Detail label="Duration" value={audition.duration} />
             <Detail label="Positions" value={String(audition.numberOfPositions)} />
+            {audition.auditionType && (
+              <Detail label="Project type" value={AUDITION_TYPE_LABELS[audition.auditionType] ?? audition.auditionType} />
+            )}
+            {audition.workMode && (
+              <Detail label="Work mode" value={WORK_MODE_LABELS[audition.workMode] ?? audition.workMode} />
+            )}
+            {audition.paymentType && audition.paymentType !== 'UNSPECIFIED' && (
+              <Detail label="Compensation" value={PAYMENT_LABELS[audition.paymentType] ?? audition.paymentType} />
+            )}
+            {audition.languages && audition.languages.length > 0 && (
+              <Detail label="Languages" value={audition.languages.join(', ')} />
+            )}
           </div>
           <Section title="About the role" body={audition.description} />
           <Section title="Requirements" body={audition.requirements} />
           {audition.selfTapeEnabled && (
             <section className="mt-7 rounded-md border border-[#bad7d3] bg-[#edf7f5] p-5">
               <p className="eyebrow">Self-tape request</p>
-              <h2 className="mt-2 text-xl font-bold">
+              <h2 className="mt-2 text-xl font-black">
                 {audition.selfTapeRequired
                   ? 'Self-tape required'
                   : 'Optional self-tape'}
@@ -184,10 +219,15 @@ export default function AuditionDetailPage() {
               </p>
             </section>
           )}
-          {audition.payInfo && <Section title="Compensation" body={audition.payInfo} />}
+          {audition.payInfo && <Section title="Compensation details" body={audition.payInfo} />}
+          <div className="mt-7">
+            <SafetyNotice title="Never pay to audition">
+              Legitimate casting calls on Nata Connect do not require fees, deposits, or charges at any stage. If a recruiter asks you to pay, report it immediately.
+            </SafetyNotice>
+          </div>
         </article>
-        <aside className="h-fit border border-[#d9dee5] bg-white p-5">
-          <h2 className="text-xl font-bold">Apply for this role</h2>
+        <aside className="surface h-fit p-5">
+          <h2 className="text-xl font-black">Apply for this role</h2>
           {userType === 'RECRUITER' ? (
             audition.recruiterId === user?.uid ? (
               <>
@@ -209,7 +249,7 @@ export default function AuditionDetailPage() {
             )
           ) : (
             <>
-              <label className="mt-5 block text-sm font-semibold">
+              <label className="mt-5 block text-sm font-bold">
                 Cover message
                 <textarea
                   maxLength={500}
@@ -221,15 +261,15 @@ export default function AuditionDetailPage() {
                 />
               </label>
               {error && (
-                <p className="mt-3 text-sm text-red-700">
-                  We could not complete this action. Try again in a moment.
+                <p className="mt-3 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-bold text-amber-900">
+                  Could not submit — try again in a moment.
                 </p>
               )}
               <button
                 type="button"
                 disabled={applying || audition.status !== 'ACTIVE'}
                 onClick={handleApply}
-                className="mt-4 h-12 w-full bg-[#008ca6] font-semibold text-white disabled:opacity-50"
+                className="primary-button mt-4 w-full"
               >
                 {applying ? 'Submitting...' : 'Submit application'}
               </button>
@@ -242,9 +282,19 @@ export default function AuditionDetailPage() {
 }
 
 function Detail({ label, value }: { label: string; value: string }) {
-  return <div><p className="text-xs font-bold uppercase text-[#78838e]">{label}</p><p className="mt-1 font-semibold">{value}</p></div>;
+  return (
+    <div>
+      <p className="text-[10px] font-black uppercase tracking-wide text-[#7b8a90]">{label}</p>
+      <p className="mt-1 font-black text-[#07111f]">{value}</p>
+    </div>
+  );
 }
 
 function Section({ title, body }: { title: string; body: string }) {
-  return <section className="mt-7"><h2 className="text-xl font-bold">{title}</h2><p className="mt-3 whitespace-pre-line leading-7 text-[#4f5963]">{body}</p></section>;
+  return (
+    <section className="mt-7">
+      <h2 className="text-xl font-black">{title}</h2>
+      <p className="mt-3 whitespace-pre-line leading-7 text-[#4f5963]">{body}</p>
+    </section>
+  );
 }

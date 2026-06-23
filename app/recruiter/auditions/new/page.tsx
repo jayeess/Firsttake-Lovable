@@ -461,8 +461,8 @@ export default function NewAuditionPage() {
                         </label>
                       </div>
                       <p className="mt-3 text-sm leading-6 text-[#657176]">
-                        For beta safety, self-tapes use unlisted/private links
-                        from trusted video platforms.
+                        Self-tapes use unlisted or private links from YouTube,
+                        Vimeo, or a similar platform.
                       </p>
                     </fieldset>
 

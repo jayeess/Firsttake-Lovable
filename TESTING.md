@@ -158,6 +158,39 @@ the following manually:
 - [ ] An `ErrorState` rendered with `secondaryHref="/dashboard"` and
   `secondaryLabel="Go to workspace"` shows both buttons side by side in a flex-wrap row
 
+## Core application experience checks
+
+After deploying the core application experience upgrade pass, verify the following manually:
+
+**Audition detail page** (`/auditions/[id]`):
+- [ ] Article and aside use the branded `surface` border/white card style (not raw `border border-[#d9dee5] bg-white`)
+- [ ] Back link reads "← Back to auditions" in teal (`text-[#008ca6]`)
+- [ ] Recruiter byline is `uppercase tracking-wide` in teal, not `font-semibold text-[#1f5f91]`
+- [ ] Role title uses `font-black`, not `font-bold`
+- [ ] Detail grid shows Project type, Work mode, Compensation, and Languages when set
+- [ ] Apply button matches the `primary-button` global class (rounded, teal bg)
+- [ ] Save/bookmark button has `rounded-md` corners
+- [ ] "Never pay to audition" `SafetyNotice` appears at the bottom of the article
+- [ ] Apply error (if triggered) shows an amber styled block, not a bare red `<p>`
+- [ ] Section headings ("About the role", "Requirements") use `font-black`
+
+**Applications page** (`/applications`):
+- [ ] Network error or forced-error state shows the `ErrorState` branded card — not a raw amber `<div>`
+- [ ] Empty application list shows the `EmptyState` card with "Browse auditions" CTA
+- [ ] Recruiter byline reads "Recruiter Name · Applied 3 Jun 2026" (mid-dot `·`, not dash `-`)
+- [ ] Status filter description reads "Narrow results to a specific pipeline stage."
+
+**Dashboard** (`/dashboard`):
+- [ ] Talent onboarding checklist eyebrow reads "Getting started" (not "Private beta — getting started")
+- [ ] Recruiter onboarding checklist eyebrow reads "Getting started" (not "Private beta — getting started")
+
+**Recruiter new audition** (`/recruiter/auditions/new`):
+- [ ] Self-tape submission type note reads "Self-tapes use unlisted or private links from YouTube, Vimeo, or a similar platform."
+- [ ] No "For beta safety" or "beta" language in the self-tape section
+
+**Messages page** (`/messages`):
+- [ ] Page eyebrow reads "Casting inbox" (not "Private casting communication")
+
 ## Private beta launch system checks
 
 After deploying the private beta launch system, verify the following manually:

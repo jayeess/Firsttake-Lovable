@@ -815,7 +815,7 @@ function TalentOnboardingChecklist({
     <article className="surface mt-5 rounded-md p-4 sm:p-5">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="eyebrow">Private beta — getting started</p>
+          <p className="eyebrow">Getting started</p>
           <h2 className="mt-1 text-lg font-black">Your onboarding checklist</h2>
         </div>
         <p className="shrink-0 text-sm font-black text-[#008ca6]">
@@ -863,7 +863,7 @@ function RecruiterOnboardingChecklist({ emailVerified }: { emailVerified: boolea
     <article className="surface mt-5 rounded-md p-4 sm:p-5">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="eyebrow">Private beta — getting started</p>
+          <p className="eyebrow">Getting started</p>
           <h2 className="mt-1 text-lg font-black">Your onboarding checklist</h2>
         </div>
         <p className="shrink-0 text-sm font-black text-[#008ca6]">

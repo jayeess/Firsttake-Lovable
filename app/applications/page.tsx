@@ -32,7 +32,7 @@ import {
   SELF_TAPE_STATUS_LABELS,
   validateSelfTapeLink,
 } from '@/app/lib/self-tape-policy';
-import { LoadingState } from '@/components/async-state';
+import { EmptyState, ErrorState, LoadingState } from '@/components/async-state';
 import { MetricCard, WorkspaceHero } from '@/components/product-ui';
 
 type ApplicationView = 'ACTIVE' | 'SHORTLISTED' | 'COMPLETED' | 'ALL';
@@ -358,7 +358,7 @@ export default function ApplicationsPage() {
               Status filter
             </p>
             <p className="mt-1 text-sm text-[#657176]">
-              Use this when you need one exact internal status.
+              Narrow results to a specific pipeline stage.
             </p>
           </div>
           <label className="text-sm font-bold sm:min-w-64">
@@ -382,42 +382,27 @@ export default function ApplicationsPage() {
       </div>
 
       {error && (
-        <div className="mt-5 border border-amber-300 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
-          <p className="font-bold">Applications could not be loaded</p>
-          <p className="mt-1">
-            We could not load this section. Try refreshing the page.
-          </p>
-          <button
-            type="button"
-            onClick={() => {
-              setLoading(true);
-              setError('');
-              setReloadKey((current) => current + 1);
-            }}
-            className="mt-3 border border-amber-500 px-4 py-2 font-bold transition hover:bg-amber-100"
-          >
-            Try again
-          </button>
-        </div>
+        <ErrorState
+          title="Applications could not be loaded"
+          message="We could not load this section. Try refreshing the page."
+          onRetry={() => {
+            setLoading(true);
+            setError('');
+            setReloadKey((current) => current + 1);
+          }}
+        />
       )}
 
       <div className="mt-6 space-y-4">
         {loading ? (
           <LoadingState label="Loading your applications..." />
         ) : error ? null : filtered.length === 0 ? (
-          <div className="surface border-dashed p-10 text-center">
-            <h2 className="text-xl font-black">
-              {statusFilter === 'ALL'
-                ? emptyMessages[view]
-                : 'No applications match this status filter.'}
-            </h2>
-            <p className="mt-2 text-[#68727c]">
-              Browse auditions and submit your profile for a role.
-            </p>
-            <Link href="/auditions" className="primary-button mt-5 sm:w-auto">
-              Browse auditions
-            </Link>
-          </div>
+          <EmptyState
+            title={statusFilter === 'ALL' ? emptyMessages[view] : 'No applications match this filter.'}
+            message="Browse casting calls and submit your profile for a role that fits."
+            actionHref="/auditions"
+            actionLabel="Browse auditions"
+          />
         ) : (
           filtered.map((application) => (
             (() => {
@@ -433,8 +418,9 @@ export default function ApplicationsPage() {
                     {application.audition?.title ?? 'Audition'}
                   </h2>
                   <p className="mt-1 text-sm text-[#68727c]">
-                    {application.audition?.recruiterName ?? 'Recruiter'} -
-                    Applied {formatDate(application.createdAt)}
+                    {application.audition?.recruiterName ?? 'Recruiter'}
+                    {' · Applied '}
+                    {formatDate(application.createdAt)}
                   </p>
                 </div>
                 <StatusBadge status={status} />

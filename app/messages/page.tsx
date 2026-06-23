@@ -95,7 +95,7 @@ export default function MessagesPage() {
         <div className="absolute right-0 top-0 h-full w-1/3 bg-[radial-gradient(circle_at_top_right,rgba(0,194,224,0.16),transparent_60%)]" />
         <div className="relative z-10 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="eyebrow">Private casting communication</p>
+            <p className="eyebrow">Casting inbox</p>
             <h1 className="mt-2 text-3xl font-black leading-tight sm:text-4xl">
               Messages
             </h1>

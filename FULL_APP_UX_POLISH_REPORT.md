@@ -1,5 +1,21 @@
 # Full App UX Polish Report
 
+## Core Application Experience Upgrade — June 23, 2026
+
+**Goal:** Make the core product workflow feel like a premium, serious casting platform — not a private beta prototype. Focus on the pages Talent and Recruiters interact with most.
+
+Key improvements in this pass:
+
+- **Audition detail page** (`/auditions/[id]`): Full brand alignment — `surface` on article and aside, `font-black` throughout, teal back link, expanded detail grid (adds Project type, Work mode, Compensation, Languages), `SafetyNotice` "Never pay to audition" at the bottom, `primary-button` class on apply CTA, `rounded-md` on save button, expanded `Detail` and `Section` helper components with brand typography.
+- **Applications page** (`/applications`): Inline amber error `<div>` replaced with branded `<ErrorState>` component; inline dashed empty-state replaced with `<EmptyState>` component; recruiter byline separator changed from dash to mid-dot `·`; status filter description updated from internal developer copy to user-facing product language.
+- **Dashboard** (`/dashboard`): Both onboarding checklists (Talent and Recruiter) updated from "Private beta — getting started" to "Getting started" — the checklists are permanent product guidance, not beta-specific.
+- **Recruiter new audition** (`/recruiter/auditions/new`): Self-tape submission note updated from "For beta safety, self-tapes use unlisted/private links from trusted video platforms." to "Self-tapes use unlisted or private links from YouTube, Vimeo, or a similar platform." — permanent policy language, not a beta qualifier.
+- **Messages page** (`/messages`): Page eyebrow updated from "Private casting communication" to "Casting inbox" — the user mental model.
+
+See `CORE_APPLICATION_EXPERIENCE_UPGRADE_REPORT.md` for the full audit and before/after table.
+
+---
+
 ## Design System Evolution Pass — June 22, 2026
 
 **Goal:** Cinematic Trust Marketplace / Casting Operating System
