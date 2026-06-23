@@ -291,17 +291,25 @@ Work through this with a real or test Recruiter account.
 
 - [ ] Submit a test report from a Talent account.
 - [ ] Open `/admin/reports`.
-- [ ] Start review, inspect the sanitized evidence snapshot.
+- [ ] Confirm "Reporter" field shows role only (`talent` or `recruiter`) — no UID.
+- [ ] Confirm "Target owner" shows last 8 characters only (`…abc12345`).
+- [ ] Expand "Safe evidence snapshot" — key/value list displays, not raw JSON;
+      fields ending in `id` or `uid` show `[internal reference]`.
+- [ ] Expand audit trail — actor shows "Admin", not a raw Firebase UID.
+- [ ] Start review, confirm action buttons require a reason for destructive actions.
 - [ ] Dismiss the test report with an internal note.
 - [ ] Confirm audit log records the resolution.
 
 ### 6.6 User Accounts
 
-- [ ] Open `/admin/users`.
+- [ ] Open `/admin/users` on a desktop viewport (≥ 1024px).
+- [ ] Confirm card-row layout — no HTML table visible.
 - [ ] Search for a test account by email.
-- [ ] Suspend the account.
-- [ ] Confirm the account sees the suspended workspace screen.
-- [ ] Restore the account.
+- [ ] If a test account has `emailVerified: false`, confirm amber "Email unverified"
+      badge is visible.
+- [ ] Suspend the account — confirm red "SUSPENDED" danger badge appears.
+- [ ] Confirm the suspended account sees the restricted-account workspace screen.
+- [ ] Restore the account — confirm badge returns to green.
 
 ### 6.7 Conversations
 
@@ -451,15 +459,15 @@ honestly for operators and beta users.
 
 ## 12. Launch Readiness Score
 
-**Date:** 2026-06-22
-**Evaluator:** End-to-End Flow QA + Beta Launch Readiness Pass
+**Date:** 2026-06-23
+**Evaluator:** End-to-End Flow QA + Beta Launch Readiness Pass + Admin Operations Hardening Pass
 
 | Area | Score | Notes |
 |---|---|---|
 | Core marketplace loop | ✅ Ready | Signup → Profile → Audition → Apply → Review → Message all work |
 | Authentication and sessions | ✅ Ready | Tab-scoped Firebase auth, email verification, password reset |
 | Role access and security | ✅ Ready | AppShell, AdminShell, Firestore rules enforce roles |
-| Admin operations | ✅ Ready | Verification, moderation, audit logs, reports all functional |
+| Admin operations | ✅ Hardened | Verification, moderation, audit logs, reports functional; reporter UID masked, evidence display structured, emailVerified visible, urgency callout added |
 | Error copy and UX polish | ✅ Ready | All raw Firebase errors sanitized, no unsupported CTAs |
 | Mobile experience | ✅ Ready | Safe-area padding, bottom nav, responsive layouts confirmed |
 | Public and legal pages | ✅ Ready (beta) | Beta-appropriate drafts present; legal review needed pre-public |

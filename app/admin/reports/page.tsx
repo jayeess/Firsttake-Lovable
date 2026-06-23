@@ -214,11 +214,15 @@ export default function AdminReportsPage() {
                     <dl className="mt-4 grid gap-4 sm:grid-cols-2">
                       <AdminInfo
                         label="Reporter"
-                        value={`${report.reporterRole} / ${report.reporterId}`}
+                        value={report.reporterRole ?? 'Unknown'}
                       />
                       <AdminInfo
                         label="Target owner"
-                        value={report.targetOwnerId ?? 'Not available'}
+                        value={
+                          report.targetOwnerId
+                            ? `…${report.targetOwnerId.slice(-8)}`
+                            : 'Not available'
+                        }
                       />
                     </dl>
                   </div>
@@ -284,9 +288,7 @@ export default function AdminReportsPage() {
                   <summary className="cursor-pointer text-sm font-black">
                     Safe evidence snapshot
                   </summary>
-                  <pre className="mt-3 overflow-x-auto whitespace-pre-wrap text-xs leading-6 text-[#52636b]">
-                    {JSON.stringify(report.evidenceSnapshots, null, 2)}
-                  </pre>
+                  <SafeEvidenceDisplay data={report.evidenceSnapshots} />
                 </details>
 
                 {(report.events?.length ?? 0) > 0 && (
@@ -297,7 +299,7 @@ export default function AdminReportsPage() {
                     <div className="mt-3 space-y-2">
                       {report.events?.map((event) => (
                         <p key={event.id} className="text-xs text-[#607078]">
-                          <strong>{event.action}</strong> by {event.actorId}
+                          <strong>{event.action.replace(/_/g, ' ')}</strong> — Admin
                           {event.note ? `: ${event.note}` : ''}
                         </p>
                       ))}
@@ -310,6 +312,50 @@ export default function AdminReportsPage() {
         )}
       </div>
     </AdminShell>
+  );
+}
+
+function SafeEvidenceDisplay({ data }: { data: unknown }) {
+  if (data === null || data === undefined) {
+    return <p className="mt-3 text-xs text-[#89969c]">No evidence recorded.</p>;
+  }
+
+  const entries: [string, unknown][] = Array.isArray(data)
+    ? data.map((item, i) => [`item_${i + 1}`, item])
+    : typeof data === 'object'
+      ? Object.entries(data as Record<string, unknown>)
+      : [['value', data]];
+
+  return (
+    <dl className="mt-3 space-y-2">
+      {entries.map(([key, value]) => {
+        const lowerKey = key.toLowerCase();
+        const isSensitiveKey =
+          lowerKey === 'id' ||
+          lowerKey === 'uid' ||
+          lowerKey.endsWith('id') ||
+          lowerKey.endsWith('uid');
+        const displayValue = isSensitiveKey
+          ? '[internal reference]'
+          : typeof value === 'string'
+            ? value.length > 200
+              ? `${value.slice(0, 200)}…`
+              : value
+            : typeof value === 'number' || typeof value === 'boolean'
+              ? String(value)
+              : typeof value === 'object' && value !== null
+                ? '[nested data]'
+                : 'Not available';
+        return (
+          <div key={key} className="grid grid-cols-[minmax(120px,0.4fr)_1fr] gap-2">
+            <dt className="truncate text-[10px] font-black uppercase text-[#7a888f]">
+              {key.replace(/_/g, ' ')}
+            </dt>
+            <dd className="break-words text-xs text-[#3d5560]">{displayValue}</dd>
+          </div>
+        );
+      })}
+    </dl>
   );
 }
 

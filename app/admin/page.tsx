@@ -123,6 +123,26 @@ export default function AdminDashboardPage() {
             </SafetyNotice>
           </section>
 
+          {(data.stats.pendingVerifications > 0 ||
+            data.stats.pendingTalentVerifications > 0) && (
+            <section className="mt-5 flex items-start gap-3 rounded-md border border-amber-300 bg-amber-50 p-4">
+              <ShieldAlert className="mt-0.5 size-4 shrink-0 text-amber-600" aria-hidden="true" />
+              <div>
+                <p className="text-sm font-black text-amber-900">Action needed now</p>
+                <p className="mt-1 text-sm leading-6 text-amber-800">
+                  {[
+                    data.stats.pendingVerifications > 0 &&
+                      `${data.stats.pendingVerifications} recruiter verification${data.stats.pendingVerifications !== 1 ? 's' : ''} pending`,
+                    data.stats.pendingTalentVerifications > 0 &&
+                      `${data.stats.pendingTalentVerifications} Talent check${data.stats.pendingTalentVerifications !== 1 ? 's' : ''} pending`,
+                  ]
+                    .filter(Boolean)
+                    .join(' · ')}
+                </p>
+              </div>
+            </section>
+          )}
+
           <section className="mt-7 grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
             <div className="surface rounded-md p-5">
               <SectionHeader
@@ -164,14 +184,25 @@ export default function AdminDashboardPage() {
                 description="A compact scan of users, auditions, applications, and trust workflows."
               />
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                {Object.entries(data.stats).map(([key, value]) => (
-                  <div key={key} className="rounded-md border border-[#d8e2e6] p-3">
-                    <p className="text-xs font-bold uppercase text-[#657176]">
-                      {labels[key] ?? key}
-                    </p>
-                    <p className="mt-1 text-2xl font-black">{value}</p>
-                  </div>
-                ))}
+                {[
+                  'totalUsers',
+                  'talents',
+                  'recruiters',
+                  'approvedRecruiters',
+                  'activeAuditions',
+                  'totalApplications',
+                  'selfTapeRequests',
+                  'selfTapeSubmissions',
+                ]
+                  .filter((key) => key in data.stats)
+                  .map((key) => (
+                    <div key={key} className="rounded-md border border-[#d8e2e6] p-3">
+                      <p className="text-xs font-bold uppercase text-[#657176]">
+                        {labels[key] ?? key}
+                      </p>
+                      <p className="mt-1 text-2xl font-black">{data.stats[key] ?? 0}</p>
+                    </div>
+                  ))}
               </div>
             </div>
           </section>

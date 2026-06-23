@@ -160,6 +160,33 @@ After deploying the private beta launch system, verify the following manually:
 - [ ] "Beta control center" card visible with four links
 - [ ] All four links resolve to the correct admin routes
 
+## Admin operations hardening checks
+
+Use an admin account to verify the following after the admin operations
+hardening pass:
+
+**Reports page** (`/admin/reports`):
+- [ ] Open any report — "Reporter" field shows role only (e.g., `talent`), no UID
+- [ ] "Target owner" shows last 8 characters only (e.g., `…abc12345`)
+- [ ] Expand "Safe evidence snapshot" — shows key/value list, not raw JSON; any
+      field whose name ends in `id` or `uid` shows `[internal reference]`
+- [ ] Expand audit trail — actor shows `Admin`, not a raw Firebase UID
+- [ ] All action buttons still require a reason for destructive actions
+  (resolve, dismiss, suspend, remove, hide)
+
+**Users page** (`/admin/users` on desktop ≥ 1024px):
+- [ ] Card-row layout visible — no HTML table
+- [ ] A user with `emailVerified: false` shows an amber "Email unverified" badge
+- [ ] A suspended user shows a red badge alongside any email-verification state
+- [ ] Mobile view (< 1024px) also shows email-verified badge when applicable
+
+**Admin dashboard** (`/admin`) urgency callout:
+- [ ] When recruiter or Talent verification queues have pending items, amber
+      "Action needed now" banner appears below the hero with an accurate count
+- [ ] When all queues are empty, the amber banner is absent
+- [ ] Operational summary shows curated stats in priority order (users →
+      talent → recruiters → approved → auditions → applications → self-tape)
+
 ## Admin experience continuity checks
 
 Use an admin account and review the following routes after the Admin continuity

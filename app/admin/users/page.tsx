@@ -20,10 +20,15 @@ type UserRow = {
   email?: string;
   userType?: string;
   accountStatus?: string;
+  emailVerified?: boolean;
 };
 
-const statusTone = (status?: string): AdminStatusTone =>
-  status === 'SUSPENDED' ? 'danger' : 'success';
+const statusTone = (status?: string, emailVerified?: boolean): AdminStatusTone =>
+  status === 'SUSPENDED'
+    ? 'danger'
+    : emailVerified === false
+      ? 'attention'
+      : 'success';
 
 export default function AdminUsersPage() {
   const [items, setItems] = useState<UserRow[]>([]);
@@ -126,38 +131,30 @@ export default function AdminUsersPage() {
               <UserCard key={item.id} item={item} onComplete={load} />
             ))}
           </div>
-          <div className="surface mt-5 hidden overflow-x-auto lg:block">
-            <table className="w-full min-w-[760px] text-left text-sm">
-              <thead className="bg-[#e8eff2] text-xs uppercase text-[#657176]">
-                <tr>
-                  <th className="p-4">User</th>
-                  <th className="p-4">Role</th>
-                  <th className="p-4">Status</th>
-                  <th className="p-4">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((item) => (
-                  <tr key={item.id} className="border-t border-[#e0e6e9]">
-                    <td className="p-4">
-                      <p className="font-bold">{item.email || 'No email'}</p>
-                      <p className="mt-1 max-w-md break-all text-xs text-[#7a878d]">
-                        {item.id}
-                      </p>
-                    </td>
-                    <td className="p-4">{item.userType || 'Unknown'}</td>
-                    <td className="p-4">
-                      <AdminStatusBadge tone={statusTone(item.accountStatus)}>
-                        {item.accountStatus || 'ACTIVE'}
-                      </AdminStatusBadge>
-                    </td>
-                    <td className="p-4">
-                      <UserActions item={item} onComplete={load} />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="mt-5 hidden grid-cols-1 gap-3 lg:grid">
+            {filtered.map((item) => (
+              <article
+                key={item.id}
+                className="surface flex flex-wrap items-center justify-between gap-4 rounded-md p-4"
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="font-black">{item.email || 'No email'}</p>
+                  <p className="mt-1 break-all text-xs text-[#7a878d]">{item.id}</p>
+                </div>
+                <div className="flex shrink-0 flex-wrap items-center gap-3">
+                  <span className="text-xs font-bold uppercase text-[#657176]">
+                    {item.userType || 'Unknown'}
+                  </span>
+                  {item.emailVerified === false && (
+                    <AdminStatusBadge tone="attention">Email unverified</AdminStatusBadge>
+                  )}
+                  <AdminStatusBadge tone={statusTone(item.accountStatus, item.emailVerified)}>
+                    {item.accountStatus || 'ACTIVE'}
+                  </AdminStatusBadge>
+                  <UserActions item={item} onComplete={load} />
+                </div>
+              </article>
+            ))}
           </div>
         </>
       ) : null}
@@ -179,9 +176,14 @@ function UserCard({
           <p className="font-black">{item.email || 'No email'}</p>
           <p className="mt-1 break-all text-xs text-[#7a878d]">{item.id}</p>
         </div>
-        <AdminStatusBadge tone={statusTone(item.accountStatus)}>
-          {item.accountStatus || 'ACTIVE'}
-        </AdminStatusBadge>
+        <div className="flex flex-wrap items-center gap-2">
+          {item.emailVerified === false && (
+            <AdminStatusBadge tone="attention">Email unverified</AdminStatusBadge>
+          )}
+          <AdminStatusBadge tone={statusTone(item.accountStatus, item.emailVerified)}>
+            {item.accountStatus || 'ACTIVE'}
+          </AdminStatusBadge>
+        </div>
       </div>
       <dl className="mt-4">
         <AdminInfo label="Role" value={item.userType || 'Unknown'} />

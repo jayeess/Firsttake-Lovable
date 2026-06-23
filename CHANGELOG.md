@@ -1,5 +1,26 @@
 # Changelog
 
+### Admin Operations Hardening for Private Beta
+
+- **`app/admin/reports/page.tsx`**: Reporter field now shows role only (no UID);
+  target owner shows last 8 chars only; evidence snapshot replaced JSON.stringify
+  dump with structured `SafeEvidenceDisplay` component that redacts fields ending
+  in `id`/`uid` and truncates long values; audit trail actor shows "Admin" instead
+  of raw UID
+- **`app/admin/users/page.tsx`**: Replaced desktop HTML table with card-row
+  `<article>` layout; added `emailVerified?: boolean` to `UserRow` type; updated
+  `statusTone` to return `attention` when `emailVerified === false`; "Email
+  unverified" badge shown in both desktop and mobile views when explicitly false
+- **`app/admin/page.tsx`**: Added amber urgency callout banner that appears only
+  when recruiter or Talent verification queues have pending items; replaced
+  implicit `Object.entries(data.stats)` loop with a curated ordered key list
+  prioritizing users → talent → recruiter → approved → auditions → applications →
+  self-tape
+- Created `ADMIN_OPERATIONS_HARDENING_REPORT.md` with full audit and before/after
+  summary
+- No Firestore rules, APIs, authentication, payment, AI, or storage features
+  changed
+
 ### Cinematic Trust Marketplace Design System Evolution
 
 - Redesigned `components/status-badge.tsx`: replaced generic Tailwind color
