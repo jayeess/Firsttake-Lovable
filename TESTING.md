@@ -223,6 +223,33 @@ After deploying the applicant review and casting pipeline experience upgrade pas
 **Recruiter auditions list** (`/recruiter/auditions`):
 - [ ] Mobile card "Next action:" text uses `font-bold`
 
+## Audition discovery experience checks
+
+After deploying the audition discovery and application conversion upgrade pass, verify the following manually:
+
+**Audition discovery page** (`/auditions`):
+- [ ] View description for "All auditions" tab reads: "All active casting calls. Use filters to narrow by category, location, or deadline."
+- [ ] View description for "Saved" tab reads: "Roles you bookmarked — review and apply before the deadline closes."
+- [ ] View description text uses `font-bold` (not `font-semibold`)
+- [ ] MetricCard for visible/saved count shows detail "Matching this search" (not "Current search result")
+- [ ] Empty state (saved view, no saves): message contains "Browse all auditions and bookmark the roles that fit your profile."
+- [ ] Empty state (all view, no results): message reads "Try removing a filter or clearing all to see every active casting call."
+- [ ] SafetyNotice "Never pay to audition" visible at page bottom after load (results or empty)
+- [ ] SafetyNotice NOT visible during loading state or error state
+
+**Casting brief detail page** (`/auditions/[id]`):
+- [ ] Apply aside shows sub-text: "Your profile and media are included automatically. Use this message to stand out to the casting team."
+- [ ] When audition is CLOSED/CANCELLED/DRAFT: amber notice "This audition is no longer accepting applications." appears above textarea
+- [ ] When not logged in: apply button reads "Log in to apply"
+- [ ] When logged in and audition is ACTIVE: apply button reads "Submit application"
+- [ ] Post-apply guidance text "After applying, track your status in My Applications." visible below button
+
+**Dashboard — Recent applications widget** (`/dashboard`):
+- [ ] APPLIED status reads: "Waiting for the casting team to open your application."
+- [ ] CALLBACK status reads: "You have a callback — watch for a message."
+- [ ] SELECTED status reads: "You were selected. Expect a message with next steps."
+- [ ] REJECTED status reads: "The casting team moved forward with another applicant."
+
 ## Profile and portfolio experience checks
 
 After deploying the talent portfolio and recruiter profile experience upgrade pass, verify the following manually:

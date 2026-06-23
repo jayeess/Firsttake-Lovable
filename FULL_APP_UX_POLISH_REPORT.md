@@ -1,5 +1,19 @@
 # Full App UX Polish Report
 
+## Audition Discovery and Application Conversion Upgrade — June 23, 2026
+
+**Goal:** Make audition discovery feel like a serious casting marketplace. Give Talent the context they need to find the right roles, convert more save-to-apply, and submit with confidence.
+
+Key improvements in this pass:
+
+- **Audition discovery page** (`/auditions`): `SafetyNotice` "Never pay to audition" added at page bottom; view description updated to `font-bold` with casting-specific copy; MetricCard visible-match detail updated from "Current search result" to "Matching this search"; empty state messages made action-oriented with clear next steps.
+- **Casting brief detail** (`/auditions/[id]`): Apply aside gains a context sub-line ("Your profile and media are included automatically."); amber notice when audition is no longer accepting applications; button text adapts for unauthenticated users ("Log in to apply"); post-apply guidance text ("After applying, track your status in My Applications.") added below submit button.
+- **Dashboard** (`/dashboard`): `nextStepMessages` in the Recent Applications widget updated to casting-specific language consistent with the Talent application tracker (e.g. CALLBACK → "You have a callback — watch for a message."; SELECTED → "You were selected. Expect a message with next steps.").
+
+See `AUDITION_DISCOVERY_EXPERIENCE_UPGRADE_REPORT.md` for the full audit, before/after table, and manual test checklist.
+
+---
+
 ## Applicant Review and Casting Pipeline Experience Upgrade — June 23, 2026
 
 **Goal:** Make the Recruiter applicant review workflow feel like a real casting pipeline and give Talent clearer guidance on what each application stage means.

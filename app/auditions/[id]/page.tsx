@@ -249,7 +249,16 @@ export default function AuditionDetailPage() {
             )
           ) : (
             <>
-              <label className="mt-5 block text-sm font-bold">
+              <p className="mt-2 text-sm leading-6 text-[#68727c]">
+                Your profile and media are included automatically. Use this
+                message to stand out to the casting team.
+              </p>
+              {audition.status !== 'ACTIVE' && (
+                <p className="mt-3 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-bold text-amber-900">
+                  This audition is no longer accepting applications.
+                </p>
+              )}
+              <label className="mt-4 block text-sm font-bold">
                 Cover message
                 <textarea
                   maxLength={500}
@@ -271,8 +280,15 @@ export default function AuditionDetailPage() {
                 onClick={handleApply}
                 className="primary-button mt-4 w-full"
               >
-                {applying ? 'Submitting...' : 'Submit application'}
+                {!user
+                  ? 'Log in to apply'
+                  : applying
+                    ? 'Submitting...'
+                    : 'Submit application'}
               </button>
+              <p className="mt-3 text-center text-xs leading-5 text-[#8a9697]">
+                After applying, track your status in My Applications.
+              </p>
             </>
           )}
         </aside>

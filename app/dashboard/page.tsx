@@ -55,16 +55,16 @@ const activeStatuses: ApplicationStatus[] = [
 ];
 
 const nextStepMessages: Record<ApplicationStatus, string> = {
-  APPLIED: 'Your application was sent',
-  VIEWED: 'Recruiter opened your application',
-  UNDER_REVIEW: 'Recruiter is reviewing your profile',
-  MAYBE: 'You are still in consideration',
-  SHORTLISTED: 'You are being considered for next steps',
-  CALLBACK: 'Recruiter may contact you for another round',
-  FINAL_ROUND: 'You moved to final review',
-  SELECTED: 'You were selected',
-  REJECTED: 'This role moved forward with someone else',
-  WITHDRAWN: 'You withdrew this application',
+  APPLIED: 'Waiting for the casting team to open your application.',
+  VIEWED: 'The casting team opened your application.',
+  UNDER_REVIEW: 'Your profile is under active review.',
+  MAYBE: 'You are in the casting pool.',
+  SHORTLISTED: 'You made the shortlist.',
+  CALLBACK: 'You have a callback — watch for a message.',
+  FINAL_ROUND: 'You are in the final casting round.',
+  SELECTED: 'You were selected. Expect a message with next steps.',
+  REJECTED: 'The casting team moved forward with another applicant.',
+  WITHDRAWN: 'You withdrew this application.',
 };
 
 export default function Dashboard() {

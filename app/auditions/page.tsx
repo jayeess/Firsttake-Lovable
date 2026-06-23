@@ -42,7 +42,7 @@ import { AppShell } from '@/components/app-shell';
 import { EmptyState, ErrorState, LoadingState } from '@/components/async-state';
 import { AuditionCard } from '@/components/audition-card';
 import { useAuth } from '@/context/auth-context';
-import { MetricCard, WorkspaceHero } from '@/components/product-ui';
+import { MetricCard, SafetyNotice, WorkspaceHero } from '@/components/product-ui';
 
 const getActiveFilters = (
   filters: AuditionDiscoveryFilters
@@ -214,7 +214,7 @@ export default function AuditionsPage() {
         <MetricCard
           label={filters.savedOnly ? 'Saved matches' : 'Visible matches'}
           value={visible.length}
-          detail="Current search result"
+          detail="Matching this search"
           icon={BriefcaseBusiness}
         />
         <MetricCard
@@ -280,10 +280,10 @@ export default function AuditionsPage() {
               </span>
             </button>
           </div>
-          <p className="text-sm font-semibold text-[#657176]">
+          <p className="text-sm font-bold text-[#657176]">
             {filters.savedOnly
-              ? 'Showing roles you bookmarked for later.'
-              : 'Browse all active casting calls.'}
+              ? 'Roles you bookmarked — review and apply before the deadline closes.'
+              : 'All active casting calls. Use filters to narrow by category, location, or deadline.'}
           </p>
         </div>
 
@@ -492,8 +492,8 @@ export default function AuditionsPage() {
           title={filters.savedOnly ? 'No saved auditions yet' : 'No matching auditions'}
           message={
             filters.savedOnly
-              ? 'Save roles you like and return before the deadline.'
-              : 'Try removing a filter or broadening your search.'
+              ? 'Browse all auditions and bookmark the roles that fit your profile. Return here to apply before the deadline.'
+              : 'Try removing a filter or clearing all to see every active casting call.'
           }
         />
       ) : (
@@ -513,6 +513,13 @@ export default function AuditionsPage() {
               onToggleSaved={() => void toggleSaved(audition.id)}
             />
           ))}
+        </div>
+      )}
+      {!loading && !error && (
+        <div className="mt-6">
+          <SafetyNotice title="Never pay to audition">
+            Legitimate casting calls on Nata Connect are free to apply to. If a recruiter asks you to pay, deposit, or share financial details as part of audition consideration, report them immediately.
+          </SafetyNotice>
         </div>
       )}
     </AppShell>

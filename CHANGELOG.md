@@ -1,5 +1,13 @@
 # Changelog
 
+### Audition Discovery and Application Conversion Upgrade
+
+- **`app/auditions/page.tsx`**: `SafetyNotice` "Never pay to audition" added at page bottom (visible when loaded, whether results or empty state); view description updated from `font-semibold` to `font-bold` with improved copy ("All active casting calls. Use filters to narrow by category, location, or deadline." / "Roles you bookmarked — review and apply before the deadline closes."); MetricCard visible-match detail updated from "Current search result" to "Matching this search"; empty state messages improved — saved view now directs users to browse and bookmark; no-results view makes "clearing all" a concrete action.
+- **`app/auditions/[id]/page.tsx`**: Apply aside gains a sub-line "Your profile and media are included automatically. Use this message to stand out to the casting team."; amber notice added when audition is not ACTIVE ("This audition is no longer accepting applications."); button text adapts for unauthenticated users ("Log in to apply" → "Submit application"); post-apply guidance text added below button ("After applying, track your status in My Applications.").
+- **`app/dashboard/page.tsx`**: `nextStepMessages` in the Recent Applications widget updated to casting-specific language consistent with `app/applications/page.tsx` (e.g. APPLIED → "Waiting for the casting team to open your application."; CALLBACK → "You have a callback — watch for a message."; SELECTED → "You were selected. Expect a message with next steps."; REJECTED → "The casting team moved forward with another applicant.").
+- Created `AUDITION_DISCOVERY_EXPERIENCE_UPGRADE_REPORT.md` with full audit, before/after table, and manual test checklist
+- No Firestore rules, APIs, authentication, payment, AI, or storage features changed
+
 ### Applicant Review and Casting Pipeline Experience Upgrade
 
 - **`app/recruiter/auditions/[id]/applicants/page.tsx`**: Header gains audition meta line (Role, Deadline, Status badge, self-tape count when relevant); pipeline summary restructured from 11 to 8 metrics in a clean `sm:grid-cols-4` layout (removed Role/Deadline/Status — now in header); added "Reviewing" (UNDER_REVIEW) and "Maybe" tabs to pipeline stage filter; status timeline entries now show status-specific descriptions ("Profile received — application in the recruiter inbox.") with "Current —" prefix for the active stage; "Next action" panel added in private casting notes aside with stage-specific guidance; StatusTimeline date `font-semibold` → `font-bold`.
