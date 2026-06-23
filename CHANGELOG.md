@@ -1,5 +1,15 @@
 # Changelog
 
+### Talent Portfolio and Recruiter Profile Experience Upgrade
+
+- **`app/talent/profile/page.tsx`**: `font-semibold` → `font-bold` on all field labels; checkbox label updated from "Public profile enabled" to "Enable public portfolio page"; verification pending copy removes "private-beta" qualifier.
+- **`app/recruiter/profile/page.tsx`**: All form label `font-semibold` → `font-bold`; amber "onboarding phase" notice inside casting-identity section replaced with `PrivacyNote` ("Platform safety expectation") enforcing the no-pay-to-audition rule.
+- **`app/recruiter/verification/page.tsx`**: Page title "Private-beta verification" → "Company verification"; success message updated to "The trust team will review your details and get back to you."; docs section copy removes "beta" framing in all three locations.
+- **`app/t/[slug]/page.tsx`**: Profile card, photo, selected-work section, showreel items, and professional-links section all gain `rounded-md`; skills and languages separated into two distinct labeled chip groups (Skills: neutral grey, Languages: teal-tinted); casting inquiry footer note added.
+- **`app/recruiter/auditions/[id]/applicants/page.tsx`**: Experience level chip added to compact card TalentChip row; "Portfolio" button added to card action row when talent has `publicSlug`; expanded Talent profile section separates skills and languages into labeled rows with distinct chip styles; "View public portfolio →" link added in expanded section; `ApplicantDetail` value `font-semibold` → `font-bold`.
+- Created `PROFILE_EXPERIENCE_UPGRADE_REPORT.md` with full audit, before/after table, and manual test checklist
+- No Firestore rules, APIs, authentication, payment, AI, or storage features changed
+
 ### Core Application Experience Upgrade
 
 - **`app/auditions/[id]/page.tsx`**: Comprehensive brand alignment — article and aside now use `surface` class; recruiter byline uses teal `font-black uppercase tracking-wide`; title uses `font-black`; apply button uses `primary-button` class; save button gains `rounded-md`; `Detail` and `Section` helper components expanded to multi-line with `font-black` typography; detail grid expanded from 6 to up to 10 fields (Project type, Work mode, Compensation, Languages added as conditional entries); `SafetyNotice` "Never pay to audition" added at bottom of article; back link fixed to `text-[#008ca6]`; apply error upgraded from bare `<p className="text-red-700">` to styled amber block; local label maps `AUDITION_TYPE_LABELS`, `WORK_MODE_LABELS`, `PAYMENT_LABELS` added.

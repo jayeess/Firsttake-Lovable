@@ -46,6 +46,7 @@ Nata Connect is no longer a static demonstration. It is a working Firebase-backe
 | Admin operations | Hardened | Reporter UID masked in reports, evidence display structured, emailVerified visible in user list, urgency callout on dashboard, card-row replaces HTML table |
 | Error resilience | Hardened | Route error boundary (`app/error.tsx`), root error boundary (`app/global-error.tsx`), page loading state (`app/loading.tsx`), raw error.message passthrough fixed, consistent loading components |
 | Core product experience | Upgraded | Audition detail page brand-aligned (surface, font-black, SafetyNotice, expanded detail grid); error/empty state components consistent; beta language removed; premium casting copy throughout |
+| Profile and portfolio experience | Upgraded | Talent and recruiter profile forms use font-bold labels; public portfolio has rounded-md cards; skills and languages separated into labeled chip groups; recruiter verification removes all beta language; applicant review shows experience chip and portfolio link |
 | Notifications | Implemented in-app | Email foundation exists; real provider delivery and SMS remain future work |
 | Email foundation | Phase 5B implemented | No-op provider mode by default; Resend adapter ready |
 | PWA readiness | Phase 5B implemented | Manifest/installability added; push notifications pending |

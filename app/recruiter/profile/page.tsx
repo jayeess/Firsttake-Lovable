@@ -321,7 +321,7 @@ export default function RecruiterProfilePage() {
                 ['address', 'Company address', 'text'],
                 ['website', 'Website', 'url'],
               ].map(([key, label, type]) => (
-                <label key={key} className="block text-sm font-semibold">
+                <label key={key} className="block text-sm font-bold">
                   {label}
                   <input
                     type={type}
@@ -341,15 +341,15 @@ export default function RecruiterProfilePage() {
             title="How Talent should understand your team"
             description="Keep the bio specific: project types, casting style, transparency standards, and response expectations."
           >
-            <label className="block text-sm font-semibold">
+            <label className="block text-sm font-bold">
               Company bio
               <textarea maxLength={500} rows={5} value={profile.bio} onChange={(e) => update('bio', e.target.value)} className="field mt-2 py-3" />
             </label>
-            <div className="mt-5 rounded-md border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
-              Verification documents and admin approval are the next onboarding
-              phase. Your profile currently remains pending verification unless
-              already approved.
-            </div>
+            <PrivacyNote title="Platform safety expectation" className="mt-5">
+              Casting briefs on Nata Connect must not charge Talent. Never
+              request fees, deposits, or payments as part of any audition or
+              casting process.
+            </PrivacyNote>
           </ProfileSection>
 
           <div className="sticky bottom-20 z-20 rounded-md border border-[#cbd6db] bg-white/95 p-3 shadow-lg backdrop-blur lg:bottom-4">

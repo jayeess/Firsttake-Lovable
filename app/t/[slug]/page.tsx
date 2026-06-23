@@ -89,11 +89,11 @@ export default async function PublicTalentPage({
       </header>
 
       <div className="mx-auto max-w-6xl px-5 py-8 sm:py-12">
-        <section className="grid gap-7 border border-[#cbd9df] bg-white p-6 shadow-[0_20px_50px_rgba(7,21,36,0.08)] md:grid-cols-[220px_1fr] md:p-8">
+        <section className="rounded-md grid gap-7 border border-[#cbd9df] bg-white p-6 shadow-[0_20px_50px_rgba(7,21,36,0.08)] md:grid-cols-[220px_1fr] md:p-8">
           <div
             role="img"
             aria-label={`${profile.displayName} profile photo`}
-            className="aspect-square w-full max-w-[220px] border border-[#cbd9df] bg-[#dfe9ed] bg-cover bg-center"
+            className="aspect-square w-full max-w-[220px] rounded-md border border-[#cbd9df] bg-[#dfe9ed] bg-cover bg-center"
             style={
               profile.profilePhotoUrl
                 ? { backgroundImage: `url("${profile.profilePhotoUrl}")` }
@@ -134,22 +134,44 @@ export default async function PublicTalentPage({
             </p>
             {((profile.skills ?? []).length > 0 ||
               (profile.languages ?? []).length > 0) && (
-              <div className="mt-6 flex flex-wrap gap-2">
-                {[...(profile.skills ?? []), ...(profile.languages ?? [])].map((item) => (
-                  <span
-                    key={item}
-                    className="border border-[#bfd0d7] bg-[#f4f8fa] px-3 py-1 text-xs font-black"
-                  >
-                    {item}
-                  </span>
-                ))}
+              <div className="mt-6 space-y-3">
+                {(profile.skills ?? []).length > 0 && (
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-wide text-[#7b8a90]">Skills</p>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {(profile.skills ?? []).map((item) => (
+                        <span
+                          key={item}
+                          className="rounded-md border border-[#bfd0d7] bg-[#f4f8fa] px-3 py-1 text-xs font-black"
+                        >
+                          {item}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {(profile.languages ?? []).length > 0 && (
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-wide text-[#7b8a90]">Languages</p>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {(profile.languages ?? []).map((item) => (
+                        <span
+                          key={item}
+                          className="rounded-md border border-[#9fc9c4] bg-[#edf7f5] px-3 py-1 text-xs font-black text-[#006b60]"
+                        >
+                          {item}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
         </section>
 
         {(featured || gallery.length > 0 || showreels.length > 0) && (
-          <section className="mt-7 bg-white px-6 py-8 md:px-8">
+          <section className="mt-7 rounded-md border border-[#cbd9df] bg-white px-6 py-8 md:px-8">
             <div className="flex items-center gap-3">
               <Film aria-hidden="true" className="text-[#008ca6]" />
               <h2 className="text-2xl font-black">Selected work</h2>
@@ -203,7 +225,7 @@ export default async function PublicTalentPage({
                     href={item.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-between gap-4 border border-[#cbd9df] p-4 font-black hover:border-[#008ca6]"
+                    className="flex items-center justify-between gap-4 rounded-md border border-[#cbd9df] p-4 font-black hover:border-[#008ca6]"
                   >
                     {item.title}
                     <ExternalLink aria-hidden="true" size={17} />
@@ -215,7 +237,7 @@ export default async function PublicTalentPage({
         )}
 
         {(profile.instagramUrl || profile.youtubeUrl || profile.websiteUrl) && (
-          <section className="mt-7 border border-[#cbd9df] bg-white p-6 md:p-8">
+          <section className="mt-7 rounded-md border border-[#cbd9df] bg-white p-6 md:p-8">
             <h2 className="text-xl font-black">Professional links</h2>
             <div className="mt-4 flex flex-wrap gap-3">
               {[
@@ -240,6 +262,13 @@ export default async function PublicTalentPage({
             </div>
           </section>
         )}
+        <p className="mt-8 text-center text-sm text-[#7b8a90]">
+          Casting inquiries go through{' '}
+          <Link href="/auth/login" className="font-bold text-[#008ca6] hover:underline">
+            Nata Connect
+          </Link>
+          . Sign up as a Recruiter to post auditions and message Talent directly.
+        </p>
       </div>
     </main>
   );

@@ -191,6 +191,44 @@ After deploying the core application experience upgrade pass, verify the followi
 **Messages page** (`/messages`):
 - [ ] Page eyebrow reads "Casting inbox" (not "Private casting communication")
 
+## Profile and portfolio experience checks
+
+After deploying the talent portfolio and recruiter profile experience upgrade pass, verify the following manually:
+
+**Talent profile** (`/talent/profile`):
+- [ ] All form field labels render `font-bold` (not `font-semibold`)
+- [ ] "Enable public portfolio page" checkbox label visible (was "Public profile enabled")
+- [ ] Verification pending notice reads "verification review queue" with no "private-beta" qualifier
+
+**Public Talent portfolio** (`/t/[slug]`):
+- [ ] Profile card has rounded corners (`rounded-md`)
+- [ ] Profile photo has rounded corners (`rounded-md`)
+- [ ] Skills chips render in neutral grey style with "Skills" label above the group
+- [ ] Languages chips render in teal-tinted style with "Languages" label above the group
+- [ ] Skills and languages render as two separate rows, not one merged group
+- [ ] "Selected work" section has a border and rounded corners
+- [ ] Showreel link items have rounded corners
+- [ ] Professional links section has rounded corners
+- [ ] Footer reads "Casting inquiries go through Nata Connect." with link to `/auth/login`
+- [ ] Page 404s for unknown slugs and for profiles with `enabled: false`
+
+**Recruiter profile** (`/recruiter/profile`):
+- [ ] All form field labels render `font-bold`
+- [ ] Bio section shows teal `PrivacyNote` "Platform safety expectation" (no amber box)
+- [ ] `ReadinessChecklist` still shows all 5 items with correct completion states
+
+**Recruiter verification** (`/recruiter/verification`):
+- [ ] Page title reads "Company verification" (not "Private-beta verification")
+- [ ] Success message reads "Verification submitted. The trust team will review your details and get back to you."
+- [ ] Documents section copy contains no "beta" qualifier
+
+**Applicant review** (`/recruiter/auditions/[id]/applicants`):
+- [ ] TalentChip row shows experience level between category and location chips
+- [ ] "Portfolio" button visible in card action row when talent has a publicSlug; opens `/t/[slug]` in new tab
+- [ ] Expanded "Talent profile" section shows Skills and Languages as two labeled rows
+- [ ] "View public portfolio →" link appears in expanded section when talent has publicSlug
+- [ ] `ApplicantDetail` values render `font-bold` (not `font-semibold`)
+
 ## Private beta launch system checks
 
 After deploying the private beta launch system, verify the following manually:

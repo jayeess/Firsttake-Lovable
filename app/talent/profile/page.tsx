@@ -379,7 +379,7 @@ export default function TalentProfilePage() {
             </div>
             {verificationStatus === 'pending' && (
               <p className="mt-4 rounded-md border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
-                Your profile is in the private-beta review queue. You can keep
+                Your profile is in the verification review queue. You can keep
                 improving it while the review is pending.
               </p>
             )}
@@ -642,9 +642,9 @@ export default function TalentProfilePage() {
               <Field label="Portfolio website">
                 <input type="url" value={profile.websiteUrl} onChange={(e) => update('websiteUrl', e.target.value)} className="field" />
               </Field>
-              <label className="flex min-h-12 items-center gap-3 rounded-md border border-[#d7e2e6] bg-[#f8fbfc] px-3 text-sm font-semibold">
+              <label className="flex min-h-12 items-center gap-3 rounded-md border border-[#d7e2e6] bg-[#f8fbfc] px-3 text-sm font-bold">
                 <input type="checkbox" checked={profile.isPublic} onChange={(e) => update('isPublic', e.target.checked)} />
-                Public profile enabled
+                Enable public portfolio page
               </label>
             </div>
           </ProfileSection>
@@ -662,7 +662,7 @@ export default function TalentProfilePage() {
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <label className="block text-sm font-semibold">
+    <label className="block text-sm font-bold">
       {label}
       <span className="mt-2 block">{children}</span>
     </label>

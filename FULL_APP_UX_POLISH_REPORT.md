@@ -1,5 +1,21 @@
 # Full App UX Polish Report
 
+## Talent Portfolio and Recruiter Profile Experience Upgrade — June 23, 2026
+
+**Goal:** Make Talent profiles, public portfolios, and Recruiter company profiles feel like serious casting-industry assets — not basic account management pages.
+
+Key improvements in this pass:
+
+- **Talent profile editor** (`/talent/profile`): `font-semibold` → `font-bold` on all field labels; checkbox label updated to "Enable public portfolio page"; "private-beta" removed from verification pending copy.
+- **Public Talent portfolio** (`/t/[slug]`): `rounded-md` added to profile card, photo, selected-work section, showreel link items, and professional-links section; skills and languages separated into two distinct labeled chip groups (Skills: neutral grey, Languages: teal-tinted); casting inquiry footer note added for non-authenticated visitors.
+- **Recruiter profile editor** (`/recruiter/profile`): All form labels `font-semibold` → `font-bold`; amber "onboarding phase" notice inside casting-identity section replaced with `PrivacyNote` ("Platform safety expectation") enforcing the no-pay-to-audition rule.
+- **Recruiter verification** (`/recruiter/verification`): All three occurrences of "private-beta" language removed — page title, success message, and documents section.
+- **Applicant review** (`/recruiter/auditions/[id]/applicants`): Experience level chip added to compact card row; "Portfolio" action button links to `/t/[slug]` in a new tab; expanded Talent profile section separates skills and languages with labeled rows; "View public portfolio →" link added in expanded section; `ApplicantDetail` font fixed.
+
+See `PROFILE_EXPERIENCE_UPGRADE_REPORT.md` for the full audit, before/after table, and manual test checklist.
+
+---
+
 ## Core Application Experience Upgrade — June 23, 2026
 
 **Goal:** Make the core product workflow feel like a premium, serious casting platform — not a private beta prototype. Focus on the pages Talent and Recruiters interact with most.

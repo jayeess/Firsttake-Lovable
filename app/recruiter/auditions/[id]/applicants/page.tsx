@@ -647,6 +647,9 @@ function ApplicantCard({
                 <TalentChip>
                   {talent ? CATEGORY_LABELS[talent.category] : 'Category unavailable'}
                 </TalentChip>
+                {talent?.experienceLevel && (
+                  <TalentChip>{EXPERIENCE_LABELS[talent.experienceLevel]}</TalentChip>
+                )}
                 <TalentChip>{talent?.location || 'Location unavailable'}</TalentChip>
                 <TalentChip tone="score">
                   {talent?.profileCompletenessScore ?? 0}% complete
@@ -681,6 +684,16 @@ function ApplicantCard({
               >
                 Open self-tape
               </a>
+            )}
+            {talent?.publicSlug && (
+              <Link
+                href={`/t/${talent.publicSlug}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="secondary-button sm:w-auto"
+              >
+                Portfolio
+              </Link>
             )}
             <button
               type="button"
@@ -830,18 +843,34 @@ function ApplicantCard({
                     <p className="mt-5 leading-7 text-[#4f5963]">{talent.bio}</p>
                   )}
                   {(talent.skills?.length || talent.languages?.length) && (
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      {[...(talent.skills ?? []), ...(talent.languages ?? [])].map(
-                        (item) => (
-                          <span
-                            key={item}
-                            className="border border-[#cbd6db] bg-white px-2.5 py-1 text-xs font-bold"
-                          >
-                            {item}
-                          </span>
-                        )
+                    <div className="mt-4 space-y-2">
+                      {(talent.skills?.length ?? 0) > 0 && (
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <span className="mr-1 text-[10px] font-black uppercase tracking-wide text-[#7b8a90]">Skills</span>
+                          {(talent.skills ?? []).map((item) => (
+                            <span key={item} className="rounded-md border border-[#cbd6db] bg-white px-2.5 py-1 text-xs font-bold">{item}</span>
+                          ))}
+                        </div>
+                      )}
+                      {(talent.languages?.length ?? 0) > 0 && (
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <span className="mr-1 text-[10px] font-black uppercase tracking-wide text-[#7b8a90]">Languages</span>
+                          {(talent.languages ?? []).map((item) => (
+                            <span key={item} className="rounded-md border border-[#9fc9c4] bg-[#edf7f5] px-2.5 py-1 text-xs font-bold text-[#006b60]">{item}</span>
+                          ))}
+                        </div>
                       )}
                     </div>
+                  )}
+                  {talent.publicSlug && (
+                    <Link
+                      href={`/t/${talent.publicSlug}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-4 inline-flex text-sm font-black text-[#008ca6] hover:underline"
+                    >
+                      View public portfolio →
+                    </Link>
                   )}
                 </ReviewSection>
               )}
@@ -1008,7 +1037,7 @@ function ApplicantDetail({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <p className="text-xs font-bold uppercase text-[#778287]">{label}</p>
-      <p className="mt-1 font-semibold capitalize">{value}</p>
+      <p className="mt-1 font-bold capitalize">{value}</p>
     </div>
   );
 }

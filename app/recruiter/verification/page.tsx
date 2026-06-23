@@ -88,7 +88,7 @@ export default function RecruiterVerificationPage() {
       await submitRecruiterVerification(user.uid, user.email, form);
       const updated = await getRecruiterVerification(user.uid);
       setVerification(updated);
-      setMessage('Verification submitted for private-beta admin review.');
+      setMessage('Verification submitted. The trust team will review your details and get back to you.');
     } catch (err: unknown) {
       setError(getErrorMessage(err, 'Unable to submit verification'));
     } finally {
@@ -104,7 +104,7 @@ export default function RecruiterVerificationPage() {
         <p className="eyebrow">Recruiter trust</p>
         <div className="mt-2 flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h1 className="text-3xl font-black">Private-beta verification</h1>
+            <h1 className="text-3xl font-black">Company verification</h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-[#657176]">
               Tell the review team who you are, what you produce, and where your
               professional work can be verified.
@@ -153,9 +153,8 @@ export default function RecruiterVerificationPage() {
           <section className="border border-dashed border-[#9fb6bf] bg-[#f2f7f9] p-5 sm:col-span-2">
             <p className="font-black">Verification documents</p>
             <p className="mt-2 text-sm leading-6 text-[#657176]">
-              For beta verification, the trust team reviews your company
-              details, website, social proof links, and production context from
-              this form.
+              The verification team reviews your company details, website,
+              social proof links, and production description from this form.
             </p>
             <p className="mt-4 rounded-md border border-[#bad7d3] bg-white p-3 text-sm font-bold leading-6 text-[#234b47]">
               Keep sensitive identity documents out of public profile and
