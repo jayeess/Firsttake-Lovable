@@ -64,6 +64,8 @@ const applicantStageTabs: Array<{
   { label: 'All', status: 'ALL' },
   { label: 'New', status: 'APPLIED' },
   { label: 'Viewed', status: 'VIEWED' },
+  { label: 'Reviewing', status: 'UNDER_REVIEW' },
+  { label: 'Maybe', status: 'MAYBE' },
   { label: 'Shortlisted', status: 'SHORTLISTED' },
   { label: 'Callback', status: 'CALLBACK' },
   { label: 'Final Round', status: 'FINAL_ROUND' },
@@ -249,6 +251,27 @@ export default function AuditionApplicantsPage() {
           <h1 className="mt-2 text-2xl font-black leading-tight sm:text-3xl">
             {audition?.title ?? 'Casting workspace'}
           </h1>
+          {audition && (
+            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5">
+              <span className="text-sm font-bold text-[#4a5f69]">
+                {CATEGORY_LABELS[audition.category]}
+              </span>
+              <span className="text-[#aab5bb]" aria-hidden="true">·</span>
+              <span className="text-sm font-bold text-[#4a5f69]">
+                Closes {formatDate(audition.deadline)}
+              </span>
+              <span className="text-[#aab5bb]" aria-hidden="true">·</span>
+              <StatusBadge status={audition.status} />
+              {audition.selfTapeEnabled && selfTapeSubmittedCount > 0 && (
+                <>
+                  <span className="text-[#aab5bb]" aria-hidden="true">·</span>
+                  <span className="text-sm font-bold text-[#4a5f69]">
+                    {selfTapeSubmittedCount} self-tape{selfTapeSubmittedCount !== 1 ? 's' : ''} submitted
+                  </span>
+                </>
+              )}
+            </div>
+          )}
           <p className="mt-2 max-w-2xl text-sm leading-6 text-[#657176]">
             Compare profiles, organize your shortlist, and keep casting
             decisions in one private workspace.
@@ -257,20 +280,17 @@ export default function AuditionApplicantsPage() {
       </header>
 
       <section
-        aria-label="Casting review summary"
-        className="mt-4 grid gap-2 grid-cols-2 sm:grid-cols-3 xl:grid-cols-6"
+        aria-label="Pipeline summary"
+        className="mt-4 grid gap-2 grid-cols-2 sm:grid-cols-4"
       >
-        <ReviewMetric label="Role" value={audition ? CATEGORY_LABELS[audition.category] : 'Loading'} />
-        <ReviewMetric label="Deadline" value={audition ? formatDate(audition.deadline) : 'Loading'} />
-        <ReviewMetric label="Audition status" value={audition?.status ?? 'Loading'} />
         <ReviewMetric label="Total applicants" value={String(applicants.length)} />
-        <ReviewMetric label="New submissions" value={String(counts.APPLIED)} />
-        <ReviewMetric label="Viewed or reviewing" value={String(counts.VIEWED + counts.UNDER_REVIEW)} />
+        <ReviewMetric label="New" value={String(counts.APPLIED)} />
+        <ReviewMetric label="Viewed & reviewing" value={String(counts.VIEWED + counts.UNDER_REVIEW)} />
         <ReviewMetric label="Shortlisted" value={String(counts.SHORTLISTED)} />
         <ReviewMetric label="Callback" value={String(counts.CALLBACK + counts.MAYBE)} />
         <ReviewMetric label="Final round" value={String(counts.FINAL_ROUND)} />
-        <ReviewMetric label="Selected / rejected" value={`${counts.SELECTED} / ${counts.REJECTED}`} />
-        <ReviewMetric label="Self-tapes submitted" value={String(selfTapeSubmittedCount)} />
+        <ReviewMetric label="Selected" value={String(counts.SELECTED)} />
+        <ReviewMetric label="Rejected" value={String(counts.REJECTED)} />
       </section>
 
       <section
@@ -997,6 +1017,15 @@ function ApplicantCard({
                 {busy ? 'Saving review...' : 'Save private review'}
               </button>
 
+              {status !== 'WITHDRAWN' && (
+                <div className="mt-4 rounded-md border border-[#d7e0e4] bg-[#f6f9fa] p-3 text-sm">
+                  <p className="font-black text-[#263238]">Next action</p>
+                  <p className="mt-1 leading-6 text-[#4f5963]">
+                    {getNextRecruiterAction(status)}
+                  </p>
+                </div>
+              )}
+
               <ApplicationMessageButton
                 auditionId={auditionId}
                 applicationId={application.id}
@@ -1066,7 +1095,7 @@ function StatusTimeline({ application }: { application: AuditionApplicant['appli
         >
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <StatusBadge status={item.status} />
-            <span className="text-xs font-semibold text-[#657176]">
+            <span className="text-xs font-bold text-[#657176]">
               {item.changedAt ? formatDate(item.changedAt) : 'Date unavailable'}
             </span>
           </div>
@@ -1079,14 +1108,40 @@ function StatusTimeline({ application }: { application: AuditionApplicant['appli
   );
 }
 
+function getNextRecruiterAction(status: ApplicationStatus): string {
+  const actions: Record<ApplicationStatus, string> = {
+    APPLIED: 'Open this profile and log your first look by moving to Viewed.',
+    VIEWED: 'Review the profile and materials. Move to Shortlisted, Reviewing, or Rejected.',
+    UNDER_REVIEW: 'Compare with your shortlist. Move to Shortlisted, Maybe, or Rejected.',
+    MAYBE: 'Make a final call — Shortlist, Callback, or Reject this application.',
+    SHORTLISTED: 'Confirm your shortlist. Move to Callback or message to discuss next steps.',
+    CALLBACK: 'Discuss next steps via messages. Move to Final Round when ready.',
+    FINAL_ROUND: 'Make the casting decision — Select or Reject.',
+    SELECTED: 'Send a message to share next steps with the Talent member.',
+    REJECTED: 'Application closed. No further action required.',
+    WITHDRAWN: '',
+  };
+  return actions[status] ?? '';
+}
+
 function getRecruiterTimelineCopy(
   status: ApplicationStatus,
   currentStatus: ApplicationStatus
 ) {
-  if (status === currentStatus) {
-    return 'Current casting stage for this applicant.';
-  }
-  return 'Previous casting stage recorded for this application.';
+  const descriptions: Record<ApplicationStatus, string> = {
+    APPLIED: 'Profile received — application in the recruiter inbox.',
+    VIEWED: 'Profile opened by the casting team.',
+    UNDER_REVIEW: 'Actively under recruiter review.',
+    MAYBE: 'Held in the consideration pool before a final decision.',
+    SHORTLISTED: 'Added to the shortlist for this role.',
+    CALLBACK: 'Callback stage — follow up through messages if needed.',
+    FINAL_ROUND: 'In the final casting round.',
+    SELECTED: 'Selected for the role.',
+    REJECTED: 'Application not taken forward.',
+    WITHDRAWN: 'Withdrawn by the Talent member.',
+  };
+  const description = descriptions[status] ?? 'Stage recorded.';
+  return status === currentStatus ? `Current — ${description}` : description;
 }
 
 function getRecruiterSelfTapeLabel(

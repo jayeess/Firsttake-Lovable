@@ -1,5 +1,14 @@
 # Changelog
 
+### Applicant Review and Casting Pipeline Experience Upgrade
+
+- **`app/recruiter/auditions/[id]/applicants/page.tsx`**: Header gains audition meta line (Role, Deadline, Status badge, self-tape count when relevant); pipeline summary restructured from 11 to 8 metrics in a clean `sm:grid-cols-4` layout (removed Role/Deadline/Status — now in header); added "Reviewing" (UNDER_REVIEW) and "Maybe" tabs to pipeline stage filter; status timeline entries now show status-specific descriptions ("Profile received — application in the recruiter inbox.") with "Current —" prefix for the active stage; "Next action" panel added in private casting notes aside with stage-specific guidance; StatusTimeline date `font-semibold` → `font-bold`.
+- **`app/applications/page.tsx`**: All 10 `nextStepMessages` updated with casting-specific, actionable language (APPLIED → "Waiting for the casting team to open your application."; CALLBACK → "You have a callback. Watch for a message from the casting team."; SELECTED → "You were selected. The recruiter will contact you through messages with next steps."; REJECTED → "The casting team moved forward with another applicant. Keep applying..."); Active view description → "In review or awaiting recruiter action"; Shortlisted view description → "Shortlist, callback, and final round"; view tab descriptions `font-semibold` → `font-bold`; `SafetyNotice` "Never pay to audition" added at page bottom.
+- **`app/lib/notification-policy.ts`**: SHORTLISTED, CALLBACK, FINAL_ROUND, REJECTED, and SELECTED notification messages updated with clearer casting language. VIEWED message preserved (test assertion on "opened your application").
+- **`app/recruiter/auditions/page.tsx`**: Mobile card "Next action" text `font-semibold` → `font-bold`.
+- Created `APPLICANT_PIPELINE_EXPERIENCE_UPGRADE_REPORT.md` with full audit, before/after table, and manual test checklist
+- No Firestore rules, APIs, authentication, payment, AI, or storage features changed
+
 ### Talent Portfolio and Recruiter Profile Experience Upgrade
 
 - **`app/talent/profile/page.tsx`**: `font-semibold` → `font-bold` on all field labels; checkbox label updated from "Public profile enabled" to "Enable public portfolio page"; verification pending copy removes "private-beta" qualifier.

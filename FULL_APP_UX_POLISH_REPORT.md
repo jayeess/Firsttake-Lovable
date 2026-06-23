@@ -1,5 +1,20 @@
 # Full App UX Polish Report
 
+## Applicant Review and Casting Pipeline Experience Upgrade — June 23, 2026
+
+**Goal:** Make the Recruiter applicant review workflow feel like a real casting pipeline and give Talent clearer guidance on what each application stage means.
+
+Key improvements in this pass:
+
+- **Recruiter applicant review** (`/recruiter/auditions/[id]/applicants`): Header gains audition meta line (Role, Deadline, Status); pipeline summary restructured from 11 to 8 compact metrics; UNDER_REVIEW ("Reviewing") and MAYBE tabs added; status timeline entries show status-specific descriptions with "Current —" prefix; "Next action" panel added in private casting notes aside with stage-specific guidance; timeline date `font-semibold` → `font-bold`.
+- **Talent application tracker** (`/applications`): All 10 next-step messages updated with actionable, casting-specific language; view tab descriptions updated ("In review or awaiting recruiter action", "Shortlist, callback, and final round"); tab description font `font-semibold` → `font-bold`; `SafetyNotice` "Never pay to audition" added at page bottom.
+- **Notification policy** (`app/lib/notification-policy.ts`): SHORTLISTED, CALLBACK, FINAL_ROUND, REJECTED, and SELECTED messages updated with clearer casting language.
+- **Recruiter auditions list** (`/recruiter/auditions`): Mobile card "Next action:" text `font-semibold` → `font-bold`.
+
+See `APPLICANT_PIPELINE_EXPERIENCE_UPGRADE_REPORT.md` for the full audit, before/after table, and manual test checklist.
+
+---
+
 ## Talent Portfolio and Recruiter Profile Experience Upgrade — June 23, 2026
 
 **Goal:** Make Talent profiles, public portfolios, and Recruiter company profiles feel like serious casting-industry assets — not basic account management pages.

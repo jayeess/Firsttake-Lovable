@@ -129,31 +129,31 @@ export const buildApplicationStatusNotification = ({
     SHORTLISTED: {
       type: 'application_shortlisted',
       title: 'You were shortlisted',
-      message: `You were shortlisted for ${auditionTitle}.`,
+      message: `You were shortlisted for ${auditionTitle}. The casting team will be in touch about next steps.`,
       priority: 'HIGH',
     },
     CALLBACK: {
       type: 'application_callback',
       title: 'Callback requested',
-      message: `You may be contacted for another round for ${auditionTitle}.`,
+      message: `You received a callback for ${auditionTitle}. Watch for a message from the casting team.`,
       priority: 'HIGH',
     },
     FINAL_ROUND: {
       type: 'application_final_round',
       title: 'You moved to Final Round',
-      message: `You moved to the final review stage for ${auditionTitle}.`,
+      message: `You moved to the final casting round for ${auditionTitle}. A decision is being made.`,
       priority: 'HIGH',
     },
     REJECTED: {
       type: 'application_rejected',
       title: 'Application update',
-      message: `This role moved forward with someone else for ${auditionTitle}.`,
+      message: `The casting team for ${auditionTitle} moved forward with another applicant.`,
       priority: 'NORMAL',
     },
     SELECTED: {
       type: 'application_selected',
       title: 'You have been selected',
-      message: `You have been selected for ${auditionTitle}. The recruiter may contact you with next steps.`,
+      message: `You were selected for ${auditionTitle}. The recruiter will contact you through messages with next steps.`,
       priority: 'HIGH',
     },
   };

@@ -191,6 +191,38 @@ After deploying the core application experience upgrade pass, verify the followi
 **Messages page** (`/messages`):
 - [ ] Page eyebrow reads "Casting inbox" (not "Private casting communication")
 
+## Applicant pipeline experience checks
+
+After deploying the applicant review and casting pipeline experience upgrade pass, verify the following manually:
+
+**Recruiter applicant review** (`/recruiter/auditions/[id]/applicants`):
+- [ ] Header shows audition meta line: Role category · Closes date · Status badge
+- [ ] Self-tape count appears in meta line only when self-tape enabled and at least 1 submitted
+- [ ] Pipeline summary shows exactly 8 cards in 2 rows of 4 (on sm+): Total, New, Viewed & reviewing, Shortlisted, Callback, Final round, Selected, Rejected
+- [ ] Pipeline tabs visible: All, New, Viewed, Reviewing, Maybe, Shortlisted, Callback, Final Round, Selected, Rejected
+- [ ] "Reviewing" tab filters to UNDER_REVIEW applicants only
+- [ ] "Maybe" tab filters to MAYBE applicants only
+- [ ] Expanding a card and opening the timeline: each stage shows status-specific description
+- [ ] Current stage in timeline prefixed with "Current —"
+- [ ] "Next action" panel visible in expanded aside when status is not WITHDRAWN
+- [ ] "Next action" panel NOT shown when application is WITHDRAWN
+- [ ] StatusTimeline date uses `font-bold`
+
+**Talent application tracker** (`/applications`):
+- [ ] APPLIED "Next step" reads "Waiting for the casting team to open your application."
+- [ ] SHORTLISTED "Next step" reads "You made the shortlist. The recruiter may message you about next steps."
+- [ ] CALLBACK "Next step" reads "You have a callback. Watch for a message from the casting team."
+- [ ] FINAL_ROUND "Next step" reads "You made the final round. The casting team is making their decision."
+- [ ] SELECTED "Next step" reads "You were selected. The recruiter will contact you through messages with next steps."
+- [ ] REJECTED "Next step" contains "Keep applying — every audition is a separate opportunity."
+- [ ] Active view tab description reads "In review or awaiting recruiter action"
+- [ ] Shortlisted view tab description reads "Shortlist, callback, and final round"
+- [ ] View tab descriptions use `font-bold`
+- [ ] SafetyNotice "Never pay to audition" visible at page bottom
+
+**Recruiter auditions list** (`/recruiter/auditions`):
+- [ ] Mobile card "Next action:" text uses `font-bold`
+
 ## Profile and portfolio experience checks
 
 After deploying the talent portfolio and recruiter profile experience upgrade pass, verify the following manually:

@@ -157,7 +157,7 @@ export default function RecruiterAuditionsPage() {
                 View brief
               </Link>
             </div>
-            <p className="mt-3 text-xs font-semibold text-[#657176]">
+            <p className="mt-3 text-xs font-bold text-[#657176]">
               Next action: open applicants to shortlist, message, select, or
               close the pipeline.
             </p>

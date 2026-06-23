@@ -33,7 +33,7 @@ import {
   validateSelfTapeLink,
 } from '@/app/lib/self-tape-policy';
 import { EmptyState, ErrorState, LoadingState } from '@/components/async-state';
-import { MetricCard, WorkspaceHero } from '@/components/product-ui';
+import { MetricCard, SafetyNotice, WorkspaceHero } from '@/components/product-ui';
 
 type ApplicationView = 'ACTIVE' | 'SHORTLISTED' | 'COMPLETED' | 'ALL';
 
@@ -46,13 +46,13 @@ const applicationViews: Array<{
   {
     value: 'ACTIVE',
     label: 'Active',
-    description: 'Waiting or in review',
+    description: 'In review or awaiting recruiter action',
     statuses: ['APPLIED', 'VIEWED', 'UNDER_REVIEW', 'MAYBE'],
   },
   {
     value: 'SHORTLISTED',
     label: 'Shortlisted',
-    description: 'Strong progress',
+    description: 'Shortlist, callback, and final round',
     statuses: ['SHORTLISTED', 'CALLBACK', 'FINAL_ROUND'],
   },
   {
@@ -80,15 +80,15 @@ const positiveTimeline: ApplicationStatus[] = [
 ];
 
 const nextStepMessages: Record<ApplicationStatus, string> = {
-  APPLIED: 'Your application was sent.',
-  VIEWED: 'Recruiter has opened your application.',
-  UNDER_REVIEW: 'Recruiter is reviewing your profile and materials.',
-  MAYBE: 'You are still in consideration for a possible next step.',
-  SHORTLISTED: 'You are being considered for the next step.',
-  CALLBACK: 'The recruiter may contact you for another round.',
-  FINAL_ROUND: 'You moved to the final review stage.',
-  SELECTED: 'You were selected for this opportunity.',
-  REJECTED: 'This role moved forward with someone else.',
+  APPLIED: 'Waiting for the casting team to open your application.',
+  VIEWED: 'The casting team opened your application and may be reviewing other applicants.',
+  UNDER_REVIEW: 'The casting team is reviewing your profile and materials.',
+  MAYBE: 'You are in the casting pool. Watch for an update.',
+  SHORTLISTED: 'You made the shortlist. The recruiter may message you about next steps.',
+  CALLBACK: 'You have a callback. Watch for a message from the casting team.',
+  FINAL_ROUND: 'You made the final round. The casting team is making their decision.',
+  SELECTED: 'You were selected. The recruiter will contact you through messages with next steps.',
+  REJECTED: 'The casting team moved forward with another applicant. Keep applying — every audition is a separate opportunity.',
   WITHDRAWN: 'You withdrew this application.',
 };
 
@@ -344,7 +344,7 @@ export default function ApplicationsPage() {
                     {getViewCount(applications, item.statuses)}
                   </span>
                 </span>
-                <span className="mt-1 block text-xs font-semibold">
+                <span className="mt-1 block text-xs font-bold">
                   {item.description}
                 </span>
               </button>
@@ -527,6 +527,14 @@ export default function ApplicationsPage() {
             })()
           ))
         )}
+      </div>
+
+      <div className="mt-8">
+        <SafetyNotice title="Never pay to audition">
+          Legitimate casting calls on Nata Connect are free for Talent. Report
+          any recruiter who requests payment, deposits, or personal financial
+          details as part of an audition process.
+        </SafetyNotice>
       </div>
     </AppShell>
   );
