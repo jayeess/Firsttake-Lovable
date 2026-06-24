@@ -591,6 +591,29 @@ Cross-role:
 - Switching between Talent and Recruiter accounts in separate tabs shows the
   correct role-aware shell without cross-contamination.
 
+## Mobile responsiveness and app-like polish checks
+
+After deploying the mobile responsiveness and app-like polish upgrade pass, verify the following manually:
+
+**`LoadingState` and `ErrorState`** (any page with async data — e.g. `/auditions`, `/messages`, `/notifications`):
+- [ ] Loading state renders with visible rounded corners — not flat-edged
+- [ ] Error state renders with visible rounded corners — consistent with surface cards on the page
+- [ ] Empty state continues to use `surface` class (no regression)
+
+**Casting brief detail page** (`/auditions/[id]`) — mobile view (≤1023px):
+- [ ] "Apply for this role" aside section appears **above** the article
+- [ ] Cover message textarea and Submit application button are visible without scrolling
+- [ ] Desktop view (≥1024px): article is in the left column, aside is in the right column — layout unchanged
+
+**New casting brief form** (`/recruiter/auditions/new`) — mobile view:
+- [ ] Page h1 "Build a casting call that attracts the right Talent." renders at `text-2xl` size on mobile — not oversized
+- [ ] At tablet (≥640px): h1 scales to `text-3xl`
+- [ ] At desktop (≥1024px): h1 scales to `text-4xl`
+
+**Recruiter verification** (`/recruiter/verification`):
+- [ ] After submitting: success message has rounded corners and green styling
+- [ ] When admin note is present: the gold border-l-4 admin note block has rounded corners
+
 The dependency-free Node test suite currently covers application eligibility:
 
 - Active audition before its deadline can accept an application

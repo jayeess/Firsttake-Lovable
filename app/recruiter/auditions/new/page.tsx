@@ -318,7 +318,7 @@ export default function NewAuditionPage() {
         <div className="flex flex-wrap items-end justify-between gap-5">
           <div>
             <p className="eyebrow">New casting brief</p>
-            <h1 className="mt-2 text-4xl font-black">Build a casting call that attracts the right Talent.</h1>
+            <h1 className="mt-2 text-2xl font-black sm:text-3xl lg:text-4xl">Build a casting call that attracts the right Talent.</h1>
             <p className="mt-3 max-w-2xl leading-7 text-[#657176]">
               Clear requirements, honest compensation, and a safe process attract stronger applicants.
               Give Talent enough context to know whether the role truly fits.

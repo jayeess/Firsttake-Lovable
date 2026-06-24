@@ -1,5 +1,20 @@
 # Full App UX Polish Report
 
+## Mobile Responsiveness and App-Like Polish Upgrade — June 24, 2026
+
+**Goal:** Make the application feel smoother, cleaner, and more app-like on mobile and laptop screens across all major user journeys. Audit every relevant screen and component for layout, spacing, touch targets, overflow, and visual consistency.
+
+Key improvements in this pass:
+
+- **`components/async-state.tsx`**: Added `rounded-md` to `LoadingState` and `ErrorState`. The `EmptyState` component already used the `surface` class (which includes `rounded-md`), but the other two async states had flat edges. Now all three async-state primitives are visually consistent — used across approximately 14 pages.
+- **`app/auditions/[id]/page.tsx`**: Added `order-first lg:order-none` to `<aside>`. On mobile, the apply CTA (cover message textarea and submit button) now appears above the article. On desktop the two-column layout is unchanged — article on the left, aside on the right. Talent arriving from the discovery list already know the role title; the immediate mobile action is deciding to apply, not scrolling through the full brief first.
+- **`app/recruiter/auditions/new/page.tsx`**: Changed h1 from `text-4xl font-black` to `text-2xl font-black sm:text-3xl lg:text-4xl`. The page heading was oversized on mobile viewports — it now uses the same responsive scale as `WorkspaceHero` across all other workspace pages.
+- **`app/recruiter/verification/page.tsx`**: Added `rounded-md` to the post-submission success message and to the admin review-note block. Both were missing corner rounding that all other inline feedback blocks in the product already have.
+
+See `MOBILE_RESPONSIVENESS_APP_LIKE_POLISH_REPORT.md` for the full audit, inspected files, and manual test checklist.
+
+---
+
 ## Role Onboarding and First-Session Experience Upgrade — June 23, 2026
 
 **Goal:** Make the first-session experience feel professional, guided, and clear. Remove the last of the beta language from the entry points, fix branding inconsistencies in the email verification flow, and surface real onboarding progress in the Recruiter dashboard checklist.

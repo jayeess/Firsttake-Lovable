@@ -128,9 +128,9 @@ export default function RecruiterVerificationPage() {
             }}
           />
         )}
-        {message && <p className="mt-6 border border-green-300 bg-green-50 p-4 text-green-800">{message}</p>}
+        {message && <p className="mt-6 rounded-md border border-green-300 bg-green-50 p-4 text-green-800">{message}</p>}
         {verification?.adminNote && (
-          <div className="mt-6 border-l-4 border-[#e7ad2d] bg-[#fff8e8] p-4">
+          <div className="mt-6 rounded-md border-l-4 border-[#e7ad2d] bg-[#fff8e8] p-4">
             <p className="font-black">Review note</p>
             <p className="mt-2 text-sm leading-6">{verification.adminNote}</p>
           </div>

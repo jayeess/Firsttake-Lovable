@@ -226,7 +226,7 @@ export default function AuditionDetailPage() {
             </SafetyNotice>
           </div>
         </article>
-        <aside className="surface h-fit p-5">
+        <aside className="surface h-fit p-5 order-first lg:order-none">
           <h2 className="text-xl font-black">Apply for this role</h2>
           {userType === 'RECRUITER' ? (
             audition.recruiterId === user?.uid ? (

@@ -1,5 +1,14 @@
 # Changelog
 
+### Mobile Responsiveness and App-Like Polish Upgrade
+
+- **`components/async-state.tsx`**: Added `rounded-md` to `LoadingState` and `ErrorState` containers — `EmptyState` used the `surface` class (which includes rounding) but the other two states had flat edges; now all three async-state components are visually consistent across the ~14 pages that use them.
+- **`app/auditions/[id]/page.tsx`**: Added `order-first lg:order-none` to `<aside>` — on mobile, the apply CTA (cover message textarea, submit button) now appears above the article instead of below it; on desktop the two-column layout is unchanged (article left, aside right).
+- **`app/recruiter/auditions/new/page.tsx`**: h1 `text-4xl font-black` → `text-2xl font-black sm:text-3xl lg:text-4xl` — matches the `WorkspaceHero` responsive heading scale used across all other workspace pages.
+- **`app/recruiter/verification/page.tsx`**: Added `rounded-md` to the post-submission success message and to the admin review-note block — both were missing corner rounding that all other inline feedback blocks have.
+- Created `MOBILE_RESPONSIVENESS_APP_LIKE_POLISH_REPORT.md`
+- No Firestore rules, APIs, authentication, payment, AI, or storage features changed
+
 ### Role Onboarding and First-Session Experience Upgrade
 
 - **`app/auth/signup/page.tsx`**: Removed "Private beta — controlled rollout" banner — the first thing new users saw above the role picker was beta language linking to `/beta-feedback`; removed entirely. Error block red styling → amber (`rounded-md border-amber-300 bg-amber-50 text-amber-900 font-bold`) — consistent with validation error convention.

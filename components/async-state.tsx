@@ -3,7 +3,7 @@ import Link from 'next/link';
 export function LoadingState({ label = 'Loading...' }: { label?: string }) {
   return (
     <div
-      className="mt-6 flex items-center gap-3 border border-[#cbd8dd] bg-white p-5 text-sm font-bold text-[#657176] sm:p-6"
+      className="mt-6 flex items-center gap-3 rounded-md border border-[#cbd8dd] bg-white p-5 text-sm font-bold text-[#657176] sm:p-6"
       role="status"
     >
       <span className="size-2.5 shrink-0 rounded-full bg-[#00c2e0] shadow-[0_0_0_6px_rgba(0,194,224,0.12)]" />
@@ -27,7 +27,7 @@ export function ErrorState({
 }) {
   return (
     <div
-      className="mt-6 border border-amber-300 bg-amber-50 p-5 text-amber-950 sm:p-6"
+      className="mt-6 rounded-md border border-amber-300 bg-amber-50 p-5 text-amber-950 sm:p-6"
       role="alert"
     >
       <p className="font-black">{title}</p>
