@@ -142,7 +142,7 @@ export default function Login() {
         )}
 
         {!authLoading && user && (
-          <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border border-[#b8dce3] bg-[#edf9fb] p-4 text-sm">
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-md border border-[#b8dce3] bg-[#edf9fb] p-4 text-sm">
             <div className="min-w-0">
               <p className="font-black text-[#07111f]">Current tab session</p>
               <p className="mt-1 truncate text-[#526874]">{user.email}</p>

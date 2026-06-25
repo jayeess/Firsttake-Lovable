@@ -283,13 +283,13 @@ export default function AdminReportsPage() {
                 </div>
 
                 {report.reasonText && (
-                  <div className="mt-5 border-l-2 border-[#e7ad2d] bg-[#fffaf0] p-4 text-sm leading-6">
+                  <div className="mt-5 rounded-md border-l-2 border-[#e7ad2d] bg-[#fffaf0] p-4 text-sm leading-6">
                     <p className="mb-2 text-[10px] font-black uppercase tracking-wide text-[#6b5a00]">Reporter note</p>
                     {report.reasonText}
                   </div>
                 )}
 
-                <details className="mt-5 border border-[#d7e0e4] bg-[#f7fafb] p-4">
+                <details className="mt-5 rounded-md border border-[#d7e0e4] bg-[#f7fafb] p-4">
                   <summary className="cursor-pointer text-sm font-black">
                     Safe evidence snapshot
                   </summary>
@@ -297,7 +297,7 @@ export default function AdminReportsPage() {
                 </details>
 
                 {(report.events?.length ?? 0) > 0 && (
-                  <details className="mt-3 border border-[#d7e0e4] p-4">
+                  <details className="mt-3 rounded-md border border-[#d7e0e4] p-4">
                     <summary className="cursor-pointer text-sm font-black">
                       Audit trail ({report.events?.length})
                     </summary>

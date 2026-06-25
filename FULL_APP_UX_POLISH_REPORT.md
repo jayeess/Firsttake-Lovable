@@ -1,5 +1,21 @@
 # Full App UX Polish Report
 
+## Final Production QA and Live Validation Pass — June 24, 2026
+
+**Goal:** Validate the whole application as one connected product after all recent UX upgrade passes. Confirm all three user journeys, mobile/laptop usability, safety/trust messaging, and deployment readiness. Fix only clear issues found — no redesign or new features.
+
+Six targeted fixes applied:
+
+- **`app/dashboard/page.tsx`**: Auth error block `<p>` missing `rounded-md` — fixed. Recruiter hero CTA "Post an audition" → "Post a casting brief" — the auditions list WorkspaceHero, the quick-action card on the same dashboard view, and the form page itself all use "casting brief" language; the hero was the only outlier.
+- **`app/auth/login/page.tsx`**: "Current tab session" info box missing `rounded-md` — fixed. This box appears when the user is already authenticated in the same tab and shows their email with a "Continue" button; all other bordered info blocks in the product have `rounded-md`.
+- **`app/admin/reports/page.tsx`**: Three bordered blocks missing `rounded-md` — reporter note (gold left-border highlight), "Safe evidence snapshot" `<details>`, and "Audit trail" `<details>` — all fixed. Admin uses these blocks when reviewing every report.
+
+All other pages, routes, CTAs, copy, navigation flows, and error/loading states were found to be correct. No route failures, broken links, TypeScript errors, or test failures. Lint: ✓, 70/70 tests: ✓, build: ✓, 55 routes.
+
+See `FINAL_PRODUCTION_QA_LIVE_VALIDATION_REPORT.md` for the full journey-by-journey audit, manual live check checklist, and deployment notes.
+
+---
+
 ## Mobile Responsiveness and App-Like Polish Upgrade — June 24, 2026
 
 **Goal:** Make the application feel smoother, cleaner, and more app-like on mobile and laptop screens across all major user journeys. Audit every relevant screen and component for layout, spacing, touch targets, overflow, and visual consistency.

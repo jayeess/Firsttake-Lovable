@@ -167,14 +167,14 @@ export default function Dashboard() {
               </p>
             </div>
             <Link href="/recruiter/auditions/new" className="primary-button sm:w-auto">
-              Post an audition
+              Post a casting brief
             </Link>
           </div>
         </section>
       )}
 
       {error && (
-        <p className="mt-6 border border-amber-300 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
+        <p className="mt-6 rounded-md border border-amber-300 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
           We could not confirm account access. Try refreshing the page.
         </p>
       )}

@@ -591,6 +591,30 @@ Cross-role:
 - Switching between Talent and Recruiter accounts in separate tabs shows the
   correct role-aware shell without cross-contamination.
 
+## Final production QA and live validation checks
+
+After the final production QA pass, verify the following manually:
+
+**Auth pages:**
+- [ ] Signup: role picker, no beta banner, amber error block with `rounded-md`
+- [ ] Login: amber error block, "Current tab session" box has `rounded-md`
+- [ ] Email verified: all states read "Nata Connect" (not "FirstTake")
+
+**Talent dashboard (`/dashboard`):**
+- [ ] Auth error block (if triggered) shows `rounded-md` amber styling
+- [ ] Onboarding checklist: "Submit your first application" step is NOT pre-checked when zero applications exist
+- [ ] Profile readiness card: completeness % matches actual profile data
+
+**Recruiter dashboard (`/dashboard` — Recruiter role):**
+- [ ] Hero primary CTA reads "Post a casting brief" (not "Post an audition")
+- [ ] Quick-action card "Post a brief" → `/recruiter/auditions/new`
+- [ ] Both CTAs are consistently "casting brief" language
+
+**Admin reports (`/admin/reports`):**
+- [ ] Reporter note block has `rounded-md` and gold left border
+- [ ] "Safe evidence snapshot" `<details>` has `rounded-md`
+- [ ] "Audit trail" `<details>` has `rounded-md`
+
 ## Mobile responsiveness and app-like polish checks
 
 After deploying the mobile responsiveness and app-like polish upgrade pass, verify the following manually:

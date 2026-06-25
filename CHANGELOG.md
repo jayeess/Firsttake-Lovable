@@ -1,5 +1,13 @@
 # Changelog
 
+### Final Production QA and Live Validation Pass
+
+- **`app/dashboard/page.tsx`**: Auth error block `<p>` missing `rounded-md` — fixed. Recruiter hero CTA "Post an audition" → "Post a casting brief" — now consistent with WorkspaceHero on the auditions list page, the quick-action card on the same dashboard, and all other Recruiter-facing CTA copy.
+- **`app/auth/login/page.tsx`**: "Current tab session" info box (`border border-[#b8dce3] bg-[#edf9fb]`) missing `rounded-md` — fixed.
+- **`app/admin/reports/page.tsx`**: Three bordered blocks missing `rounded-md` — reporter note (`border-l-2 border-[#e7ad2d] bg-[#fffaf0]`), "Safe evidence snapshot" `<details>`, and "Audit trail" `<details>` — all fixed.
+- Created `FINAL_PRODUCTION_QA_LIVE_VALIDATION_REPORT.md` — full QA pass covering Talent, Recruiter, and Admin journeys, mobile/laptop validation, safety/trust messaging, and live check checklist
+- No Firestore rules, APIs, authentication, payment, AI, or storage features changed
+
 ### Mobile Responsiveness and App-Like Polish Upgrade
 
 - **`components/async-state.tsx`**: Added `rounded-md` to `LoadingState` and `ErrorState` containers — `EmptyState` used the `surface` class (which includes rounding) but the other two states had flat edges; now all three async-state components are visually consistent across the ~14 pages that use them.
