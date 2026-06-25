@@ -42,7 +42,13 @@ import { AppShell } from '@/components/app-shell';
 import { EmptyState, ErrorState, LoadingState } from '@/components/async-state';
 import { AuditionCard } from '@/components/audition-card';
 import { useAuth } from '@/context/auth-context';
-import { MetricCard, SafetyNotice, WorkspaceHero } from '@/components/product-ui';
+import {
+  CinematicSectionHeader,
+  MetricCard,
+  NextActionPanel,
+  SafetyNotice,
+  WorkspaceHero,
+} from '@/components/product-ui';
 
 const getActiveFilters = (
   filters: AuditionDiscoveryFilters
@@ -239,11 +245,33 @@ export default function AuditionsPage() {
         />
       </section>
 
+      <div className="mt-5">
+        <NextActionPanel
+          eyebrow="Casting radar"
+          title={
+            filters.savedOnly
+              ? 'Review saved briefs and choose the strongest fit.'
+              : 'Search, compare, save, then apply with context.'
+          }
+          description="Use the filters to find roles that match your profile, bookmark promising casting briefs, and keep every submitted role visible in your application tracker."
+          actionHref={filters.savedOnly ? '/auditions' : '/applications'}
+          actionLabel={filters.savedOnly ? 'View all auditions' : 'Track applications'}
+          secondaryHref="/talent/profile"
+          secondaryLabel="Improve profile"
+          icon={Search}
+        />
+      </div>
+
       <section
         aria-label="Audition search and filters"
         className="mt-6 rounded-md border border-[#cbd6db] bg-white/95 p-3 shadow-sm sm:p-4"
       >
-        <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <CinematicSectionHeader
+          eyebrow="Discovery controls"
+          title="Find the right casting brief faster."
+          description="Search by role, project, company, location, language, trust status, and deadline without losing your saved shortlist."
+        />
+        <div className="mb-3 mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div
             className="grid grid-cols-2 rounded-md border border-[#cbd6db] bg-[#f5f8f9] p-1 sm:inline-grid"
             role="tablist"

@@ -1,5 +1,20 @@
 # Nata Connect development test cases
 
+## Cinematic product flow checks
+
+After the Cinematic Casting OS transformation pass, verify the following UI-only flows:
+
+- [ ] `/` shows "Join the network" and explains Talent, Recruiter, trust, and casting pipeline flows clearly.
+- [ ] `/auditions` shows the casting radar panel, saved/all view switch, search, sort, and filters without changing filter behavior.
+- [ ] `/auditions/[id]` shows the safe application path panel and the existing apply/save/report controls still work.
+- [ ] `/applications` shows the application pipeline panel and status-board header; self-tape and withdrawal actions still behave as before.
+- [ ] `/messages` shows the casting communication center and safer messaging trust cue.
+- [ ] `/notifications` routes panel CTAs correctly for normal users and admin users.
+- [ ] `/recruiter/auditions` shows the casting-room panel and existing publish/review links still work.
+- [ ] `/recruiter/auditions/[id]/applicants` shows the casting-board panel and existing status update, notes, rating, tags, self-tape review, and message controls still work.
+
+See `CINEMATIC_PRODUCT_DESIGN_FLOW_TRANSFORMATION_REPORT.md` for the full design-flow audit and manual checklist.
+
 The login and signup screens display a small test-case panel only while running
 `npm run dev`.
 

@@ -23,7 +23,7 @@ import { useAuth } from '@/context/auth-context';
 import { VerifiedBadge } from '@/components/verified-badge';
 import { EmptyState, ErrorState, LoadingState } from '@/components/async-state';
 import { ReportButton } from '@/components/report-button';
-import { SafetyNotice } from '@/components/product-ui';
+import { NextActionPanel, SafetyNotice } from '@/components/product-ui';
 
 const AUDITION_TYPE_LABELS: Record<string, string> = {
   FILM: 'Film',
@@ -224,6 +224,18 @@ export default function AuditionDetailPage() {
             <SafetyNotice title="Never pay to audition">
               Legitimate casting calls on Nata Connect do not require fees, deposits, or charges at any stage. If a recruiter asks you to pay, report it immediately.
             </SafetyNotice>
+          </div>
+          <div className="mt-5">
+            <NextActionPanel
+              eyebrow="Safe application path"
+              title="Review the brief, prepare your materials, then apply once."
+              description="Use saved auditions for comparison, keep self-tape links private or unlisted, and track the recruiter decision from your application tracker."
+              actionHref="/applications"
+              actionLabel="Open tracker"
+              secondaryHref="/talent/profile"
+              secondaryLabel="Improve profile"
+              icon={Bookmark}
+            />
           </div>
         </article>
         <aside className="surface h-fit p-5 order-first lg:order-none">

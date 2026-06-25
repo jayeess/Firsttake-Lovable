@@ -19,6 +19,7 @@ import type { AppNotification } from '@/app/lib/types';
 import { AdminShell } from '@/components/admin-shell';
 import { AppShell } from '@/components/app-shell';
 import { LoadingState } from '@/components/async-state';
+import { NextActionPanel } from '@/components/product-ui';
 import { useAuth } from '@/context/auth-context';
 
 type NotificationFilter =
@@ -108,6 +109,7 @@ const getCategoryIcon = (category: NotificationFilter) => {
 
 function NotificationCenter() {
   const router = useRouter();
+  const { isAdmin } = useAuth();
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [filter, setFilter] = useState<NotificationFilter>('ALL');
   const [loading, setLoading] = useState(true);
@@ -193,6 +195,23 @@ function NotificationCenter() {
           <CheckCheck aria-hidden="true" size={18} />
           Mark all as read
         </button>
+      </div>
+
+      <div className="mt-5">
+        <NextActionPanel
+          eyebrow="Casting activity timeline"
+          title={
+            unreadCount > 0
+              ? 'Review priority updates before your next action.'
+              : 'Your casting activity is organized and ready.'
+          }
+          description="Notifications connect applications, messages, audition changes, and trust updates so every user can see what happened and what to do next."
+          actionHref={isAdmin ? '/admin/audit-logs' : '/messages'}
+          actionLabel={isAdmin ? 'Open audit logs' : 'Open messages'}
+          secondaryHref={isAdmin ? '/admin' : '/applications'}
+          secondaryLabel={isAdmin ? 'Admin dashboard' : 'View applications'}
+          icon={Bell}
+        />
       </div>
 
       <div className="mt-5 overflow-x-auto border-b border-[#ccd3da]">

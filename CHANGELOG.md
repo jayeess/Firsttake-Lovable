@@ -1,5 +1,14 @@
 # Changelog
 
+### Cinematic Product Design and Flow Transformation Pass
+
+- Added shared product UI primitives in `components/product-ui.tsx`: `CinematicSectionHeader`, `NextActionPanel`, `FlowStepCard`, and `TrustCueCard`.
+- Updated the landing page to position FirstTake / Nata Connect as a cinematic casting operating system, with clearer Talent/Recruiter value, trust cues, and non-beta CTA language.
+- Added next-action panels to audition discovery, audition detail, application tracker, messages, notifications, recruiter casting calls, and applicant review.
+- Strengthened casting-language hierarchy around saved auditions, application status tracking, recruiter pipeline review, and safe platform messaging.
+- Created `CINEMATIC_PRODUCT_DESIGN_FLOW_TRANSFORMATION_REPORT.md`.
+- No Firestore rules, APIs, authentication, permissions, schemas, Firebase config, payment, AI, or storage features changed.
+
 ### Final Production QA and Live Validation Pass
 
 - **`app/dashboard/page.tsx`**: Auth error block `<p>` missing `rounded-md` — fixed. Recruiter hero CTA "Post an audition" → "Post a casting brief" — now consistent with WorkspaceHero on the auditions list page, the quick-action card on the same dashboard, and all other Recruiter-facing CTA copy.

@@ -1,7 +1,14 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { Film, ShieldCheck, UsersRound } from 'lucide-react';
 import { BrandLogo } from '@/components/brand-logo';
 import { PublicFooter } from '@/components/public-footer';
+import {
+  CinematicSectionHeader,
+  FlowStepCard,
+  NextActionPanel,
+  TrustCueCard,
+} from '@/components/product-ui';
 
 export default function Home() {
   return (
@@ -64,7 +71,7 @@ export default function Home() {
           </p>
           <div className="mt-9 grid gap-3 sm:flex sm:flex-wrap">
             <Link href="/auth/signup" className="primary-button px-7 sm:w-auto">
-              Join the beta
+              Join the network
             </Link>
             <Link
               href="/auth/login"
@@ -109,11 +116,11 @@ export default function Home() {
         {[
           [
             'For Talent',
-            'Create a professional profile with photos, videos, skills, languages, portfolio links, showreels, saved auditions, self-tapes, and status tracking.',
+            'Create a serious casting profile with media, skills, languages, portfolio links, saved auditions, self-tapes, and status tracking.',
           ],
           [
             'For Recruiters',
-            'Post verified auditions, review Talent profiles and media, manage self-tapes, shortlist applicants, and message safely.',
+            'Publish verified casting briefs, review Talent profiles and media, manage self-tapes, shortlist applicants, and message safely.',
           ],
           [
             'Digital audition workflow',
@@ -139,29 +146,51 @@ export default function Home() {
 
       <section className="mx-auto max-w-7xl px-5 pb-16">
         <div className="surface rounded-md p-6 sm:p-8">
-          <p className="eyebrow">How it works</p>
-          <div className="mt-5 grid gap-4 md:grid-cols-3">
-            {[
-              [
-                'Build a credible profile',
-                'Talent adds role details, skills, languages, portfolio signals, and trust indicators.',
-              ],
-              [
-                'Apply with context',
-                'Audition briefs show recruiter trust, deadline, location, self-tape needs, and next actions.',
-              ],
-              [
-                'Manage casting decisions',
-                'Recruiters review applicants, move stages, request callbacks, and message safely.',
-              ],
-            ].map(([title, body]) => (
-              <article key={title} className="border-l-2 border-[#e7ad2d] pl-4">
-                <h2 className="text-xl font-black">{title}</h2>
-                <p className="mt-2 text-sm leading-6 text-[#657176]">{body}</p>
-              </article>
-            ))}
+          <CinematicSectionHeader
+            eyebrow="Cinematic Casting OS"
+            title="A cleaner flow from profile to final casting decision."
+            description="Every workspace is built around one next action, clear trust cues, and a safer record of the audition journey."
+          />
+          <div className="mt-6 grid gap-4 md:grid-cols-3">
+            <FlowStepCard
+              step="01"
+              title="Build a credible profile"
+              description="Talent adds role details, skills, languages, portfolio signals, and trust indicators before applying."
+              href="/auth/signup"
+            />
+            <FlowStepCard
+              step="02"
+              title="Apply with context"
+              description="Casting briefs show recruiter trust, deadline, location, self-tape needs, and safe next actions."
+              href="/auditions"
+            />
+            <FlowStepCard
+              step="03"
+              title="Manage the pipeline"
+              description="Recruiters review applicants, move stages, request callbacks, and keep messages attached to the audition."
+              href="/auth/login"
+            />
           </div>
         </div>
+      </section>
+
+      <section className="mx-auto grid max-w-7xl gap-4 px-5 pb-16 lg:grid-cols-3">
+        <TrustCueCard
+          title="Verified casting network"
+          description="Recruiter verification, profile trust signals, and admin review keep the marketplace focused on serious opportunities."
+          icon={ShieldCheck}
+        />
+        <TrustCueCard
+          title="Portfolio-first discovery"
+          description="Talent can show the work that matters: profile details, media signals, showreels, skills, languages, and public profiles."
+          icon={Film}
+          tone="gold"
+        />
+        <TrustCueCard
+          title="One casting record"
+          description="Applications, messages, self-tape links, status changes, and notifications stay connected to the same casting brief."
+          icon={UsersRound}
+        />
       </section>
 
       <section className="bg-[#07111f] px-5 py-16 text-white">
@@ -174,9 +203,16 @@ export default function Home() {
               Verified casting calls. Professional portfolios. Safer first connections.
             </h2>
           </div>
-          <Link href="/auth/signup" className="primary-button shrink-0 sm:w-auto">
-            Join beta
-          </Link>
+          <NextActionPanel
+            eyebrow="Start here"
+            title="Open your casting workspace."
+            description="Talent can discover roles and Recruiters can publish serious casting briefs from the same trusted product."
+            actionHref="/auth/signup"
+            actionLabel="Create account"
+            secondaryHref="/auth/login"
+            secondaryLabel="Log in"
+            icon={Film}
+          />
         </div>
       </section>
 

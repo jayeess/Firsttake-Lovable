@@ -33,7 +33,13 @@ import {
   validateSelfTapeLink,
 } from '@/app/lib/self-tape-policy';
 import { EmptyState, ErrorState, LoadingState } from '@/components/async-state';
-import { MetricCard, SafetyNotice, WorkspaceHero } from '@/components/product-ui';
+import {
+  CinematicSectionHeader,
+  MetricCard,
+  NextActionPanel,
+  SafetyNotice,
+  WorkspaceHero,
+} from '@/components/product-ui';
 
 type ApplicationView = 'ACTIVE' | 'SHORTLISTED' | 'COMPLETED' | 'ALL';
 
@@ -282,6 +288,19 @@ export default function ApplicationsPage() {
         secondaryLabel="Open messages"
       />
 
+      <div className="mt-5">
+        <NextActionPanel
+          eyebrow="Application pipeline"
+          title="Watch the stage, complete the next requirement, then respond inside messages."
+          description="Every application moves through recruiter review, shortlist, callback, final round, selection, or closure. Keep self-tapes and replies tied to the role."
+          actionHref="/auditions"
+          actionLabel="Find more auditions"
+          secondaryHref="/messages"
+          secondaryLabel="Open messages"
+          icon={ClipboardList}
+        />
+      </div>
+
       <section className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <MetricCard
           label="Active"
@@ -311,7 +330,15 @@ export default function ApplicationsPage() {
         />
       </section>
 
-      <div className="mt-6 rounded-md border border-[#cbd6db] bg-white/95 p-3 shadow-sm sm:p-4">
+      <section className="mt-6">
+        <CinematicSectionHeader
+          eyebrow="Casting status board"
+          title="Track every role from submitted to final decision."
+          description="Filter by pipeline stage, submit requested self-tapes, and withdraw only when you are sure you no longer want the role."
+        />
+      </section>
+
+      <div className="mt-4 rounded-md border border-[#cbd6db] bg-white/95 p-3 shadow-sm sm:p-4">
         <div
           className="grid grid-cols-2 gap-1 rounded-md bg-[#f3f7f8] p-1 sm:grid-cols-4"
           role="tablist"

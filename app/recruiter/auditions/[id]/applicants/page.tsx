@@ -42,6 +42,7 @@ import { useAuth } from '@/context/auth-context';
 import { ApplicationMessageButton } from '@/components/application-message-button';
 import { getConversations } from '@/app/lib/messaging-client';
 import { getConversationId } from '@/app/lib/messaging-policy';
+import { NextActionPanel } from '@/components/product-ui';
 
 const initialFilters: ApplicantFilters = {
   status: 'ALL',
@@ -456,6 +457,19 @@ export default function AuditionApplicantsPage() {
           />
         </div>
       </section>
+
+      <div className="mt-5">
+        <NextActionPanel
+          eyebrow="Casting board"
+          title="Review profile fit, move the stage, and keep notes professional."
+          description="Use the pipeline tabs to focus the room: open new applicants, check self-tapes, shortlist strong profiles, message only when there is a clear next step, and close the loop when a decision is made."
+          actionHref="/messages"
+          actionLabel="Open casting inbox"
+          secondaryHref={`/auditions/${id}`}
+          secondaryLabel="View public brief"
+          icon={Star}
+        />
+      </div>
 
       {error && (
         <ErrorState

@@ -1,6 +1,6 @@
 'use client';
 
-import { Inbox, MessageSquare, Search } from 'lucide-react';
+import { Inbox, MessageSquare, Search, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { getConversations } from '@/app/lib/messaging-client';
@@ -9,6 +9,7 @@ import { AppShell } from '@/components/app-shell';
 import { EmptyState, ErrorState, LoadingState } from '@/components/async-state';
 import { StatusBadge } from '@/components/status-badge';
 import { useAuth } from '@/context/auth-context';
+import { NextActionPanel, TrustCueCard } from '@/components/product-ui';
 
 type InboxFilter = 'ALL' | 'UNREAD' | 'ACTIVE' | 'ARCHIVED';
 
@@ -167,6 +168,28 @@ export default function MessagesPage() {
           </div>
         </div>
       </section>
+
+      <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
+        <NextActionPanel
+          eyebrow="Casting communication center"
+          title={
+            unreadCount > 0
+              ? 'Reply to unread casting updates first.'
+              : 'Keep every casting conversation attached to the audition.'
+          }
+          description="Use messages for availability, self-tape guidance, callback coordination, and final next steps. Keep payments and personal contact requests off the platform."
+          actionHref={unreadCount > 0 ? '/messages' : '/notifications'}
+          actionLabel={unreadCount > 0 ? 'Review unread' : 'Open activity center'}
+          secondaryHref="/safety"
+          secondaryLabel="Safety guide"
+          icon={MessageSquare}
+        />
+        <TrustCueCard
+          title="Safer casting communication"
+          description="Nata Connect keeps audition context, application status, and reports connected so sensitive casting decisions are easier to review."
+          icon={ShieldCheck}
+        />
+      </div>
 
       <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
         <div className="space-y-3">

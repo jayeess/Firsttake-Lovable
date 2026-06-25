@@ -10,7 +10,13 @@ import { formatDate, type Audition } from '@/app/lib/types';
 import { getErrorMessage } from '@/app/lib/error-utils';
 import { useAuth } from '@/context/auth-context';
 import { EmptyState, ErrorState, LoadingState } from '@/components/async-state';
-import { MetricCard, SafetyNotice, WorkspaceHero } from '@/components/product-ui';
+import {
+  CinematicSectionHeader,
+  MetricCard,
+  NextActionPanel,
+  SafetyNotice,
+  WorkspaceHero,
+} from '@/components/product-ui';
 
 export default function RecruiterAuditionsPage() {
   const { user } = useAuth();
@@ -53,6 +59,18 @@ export default function RecruiterAuditionsPage() {
         secondaryHref="/messages"
         secondaryLabel="Open messages"
       />
+      <div className="mt-5">
+        <NextActionPanel
+          eyebrow="Casting room"
+          title="Keep every brief moving toward a clear decision."
+          description="Publish complete casting briefs, review applicants regularly, move strong profiles into the right stage, and keep all communication tied to the audition."
+          actionHref="/recruiter/auditions/new"
+          actionLabel="Create casting brief"
+          secondaryHref="/messages"
+          secondaryLabel="Open casting inbox"
+          icon={BriefcaseBusiness}
+        />
+      </div>
       {error && (
         <ErrorState
           title="Your casting calls could not be loaded"
@@ -113,6 +131,13 @@ export default function RecruiterAuditionsPage() {
         />
       ) : (
       <>
+      <div className="mt-6">
+        <CinematicSectionHeader
+          eyebrow="Live casting pipeline"
+          title="Open applicants, shortlist, callback, or close the loop."
+          description="Each row is a production decision point. Keep notes professional and only move applicants when the status reflects the real casting stage."
+        />
+      </div>
       <div className="mt-6 grid gap-4 lg:hidden">
         {auditions.map((audition) => (
           <article key={audition.id} className="surface rounded-md p-4">

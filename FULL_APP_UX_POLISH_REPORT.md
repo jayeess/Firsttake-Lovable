@@ -1,5 +1,21 @@
 # Full App UX Polish Report
 
+## Cinematic Product Design and Flow Transformation Pass — June 25, 2026
+
+**Goal:** Make FirstTake / Nata Connect feel like a modern cinematic casting operating system rather than a generic marketplace or dashboard collection. Improve product flow clarity without changing backend logic, permissions, Firebase config, schemas, or tests.
+
+Key improvements in this pass:
+
+- **Product primitives** (`components/product-ui.tsx`): Added `CinematicSectionHeader`, `NextActionPanel`, `FlowStepCard`, and `TrustCueCard` to make major pages communicate one clear next action, trust cue, and section rhythm.
+- **Landing page** (`/`): Repositioned the product around verified casting, portfolio-first discovery, connected casting records, and clear account/login CTAs. Public CTA copy now says "Join the network" instead of "Join the beta".
+- **Talent flow** (`/auditions`, `/auditions/[id]`, `/applications`): Added casting radar, safe application path, and application pipeline panels while preserving save, filter, apply, self-tape, and status logic.
+- **Recruiter flow** (`/recruiter/auditions`, `/recruiter/auditions/[id]/applicants`): Added casting-room and casting-board guidance panels around existing publish, applicant review, status, notes, self-tape, and messaging controls.
+- **Communication flow** (`/messages`, `/notifications`): Added casting communication center, trust cue, and role-aware activity timeline panels.
+
+See `CINEMATIC_PRODUCT_DESIGN_FLOW_TRANSFORMATION_REPORT.md` for the full audit, known limitations, and manual checklist.
+
+---
+
 ## Final Production QA and Live Validation Pass — June 24, 2026
 
 **Goal:** Validate the whole application as one connected product after all recent UX upgrade passes. Confirm all three user journeys, mobile/laptop usability, safety/trust messaging, and deployment readiness. Fix only clear issues found — no redesign or new features.
