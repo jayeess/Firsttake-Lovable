@@ -1,5 +1,15 @@
 # Changelog
 
+### Live Production Smoke Test & Bug Fix Pass
+
+- Inspected 50+ files across public/auth, talent, recruiter, admin, API routes, and security rules.
+- No launch-blocker bugs found. All flows are coherent and correctly role-gated.
+- Firestore rules and Storage rules confirmed correct: notification updates locked to `read`/`readAt`, conversation updates locked to `unreadBy`/`updatedAt`, application updates require recruiter ownership, `MAYBE` status included in allowed update set.
+- `getTalentApplications` confirmed to have a collectionGroup primary path with a full per-audition fallback.
+- Self-tape flows confirmed to accept external links only (no upload path exposed to talent).
+- Created `LIVE_PRODUCTION_SMOKE_TEST_BUG_FIX_PASS_REPORT.md`.
+- No code changes made; lint clean, 100/100 tests pass, build clean.
+
 ### Launch Readiness Command Center
 
 - **`app/lib/launch-readiness-policy.ts`** (new): Policy library with `LaunchReadinessBand`, `LaunchReadinessInput`, `LaunchReadinessSummary`, and `LaunchReadinessItem` types. Exports `scoreLaunchReadiness`, `getReadinessBand`, `getLaunchItems`, `getLaunchBlockers`, and `getLaunchReadinessSummary`. Scoring covers 10 weighted signals (100 pts total) across infrastructure, marketplace health, and safety.

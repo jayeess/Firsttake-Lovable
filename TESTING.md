@@ -1,5 +1,24 @@
 # Nata Connect development test cases
 
+## Live Production Smoke Test — June 29, 2026
+
+All flows passed the smoke test. No bugs found. Manual verification checklist for this pass:
+
+- [ ] Open `/` (landing) — hero, flow cards, CTA links all render correctly.
+- [ ] Sign up as TALENT → lands on `/talent/profile`. Sign up as RECRUITER → lands on `/recruiter/profile`.
+- [ ] Log in as admin → redirects to `/admin`.
+- [ ] Navigate every admin nav link — verify all 8 sidebar items load without error.
+- [ ] `/admin/beta-readiness` (Launch Readiness Command Center) — band + score + marketplace health section all render with real counts.
+- [ ] Post a casting brief as an approved recruiter — verify it appears in `/auditions`.
+- [ ] Apply to an audition as talent — verify it appears in `/applications` under ACTIVE tab.
+- [ ] Add a self-tape link (external URL) to an application — verify it saves and status changes to `submitted`.
+- [ ] Start a conversation from the recruiter applicants page — verify thread opens in `/messages/[id]`.
+- [ ] Mark a conversation as read — verify `unreadBy` badge clears.
+- [ ] Submit talent verification from profile — verify notification fires to talent and admins.
+- [ ] Submit recruiter verification — verify it appears in `/admin/verifications`.
+- [ ] Report an audition — verify it appears in `/admin/reports`.
+- [ ] Suspend a user from admin — verify they cannot post or apply.
+
 ## Launch Readiness Command Center checks
 
 After this pass, manually verify:

@@ -1,5 +1,20 @@
 # Full App UX Polish Report
 
+## Live Production Smoke Test — June 29, 2026
+
+**Goal:** Verify end-to-end UX integrity across all flows before controlled launch. No code changes were made in this pass — findings were all clear.
+
+Areas confirmed:
+- **Public pages** — landing, help, contact, safety, legal pages all link correctly, use `PublicInfoPage`, and carry appropriate beta notices.
+- **Auth flow** — login routes by role (`TALENT` → `/dashboard`, `RECRUITER` → `/dashboard`, admin → `/admin`); email verification 5-state handler works correctly; signup writes `userType_${uid}` to localStorage.
+- **Talent flow** — profile, audition discovery, audition detail, applications tracker, self-tape (external links only), messaging inbox, thread view, and notifications all render with correct empty/loading/error states.
+- **Recruiter flow** — profile, verification, auditions list, new casting brief, and applicants review all use correct role guards and API endpoints.
+- **Admin flow** — all 8 admin pages load correctly via `fetchAdminData`; launch readiness command center shows real-time scores, blockers, and marketplace health.
+- **API security** — all routes use `requireUser` or `requireAdmin`; role checks enforce TALENT/RECRUITER/ADMIN boundaries; suspended accounts are blocked at every endpoint.
+- **Firestore / Storage rules** — notification, conversation, application, and media rules all confirmed correct; `MAYBE` status is an allowed recruiter update value.
+
+No UX issues requiring fixes were found.
+
 ## Launch Readiness Command Center — June 29, 2026
 
 **Goal:** Upgrade `/admin/beta-readiness` into a production-grade Launch Readiness Command Center with real data, policy-based scoring, and a full safety/blocker view.
