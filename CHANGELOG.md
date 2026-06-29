@@ -1,5 +1,29 @@
 # Changelog
 
+### Recruiter Trust Passport and Source Transparency
+
+- Added `app/lib/recruiter-trust-passport-policy.ts`, a pure, rule-based helper
+  for recruiter source transparency, trust bands, public-safe signals,
+  recruiter improvement tips, Talent guidance, and Admin review cues.
+- Added source transparency chips to audition cards and recruiter audition
+  rows, alongside existing casting brief quality cues.
+- Expanded `/auditions/[id]` with a combined source transparency panel showing
+  casting source, brief quality, public-safe recruiter signals, on-platform
+  communication guidance, and never-pay safety context.
+- Added Recruiter Trust Passport readiness to `/recruiter/profile` and
+  `/recruiter/verification`; private verification evidence remains visible only
+  through existing recruiter/Admin review flows.
+- Added Admin-facing source transparency summaries to `/admin/verifications`
+  and `/admin/auditions` without exposing private evidence, storage paths, or
+  admin notes through the policy helper.
+- Added `tests/recruiter-trust-passport-policy.test.mts` covering verified
+  sources, missing source detail, rejected/suspended states, weak brief caution,
+  payment-request caution, public-safe signal filtering, evidence redaction, and
+  no fake automation/certificate language.
+- Created `RECRUITER_TRUST_PASSPORT_SOURCE_TRANSPARENCY_REPORT.md`.
+- No Firestore rules, schemas, APIs, auth permissions, payment, AI, fake data,
+  direct video upload, or self-tape video upload changed.
+
 ### Casting Journey Timeline and Application Proof Receipts
 
 - Added `app/lib/casting-journey-policy.ts` — self-contained policy module with

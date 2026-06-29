@@ -8,6 +8,7 @@ import {
   type Audition,
 } from '@/app/lib/types';
 import { getCastingBriefQuality } from '@/app/lib/casting-brief-quality-policy';
+import { getRecruiterTrustPassport } from '@/app/lib/recruiter-trust-passport-policy';
 import { StatusBadge } from './status-badge';
 import { VerifiedBadge } from './verified-badge';
 
@@ -30,6 +31,9 @@ export function AuditionCard({
   const postedRecently = isPostedRecently(audition.createdAt);
   const compensationLabel = getCompensationLabel(audition);
   const quality = getCastingBriefQuality(audition);
+  const recruiterTrust = getRecruiterTrustPassport(null, audition, {
+    briefQuality: quality,
+  });
 
   return (
     <article className="group relative overflow-hidden rounded-md border border-[#cbd6db] bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-[#008ca6] hover:shadow-md">
@@ -90,6 +94,17 @@ export function AuditionCard({
           {audition.recruiterVerified && (
             <Chip variant="trust">Verified recruiter</Chip>
           )}
+          <Chip
+            variant={
+              recruiterTrust.band === 'needs_trust_review'
+                ? 'urgent'
+                : recruiterTrust.band === 'needs_source_detail'
+                  ? 'selftape'
+                  : 'trust'
+            }
+          >
+            {recruiterTrust.bandLabel}
+          </Chip>
           {postedRecently && <Chip variant="new">New</Chip>}
           {deadlineSoon && <Chip variant="urgent">Deadline soon</Chip>}
           <Chip variant="category">{CATEGORY_LABELS[audition.category]}</Chip>

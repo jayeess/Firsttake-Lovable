@@ -11,6 +11,10 @@ import {
 } from '@/app/lib/firestore-service';
 import type { RecruiterProfile } from '@/app/lib/types';
 import { getErrorMessage } from '@/app/lib/error-utils';
+import {
+  getRecruiterTrustImprovementTips,
+  getRecruiterTrustPassport,
+} from '@/app/lib/recruiter-trust-passport-policy';
 import { DevFormPresets } from '@/components/dev-form-presets';
 import { VerifiedBadge } from '@/components/verified-badge';
 import { NotificationPreferencesForm } from '@/components/notification-preferences-form';
@@ -135,6 +139,12 @@ export default function RecruiterProfilePage() {
     verificationStatus === 'not_submitted' ? 'Verification submission' : '',
     verificationStatus !== 'approved' ? 'Admin approval' : '',
   ].filter(Boolean);
+  const trustPassport = getRecruiterTrustPassport(profile, null, {
+    verificationStatus,
+  });
+  const trustImprovementTips = getRecruiterTrustImprovementTips(profile, {
+    verificationStatus,
+  });
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -274,6 +284,50 @@ export default function RecruiterProfilePage() {
             ]}
           />
         </div>
+
+        <section className="mt-4 rounded-md border border-[#d7e2e6] bg-white p-4 shadow-sm sm:p-5">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <p className="eyebrow">Recruiter Trust Passport</p>
+              <h2 className="mt-2 text-2xl font-black">
+                {trustPassport.bandLabel}
+              </h2>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-[#657176]">
+                This is the public trust context Talent sees around your
+                source name, verification status, company context, and casting
+                safety expectations.
+              </p>
+            </div>
+            <span className="w-fit rounded-md border border-[#bad7d3] bg-[#edf7f5] px-3 py-1.5 text-xs font-black uppercase tracking-wide text-[#006b60]">
+              {trustPassport.sourceName}
+            </span>
+          </div>
+          <div className="mt-4 grid gap-3 md:grid-cols-2">
+            {trustPassport.publicSignals.slice(0, 4).map((signal) => (
+              <div
+                key={signal.key}
+                className="rounded-md border border-[#d7e3e7] bg-[#f8fbfc] p-3"
+              >
+                <p className="text-sm font-black">{signal.label}</p>
+                <p className="mt-1 text-xs leading-5 text-[#657176]">
+                  {signal.detail}
+                </p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 p-4">
+            <p className="text-sm font-black text-amber-950">
+              Next trust improvements
+            </p>
+            <ul className="mt-2 space-y-1.5 text-sm leading-6 text-amber-900">
+              {trustImprovementTips.slice(0, 3).map((tip) => (
+                <li key={tip} className="border-l-2 border-amber-300 pl-3">
+                  {tip}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
 
         <PrivacyNote title="Trust and safety expectation" className="mt-4">
           Recruiter profiles should clearly identify the company or casting

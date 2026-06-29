@@ -27,6 +27,7 @@ import {
   SafetyNotice,
   WorkspaceHero,
 } from '@/components/product-ui';
+import { getAdminRecruiterTrustSummary } from '@/app/lib/recruiter-trust-passport-policy';
 
 type Item = RecruiterVerification & { id: string };
 
@@ -119,6 +120,12 @@ export default function AdminVerificationsPage() {
       <div className="mt-7 grid gap-4">
         {loading && <LoadingState label="Loading recruiter verification requests..." />}
         {items.map((item) => (
+          (() => {
+            const trustSummary = getAdminRecruiterTrustSummary(null, null, {
+              verification: item,
+              verificationStatus: item.status,
+            });
+            return (
           <article
             key={item.id}
             className={`surface rounded-md p-5 sm:p-6 ${
@@ -129,6 +136,9 @@ export default function AdminVerificationsPage() {
               <div>
                 <AdminStatusBadge tone={statusTone(item.status)}>
                   {item.status}
+                </AdminStatusBadge>
+                <AdminStatusBadge tone={trustTone(trustSummary.band)}>
+                  {trustSummary.bandLabel}
                 </AdminStatusBadge>
                 <h2 className="mt-3 text-2xl font-black">{item.legalName}</h2>
                 <p className="mt-1 text-sm text-[#657176]">
@@ -187,7 +197,21 @@ export default function AdminVerificationsPage() {
                 label="Social proof"
                 value={item.socialProofUrl || 'Not provided'}
               />
+              <AdminInfo
+                label="Source transparency"
+                value={trustSummary.headline}
+              />
             </dl>
+            <section className="mt-5 rounded-md border border-[#d7e0e4] bg-[#f8fbfc] p-4">
+              <p className="text-xs font-black uppercase text-[#657176]">
+                Recruiter Trust Passport cues
+              </p>
+              <ul className="mt-2 space-y-1.5 text-sm font-bold leading-6 text-[#526874]">
+                {trustSummary.adminReviewCues.slice(0, 4).map((cue) => (
+                  <li key={cue}>{cue}</li>
+                ))}
+              </ul>
+            </section>
             <section className="mt-5 rounded-md border border-[#d7e0e4] bg-[#f8fbfc] p-4">
               <p className="text-xs font-black uppercase text-[#657176]">
                 Work description
@@ -261,6 +285,8 @@ export default function AdminVerificationsPage() {
               </p>
             )}
           </article>
+            );
+          })()
         ))}
         {!loading && items.length === 0 && !error && (
           <EmptyState
@@ -272,6 +298,15 @@ export default function AdminVerificationsPage() {
     </AdminShell>
   );
 }
+
+const trustTone = (
+  band: ReturnType<typeof getAdminRecruiterTrustSummary>['band']
+): AdminStatusTone =>
+  band === 'needs_trust_review'
+    ? 'danger'
+    : band === 'needs_source_detail'
+      ? 'attention'
+      : 'success';
 
 function formatBytes(bytes: number) {
   if (!Number.isFinite(bytes) || bytes <= 0) return '0 KB';

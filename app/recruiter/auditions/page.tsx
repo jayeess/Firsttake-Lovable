@@ -8,6 +8,7 @@ import { StatusBadge } from '@/components/status-badge';
 import { getRecruiterAuditions } from '@/app/lib/firestore-service';
 import { formatDate, type Audition } from '@/app/lib/types';
 import { getCastingBriefQuality } from '@/app/lib/casting-brief-quality-policy';
+import { getRecruiterTrustPassport } from '@/app/lib/recruiter-trust-passport-policy';
 import { getErrorMessage } from '@/app/lib/error-utils';
 import { useAuth } from '@/context/auth-context';
 import { EmptyState, ErrorState, LoadingState } from '@/components/async-state';
@@ -148,6 +149,9 @@ export default function RecruiterAuditionsPage() {
           <article key={audition.id} className="surface rounded-md p-4">
             {(() => {
               const quality = getCastingBriefQuality(audition);
+              const trustPassport = getRecruiterTrustPassport(null, audition, {
+                briefQuality: quality,
+              });
               return (
                 <>
             <div className="flex items-start justify-between gap-3">
@@ -165,6 +169,10 @@ export default function RecruiterAuditionsPage() {
               <BriefQualityPill
                 label={quality.bandLabel}
                 band={quality.band}
+              />
+              <SourceTransparencyPill
+                label={trustPassport.bandLabel}
+                band={trustPassport.band}
               />
               {quality.missingItems.length > 0 && (
                 <span className="text-xs font-bold text-[#657176]">
@@ -219,6 +227,9 @@ export default function RecruiterAuditionsPage() {
         {auditions.map((audition) => (
           (() => {
             const quality = getCastingBriefQuality(audition);
+            const trustPassport = getRecruiterTrustPassport(null, audition, {
+              briefQuality: quality,
+            });
             return (
           <article
             key={audition.id}
@@ -235,6 +246,10 @@ export default function RecruiterAuditionsPage() {
                 <BriefQualityPill
                   label={quality.bandLabel}
                   band={quality.band}
+                />
+                <SourceTransparencyPill
+                  label={trustPassport.bandLabel}
+                  band={trustPassport.band}
                 />
               </div>
               <h2 className="mt-2 text-base font-black leading-snug group-hover:text-[#008ca6]">
@@ -283,6 +298,29 @@ export default function RecruiterAuditionsPage() {
       </>
       )}
     </AppShell>
+  );
+}
+
+function SourceTransparencyPill({
+  label,
+  band,
+}: {
+  label: string;
+  band: ReturnType<typeof getRecruiterTrustPassport>['band'];
+}) {
+  const classes =
+    band === 'verified_source' || band === 'clear_source'
+      ? 'border-[#bad7d3] bg-[#edf7f5] text-[#006b60]'
+      : band === 'needs_source_detail'
+        ? 'border-amber-200 bg-amber-50 text-amber-900'
+        : 'border-red-200 bg-red-50 text-red-800';
+
+  return (
+    <span
+      className={`rounded-md border px-2 py-1 text-[10px] font-black uppercase tracking-wide ${classes}`}
+    >
+      {label}
+    </span>
   );
 }
 

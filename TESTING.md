@@ -1,5 +1,36 @@
 # Nata Connect development test cases
 
+## Recruiter Trust Passport and Source Transparency checks
+
+After updating recruiter trust or source transparency behavior, verify:
+
+- [ ] `/auditions` cards show a source transparency chip without changing save,
+  search, filter, or apply behavior.
+- [ ] `/auditions/[id]` shows a source transparency panel with casting source,
+  brief quality, public-safe signals, on-platform communication guidance, and
+  never-pay safety copy.
+- [ ] `/recruiter/profile` shows Recruiter Trust Passport readiness and
+  practical next improvements.
+- [ ] `/recruiter/verification` explains that verification strengthens public
+  trust while uploaded evidence remains private to recruiter/Admin review.
+- [ ] `/recruiter/auditions` shows both brief quality and source transparency
+  cues for each recruiter-owned brief.
+- [ ] `/admin/verifications` shows trust passport review cues without policy
+  output exposing private evidence, storage paths, or admin notes.
+- [ ] `/admin/auditions` shows source transparency next to brief quality and
+  moderation risk.
+- [ ] No UI or helper copy claims AI, automatic detection, legal certification,
+  guaranteed casting, guaranteed jobs, payment features, or direct video upload.
+
+Run:
+
+```powershell
+npm run lint
+npm test
+npm run build
+git diff --check
+```
+
 ## Casting Journey Timeline and Proof Receipts checks
 
 After updating casting journey policy or application UI, verify:

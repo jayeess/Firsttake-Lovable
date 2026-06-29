@@ -30,6 +30,7 @@ import {
   getCastingBriefAdminRisk,
   getCastingBriefQuality,
 } from '@/app/lib/casting-brief-quality-policy';
+import { getAdminRecruiterTrustSummary } from '@/app/lib/recruiter-trust-passport-policy';
 import type { Audition } from '@/app/lib/types';
 
 type AuditionRow = Partial<Audition> & { id: string };
@@ -164,6 +165,9 @@ export default function AdminAuditionsPage() {
             (() => {
               const quality = getCastingBriefQuality(item);
               const risk = getCastingBriefAdminRisk(item);
+              const recruiterTrust = getAdminRecruiterTrustSummary(null, item, {
+                briefQuality: quality,
+              });
               return (
             <article
               key={item.id}
@@ -194,6 +198,9 @@ export default function AdminAuditionsPage() {
                   <AdminStatusBadge tone={riskTone(risk.priority)}>
                     {risk.label}
                   </AdminStatusBadge>
+                  <AdminStatusBadge tone={trustTone(recruiterTrust.band)}>
+                    {recruiterTrust.bandLabel}
+                  </AdminStatusBadge>
                 </div>
                 <h2 className="mt-2 text-xl font-black">{item.title}</h2>
                 <dl className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -207,7 +214,23 @@ export default function AdminAuditionsPage() {
                     label="Readiness items"
                     value={`${quality.missingItems.length} to review`}
                   />
+                  <AdminInfo
+                    label="Source transparency"
+                    value={recruiterTrust.headline}
+                  />
                 </dl>
+                {recruiterTrust.adminReviewCues.length > 0 && (
+                  <div className="mt-4 rounded-md border border-[#d7e3e7] bg-[#f8fbfc] p-3">
+                    <p className="text-xs font-black uppercase text-[#657176]">
+                      Source review cues
+                    </p>
+                    <ul className="mt-2 space-y-1.5 text-sm font-bold leading-6 text-[#526874]">
+                      {recruiterTrust.adminReviewCues.slice(0, 3).map((cue) => (
+                        <li key={cue}>{cue}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
                 {risk.reasons.length > 0 && (
                   <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 p-3">
                     <p className="text-xs font-black uppercase text-amber-950">
@@ -254,3 +277,12 @@ export default function AdminAuditionsPage() {
 
 const riskTone = (priority: ReturnType<typeof getCastingBriefAdminRisk>['priority']): AdminStatusTone =>
   priority === 'high' ? 'danger' : priority === 'medium' ? 'attention' : 'success';
+
+const trustTone = (
+  band: ReturnType<typeof getAdminRecruiterTrustSummary>['band']
+): AdminStatusTone =>
+  band === 'needs_trust_review'
+    ? 'danger'
+    : band === 'needs_source_detail'
+      ? 'attention'
+      : 'success';

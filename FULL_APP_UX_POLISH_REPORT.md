@@ -1,5 +1,37 @@
 # Full App UX Polish Report
 
+## Recruiter Trust Passport and Source Transparency - June 29, 2026
+
+**Goal:** Add recruiter source transparency across Talent, Recruiter, and Admin
+surfaces without changing backend permissions, Firestore rules, schemas,
+uploads, payment behavior, or application submission rules.
+
+Key improvements:
+
+- `app/lib/recruiter-trust-passport-policy.ts` centralizes rule-based recruiter
+  trust bands, public-safe signals, Talent guidance, Recruiter improvement tips,
+  and Admin review cues.
+- `/auditions` cards now show a compact source transparency chip next to
+  existing brief quality and status signals.
+- `/auditions/[id]` now shows a combined source transparency panel with casting
+  source, brief quality, public-safe recruiter signals, on-platform
+  communication guidance, and never-pay safety context.
+- `/recruiter/profile` and `/recruiter/verification` now show Recruiter Trust
+  Passport readiness so Recruiters understand how company context,
+  verification, and public proof improve Talent confidence.
+- `/recruiter/auditions` now shows both brief quality and source transparency
+  cues per casting brief.
+- `/admin/verifications` and `/admin/auditions` now show human-readable source
+  transparency review cues without the policy helper exposing private evidence,
+  storage paths, admin notes, or private moderation data.
+- `tests/recruiter-trust-passport-policy.test.mts` adds coverage for verified
+  sources, missing source detail, rejected/suspended states, weak brief caution,
+  payment-request caution, public-safe signal filtering, private evidence
+  redaction, and no fake automation/certificate language.
+
+See `RECRUITER_TRUST_PASSPORT_SOURCE_TRANSPARENCY_REPORT.md` for the full
+change record.
+
 ## Casting Journey Timeline and Application Proof Receipts — June 29, 2026
 
 **Goal:** Give Talent and Recruiters a transparent, rule-based view of every

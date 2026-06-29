@@ -35,6 +35,8 @@ the operator checklist and known limitations.
 - Recruiter-facing featured media and portfolio previews
 - Recruiter audition creation and applicant review
 - Casting brief quality and safety cues for Recruiter, Talent, and Admin views
+- Recruiter Trust Passport and source transparency cues for audition cards,
+  audition detail, recruiter readiness, and Admin review
 - Recruiter-facing applicant role fit signals for guidance only
 - Talent audition discovery, application submission, and status tracking
 - Self-tape requests on auditions with Talent link submission and Recruiter
@@ -62,7 +64,9 @@ self-tape workflow and upload roadmap. See
 [EMAIL_NOTIFICATIONS.md](EMAIL_NOTIFICATIONS.md) for email provider/no-op
 behavior and [PWA_READINESS.md](PWA_READINESS.md) for installability notes. See
 [PRODUCT_STATUS_AND_ROADMAP.md](PRODUCT_STATUS_AND_ROADMAP.md) for the full
-product inventory and roadmap.
+product inventory and roadmap. See
+[RECRUITER_TRUST_PASSPORT_SOURCE_TRANSPARENCY_REPORT.md](RECRUITER_TRUST_PASSPORT_SOURCE_TRANSPARENCY_REPORT.md)
+for the latest source transparency pass.
 
 ## Founder Demo and Pitch Pack
 

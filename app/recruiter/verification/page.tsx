@@ -24,6 +24,7 @@ import {
   MAX_RECRUITER_EVIDENCE_COUNT,
   RECRUITER_EVIDENCE_MAX_BYTES,
 } from '@/app/lib/upload-policy';
+import { getRecruiterTrustPassport } from '@/app/lib/recruiter-trust-passport-policy';
 
 type FormData = Pick<
   RecruiterVerification,
@@ -130,6 +131,13 @@ export default function RecruiterVerificationPage() {
     suspended:
       'Publishing access is paused. Contact the trust team before submitting new casting activity.',
   };
+  const trustPassport = getRecruiterTrustPassport(null, null, {
+    verification: {
+      ...form,
+      status,
+    },
+    verificationStatus: status,
+  });
 
   const uploadEvidence = async (file?: File) => {
     if (!file || !user || !canSubmit) return;
@@ -212,6 +220,36 @@ export default function RecruiterVerificationPage() {
         <p className="mt-4 rounded-md border border-[#d7e3e7] bg-white p-4 text-sm font-bold leading-6 text-[#40535c]">
           {statusGuidance[status] ?? statusGuidance.not_submitted}
         </p>
+        <section className="mt-4 rounded-md border border-[#d7e3e7] bg-[#f7fafb] p-4">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <p className="eyebrow">Trust Passport readiness</p>
+              <h2 className="mt-1 text-xl font-black">
+                {trustPassport.bandLabel}
+              </h2>
+              <p className="mt-2 text-sm leading-6 text-[#657176]">
+                Verification strengthens the source context Talent sees on
+                casting briefs. Private documents remain for admin review only.
+              </p>
+            </div>
+            <span className="w-fit rounded-md border border-[#bad7d3] bg-white px-3 py-1.5 text-xs font-black uppercase tracking-wide text-[#006b60]">
+              {trustPassport.sourceName}
+            </span>
+          </div>
+          <div className="mt-4 grid gap-2 sm:grid-cols-2">
+            {trustPassport.publicSignals.slice(0, 4).map((signal) => (
+              <div
+                key={signal.key}
+                className="rounded-md border border-[#d7e3e7] bg-white p-3"
+              >
+                <p className="text-xs font-black">{signal.label}</p>
+                <p className="mt-1 text-xs leading-5 text-[#657176]">
+                  {signal.detail}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
 
         {loading ? <LoadingState label="Loading verification status..." /> : null}
         {error && (

@@ -41,6 +41,10 @@ import {
   getCastingBriefQuality,
   type CastingBriefQualitySummary,
 } from '@/app/lib/casting-brief-quality-policy';
+import {
+  getRecruiterTrustPassport,
+  type RecruiterTrustPassport,
+} from '@/app/lib/recruiter-trust-passport-policy';
 
 const AUDITION_TYPE_LABELS: Record<string, string> = {
   FILM: 'Film',
@@ -113,6 +117,15 @@ export default function AuditionDetailPage() {
   const briefQuality = useMemo(
     () => (audition ? getCastingBriefQuality(audition) : null),
     [audition]
+  );
+  const recruiterTrust = useMemo(
+    () =>
+      audition && briefQuality
+        ? getRecruiterTrustPassport(null, audition, {
+            briefQuality,
+          })
+        : null,
+    [audition, briefQuality]
   );
 
   const toggleSaved = async () => {
@@ -239,6 +252,7 @@ export default function AuditionDetailPage() {
             <CastingBriefTrustPanel
               summary={briefQuality}
               recruiterVerified={audition.recruiterVerified === true}
+              recruiterTrust={recruiterTrust}
             />
           )}
           <Section title="About the role" body={audition.description} />
@@ -469,9 +483,11 @@ function AlreadyAppliedPanel({
 function CastingBriefTrustPanel({
   summary,
   recruiterVerified,
+  recruiterTrust,
 }: {
   summary: CastingBriefQualitySummary;
   recruiterVerified: boolean;
+  recruiterTrust: RecruiterTrustPassport | null;
 }) {
   const visibleSignals = summary.safetySignals.length
     ? summary.safetySignals
@@ -483,18 +499,48 @@ function CastingBriefTrustPanel({
     <section className="mt-6 rounded-md border border-[#d7e3e7] bg-[#f7fafb] p-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <p className="eyebrow">Brief quality and safety</p>
-          <h2 className="mt-2 text-xl font-black">{summary.bandLabel}</h2>
+          <p className="eyebrow">Source transparency</p>
+          <h2 className="mt-2 text-xl font-black">
+            {recruiterTrust?.headline ?? summary.bandLabel}
+          </h2>
           <p className="mt-2 text-sm leading-6 text-[#657176]">
-            This transparent check looks at clarity, deadline, compensation,
-            requirements, self-tape instructions, and safety language.
+            Talent can review who is casting, brief clarity, communication
+            safety, and payment safety before applying. This is platform trust
+            context, not a casting guarantee or official approval of an outcome.
           </p>
         </div>
-        <span className={`w-fit rounded-md px-2.5 py-1 text-xs font-black ${briefQualityClass(summary.band)}`}>
-          {summary.score}%
+        <span
+          className={`w-fit rounded-md px-2.5 py-1 text-xs font-black ${
+            recruiterTrust
+              ? recruiterTrustClass(recruiterTrust.band)
+              : briefQualityClass(summary.band)
+          }`}
+        >
+          {recruiterTrust?.bandLabel ?? `${summary.score}%`}
         </span>
       </div>
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <div className="rounded-md border border-[#d7e3e7] bg-white p-3">
+          <p className="text-[10px] font-black uppercase tracking-wide text-[#657176]">
+            Casting source
+          </p>
+          <p className="mt-1 text-sm font-black">
+            {recruiterTrust?.sourceName ?? 'Recruiter'}
+          </p>
+        </div>
+        <div className="rounded-md border border-[#d7e3e7] bg-white p-3">
+          <p className="text-[10px] font-black uppercase tracking-wide text-[#657176]">
+            Brief quality
+          </p>
+          <p className="mt-1 text-sm font-black">
+            {summary.bandLabel} / {summary.score}%
+          </p>
+        </div>
+      </div>
       <div className="mt-4 flex flex-wrap gap-2">
+        <span className={`rounded-md px-2.5 py-1 text-xs font-black ${briefQualityClass(summary.band)}`}>
+          {summary.score}%
+        </span>
         <span className="rounded-md border border-[#bad7d3] bg-white px-2.5 py-1 text-xs font-black text-[#006b60]">
           {recruiterVerified ? 'Verified recruiter' : 'Recruiter trust pending'}
         </span>
@@ -505,6 +551,23 @@ function CastingBriefTrustPanel({
           Never pay to audition
         </span>
       </div>
+      {recruiterTrust?.publicSignals.length ? (
+        <div className="mt-4 grid gap-2 sm:grid-cols-2">
+          {recruiterTrust.publicSignals.slice(0, 4).map((signal) => (
+            <div
+              key={signal.key}
+              className="rounded-md border border-[#d7e3e7] bg-white p-3"
+            >
+              <p className="text-xs font-black text-[#07111f]">
+                {signal.label}
+              </p>
+              <p className="mt-1 text-xs leading-5 text-[#657176]">
+                {signal.detail}
+              </p>
+            </div>
+          ))}
+        </div>
+      ) : null}
       {visibleSignals.length > 0 && (
         <ul className="mt-4 space-y-2 text-sm font-bold leading-6 text-[#526874]">
           {visibleSignals.map((signal) => (
@@ -516,6 +579,16 @@ function CastingBriefTrustPanel({
       )}
     </section>
   );
+}
+
+function recruiterTrustClass(band: RecruiterTrustPassport['band']) {
+  if (band === 'verified_source' || band === 'clear_source') {
+    return 'border border-[#bad7d3] bg-[#edf7f5] text-[#006b60]';
+  }
+  if (band === 'needs_source_detail') {
+    return 'border border-amber-200 bg-amber-50 text-amber-900';
+  }
+  return 'border border-red-200 bg-red-50 text-red-800';
 }
 
 function briefQualityClass(band: CastingBriefQualitySummary['band']) {

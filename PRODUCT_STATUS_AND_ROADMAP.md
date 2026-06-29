@@ -3,13 +3,13 @@
 **Telugu name:** నట కనెక్ట్  
 **Document date:** June 29, 2026
 **Repository:** `jayeess/Firsttake-Lovable`  
-**Current stage:** Casting Journey Timeline and Application Proof Receipts added;
-product is ready for controlled founder-led beta demos with transparent, rule-based
-application journey tracking, proof receipts, message safety guidance, explainable
-casting brief quality, safety signals, profile readiness, audition readiness
-guidance, recruiter review signals, slide outline, slide copy, speaker notes,
-route order, screenshot checklist, onboarding playbook, and audience talking
-points
+**Current stage:** Recruiter Trust Passport and Source Transparency added;
+product is ready for controlled founder-led beta demos with transparent,
+rule-based recruiter source signals, application journey tracking, proof
+receipts, message safety guidance, explainable casting brief quality, safety
+signals, profile readiness, audition readiness guidance, recruiter review
+signals, slide outline, slide copy, speaker notes, route order, screenshot
+checklist, onboarding playbook, and audience talking points
 
 ## 1. Product Summary
 
@@ -42,6 +42,7 @@ Nata Connect is no longer a static demonstration. It is a working Firebase-backe
 | Talent onboarding | Working | Suitable for MVP testing |
 | Talent Passport and role readiness | Implemented | Explainable guidance only; no AI matching, ranking, or guarantees |
 | Recruiter onboarding | Working with demo approval | Needs real administration |
+| Recruiter Trust Passport and source transparency | Implemented | Guidance-only trust context; no private evidence exposure, AI, legal certification, or casting guarantees |
 | Audition creation | Working | Core fields and draft/publish states exist |
 | Audition discovery | Working | Search and filtering exist |
 | Applications | Working | Duplicate applications are prevented |
@@ -75,6 +76,16 @@ Nata Connect is no longer a static demonstration. It is a working Firebase-backe
 | Launch demo readiness | Improved | Empty states, first-time guidance, and honest roadmap messaging make the app understandable even before dense live marketplace activity |
 
 ### Latest product-design position
+
+The June 29, 2026 Recruiter Trust Passport and Source Transparency pass added
+rule-based recruiter source context across audition cards, audition detail,
+Recruiter profile/verification, Recruiter auditions, Admin verification review,
+and Admin audition moderation. It uses existing profile, verification,
+audition, account status, and casting brief quality signals to show whether a
+source is verified, clear, needs more detail, or needs trust review. The helper
+keeps private evidence, storage paths, admin notes, and private moderation data
+out of public-safe outputs and does not claim AI, automatic detection, legal
+certification, or guaranteed casting outcomes.
 
 The June 29, 2026 Casting Brief Quality Engine and Scam Shield pass added
 rule-based quality and safety cues to recruiter publishing, recruiter audition
