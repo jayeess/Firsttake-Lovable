@@ -25,6 +25,7 @@ import {
   getTalentProfile,
 } from '@/app/lib/firestore-service';
 import {
+  getApplicationNextStep,
   getApplicationStatus,
 } from '@/app/lib/application-pipeline';
 import type {
@@ -55,18 +56,6 @@ const activeStatuses: ApplicationStatus[] = [
   'MAYBE',
 ];
 
-const nextStepMessages: Record<ApplicationStatus, string> = {
-  APPLIED: 'Waiting for the casting team to open your application.',
-  VIEWED: 'The casting team opened your application.',
-  UNDER_REVIEW: 'Your profile is under active review.',
-  MAYBE: 'You are in the casting pool.',
-  SHORTLISTED: 'You made the shortlist.',
-  CALLBACK: 'You have a callback — watch for a message.',
-  FINAL_ROUND: 'You are in the final casting round.',
-  SELECTED: 'You were selected. Expect a message with next steps.',
-  REJECTED: 'The casting team moved forward with another applicant.',
-  WITHDRAWN: 'You withdrew this application.',
-};
 
 export default function Dashboard() {
   const router = useRouter();
@@ -870,6 +859,7 @@ function RecruiterOnboardingChecklist({ emailVerified, profileReady }: { emailVe
   const steps = [
     { label: 'Verify your email', done: emailVerified, href: undefined as string | undefined },
     { label: 'Complete your company profile', done: profileReady, href: '/recruiter/profile' },
+    { label: 'Complete company verification', done: true, href: '/recruiter/verification' },
     { label: 'Post your first audition', done: false, href: '/recruiter/auditions/new' },
     { label: 'Review applicants', done: false, href: '/recruiter/auditions' },
   ];
@@ -943,7 +933,7 @@ function RecentApplication({ application }: { application: Application }) {
         <StatusBadge status={status} />
       </div>
       <p className="mt-3 text-sm font-bold text-[#263943]">
-        {nextStepMessages[status]}
+        {getApplicationNextStep(status)}
       </p>
       {hasSelfTape && (
         <p className="mt-2 inline-flex rounded-md bg-[#edf7f5] px-2.5 py-1 text-xs font-black uppercase text-[#007c8d]">

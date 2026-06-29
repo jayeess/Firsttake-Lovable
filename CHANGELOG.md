@@ -1,5 +1,12 @@
 # Changelog
 
+### End-to-End Marketplace Launch Trial
+
+- **`app/dashboard/page.tsx`**: Removed local `nextStepMessages` constant (duplicate of the lib's `TALENT_NEXT_STEP_MESSAGES`). Updated `RecentApplication` to call `getApplicationNextStep(status)` from `app/lib/application-pipeline` — the canonical unit-tested source.
+- **`app/dashboard/page.tsx`**: Added "Complete company verification" step (step 3 of 5) to `RecruiterOnboardingChecklist`. Verification is a hard gate on the dashboard; showing it in the checklist completes the onboarding journey for newly approved recruiters.
+- Created `END_TO_END_MARKETPLACE_LAUNCH_TRIAL_REPORT.md` with full audit findings across 25+ routes and components.
+- All 83 tests pass, 55 routes build clean, lint clean.
+
 ### Callback and Selection Decision Workflow
 
 - **`app/lib/application-pipeline.ts`**: Added `TALENT_VISIBLE_NOTE_MAX_LENGTH`, `validateTalentVisibleNote`, `TalentStageGuidance` type, `getTalentStageGuidance`, and `getDecisionSafetyCue`. Extended `RecruiterReviewInput` with `talentNextStepNote` and `validateRecruiterReview` to validate it.

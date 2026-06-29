@@ -1,5 +1,23 @@
 # Nata Connect development test cases
 
+## End-to-End Marketplace Launch Trial checks
+
+After this pass, manually verify:
+
+- [ ] Dashboard `RecentApplication` cards show the same copy as the Applications page stage cards (e.g. SHORTLISTED reads "You made the shortlist. The recruiter may message you about next steps." not the old shorter version).
+- [ ] Recruiter onboarding checklist on the Dashboard (visible when no auditions exist) now shows 5 steps: Verify email, Complete profile, Complete company verification (done), Post audition, Review applicants.
+- [ ] The "Complete company verification" step is shown as already completed (checkmark) since dashboard guards prevent non-approved recruiters from reaching this view.
+- [ ] All 25+ audited pages load without JavaScript errors on desktop and mobile.
+- [ ] Audition detail page correctly shows three states: Talent (apply form), Recruiter/owner (review applicants button), Recruiter/other (cannot apply message).
+- [ ] Messages conversation view shows the amber read-only banner for archived conversations.
+- [ ] DevFormPresets and DevTestCases are invisible on a production build (NODE_ENV=production).
+
+Run `npm test` to verify 83 unit tests pass:
+
+```powershell
+npm test
+```
+
 ## Callback and Selection Decision Workflow checks
 
 After this pass, verify:

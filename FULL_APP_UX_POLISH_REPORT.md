@@ -1,5 +1,32 @@
 # Full App UX Polish Report
 
+## End-to-End Marketplace Launch Trial — June 29, 2026
+
+**Goal:** Audit every major route and component for real launch readiness across 25+ files covering user flow clarity, empty/loading/error states, role-based navigation, safety copy, and action continuity.
+
+Key improvements in this pass:
+
+- **Dashboard `nextStepMessages` deduplication** (`/dashboard`): Removed a local 10-entry `nextStepMessages` constant that duplicated the lib's `TALENT_NEXT_STEP_MESSAGES`. `RecentApplication` now calls `getApplicationNextStep(status)` — the canonical, unit-tested source with richer copy (e.g. REJECTED now reads "…Keep applying — every audition is a separate opportunity.").
+- **Recruiter onboarding checklist fix** (`/dashboard`): Added "Complete company verification" as step 3 of 5 in `RecruiterOnboardingChecklist`. Previously the checklist jumped from "Complete company profile" directly to "Post your first audition", skipping the verification gate that blocks non-approved recruiters from publishing. The new step is always shown as done (since the dashboard guard redirects unapproved recruiters), completing the visible onboarding journey.
+
+Audit findings (no changes needed):
+
+- **Public pages** (`/`, `/help`, `/safety`, `/community-guidelines`): All clean. Safety page and community guidelines cross-link correctly.
+- **Auth pages** (`/auth/login`, `/auth/signup`, `/auth/email-verified`): All states handled. Dev helpers are production-gated.
+- **Auditions** (`/auditions`, `/auditions/[id]`): EmptyState, ErrorState, LoadingState, and SafetyNotice all present. Recruiter/Talent role-based apply panel works correctly.
+- **Applications** (`/applications`): TalentStageCard from Pass 20 fully verified — tonal styling, recruiter note, safety cue, messages hint all working.
+- **Talent profile** (`/talent/profile`): ReadinessChecklist, media gate, public profile toggle, and verification flow all correct.
+- **Messages** (`/messages`, `/messages/[conversationId]`): Inbox filters, unread state, search, read-only archived banner, per-message report buttons all present.
+- **Notifications** (`/notifications`): Admin/non-admin shell switch, category filters, unread counts, role-aware empty state CTAs.
+- **Recruiter flow** (profile, verification, auditions, new, applicants): Verification gate on new audition form confirmed. `DevFormPresets` is production-gated. ReadinessChecklist on recruiter profile includes all 5 items.
+- **Admin** (`/admin`, `/admin/beta-readiness`): Verification queue priority alerting, audit log section, and manual launch checklist all present.
+- **Dev components** (`DevFormPresets`, `DevTestCases`): Both return `null` in non-development environments — confirmed safe.
+- **Navigation** (`AppShell`): Talent (5 links) and Recruiter (7 links, 5 on mobile) all correct.
+
+See `END_TO_END_MARKETPLACE_LAUNCH_TRIAL_REPORT.md` for the full audit findings table.
+
+---
+
 ## Callback and Selection Decision Workflow — June 29, 2026
 
 **Goal:** Make the CALLBACK → FINAL_ROUND → SELECTED journey clear and safe for Talent, give recruiters a bounded talent-visible note field, and surface stage-specific decision guidance in both the Talent applications tracker and the Recruiter review room.
