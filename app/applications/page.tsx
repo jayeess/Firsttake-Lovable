@@ -46,6 +46,11 @@ import {
   WorkspaceHero,
 } from '@/components/product-ui';
 import { getRoleFitSummary } from '@/app/lib/role-fit-policy';
+import {
+  getCastingJourneySteps,
+  getApplicationProofChecklist,
+  type CastingJourneyStep,
+} from '@/app/lib/casting-journey-policy';
 
 type ApplicationView = 'ACTIVE' | 'SHORTLISTED' | 'COMPLETED' | 'ALL';
 
@@ -526,6 +531,7 @@ export default function ApplicationsPage() {
               )}
 
               <ApplicationProgress status={status} />
+              <CastingJourneyProof application={application} />
               {status === 'REJECTED' &&
                 application.rejectionReason && (
                   <p className="mt-4 border-l-2 border-[#e7ad2d] pl-4 text-sm leading-6 text-[#59666b]">
@@ -848,6 +854,91 @@ function selfTapeToneClass(tone: string) {
       : tone === 'success'
         ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
         : 'border-[#d3dde2] bg-white text-[#657176]';
+}
+
+function JourneyStepIndicator({ status }: { status: CastingJourneyStep['status'] }) {
+  if (status === 'completed') {
+    return (
+      <span className="mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full bg-[#008ca6] text-white text-[8px] font-black">
+        ✓
+      </span>
+    );
+  }
+  if (status === 'current') {
+    return (
+      <span className="mt-0.5 size-4 shrink-0 rounded-full border-2 border-[#008ca6] bg-white" />
+    );
+  }
+  if (status === 'skipped') {
+    return (
+      <span className="mt-0.5 size-4 shrink-0 rounded-full border border-[#c9d5da] bg-[#f3f6f8]" />
+    );
+  }
+  return (
+    <span className="mt-0.5 size-4 shrink-0 rounded-full border-2 border-[#d2dce1] bg-white" />
+  );
+}
+
+function CastingJourneyProof({ application }: { application: Application }) {
+  const audition = application.audition ?? null;
+  const steps = getCastingJourneySteps(application, audition);
+  const checklist = getApplicationProofChecklist(application, audition);
+  const includedItems = checklist.filter((item) => item.included);
+
+  return (
+    <div className="mt-5 rounded-md border border-[#d7e3e7] bg-[#f7fafb] p-4">
+      <p className="text-[10px] font-black uppercase tracking-wide text-[#008ca6]">
+        Casting journey
+      </p>
+      <div className="mt-2 flex flex-wrap gap-1.5">
+        {includedItems.map((item) => (
+          <span
+            key={item.key}
+            className="inline-flex items-center gap-1 rounded border border-[#9fc9c4] bg-[#edf7f5] px-2 py-0.5 text-[10px] font-bold text-[#006b60]"
+          >
+            ✓ {item.label}
+          </span>
+        ))}
+      </div>
+      <ol className="mt-3 space-y-2">
+        {steps.map((step) => (
+          <li key={step.key} className="flex items-start gap-2">
+            <JourneyStepIndicator status={step.status} />
+            <div className="min-w-0">
+              <p
+                className={`text-xs font-black ${
+                  step.status === 'current'
+                    ? 'text-[#008ca6]'
+                    : step.status === 'completed'
+                      ? 'text-[#263238]'
+                      : 'text-[#9aacb0]'
+                }`}
+              >
+                {step.label}
+                {step.date && (
+                  <span className="ml-1.5 font-normal text-[#8a9899]">
+                    {step.date}
+                  </span>
+                )}
+              </p>
+              {(step.status === 'current' || step.status === 'pending') &&
+                step.key !== 'shortlisted' &&
+                step.key !== 'callback' &&
+                step.key !== 'final_round' && (
+                  <p className="mt-0.5 text-[11px] leading-4 text-[#657176]">
+                    {step.detail}
+                  </p>
+                )}
+            </div>
+          </li>
+        ))}
+      </ol>
+      <p className="mt-3 border-t border-[#e1e8ec] pt-3 text-[10px] leading-4 text-[#8a9899]">
+        Platform record — not a casting guarantee or official certificate.
+        Casting decisions are made by the recruiting team.
+      </p>
+    </div>
+  );
 }
 
 function PackTag({ included, label }: { included: boolean; label: string }) {

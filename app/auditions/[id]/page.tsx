@@ -9,6 +9,7 @@ import { StatusBadge } from '@/components/status-badge';
 import {
   getAuditionById,
   getSavedAuditions,
+  getTalentApplicationForAudition,
   getTalentProfile,
   setAuditionSaved,
   submitApplication,
@@ -17,9 +18,18 @@ import {
   CATEGORY_LABELS,
   EXPERIENCE_LABELS,
   formatDate,
+  type Application,
   type Audition,
   type TalentProfile,
 } from '@/app/lib/types';
+import {
+  getApplicationStatus,
+  APPLICATION_STATUS_LABELS,
+} from '@/app/lib/application-pipeline';
+import {
+  getApplicationProofChecklist,
+  getJourneyNextStep,
+} from '@/app/lib/casting-journey-policy';
 import { getErrorMessage } from '@/app/lib/error-utils';
 import { useAuth } from '@/context/auth-context';
 import { VerifiedBadge } from '@/components/verified-badge';
@@ -67,6 +77,7 @@ export default function AuditionDetailPage() {
   const [saving, setSaving] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
   const [talentProfile, setTalentProfile] = useState<TalentProfile | null>(null);
+  const [existingApplication, setExistingApplication] = useState<Application | null>(null);
 
   useEffect(() => {
     void getAuditionById(id)
@@ -82,10 +93,12 @@ export default function AuditionDetailPage() {
     void Promise.all([
       getSavedAuditions(user.uid),
       getTalentProfile(user.uid).catch(() => null),
+      getTalentApplicationForAudition(id, user.uid).catch(() => null),
     ])
-      .then(([items, profile]) => {
+      .then(([items, profile, existingApp]) => {
         setSaved(items.some((item) => item.auditionId === id));
         setTalentProfile(profile);
+        setExistingApplication(existingApp);
       })
       .catch(() => undefined);
   }, [id, user, userType]);
@@ -271,8 +284,12 @@ export default function AuditionDetailPage() {
           </div>
         </article>
         <aside className="surface h-fit p-5 order-first lg:order-none">
-          <h2 className="text-xl font-black">Apply for this role</h2>
-          {userType === 'RECRUITER' ? (
+          <h2 className="text-xl font-black">
+            {existingApplication ? 'Application submitted' : 'Apply for this role'}
+          </h2>
+          {existingApplication ? (
+            <AlreadyAppliedPanel application={existingApplication} audition={audition} />
+          ) : userType === 'RECRUITER' ? (
             audition.recruiterId === user?.uid ? (
               <>
                 <p className="mt-3 text-sm leading-6 text-[#68727c]">
@@ -297,6 +314,7 @@ export default function AuditionDetailPage() {
                 Your profile and media are included automatically. Use this
                 message to stand out to the casting team.
               </p>
+
               {audition.status !== 'ACTIVE' && (
                 <p className="mt-3 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-bold text-amber-900">
                   This audition is no longer accepting applications.
@@ -378,6 +396,73 @@ export default function AuditionDetailPage() {
         </aside>
       </div>
     </AppShell>
+  );
+}
+
+function AlreadyAppliedPanel({
+  application,
+  audition,
+}: {
+  application: Application;
+  audition: Audition;
+}) {
+  const status = getApplicationStatus(application);
+  const statusLabel = APPLICATION_STATUS_LABELS[status];
+  const checklist = getApplicationProofChecklist(application, audition);
+  const nextStep = getJourneyNextStep(application, audition);
+  const hasSelfTapePending =
+    audition.selfTapeEnabled &&
+    !application.selfTapeSubmission?.url;
+
+  return (
+    <div className="mt-4">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-sm font-bold text-[#657176]">
+          Submitted {application.createdAt ? formatDate(application.createdAt) : ''}
+        </p>
+        <span className="rounded-md border border-[#9fc9c4] bg-[#edf7f5] px-2.5 py-1 text-xs font-black text-[#006b60]">
+          {statusLabel}
+        </span>
+      </div>
+      <div className="mt-4 space-y-1.5 rounded-md border border-[#d7e3e7] bg-[#f7fafb] p-3">
+        <p className="text-[10px] font-black uppercase tracking-wide text-[#008ca6]">
+          Application pack
+        </p>
+        {checklist.map((item) => (
+          <div key={item.key} className="flex items-start gap-2 text-xs">
+            <span
+              className={`mt-0.5 size-3.5 shrink-0 rounded-full text-center text-[8px] font-black leading-[14px] ${
+                item.included
+                  ? 'bg-[#008ca6] text-white'
+                  : 'border border-[#c9d5da] text-[#9aacb0]'
+              }`}
+            >
+              {item.included ? '✓' : '–'}
+            </span>
+            <span className={item.included ? 'font-bold text-[#263238]' : 'text-[#9aacb0]'}>
+              {item.label}
+            </span>
+          </div>
+        ))}
+      </div>
+      {hasSelfTapePending && (
+        <p className="mt-3 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-bold text-amber-900">
+          {audition.selfTapeRequired
+            ? 'Self-tape required for this role — add your link from My Applications.'
+            : 'Optional self-tape can be added from My Applications.'}
+        </p>
+      )}
+      <p className="mt-3 text-xs leading-5 text-[#526874]">{nextStep}</p>
+      <p className="mt-2 text-xs leading-5 text-[#526874]">
+        Keep all casting communication on Nata Connect. You will never be asked to pay to be selected.
+      </p>
+      <p className="mt-4 text-[10px] leading-4 text-[#8a9899]">
+        Platform record — not a casting guarantee or official certificate.
+      </p>
+      <Link href="/applications" className="primary-button mt-4 w-full">
+        Track in My Applications
+      </Link>
+    </div>
   );
 }
 

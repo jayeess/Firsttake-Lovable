@@ -53,6 +53,7 @@ import { ApplicationMessageButton } from '@/components/application-message-butto
 import { getConversations } from '@/app/lib/messaging-client';
 import { getConversationId } from '@/app/lib/messaging-policy';
 import { NextActionPanel, SafetyNotice } from '@/components/product-ui';
+import { getRecruiterJourneySummary } from '@/app/lib/casting-journey-policy';
 
 const initialFilters: ApplicantFilters = {
   status: 'ALL',
@@ -545,6 +546,44 @@ export default function AuditionApplicantsPage() {
   );
 }
 
+function RecruiterJourneySummaryPanel({
+  application,
+  audition,
+}: {
+  application: AuditionApplicant['application'];
+  audition: Audition | null;
+}) {
+  const summary = getRecruiterJourneySummary(application, audition ?? undefined);
+  return (
+    <div className="mb-5 rounded-md border border-[#d7e0e4] bg-[#f6f9fa] p-3">
+      <p className="text-[10px] font-black uppercase tracking-wide text-[#008ca6]">
+        Applicant journey
+      </p>
+      <dl className="mt-2 space-y-1 text-xs">
+        <div className="flex gap-1.5">
+          <dt className="font-black text-[#263238]">Submitted:</dt>
+          <dd className="text-[#526874]">{summary.submittedDate}</dd>
+        </div>
+        <div className="flex gap-1.5">
+          <dt className="font-black text-[#263238]">Status:</dt>
+          <dd className="text-[#526874]">{summary.currentStatusLabel}</dd>
+        </div>
+        <div className="flex gap-1.5">
+          <dt className="font-black text-[#263238]">Self-tape:</dt>
+          <dd className="text-[#526874]">{summary.selfTapeStatus}</dd>
+        </div>
+        <div className="flex gap-1.5">
+          <dt className="font-black text-[#263238]">Pack:</dt>
+          <dd className="text-[#526874]">{summary.packReadiness}</dd>
+        </div>
+      </dl>
+      <p className="mt-2 border-t border-[#e3e8ec] pt-2 text-[10px] leading-4 text-[#657176]">
+        {summary.safetyNote}
+      </p>
+    </div>
+  );
+}
+
 function PipelineTab({
   label,
   count,
@@ -1007,6 +1046,10 @@ function ApplicantCard({
             </div>
 
             <aside className="rounded-md border border-[#d7e0e4] bg-white p-4 sm:p-5">
+              <RecruiterJourneySummaryPanel
+                application={application}
+                audition={audition}
+              />
               <h3 className="text-lg font-black">Private casting notes</h3>
               <p className="mt-1 text-sm leading-6 text-[#657176]">
                 Notes, tags, and ratings are visible only to the audition owner

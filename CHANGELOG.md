@@ -1,5 +1,29 @@
 # Changelog
 
+### Casting Journey Timeline and Application Proof Receipts
+
+- Added `app/lib/casting-journey-policy.ts` — self-contained policy module with
+  rule-based journey steps (4–9 per application), proof checklist, proof receipt
+  with safe disclaimer, talent guidance, and recruiter journey summary. Inlines
+  status labels and next-step messages to avoid cross-module resolution issues.
+- Added `getCastingJourneySteps`: reveals stages progressively; MAYBE maps to
+  UNDER_REVIEW rank; duck-typed date helper handles Firestore Timestamp and Date.
+- Modified `app/applications/page.tsx`: added `CastingJourneyProof` component
+  showing proof chips, step-by-step timeline with status icons, and platform
+  record disclaimer under each application card.
+- Modified `app/auditions/[id]/page.tsx`: detects if current Talent has already
+  applied and shows `AlreadyAppliedPanel` (pack checklist, next step, trust cues)
+  instead of the apply form.
+- Added `getTalentApplicationForAudition` to `app/lib/firestore-service.ts` —
+  direct doc read at `auditions/{id}/applications/{talentId}`.
+- Modified `app/recruiter/auditions/[id]/applicants/page.tsx`: added
+  `RecruiterJourneySummaryPanel` showing submitted date, status, self-tape status,
+  pack readiness, and guidance-only safety note per applicant.
+- Added `tests/casting-journey-policy.test.mts` with 39 unit tests. Total: 197.
+- Created `CASTING_JOURNEY_TIMELINE_PROOF_RECEIPTS_REPORT.md`.
+- No Firestore rules, schemas, APIs, auth permissions, payment, AI, fake data,
+  direct video upload, or self-tape video upload changed.
+
 ### Message Safety Coach and On-Platform Trust Guard
 
 - Added `app/lib/message-safety-policy.ts` with rule-based (no AI) message

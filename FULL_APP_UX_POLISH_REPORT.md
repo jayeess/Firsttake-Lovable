@@ -1,5 +1,30 @@
 # Full App UX Polish Report
 
+## Casting Journey Timeline and Application Proof Receipts — June 29, 2026
+
+**Goal:** Give Talent and Recruiters a transparent, rule-based view of every
+application's casting progress — without AI, guarantees, legal certificates,
+payment, or fake data.
+
+Key improvements:
+
+- `app/lib/casting-journey-policy.ts` provides all journey logic: progressive
+  step reveal (4–9 steps), proof checklist, proof receipt with safe disclaimer,
+  talent guidance with status-specific safety reminders, and recruiter journey
+  summary. Self-contained — no cross-module imports from `application-pipeline`.
+- `/applications` now shows a "Casting journey" card under each application with
+  proof chips (included pack items), a step timeline with visual status icons, and
+  a "platform record" disclaimer. Steps for advanced stages (callback, final round)
+  only appear when reached.
+- `/auditions/[id]` detects whether the current Talent has already applied (via
+  direct Firestore read of `auditions/{id}/applications/{talentId}`). If yes, the
+  sidebar shows `AlreadyAppliedPanel` with pack checklist, self-tape pending
+  warning (amber), next-step guidance, and trust cue — replacing the apply form.
+- `/recruiter/auditions/[id]/applicants` expanded card now includes
+  `RecruiterJourneySummaryPanel`: submitted date, status, self-tape status, pack
+  readiness, and a guidance-only safety note.
+- `tests/casting-journey-policy.test.mts` adds 39 unit tests; total: 197 pass.
+
 ## Message Safety Coach and On-Platform Trust Guard — June 29, 2026
 
 **Goal:** Add transparent, rule-based message safety guidance across the

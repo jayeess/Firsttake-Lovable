@@ -1,5 +1,32 @@
 # Nata Connect development test cases
 
+## Casting Journey Timeline and Proof Receipts checks
+
+After updating casting journey policy or application UI, verify:
+
+- [ ] `/applications` shows a "Casting journey" section under each application
+  card with proof chips and a step timeline.
+- [ ] Steps show teal-filled check (completed), teal ring (current), grey ring
+  (pending), flat grey (skipped) icons correctly.
+- [ ] Submitted date appears on the first step; self-tape step absent when
+  `selfTapeEnabled` is false on the audition.
+- [ ] SHORTLISTED application shows shortlisted as current and callback/final as
+  absent (not yet revealed).
+- [ ] SELECTED application shows selected terminal step as completed.
+- [ ] REJECTED application shows not_selected terminal step; WITHDRAWN shows
+  withdrawn step.
+- [ ] Proof chips list only included items (Profile snapshot always present).
+- [ ] "Platform record — not a casting guarantee" disclaimer visible at the bottom
+  of each journey panel.
+- [ ] Visiting an audition detail page as a Talent who has already applied shows
+  `AlreadyAppliedPanel` instead of the apply form.
+- [ ] `AlreadyAppliedPanel` shows pack checklist, self-tape pending amber warning
+  (when required/not submitted), next-step guidance, and trust cue copy.
+- [ ] "Track in My Applications" button links to `/applications`.
+- [ ] Recruiter applicant expanded card shows "Applicant journey" panel with
+  submitted date, status, self-tape status, pack readiness, and safety note.
+- [ ] No UI copy references AI, AI matching, or guaranteed casting.
+
 ## Message Safety Coach and Trust Guard checks
 
 After updating message safety policy or messaging UI, verify:

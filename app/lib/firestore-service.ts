@@ -863,6 +863,23 @@ export const getAuditionApplications = async (
   }
 };
 
+export const getTalentApplicationForAudition = async (
+  auditionId: string,
+  talentId: string
+): Promise<Application | null> => {
+  const db = getFirestoreDb();
+  const ref = doc(db, 'auditions', auditionId, 'applications', talentId);
+  const snapshot = await getDoc(ref);
+  if (!snapshot.exists()) return null;
+  const audition = await getAuditionById(auditionId);
+  return {
+    id: snapshot.id,
+    auditionId,
+    audition,
+    ...snapshot.data(),
+  } as Application;
+};
+
 export const updateApplicationStatus = async (
   auditionId: string,
   applicationId: string,
