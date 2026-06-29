@@ -1,11 +1,19 @@
 'use client';
 
-import { Building2, CheckCircle2, ShieldAlert, UserCheck } from 'lucide-react';
+import {
+  Building2,
+  CheckCircle2,
+  ExternalLink,
+  FileText,
+  ShieldAlert,
+  UserCheck,
+} from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { AdminShell } from '@/components/admin-shell';
 import { AdminActionButton } from '@/components/admin-action-button';
 import { fetchAdminData } from '@/app/lib/admin-client';
 import type { RecruiterVerification } from '@/app/lib/types';
+import { getStorageDownloadUrl } from '@/app/lib/storage-service';
 import { EmptyState, ErrorState, LoadingState } from '@/components/async-state';
 import {
   AdminActionGroup,
@@ -45,6 +53,18 @@ export default function AdminVerificationsPage() {
   const pendingCount = items.filter((item) => item.status === 'pending').length;
   const approvedCount = items.filter((item) => item.status === 'approved').length;
   const suspendedCount = items.filter((item) => item.status === 'suspended').length;
+
+  const openEvidence = async (storagePath: string) => {
+    try {
+      window.open(
+        await getStorageDownloadUrl(storagePath),
+        '_blank',
+        'noopener,noreferrer'
+      );
+    } catch {
+      setError('Evidence could not be opened. Try refreshing the page.');
+    }
+  };
 
   return (
     <AdminShell>
@@ -181,6 +201,60 @@ export default function AdminVerificationsPage() {
                 Recruiter note: {item.verificationNotes}
               </p>
             )}
+            <section className="mt-5 rounded-md border border-[#d7e0e4] bg-white p-4">
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-xs font-black uppercase text-[#657176]">
+                    Verification evidence
+                  </p>
+                  <p className="mt-1 text-sm leading-6 text-[#657176]">
+                    Private files are visible only to the submitting recruiter
+                    and admins.
+                  </p>
+                </div>
+                <span className="text-sm font-black text-[#008ca6]">
+                  {item.evidence?.length ?? 0} files
+                </span>
+              </div>
+              {item.evidence?.length ? (
+                <div className="mt-4 grid gap-3">
+                  {item.evidence.map((evidence) => (
+                    <article
+                      key={evidence.id}
+                      className="rounded-md border border-[#dfe7ea] bg-[#f8fbfc] p-3"
+                    >
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex min-w-0 items-start gap-3">
+                          <FileText className="mt-0.5 size-5 shrink-0 text-[#008ca6]" />
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-black">
+                              {evidence.fileName}
+                            </p>
+                            <p className="mt-1 text-xs font-bold uppercase text-[#657176]">
+                              {evidence.mimeType} /{' '}
+                              {formatBytes(evidence.sizeBytes)}
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => void openEvidence(evidence.storagePath)}
+                          className="secondary-button min-h-10 px-3 text-xs sm:w-auto"
+                        >
+                          <ExternalLink aria-hidden="true" size={15} />
+                          Open evidence
+                        </button>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <p className="mt-4 rounded-md border border-dashed border-[#cbd6db] p-4 text-sm font-bold text-[#657176]">
+                  No files uploaded. Review the written company proof and
+                  public links before deciding.
+                </p>
+              )}
+            </section>
             {item.adminNote && (
               <p className="mt-3 border-l-2 border-[#e7ad2d] pl-3 text-sm">
                 Admin note: {item.adminNote}
@@ -197,4 +271,10 @@ export default function AdminVerificationsPage() {
       </div>
     </AdminShell>
   );
+}
+
+function formatBytes(bytes: number) {
+  if (!Number.isFinite(bytes) || bytes <= 0) return '0 KB';
+  if (bytes >= 1024 * 1024) return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+  return `${Math.ceil(bytes / 1024)} KB`;
 }

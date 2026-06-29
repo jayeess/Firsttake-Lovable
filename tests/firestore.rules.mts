@@ -658,6 +658,92 @@ test('Storage rejects unsupported media and allows approved Recruiter reads', as
   await assertSucceeds(deleteObject(storageRef(ownerStorage, validPath)));
 });
 
+test('Storage keeps recruiter verification evidence private to owner and admins', async () => {
+  const recruiterStorage = environment
+    .authenticatedContext('recruiter-a')
+    .storage();
+  const otherRecruiterStorage = environment
+    .authenticatedContext('recruiter-b')
+    .storage();
+  const adminStorage = environment
+    .authenticatedContext('admin-a', { admin: true })
+    .storage();
+  const evidencePath =
+    'recruiter-verification-evidence/recruiter-a/evidence-a/proof.pdf';
+  await assertSucceeds(
+    uploadBytes(
+      storageRef(recruiterStorage, evidencePath),
+      new Uint8Array([1, 2, 3]),
+      {
+        contentType: 'application/pdf',
+        customMetadata: {
+          ownerId: 'recruiter-a',
+          visibility: 'private_verification',
+          uploadKind: 'recruiter_verification_evidence',
+        },
+      }
+    )
+  );
+  await assertSucceeds(getBytes(storageRef(recruiterStorage, evidencePath)));
+  await assertSucceeds(getBytes(storageRef(adminStorage, evidencePath)));
+  await assertFails(getBytes(storageRef(otherRecruiterStorage, evidencePath)));
+  await assertFails(
+    uploadBytes(
+      storageRef(
+        otherRecruiterStorage,
+        'recruiter-verification-evidence/recruiter-a/evidence-b/forged.pdf'
+      ),
+      new Uint8Array([1, 2, 3]),
+      {
+        contentType: 'application/pdf',
+        customMetadata: {
+          ownerId: 'recruiter-a',
+          visibility: 'private_verification',
+          uploadKind: 'recruiter_verification_evidence',
+        },
+      }
+    )
+  );
+});
+
+test('Storage rejects Talent PDF uploads but accepts Recruiter evidence PDFs', async () => {
+  const talentStorage = environment.authenticatedContext('talent-a').storage();
+  const recruiterStorage = environment
+    .authenticatedContext('recruiter-a')
+    .storage();
+  await assertFails(
+    uploadBytes(
+      storageRef(talentStorage, 'talent-media/talent-a/portfolio/doc-a/doc-a.pdf'),
+      new Uint8Array([1, 2, 3]),
+      {
+        contentType: 'application/pdf',
+        customMetadata: {
+          ownerId: 'talent-a',
+          visibility: 'recruiters',
+          mediaKind: 'portfolio',
+        },
+      }
+    )
+  );
+  await assertSucceeds(
+    uploadBytes(
+      storageRef(
+        recruiterStorage,
+        'recruiter-verification-evidence/recruiter-a/evidence-c/proof.pdf'
+      ),
+      new Uint8Array([1, 2, 3]),
+      {
+        contentType: 'application/pdf',
+        customMetadata: {
+          ownerId: 'recruiter-a',
+          visibility: 'private_verification',
+          uploadKind: 'recruiter_verification_evidence',
+        },
+      }
+    )
+  );
+});
+
 test('Talent can create only their own application to an active audition', async () => {
   const db = environment.authenticatedContext('talent-a').firestore();
   const data = {

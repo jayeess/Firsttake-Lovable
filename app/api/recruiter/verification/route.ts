@@ -11,6 +11,13 @@ import {
   deliverNotifications,
   notifyAdmins,
 } from '@/app/lib/notification-server';
+import {
+  ALLOWED_RECRUITER_EVIDENCE_TYPES,
+  MAX_RECRUITER_EVIDENCE_COUNT,
+  RECRUITER_EVIDENCE_MAX_BYTES,
+  isRecruiterEvidenceStoragePath,
+} from '@/app/lib/upload-policy';
+import type { RecruiterVerificationEvidence } from '@/app/lib/types';
 
 export const runtime = 'nodejs';
 
@@ -24,6 +31,60 @@ const fields = [
   'workDescription',
   'verificationNotes',
 ] as const;
+
+const sanitizeEvidence = (
+  input: unknown,
+  uid: string
+): RecruiterVerificationEvidence[] => {
+  if (input === undefined || input === null) return [];
+  if (!Array.isArray(input)) {
+    throw new AdminRequestError('Verification evidence must be a list.');
+  }
+  if (input.length > MAX_RECRUITER_EVIDENCE_COUNT) {
+    throw new AdminRequestError(
+      `Upload ${MAX_RECRUITER_EVIDENCE_COUNT} verification files or fewer.`
+    );
+  }
+  return input.map((item, index) => {
+    if (!item || typeof item !== 'object') {
+      throw new AdminRequestError('Verification evidence metadata is invalid.');
+    }
+    const record = item as Record<string, unknown>;
+    const id = typeof record.id === 'string' ? record.id.trim() : '';
+    const fileName =
+      typeof record.fileName === 'string' ? record.fileName.trim() : '';
+    const mimeType =
+      typeof record.mimeType === 'string' ? record.mimeType.trim() : '';
+    const storagePath =
+      typeof record.storagePath === 'string' ? record.storagePath.trim() : '';
+    const sizeBytes =
+      typeof record.sizeBytes === 'number' ? record.sizeBytes : 0;
+    if (
+      !id ||
+      !fileName ||
+      !storagePath ||
+      !ALLOWED_RECRUITER_EVIDENCE_TYPES.includes(mimeType as never) ||
+      sizeBytes <= 0 ||
+      sizeBytes > RECRUITER_EVIDENCE_MAX_BYTES ||
+      !isRecruiterEvidenceStoragePath(uid, storagePath)
+    ) {
+      throw new AdminRequestError(
+        `Verification evidence ${index + 1} could not be confirmed.`
+      );
+    }
+    return {
+      id: id.slice(0, 80),
+      fileName: fileName.slice(0, 160),
+      mimeType,
+      sizeBytes,
+      storagePath,
+      uploadedAt:
+        typeof record.uploadedAt === 'string'
+          ? record.uploadedAt.slice(0, 80)
+          : undefined,
+    };
+  });
+};
 
 export async function POST(request: Request) {
   try {
@@ -49,6 +110,7 @@ export async function POST(request: Request) {
     ) {
       throw new AdminRequestError('Complete all required verification fields.');
     }
+    const evidence = sanitizeEvidence(input.evidence, actor.uid);
 
     const ref = db.collection('recruiterVerifications').doc(actor.uid);
     const existing = await ref.get();
@@ -62,6 +124,7 @@ export async function POST(request: Request) {
     await ref.set(
       {
         ...data,
+        evidence,
         recruiterId: actor.uid,
         recruiterEmail: actor.email ?? null,
         status: 'pending',

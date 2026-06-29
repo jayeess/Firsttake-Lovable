@@ -1,5 +1,16 @@
 # Changelog
 
+### Trust-Verified Media and Document Upload System
+
+- Added shared upload validation and path policy in `app/lib/upload-policy.ts`.
+- Kept Talent profile photo and portfolio image uploads on Firebase Storage, with profile photos capped at 5 MB and portfolio images capped at 6 images / 5 MB each.
+- Added private Recruiter verification evidence upload for JPEG, PNG, WebP, and PDF files up to 10 MB.
+- Submitted Recruiter evidence metadata through the existing secure verification API and showed evidence links in `/admin/verifications`.
+- Updated `storage.rules` to enforce owner/admin-only evidence access and stricter Talent portfolio image limits.
+- Added `tests/upload-policy.test.mts` and Storage emulator coverage for recruiter evidence privacy.
+- Created `TRUST_VERIFIED_MEDIA_DOCUMENT_UPLOAD_SYSTEM_REPORT.md`.
+- Direct video upload, self-tape upload, payments, AI, fake data, and seeding remain out of scope.
+
 ### Real Launch Demo and Marketplace Content Pass
 
 - Added launch-ready marketplace positioning to `/`, including an honest roadmap note for future video upload, document upload, payments, AI, and marketplace automation.

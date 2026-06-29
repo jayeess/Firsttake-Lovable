@@ -1,5 +1,21 @@
 # Full App UX Polish Report
 
+## Trust-Verified Media and Document Upload System - June 29, 2026
+
+**Goal:** Add the controlled Firebase Storage upload foundation for trustworthy Talent media and Recruiter verification evidence without adding video upload, payments, AI, fake data, or security shortcuts.
+
+Key improvements in this pass:
+
+- **Shared upload policy** (`app/lib/upload-policy.ts`): Centralized MIME type validation, size limits, portfolio image count, safe filename normalization, and user-scoped Storage path generation.
+- **Talent media** (`components/talent-media-manager.tsx`): Profile photo and portfolio image copy now explains privacy, ownership, 5 MB image limits, and a 6-image portfolio cap.
+- **Recruiter verification** (`/recruiter/verification`): Recruiters can upload private JPEG/PNG/WebP/PDF evidence with progress, metadata display, and remove/open controls before submission.
+- **Admin verification queue** (`/admin/verifications`): Admin can review evidence metadata and open private evidence files from the operational verification queue.
+- **Storage security** (`storage.rules`): Recruiter evidence is private to the owning Recruiter and Admin users; Talent portfolio image size is tightened to 5 MB.
+
+See `TRUST_VERIFIED_MEDIA_DOCUMENT_UPLOAD_SYSTEM_REPORT.md` for security notes, rules summary, known limitations, and manual QA.
+
+---
+
 ## Real Launch Demo and Marketplace Content Pass - June 29, 2026
 
 **Goal:** Make Nata Connect feel launch-ready when the database has little or no live content, without adding fake data, fake metrics, fake testimonials, backend features, or security changes.

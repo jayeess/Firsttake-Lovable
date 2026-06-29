@@ -1,5 +1,26 @@
 # Nata Connect development test cases
 
+## Trust-verified media and document upload checks
+
+After the upload foundation pass, verify:
+
+- [ ] Talent can upload a JPEG, PNG, or WebP profile photo under 5 MB.
+- [ ] Talent can upload portfolio images under 5 MB and is blocked after 6 uploaded images.
+- [ ] Talent cannot upload PDF or video files as profile/portfolio media.
+- [ ] External showreel links still work and self-tapes remain external links only.
+- [ ] Recruiter verification accepts JPEG, PNG, WebP, and PDF evidence under 10 MB.
+- [ ] Recruiter evidence metadata is included with the verification submission.
+- [ ] Admin can open recruiter evidence from `/admin/verifications`.
+- [ ] Other recruiters and anonymous users cannot read private verification evidence.
+
+Run emulator validation after Storage rule changes:
+
+```powershell
+npm run emulators:test
+```
+
+See `TRUST_VERIFIED_MEDIA_DOCUMENT_UPLOAD_SYSTEM_REPORT.md` for the full checklist.
+
 ## Real launch demo and marketplace content checks
 
 After the real launch demo content pass, verify the app still feels complete when

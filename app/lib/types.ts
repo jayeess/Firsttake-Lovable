@@ -265,6 +265,15 @@ export interface RecruiterProfile {
   verificationStatus?: VerificationStatus;
 }
 
+export interface RecruiterVerificationEvidence {
+  id: string;
+  fileName: string;
+  mimeType: string;
+  sizeBytes: number;
+  storagePath: string;
+  uploadedAt?: Date | Timestamp | string;
+}
+
 export interface RecruiterVerification {
   recruiterId: string;
   recruiterEmail?: string | null;
@@ -276,6 +285,7 @@ export interface RecruiterVerification {
   businessType: string;
   workDescription: string;
   verificationNotes?: string;
+  evidence?: RecruiterVerificationEvidence[];
   status: VerificationStatus;
   adminNote?: string;
   reviewedBy?: string;

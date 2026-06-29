@@ -3,7 +3,7 @@
 **Telugu name:** నట కనెక్ట్  
 **Document date:** June 25, 2026
 **Repository:** `jayeess/Firsttake-Lovable`  
-**Current stage:** Launch demo and marketplace content pass completed; ready for Vercel deployment after verification
+**Current stage:** Trust-verified media and document upload foundation completed; ready for verification and deploy
 
 ## 1. Product Summary
 
@@ -58,7 +58,8 @@ Nata Connect is no longer a static demonstration. It is a working Firebase-backe
 | Notifications | Implemented in-app | Email foundation exists; real provider delivery and SMS remain future work |
 | Email foundation | Phase 5B implemented | No-op provider mode by default; Resend adapter ready |
 | PWA readiness | Phase 5B implemented | Manifest/installability added; push notifications pending |
-| Media portfolio | Phase 2B implemented | Images and external showreels supported |
+| Media portfolio | Hardened | Talent profile photos and portfolio images use shared upload validation, 5 MB image limits, and a 6-image portfolio cap; external showreels remain supported |
+| Recruiter verification evidence | Implemented | Recruiters can upload private image/PDF proof files for Admin review; evidence is owner/admin-only in Storage |
 | Applicant pipeline | Phase 2C implemented | Secure statuses, filters, ratings, tags, notes, and decision alerts |
 | Audition discovery | Phase 2D implemented | Search, advanced filters, recommendations, and saved auditions |
 | Self-tape submissions | Phase 5A implemented | External link workflow live; direct private video upload remains future work |

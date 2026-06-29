@@ -17,7 +17,7 @@ the operator checklist and known limitations.
 - Tailwind CSS 4
 - Firebase Authentication
 - Cloud Firestore
-- Firebase Storage for scoped Talent profile and portfolio images
+- Firebase Storage for scoped Talent profile media and Recruiter verification evidence
 - Firebase Admin SDK for trusted moderation
 
 ## Current Capabilities
@@ -37,7 +37,7 @@ the operator checklist and known limitations.
 - Self-tape requests on auditions with Talent link submission and Recruiter
   review status
 - Transactional duplicate-safe application submission
-- Text-based recruiter verification and admin review
+- Recruiter verification with private evidence uploads and admin review
 - Trusted custom-claim admin dashboard and moderation APIs
 - Admin Talent verification queue with approve, reject, suspend, and restore
 - Admin visibility and disable controls for published Talent pages
@@ -141,12 +141,13 @@ and deploy the backend configuration:
 ```powershell
 npx firebase-tools login
 npx firebase-tools use your_project_id
-npx firebase-tools deploy --only firestore:rules,firestore:indexes
+npx firebase-tools deploy --only firestore:rules,firestore:indexes,storage
 ```
 
 Talent image uploads use `talent-media/{uid}/profile/...` and
-`talent-media/{uid}/portfolio/{mediaId}/...`. Verification document uploads
-remain out of scope.
+`talent-media/{uid}/portfolio/{mediaId}/...`. Recruiter verification evidence
+uses `recruiter-verification-evidence/{uid}/{evidenceId}/...` and is readable
+only by the owning Recruiter and Admin users.
 
 ## First Administrator
 

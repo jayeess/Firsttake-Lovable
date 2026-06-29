@@ -11,6 +11,10 @@ import {
   buildTalentMediaPath,
   validateTalentImage,
 } from './talent-media-policy';
+import {
+  buildUploadPath,
+  validateUploadFile,
+} from './upload-policy';
 
 const uploadImage = async ({
   uid,
@@ -81,6 +85,66 @@ export const uploadPortfolioImage = (
   file: File,
   onProgress?: (progress: number) => void
 ) => uploadImage({ uid, mediaId, kind: 'portfolio', file, onProgress });
+
+export const uploadRecruiterVerificationEvidence = async (
+  uid: string,
+  evidenceId: string,
+  file: File,
+  onProgress?: (progress: number) => void
+) => {
+  const validationError = validateUploadFile(
+    file,
+    'recruiter_verification_evidence'
+  );
+  if (validationError) throw new Error(validationError);
+  const storagePath = buildUploadPath({
+    uid,
+    uploadId: evidenceId,
+    category: 'recruiter_verification_evidence',
+    fileName: file.name,
+    mimeType: file.type,
+  });
+  const uploadRef = ref(getFirebaseStorage(), storagePath);
+
+  try {
+    const snapshot = await new Promise<UploadTaskSnapshot>(
+      (resolve, reject) => {
+        const task = uploadBytesResumable(uploadRef, file, {
+          contentType: file.type,
+          customMetadata: {
+            ownerId: uid,
+            visibility: 'private_verification',
+            uploadKind: 'recruiter_verification_evidence',
+          },
+        });
+        task.on(
+          'state_changed',
+          (state) =>
+            onProgress?.(
+              Math.round((state.bytesTransferred / state.totalBytes) * 100)
+            ),
+          reject,
+          () => resolve(task.snapshot)
+        );
+      }
+    );
+    return {
+      storagePath,
+      fileName: file.name,
+      mimeType: file.type,
+      sizeBytes: file.size,
+      uploadedAt: new Date(),
+      ref: snapshot.ref,
+    };
+  } catch (error: unknown) {
+    throw new Error(
+      getErrorMessage(error, 'Verification evidence upload failed')
+    );
+  }
+};
+
+export const getStorageDownloadUrl = (storagePath: string) =>
+  getDownloadURL(ref(getFirebaseStorage(), storagePath));
 
 export const deleteStoragePath = async (storagePath?: string) => {
   if (!storagePath) return;

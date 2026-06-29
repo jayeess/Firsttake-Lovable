@@ -27,11 +27,30 @@ service firebase.storage {
         ).data.status == 'approved';
     }
 
+    function isRecruiterAccount(uid) {
+      return owns(uid)
+        && firestore.get(
+          /databases/(default)/documents/users/$(uid)
+        ).data.userType == 'RECRUITER'
+        && firestore.get(
+          /databases/(default)/documents/users/$(uid)
+        ).data.accountStatus != 'SUSPENDED';
+    }
+
     function isAllowedImage() {
       return request.resource.contentType in [
         'image/jpeg',
         'image/png',
         'image/webp'
+      ];
+    }
+
+    function isAllowedRecruiterEvidence() {
+      return request.resource.contentType in [
+        'image/jpeg',
+        'image/png',
+        'image/webp',
+        'application/pdf'
       ];
     }
 
@@ -57,11 +76,22 @@ service firebase.storage {
         || isAdmin()
         || (isActiveRecruiter() && recruiterVisible());
       allow create, update: if owns(uid)
-        && request.resource.size <= 10 * 1024 * 1024
+        && request.resource.size <= 5 * 1024 * 1024
         && isAllowedImage()
         && request.resource.metadata.ownerId == uid
         && request.resource.metadata.mediaKind == 'portfolio'
         && request.resource.metadata.visibility == 'recruiters';
+      allow delete: if owns(uid);
+    }
+
+    match /recruiter-verification-evidence/{uid}/{evidenceId}/{fileName} {
+      allow read: if owns(uid) || isAdmin();
+      allow create, update: if isRecruiterAccount(uid)
+        && request.resource.size <= 10 * 1024 * 1024
+        && isAllowedRecruiterEvidence()
+        && request.resource.metadata.ownerId == uid
+        && request.resource.metadata.uploadKind == 'recruiter_verification_evidence'
+        && request.resource.metadata.visibility == 'private_verification';
       allow delete: if owns(uid);
     }
 
