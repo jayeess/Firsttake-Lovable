@@ -1,5 +1,20 @@
 # Changelog
 
+### Founder Demo and Pitch Readiness Pack
+
+- Created founder-ready demo and pitch documentation for FirstTake / Nata
+  Connect without changing product features, backend logic, Firebase rules, or
+  security behavior.
+- Added `FOUNDER_DEMO_SCRIPT.md`, `LIVE_DEMO_ROUTE_ORDER.md`,
+  `SCREENSHOT_CHECKLIST.md`, `BETA_ONBOARDING_PLAYBOOK.md`, and
+  `PITCH_TALKING_POINTS.md`.
+- Added a concise README link section for demo and pitch materials.
+- Clarified the README launch gaps so direct self-tape video upload remains
+  external-link only while recruiter verification evidence upload remains
+  supported.
+- No payment, subscription, AI, calendar scheduling, video calls, direct video
+  upload, fake data, seeded users, or security changes were added.
+
 ### Live Production Smoke Test & Bug Fix Pass
 
 - Inspected 50+ files across public/auth, talent, recruiter, admin, API routes, and security rules.

@@ -1,5 +1,25 @@
 # Full App UX Polish Report
 
+## Founder Demo and Pitch Readiness Pack - June 29, 2026
+
+**Goal:** Prepare FirstTake / Nata Connect for founder-led demos, pitch
+reviews, beta onboarding, and screenshot planning without changing app
+behavior.
+
+Key deliverables:
+
+- `FOUNDER_DEMO_SCRIPT.md` for 30-second, 2-minute, and 5-minute product
+  walkthroughs.
+- `LIVE_DEMO_ROUTE_ORDER.md` for public, Talent, Recruiter, Admin, fallback,
+  and recovery paths.
+- `SCREENSHOT_CHECKLIST.md` for pitch deck and demo capture planning.
+- `BETA_ONBOARDING_PLAYBOOK.md` for a realistic small-cohort beta routine.
+- `PITCH_TALKING_POINTS.md` for Talent, Recruiter, mentor, incubator/investor,
+  and parent/general audiences.
+
+No UI, backend, Firestore, Storage, Auth, Admin, payment, AI, calendar, video,
+or fake-data behavior changed in this pass.
+
 ## Live Production Smoke Test — June 29, 2026
 
 **Goal:** Verify end-to-end UX integrity across all flows before controlled launch. No code changes were made in this pass — findings were all clear.

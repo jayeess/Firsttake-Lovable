@@ -61,6 +61,20 @@ behavior and [PWA_READINESS.md](PWA_READINESS.md) for installability notes. See
 [PRODUCT_STATUS_AND_ROADMAP.md](PRODUCT_STATUS_AND_ROADMAP.md) for the full
 product inventory and roadmap.
 
+## Founder Demo and Pitch Pack
+
+- [FOUNDER_DEMO_SCRIPT.md](FOUNDER_DEMO_SCRIPT.md) - 30-second, 2-minute, and
+  5-minute founder demo scripts.
+- [LIVE_DEMO_ROUTE_ORDER.md](LIVE_DEMO_ROUTE_ORDER.md) - route-by-route live
+  demo sequence for public, Talent, Recruiter, and Admin flows.
+- [SCREENSHOT_CHECKLIST.md](SCREENSHOT_CHECKLIST.md) - pitch deck and demo
+  screenshot capture plan.
+- [BETA_ONBOARDING_PLAYBOOK.md](BETA_ONBOARDING_PLAYBOOK.md) - small
+  founder-led beta onboarding and operating routine.
+- [PITCH_TALKING_POINTS.md](PITCH_TALKING_POINTS.md) - audience-specific
+  talking points for Talent, Recruiters, mentors, incubators, investors, and
+  parents.
+
 ## Local Setup
 
 Requirements:
@@ -215,7 +229,8 @@ See [TESTING.md](TESTING.md) for accounts, workflows, and removal instructions.
 
 ## Known Launch Gaps
 
-- Verification document upload remains disabled
+- Direct self-tape video upload remains intentionally replaced by external
+  links
 - Large video uploads are intentionally replaced by external showreel links
 - Email/SMS delivery, analytics, monitoring, and legal workflows are not
   production-ready

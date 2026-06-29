@@ -1,5 +1,35 @@
 # Nata Connect development test cases
 
+## Founder Demo and Pitch Readiness Pack checks
+
+After updating the founder demo pack, verify:
+
+- [ ] `FOUNDER_DEMO_SCRIPT.md` gives 30-second, 2-minute, and 5-minute scripts
+  without claiming guaranteed casting, fake traction, or nonexistent
+  partnerships.
+- [ ] `LIVE_DEMO_ROUTE_ORDER.md` covers public, Talent, Recruiter, Admin, and
+  fallback paths with safe "do not click" guidance.
+- [ ] `SCREENSHOT_CHECKLIST.md` covers landing, Talent, Recruiter, Admin,
+  messages, notifications, applications, applicant review, launch readiness,
+  and safety/community pages.
+- [ ] `BETA_ONBOARDING_PLAYBOOK.md` keeps beta realistic for a small
+  founder-led MVP and does not recommend public-scale rollout before trust
+  operations are stable.
+- [ ] `PITCH_TALKING_POINTS.md` has audience-specific talking points for
+  Talent, Recruiters, mentors, incubators/investors, and parents/general
+  audiences.
+- [ ] README links to the founder demo pack.
+
+This documentation pass should not require Firebase deploy. Run the standard
+local checks:
+
+```powershell
+npm run lint
+npm test
+npm run build
+git diff --check
+```
+
 ## Live Production Smoke Test — June 29, 2026
 
 All flows passed the smoke test. No bugs found. Manual verification checklist for this pass:
