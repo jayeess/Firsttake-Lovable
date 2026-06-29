@@ -125,7 +125,7 @@ export default function RecruiterAuditionsPage() {
       ) : error ? null : auditions.length === 0 ? (
         <EmptyState
           title="No casting briefs yet"
-          message="Post your first casting brief to start reaching Talent on Nata Connect. Verified recruiters see stronger applicant response."
+          message="Start with one complete brief: role, project type, location, timeline, language, compensation, and self-tape expectations. Clear briefs help Talent decide whether to apply."
           actionHref="/recruiter/auditions/new"
           actionLabel="Post a casting brief"
         />

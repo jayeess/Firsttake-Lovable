@@ -520,9 +520,11 @@ export default function AuditionsPage() {
           title={filters.savedOnly ? 'No saved auditions yet' : 'No matching auditions'}
           message={
             filters.savedOnly
-              ? 'Browse all auditions and bookmark the roles that fit your profile. Return here to apply before the deadline.'
-              : 'Try removing a filter or clearing all to see every active casting call.'
+              ? 'Browse all auditions and bookmark roles that fit your profile. Saving creates a private shortlist; applying is a separate step before the deadline.'
+              : 'Try removing a filter or improving your profile signals. Legitimate auditions on Nata Connect are free to apply to.'
           }
+          actionHref={filters.savedOnly ? '/auditions' : '/talent/profile'}
+          actionLabel={filters.savedOnly ? 'Browse all auditions' : 'Improve profile'}
         />
       ) : (
         <div className="mt-6 grid gap-4 lg:grid-cols-2">

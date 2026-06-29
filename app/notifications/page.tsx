@@ -8,6 +8,7 @@ import {
   MessageSquare,
   ShieldCheck,
 } from 'lucide-react';
+import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
@@ -107,6 +108,18 @@ const getCategoryIcon = (category: NotificationFilter) => {
   return ShieldCheck;
 };
 
+const getEmptyNotificationAction = (
+  filter: NotificationFilter,
+  isAdmin: boolean
+) => {
+  if (isAdmin) return { href: '/admin', label: 'Open admin dashboard' };
+  if (filter === 'APPLICATIONS') return { href: '/applications', label: 'View applications' };
+  if (filter === 'MESSAGES') return { href: '/messages', label: 'Open messages' };
+  if (filter === 'AUDITIONS') return { href: '/auditions', label: 'Browse auditions' };
+  if (filter === 'TRUST') return { href: '/profile', label: 'Review profile' };
+  return { href: '/dashboard', label: 'Open workspace' };
+};
+
 function NotificationCenter() {
   const router = useRouter();
   const { isAdmin } = useAuth();
@@ -139,6 +152,7 @@ function NotificationCenter() {
     [filter, notifications]
   );
   const unreadCount = notifications.filter((item) => !item.read).length;
+  const emptyAction = getEmptyNotificationAction(filter, isAdmin);
 
   const openNotification = async (notification: AppNotification) => {
     if (!notification.read) {
@@ -276,6 +290,9 @@ function NotificationCenter() {
                       ? 'Account and trust notices — verification updates, safety alerts — will appear here.'
                       : 'Application updates, recruiter messages, and casting decisions will appear here.'}
             </p>
+            <Link href={emptyAction.href} className="primary-button mt-5 sm:w-auto">
+              {emptyAction.label}
+            </Link>
           </section>
         ) : (
           visible.map((notification) => {

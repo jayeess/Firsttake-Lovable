@@ -1,5 +1,21 @@
 # Nata Connect development test cases
 
+## Real launch demo and marketplace content checks
+
+After the real launch demo content pass, verify the app still feels complete when
+there is little or no database activity:
+
+- [ ] `/` explains the real casting loop and clearly separates current product capabilities from future roadmap items.
+- [ ] `/auditions` saved and no-results empty states include clear next actions and no fake audition data.
+- [ ] `/applications` explains how to submit a strong first application message.
+- [ ] `/messages` and `/notifications` empty states link users to the next useful workspace area.
+- [ ] `/dashboard` gives Talent and Recruiters practical first-step guidance when no records exist.
+- [ ] `/recruiter/auditions/new` placeholders read as safe examples and do not imply seeded live content.
+- [ ] `/recruiter/verification` shows status guidance without technical wording.
+- [ ] `/recruiter/auditions/[id]/applicants` empty state stays useful with no applicants or active filters.
+
+See `REAL_LAUNCH_DEMO_MARKETPLACE_CONTENT_REPORT.md` for the full checklist.
+
 ## Cinematic product flow checks
 
 After the Cinematic Casting OS transformation pass, verify the following UI-only flows:

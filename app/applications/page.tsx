@@ -426,7 +426,11 @@ export default function ApplicationsPage() {
         ) : error ? null : filtered.length === 0 ? (
           <EmptyState
             title={statusFilter === 'ALL' ? emptyMessages[view] : 'No applications match this filter.'}
-            message="Browse casting calls and submit your profile for a role that fits."
+            message={
+              statusFilter === 'ALL'
+                ? 'Start with one casting brief that matches your profile. Use the cover message to mention availability, language comfort, and relevant experience.'
+                : 'This stage has no applications yet. Switch filters or keep browsing roles that fit your profile.'
+            }
             actionHref="/auditions"
             actionLabel="Browse auditions"
           />

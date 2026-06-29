@@ -1,5 +1,21 @@
 # Full App UX Polish Report
 
+## Real Launch Demo and Marketplace Content Pass - June 29, 2026
+
+**Goal:** Make Nata Connect feel launch-ready when the database has little or no live content, without adding fake data, fake metrics, fake testimonials, backend features, or security changes.
+
+Key improvements in this pass:
+
+- **Landing page** (`/`): Added a launch-ready marketplace section and an honest roadmap card that distinguishes current workflow support from future video upload, document upload, payments, AI, and automation.
+- **Talent first-time flow** (`/auditions`, `/applications`, `/dashboard`, `/talent/profile`): Empty states and guidance now explain saving versus applying, first application messages, profile readiness, and safe public portfolio behavior.
+- **Recruiter first-time flow** (`/dashboard`, `/recruiter/auditions`, `/recruiter/auditions/new`, `/recruiter/profile`, `/recruiter/verification`): First brief guidance, form placeholders, company bio guidance, and verification status copy now feel more practical and launch-ready.
+- **Communication surfaces** (`/messages`, `/notifications`): Empty states now include role-aware next actions instead of passive "nothing here" copy.
+- **Applicant review** (`/recruiter/auditions/[id]/applicants`): Empty state now gives public-brief and safe-sharing guidance when there are no applicants or filters hide results.
+
+See `REAL_LAUNCH_DEMO_MARKETPLACE_CONTENT_REPORT.md` for the full page review, known limitations, and manual launch QA checklist.
+
+---
+
 ## Cinematic Product Design and Flow Transformation Pass — June 25, 2026
 
 **Goal:** Make FirstTake / Nata Connect feel like a modern cinematic casting operating system rather than a generic marketplace or dashboard collection. Improve product flow clarity without changing backend logic, permissions, Firebase config, schemas, or tests.

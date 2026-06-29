@@ -366,12 +366,12 @@ export default function NewAuditionPage() {
               <p className="eyebrow">01 · Role basics</p>
               <div className="mt-5 grid gap-5 sm:grid-cols-2">
                 <div className="sm:col-span-2">
-                  <Input label="Audition title" value={form.title} onChange={(v) => update('title', v)} placeholder="e.g. Lead actor for regional drama" helper="Include the role type and project — be specific enough that Talent can tell at a glance if it fits their profile." />
+                  <Input label="Audition title" value={form.title} onChange={(v) => update('title', v)} placeholder="Example: Lead role for a short film" helper="Include the role type and project so Talent can tell at a glance if it fits their profile." />
                 </div>
                 <label className="block text-sm font-bold">Category<select value={form.category} onChange={(e) => update('category', e.target.value)} className="field mt-2">{Object.entries(CATEGORY_LABELS).map(([v,l]) => <option key={v} value={v}>{l}</option>)}</select></label>
                 <label className="block text-sm font-bold">Experience level<select value={form.experienceLevel} onChange={(e) => update('experienceLevel', e.target.value)} className="field mt-2">{Object.entries(EXPERIENCE_LABELS).map(([v,l]) => <option key={v} value={v}>{l}</option>)}</select></label>
-                <Input label="Location" value={form.location} onChange={(v) => update('location', v)} placeholder="City or remote" helper="Talent use location to decide whether they can attend in person." />
-                <Input label="Project duration" value={form.duration} onChange={(v) => update('duration', v)} placeholder="e.g. 3 shooting days" />
+                <Input label="Location" value={form.location} onChange={(v) => update('location', v)} placeholder="Example: Hyderabad or remote" helper="Talent use location to decide whether they can attend in person." />
+                <Input label="Project duration" value={form.duration} onChange={(v) => update('duration', v)} placeholder="Example: 3 shoot days in July" helper="Mention expected shoot dates or timeline if known." />
                 <label className="block text-sm font-bold">Project type<select value={form.auditionType} onChange={(e) => update('auditionType', e.target.value)} className="field mt-2"><option value="FILM">Film</option><option value="SERIES">Series</option><option value="COMMERCIAL">Commercial</option><option value="THEATRE">Theatre</option><option value="VOICE_OVER">Voice over</option><option value="LIVE_EVENT">Live event</option><option value="OTHER">Other</option></select></label>
                 <label className="block text-sm font-bold">Work mode<select value={form.workMode} onChange={(e) => update('workMode', e.target.value)} className="field mt-2"><option value="ONSITE">Onsite</option><option value="REMOTE">Remote</option><option value="HYBRID">Hybrid</option></select></label>
                 <div className="sm:col-span-2">
@@ -384,13 +384,13 @@ export default function NewAuditionPage() {
               <p className="eyebrow">02 · Creative brief</p>
               <label className="mt-5 block text-sm font-bold">
                 Role description
-                <textarea required rows={7} value={form.description} onChange={(e) => update('description', e.target.value)} className="field mt-2" placeholder="Describe the project, character, tone, and what makes this role distinctive." />
-                <p className="mt-1.5 text-xs font-normal leading-5 text-[#657176]">Talent uses this to decide if the role fits their skills — include the project context, character brief, and tone.</p>
+                <textarea required rows={7} value={form.description} onChange={(e) => update('description', e.target.value)} className="field mt-2" placeholder="Example: Describe the project tone, role, schedule context, and what Talent will perform." />
+                <p className="mt-1.5 text-xs font-normal leading-5 text-[#657176]">Talent uses this to decide if the role fits their skills. Include the project context, character brief, and tone.</p>
               </label>
               <label className="mt-5 block text-sm font-bold">
                 Requirements
-                <textarea required rows={6} value={form.requirements} onChange={(e) => update('requirements', e.target.value)} className="field mt-2" placeholder="Skills, language, age range, availability, and portfolio expectations." />
-                <p className="mt-1.5 text-xs font-normal leading-5 text-[#657176]">Be specific but fair — only list requirements that genuinely affect eligibility.</p>
+                <textarea required rows={6} value={form.requirements} onChange={(e) => update('requirements', e.target.value)} className="field mt-2" placeholder="Example: Telugu-speaking dancer, available for rehearsals, comfortable with self-tape." />
+                <p className="mt-1.5 text-xs font-normal leading-5 text-[#657176]">Be specific but fair. Only list requirements that genuinely affect eligibility.</p>
               </label>
             </section>
 
@@ -515,7 +515,7 @@ export default function NewAuditionPage() {
               <div className="mt-5 space-y-5">
                 <Input label="Positions" type="number" value={String(form.numberOfPositions)} onChange={(v) => update('numberOfPositions', Number(v))} />
                 <Input label="Application deadline" type="date" value={form.deadline} onChange={(v) => update('deadline', v)} helper="Give Talent at least 7 days to prepare and apply." />
-                <Input label="Pay information" value={form.payInfo} onChange={(v) => update('payInfo', v)} required={false} placeholder="Optional, but recommended" helper="Specific compensation helps Talent make an informed decision — mention rates, fees, or honorarium amounts." />
+                <Input label="Pay information" value={form.payInfo} onChange={(v) => update('payInfo', v)} required={false} placeholder="Example: Paid day rate, honorarium, or unpaid student project" helper="Specific compensation helps Talent make an informed decision. Mention rates, fees, or honorarium amounts when possible." />
                 <label className="block text-sm font-bold">
                   Compensation type
                   <select value={form.paymentType} onChange={(e) => update('paymentType', e.target.value)} className="field mt-2"><option value="PAID">Paid</option><option value="HONORARIUM">Honorarium</option><option value="UNPAID">Unpaid</option><option value="UNSPECIFIED">Not specified</option></select>

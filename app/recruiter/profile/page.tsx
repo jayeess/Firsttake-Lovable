@@ -343,7 +343,7 @@ export default function RecruiterProfilePage() {
           >
             <label className="block text-sm font-bold">
               Company bio
-              <textarea maxLength={500} rows={5} value={profile.bio} onChange={(e) => update('bio', e.target.value)} className="field mt-2 py-3" />
+              <textarea maxLength={500} rows={5} value={profile.bio} onChange={(e) => update('bio', e.target.value)} className="field mt-2 py-3" placeholder="Example: Short description of your company, project types, casting process, and response expectations." />
             </label>
             <PrivacyNote title="Platform safety expectation" className="mt-5">
               Casting briefs on Nata Connect must not charge Talent. Never

@@ -475,8 +475,10 @@ export default function TalentProfilePage() {
 
         <PrivacyNote title="What is visible where" className="mt-4">
           Recruiters see profile details when you apply. Public profile settings
-          control what appears on your shareable profile. Verification notes and
-          private account data stay internal.
+          control what appears on your shareable profile. Use portfolio and
+          showreel links you are comfortable sharing, avoid private contact
+          details in your public bio, and keep callbacks on-platform.
+          Verification notes and private account data stay internal.
         </PrivacyNote>
         {!emailVerified && (
           <div className="mt-4">
@@ -512,7 +514,9 @@ export default function TalentProfilePage() {
             </h2>
             <p className="mt-2 text-sm text-[#657176]">
               Your basic Talent profile creates the secure owner record used by
-              profile photos and portfolio uploads.
+              profile photos and portfolio uploads. One showreel link, two
+              portfolio items, and clear skills/languages are enough to help a
+              recruiter understand your fit.
             </p>
           </section>
         )}

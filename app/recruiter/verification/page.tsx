@@ -97,6 +97,18 @@ export default function RecruiterVerificationPage() {
   };
 
   const status = verification?.status ?? 'not_submitted';
+  const statusGuidance: Record<string, string> = {
+    not_submitted:
+      'Submit company details once your profile is complete. Verification comes before publishing live casting briefs.',
+    pending:
+      'Review is pending. Keep company details accurate; the team may request more context safely.',
+    approved:
+      'Approved accounts can publish casting briefs and show verified recruiter trust signals.',
+    rejected:
+      'Use the review note, update details, then resubmit for another trust review.',
+    suspended:
+      'Publishing access is paused. Contact the trust team before submitting new casting activity.',
+  };
 
   return (
     <AppShell requiredRole="RECRUITER">
@@ -115,6 +127,9 @@ export default function RecruiterVerificationPage() {
             {status.replace('_', ' ')}
           </span>
         </div>
+        <p className="mt-4 rounded-md border border-[#d7e3e7] bg-white p-4 text-sm font-bold leading-6 text-[#40535c]">
+          {statusGuidance[status] ?? statusGuidance.not_submitted}
+        </p>
 
         {loading ? <LoadingState label="Loading verification status..." /> : null}
         {error && (

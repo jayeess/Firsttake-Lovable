@@ -513,7 +513,9 @@ export default function AuditionApplicantsPage() {
         {!loading && !error && visibleApplicants.length === 0 && (
           <EmptyState
             title="No applicants match these filters"
-            message="Clear a filter or choose another pipeline stage."
+            message="If this brief is new, share the public link only in appropriate channels and keep applications inside Nata Connect. If filters are active, clear them or choose All."
+            actionHref={`/auditions/${id}`}
+            actionLabel="View public brief"
           />
         )}
       </div>

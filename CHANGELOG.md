@@ -1,5 +1,13 @@
 # Changelog
 
+### Real Launch Demo and Marketplace Content Pass
+
+- Added launch-ready marketplace positioning to `/`, including an honest roadmap note for future video upload, document upload, payments, AI, and marketplace automation.
+- Improved empty states and first-time guidance across Talent auditions, applications, messages, notifications, dashboards, recruiter auditions, recruiter verification, recruiter profile, and applicant review.
+- Clarified the save-versus-apply mental model, first application guidance, recruiter casting brief requirements, and no-pay-to-audition safety expectations.
+- Created `REAL_LAUNCH_DEMO_MARKETPLACE_CONTENT_REPORT.md`.
+- No fake marketplace data, Firestore rules, APIs, schemas, authentication, Firebase config, payment, AI, or direct upload behavior changed.
+
 ### Cinematic Product Design and Flow Transformation Pass
 
 - Added shared product UI primitives in `components/product-ui.tsx`: `CinematicSectionHeader`, `NextActionPanel`, `FlowStepCard`, and `TrustCueCard`.

@@ -262,9 +262,16 @@ export default function Dashboard() {
                   </div>
                 ))}
                 {auditions.length === 0 && (
-                  <p className="p-7 text-center text-[#68727c]">
-                    No activity yet. Use the primary action above to get started.
-                  </p>
+                  <div className="p-7 text-center">
+                    <h3 className="text-lg font-black">No casting briefs yet</h3>
+                    <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-[#68727c]">
+                      Start with one complete brief: role, location, timeline,
+                      compensation, language, and self-tape expectations.
+                    </p>
+                    <Link href="/recruiter/auditions/new" className="primary-button mt-5 sm:w-auto">
+                      Create first brief
+                    </Link>
+                  </div>
                 )}
               </div>
             </section>
@@ -551,7 +558,9 @@ function TalentWorkspace({
               <div className="p-8 text-center">
                 <h3 className="text-lg font-black">No applications yet</h3>
                 <p className="mt-2 text-sm leading-6 text-[#657176]">
-                  Find a role that fits your profile and submit your first application.
+                  Complete your profile, browse verified casting briefs, and
+                  use your cover message to mention availability, language
+                  comfort, and relevant experience.
                 </p>
                 <Link href="/auditions" className="primary-button mt-5 sm:w-auto">
                   Browse auditions
@@ -637,7 +646,8 @@ function TalentWorkspace({
               </div>
             ) : (
               <p className="mt-2 text-sm leading-6 text-[#657176]">
-                No saved auditions yet. Bookmark promising casting calls and return here later.
+                No saved auditions yet. Bookmarking creates a private shortlist;
+                applying is a separate step when you are ready.
               </p>
             )}
             <Link href="/auditions?view=saved" className="secondary-button mt-4 sm:w-auto">
@@ -800,7 +810,7 @@ function TalentOnboardingChecklist({
       href: undefined as string | undefined,
     },
     {
-      label: 'Build your talent profile (60%+ completeness)',
+      label: 'Complete core profile (60%+ readiness)',
       done: completion >= 60,
       href: '/talent/profile',
     },
@@ -810,7 +820,7 @@ function TalentOnboardingChecklist({
       href: '/auditions',
     },
     {
-      label: 'Submit your first application',
+      label: 'Apply with a relevant message',
       done: false,
       href: '/auditions',
     },

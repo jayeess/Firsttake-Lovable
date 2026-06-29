@@ -193,6 +193,56 @@ export default function Home() {
         />
       </section>
 
+      <section className="mx-auto max-w-7xl px-5 pb-16">
+        <div className="grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
+          <article className="surface rounded-md p-6 sm:p-8">
+            <p className="eyebrow">Launch-ready marketplace</p>
+            <h2 className="mt-2 text-3xl font-black leading-tight">
+              Built for real casting workflows, even before the marketplace is full.
+            </h2>
+            <p className="mt-3 leading-7 text-[#5b6e78]">
+              FirstTake helps Talent and Recruiters use the same structured
+              flow from day one: profile, casting brief, application, review,
+              message, and status update.
+            </p>
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              {[
+                'Professional Talent profiles with portfolio and showreel links',
+                'Recruiter casting briefs with requirements, dates, pay context, and self-tape expectations',
+                'Saved auditions, application tracking, and platform messages',
+                'Verification, reports, audit logs, and never-pay-to-audition safety guidance',
+              ].map((item) => (
+                <p
+                  key={item}
+                  className="rounded-md border border-[#d6e2e7] bg-[#f7fbfc] p-3 text-sm font-bold leading-6 text-[#40535c]"
+                >
+                  {item}
+                </p>
+              ))}
+            </div>
+          </article>
+          <article className="rounded-md border border-[#c7d6dc] bg-[#07111f] p-6 text-white sm:p-8">
+            <p className="text-xs font-black uppercase tracking-[0.12em] text-[#55e6f7]">
+              Clear roadmap
+            </p>
+            <h2 className="mt-2 text-3xl font-black leading-tight">
+              Honest about what comes later.
+            </h2>
+            <p className="mt-3 leading-7 text-white/72">
+              Direct video uploads, document upload, payments, AI assistance,
+              and larger marketplace automation are intentionally outside the
+              current launch flow until the safety and operations model is ready.
+            </p>
+            <Link
+              href="/safety"
+              className="mt-6 inline-flex min-h-11 items-center rounded-md border border-white/20 px-4 text-sm font-black text-[#ffd66d] hover:bg-white/10"
+            >
+              Read safety standards
+            </Link>
+          </article>
+        </div>
+      </section>
+
       <section className="bg-[#07111f] px-5 py-16 text-white">
         <div className="mx-auto flex max-w-7xl flex-col justify-between gap-8 md:flex-row md:items-end">
           <div>

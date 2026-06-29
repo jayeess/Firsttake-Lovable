@@ -200,14 +200,18 @@ export default function MessagesPage() {
             title="No conversations yet"
             message={
               userType === 'RECRUITER'
-                ? 'Applicant conversations will appear here when you message Talent about an audition.'
-                : 'Conversations appear here when a recruiter messages you about an application, or when you message a casting team.'
+                ? 'Applicant conversations appear after you message Talent from an audition review. Keep callbacks and next steps attached to the role.'
+                : 'Conversations appear after recruiter replies or application-linked messages. Apply first so each conversation has casting context.'
             }
+            actionHref={userType === 'RECRUITER' ? '/recruiter/auditions' : '/applications'}
+            actionLabel={userType === 'RECRUITER' ? 'Review auditions' : 'View applications'}
           />
         ) : !error && filtered.length === 0 ? (
           <EmptyState
             title="No matching conversations"
             message="Try a different search term or switch back to all messages."
+            actionHref="/messages"
+            actionLabel="Show all messages"
           />
         ) : (
           filtered.map((conversation) => {
