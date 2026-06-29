@@ -23,7 +23,11 @@ import {
   uploadPortfolioImage,
   uploadProfilePhoto,
 } from '@/app/lib/storage-service';
-import { normalizeExternalMediaUrl } from '@/app/lib/talent-media-policy';
+import {
+  MAX_PORTFOLIO_IMAGE_COUNT,
+  normalizeExternalMediaUrl,
+  validatePortfolioImageCount,
+} from '@/app/lib/talent-media-policy';
 import type { TalentMedia, TalentProfile } from '@/app/lib/types';
 
 const notifyMediaEvent = async (
@@ -137,6 +141,12 @@ export function TalentMediaManager({
 
   const uploadPortfolio = async (file?: File) => {
     if (!file) return;
+    const imageCount = media.filter((item) => item.type === 'image').length;
+    const countError = validatePortfolioImageCount(imageCount);
+    if (countError) {
+      setError(countError);
+      return;
+    }
     const mediaId = createTalentMediaId(uid);
     setError('');
     setMessage('');
@@ -231,8 +241,9 @@ export function TalentMediaManager({
           <p className="eyebrow">Media portfolio</p>
           <h2 className="mt-2 text-2xl font-black">Show your work</h2>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-[#657176]">
-            Images may be up to 10 MB. Use external links for video and
-            showreels. Media remains optional for browsing and applications.
+            Upload up to {MAX_PORTFOLIO_IMAGE_COUNT} portfolio images at 5 MB
+            each. Use external links for video and showreels. Only upload
+            images you own or have permission to use.
           </p>
         </div>
         <span className="border border-[#cbd6db] px-3 py-2 text-sm font-black">
@@ -299,7 +310,8 @@ export function TalentMediaManager({
             </button>
           )}
           <p className="mt-2 text-xs text-[#728087]">
-            JPEG, PNG, or WebP. Maximum 5 MB.
+            JPEG, PNG, or WebP. Maximum 5 MB. Your profile photo may appear on
+            your public Talent profile if public profile sharing is enabled.
           </p>
         </div>
 
@@ -350,7 +362,8 @@ export function TalentMediaManager({
             <div className="mt-5 border border-dashed border-[#bdcbd1] p-8 text-center">
               <p className="font-black">No portfolio media yet</p>
               <p className="mt-2 text-sm text-[#68727c]">
-                Add a strong image or a concise external showreel.
+                Add a strong image or a concise external showreel. Do not
+                upload private documents here.
               </p>
             </div>
           ) : (

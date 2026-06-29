@@ -1,5 +1,7 @@
 export const PROFILE_PHOTO_MAX_BYTES = 5 * 1024 * 1024;
-export const PORTFOLIO_IMAGE_MAX_BYTES = 10 * 1024 * 1024;
+export const PORTFOLIO_IMAGE_MAX_BYTES = 5 * 1024 * 1024;
+export const MAX_PORTFOLIO_IMAGE_COUNT = 6;
+
 export const ALLOWED_TALENT_IMAGE_TYPES = [
   'image/jpeg',
   'image/png',
@@ -12,6 +14,8 @@ const extensionByType: Record<string, string> = {
   'image/webp': 'webp',
 };
 
+const formatMegabytes = (bytes: number) => `${Math.round(bytes / 1024 / 1024)} MB`;
+
 export const validateTalentImage = (
   file: Pick<File, 'type' | 'size'>,
   kind: 'profile' | 'portfolio'
@@ -22,10 +26,17 @@ export const validateTalentImage = (
   const limit =
     kind === 'profile' ? PROFILE_PHOTO_MAX_BYTES : PORTFOLIO_IMAGE_MAX_BYTES;
   if (file.size > limit) {
-    return `${kind === 'profile' ? 'Profile photos' : 'Portfolio images'} must be ${kind === 'profile' ? '5 MB' : '10 MB'} or smaller.`;
+    return `${kind === 'profile' ? 'Profile photo' : 'Portfolio image'} files must be ${formatMegabytes(limit)} or smaller.`;
   }
   return null;
 };
+
+export const validatePortfolioImageCount = (currentImageCount: number) =>
+  currentImageCount >= MAX_PORTFOLIO_IMAGE_COUNT
+    ? `Portfolio image uploads are limited to ${MAX_PORTFOLIO_IMAGE_COUNT} images. You can still add external showreel links.`
+    : null;
+
+const isSafePathPart = (value: string) => /^[A-Za-z0-9_-]+$/.test(value);
 
 export const buildTalentMediaPath = ({
   uid,
@@ -39,12 +50,13 @@ export const buildTalentMediaPath = ({
   mimeType: string;
 }) => {
   const extension = extensionByType[mimeType];
-  if (!extension || !/^[A-Za-z0-9_-]+$/.test(uid + mediaId)) {
-    throw new Error('A safe Talent media path could not be created.');
+  if (!extension || !isSafePathPart(uid) || !isSafePathPart(mediaId)) {
+    throw new Error('A safe upload path could not be created.');
   }
-  return kind === 'profile'
-    ? `talent-media/${uid}/profile/${mediaId}.${extension}`
-    : `talent-media/${uid}/portfolio/${mediaId}/${mediaId}.${extension}`;
+  if (kind === 'profile') {
+    return `talent-media/${uid}/profile/${mediaId}.${extension}`;
+  }
+  return `talent-media/${uid}/portfolio/${mediaId}/${mediaId}.${extension}`;
 };
 
 export const normalizeExternalMediaUrl = (value: string) => {
