@@ -1,5 +1,21 @@
 # Changelog
 
+### Casting Brief Quality Engine and Scam Shield
+
+- Added `app/lib/casting-brief-quality-policy.ts` with transparent,
+  rule-based quality and safety helpers for casting briefs.
+- Added a live Publish Readiness panel to `/recruiter/auditions/new`.
+- Added compact brief quality cues to `/recruiter/auditions` and audition cards.
+- Added Talent-facing brief quality and safety context to `/auditions/[id]`.
+- Added Admin-facing quality/risk cues to `/admin/auditions`.
+- Added `tests/casting-brief-quality-policy.test.mts` covering strong briefs,
+  missing detail, expired deadlines, payment language, private contact pressure,
+  unrelated document requests, self-tape instructions, band logic, admin risk,
+  and no AI/fake detection language.
+- Created `CASTING_BRIEF_QUALITY_SCAM_SHIELD_REPORT.md`.
+- No Firestore rules, schemas, APIs, auth permissions, payment, AI, fake data,
+  direct video upload, or self-tape video upload changed.
+
 ### Talent Passport and Role Fit Signals
 
 - Added `app/lib/role-fit-policy.ts` with explainable readiness helpers for

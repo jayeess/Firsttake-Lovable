@@ -27,6 +27,10 @@ import { EmptyState, ErrorState, LoadingState } from '@/components/async-state';
 import { ReportButton } from '@/components/report-button';
 import { NextActionPanel, SafetyNotice } from '@/components/product-ui';
 import { getRoleFitSummary, type RoleFitSignalStatus } from '@/app/lib/role-fit-policy';
+import {
+  getCastingBriefQuality,
+  type CastingBriefQualitySummary,
+} from '@/app/lib/casting-brief-quality-policy';
 
 const AUDITION_TYPE_LABELS: Record<string, string> = {
   FILM: 'Film',
@@ -92,6 +96,10 @@ export default function AuditionDetailPage() {
         ? getRoleFitSummary(talentProfile, audition)
         : null,
     [audition, talentProfile]
+  );
+  const briefQuality = useMemo(
+    () => (audition ? getCastingBriefQuality(audition) : null),
+    [audition]
   );
 
   const toggleSaved = async () => {
@@ -214,6 +222,12 @@ export default function AuditionDetailPage() {
               <Detail label="Languages" value={audition.languages.join(', ')} />
             )}
           </div>
+          {briefQuality && (
+            <CastingBriefTrustPanel
+              summary={briefQuality}
+              recruiterVerified={audition.recruiterVerified === true}
+            />
+          )}
           <Section title="About the role" body={audition.description} />
           <Section title="Requirements" body={audition.requirements} />
           {audition.selfTapeEnabled && (
@@ -365,6 +379,71 @@ export default function AuditionDetailPage() {
       </div>
     </AppShell>
   );
+}
+
+function CastingBriefTrustPanel({
+  summary,
+  recruiterVerified,
+}: {
+  summary: CastingBriefQualitySummary;
+  recruiterVerified: boolean;
+}) {
+  const visibleSignals = summary.safetySignals.length
+    ? summary.safetySignals
+    : summary.qualitySignals
+        .filter((signal) => signal.status !== 'complete')
+        .slice(0, 2);
+
+  return (
+    <section className="mt-6 rounded-md border border-[#d7e3e7] bg-[#f7fafb] p-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <p className="eyebrow">Brief quality and safety</p>
+          <h2 className="mt-2 text-xl font-black">{summary.bandLabel}</h2>
+          <p className="mt-2 text-sm leading-6 text-[#657176]">
+            This transparent check looks at clarity, deadline, compensation,
+            requirements, self-tape instructions, and safety language.
+          </p>
+        </div>
+        <span className={`w-fit rounded-md px-2.5 py-1 text-xs font-black ${briefQualityClass(summary.band)}`}>
+          {summary.score}%
+        </span>
+      </div>
+      <div className="mt-4 flex flex-wrap gap-2">
+        <span className="rounded-md border border-[#bad7d3] bg-white px-2.5 py-1 text-xs font-black text-[#006b60]">
+          {recruiterVerified ? 'Verified recruiter' : 'Recruiter trust pending'}
+        </span>
+        <span className="rounded-md border border-[#bad7d3] bg-white px-2.5 py-1 text-xs font-black text-[#006b60]">
+          Keep messages on-platform
+        </span>
+        <span className="rounded-md border border-[#bad7d3] bg-white px-2.5 py-1 text-xs font-black text-[#006b60]">
+          Never pay to audition
+        </span>
+      </div>
+      {visibleSignals.length > 0 && (
+        <ul className="mt-4 space-y-2 text-sm font-bold leading-6 text-[#526874]">
+          {visibleSignals.map((signal) => (
+            <li key={signal.key} className="border-l-2 border-[#e7ad2d] pl-3">
+              {signal.detail}
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
+
+function briefQualityClass(band: CastingBriefQualitySummary['band']) {
+  if (band === 'strong_brief') {
+    return 'border border-emerald-200 bg-emerald-50 text-emerald-800';
+  }
+  if (band === 'good_brief') {
+    return 'border border-[#bad7d3] bg-[#edf7f5] text-[#006b60]';
+  }
+  if (band === 'needs_detail') {
+    return 'border border-amber-200 bg-amber-50 text-amber-900';
+  }
+  return 'border border-red-200 bg-red-50 text-red-800';
 }
 
 function RoleReadinessPanel({

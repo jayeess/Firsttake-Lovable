@@ -1,5 +1,33 @@
 # Full App UX Polish Report
 
+## Casting Brief Quality Engine and Scam Shield - June 29, 2026
+
+**Goal:** Add transparent, rule-based casting brief quality and safety signals
+without changing backend permissions, schemas, Firestore rules, Auth, Admin
+logic, payments, upload behavior, or application submission.
+
+Key improvements:
+
+- `app/lib/casting-brief-quality-policy.ts` centralizes quality bands, missing
+  items, safety signals, publish checklist output, and admin risk summaries.
+- `/recruiter/auditions/new` now includes a live Publish Readiness panel so
+  recruiters can improve title, description, requirements, deadline, pay
+  clarity, and self-tape instructions before publishing.
+- `/recruiter/auditions` now shows compact quality cues and next-action copy
+  per brief.
+- `/auditions` cards now show brief quality bands, with calm safety cues only
+  when risk language is present.
+- `/auditions/[id]` now includes brief quality and safety context near the role
+  details, including never-pay and on-platform communication cues.
+- `/admin/auditions` now shows quality/risk badges, scores, readiness counts,
+  and human-readable admin review cues.
+- `tests/casting-brief-quality-policy.test.mts` covers strong brief behavior,
+  missing detail, expired deadlines, payment/private contact/document safety
+  signals, self-tape instructions, band logic, admin risk output, and no AI or
+  fake detection language.
+
+See `CASTING_BRIEF_QUALITY_SCAM_SHIELD_REPORT.md` for the full change record.
+
 ## Talent Passport and Role Fit Signals - June 29, 2026
 
 **Goal:** Add a transparent Talent Passport and role readiness layer without

@@ -34,6 +34,7 @@ the operator checklist and known limitations.
   snapshots, safe slugs, selected public media, and verified badges
 - Recruiter-facing featured media and portfolio previews
 - Recruiter audition creation and applicant review
+- Casting brief quality and safety cues for Recruiter, Talent, and Admin views
 - Recruiter-facing applicant role fit signals for guidance only
 - Talent audition discovery, application submission, and status tracking
 - Self-tape requests on auditions with Talent link submission and Recruiter

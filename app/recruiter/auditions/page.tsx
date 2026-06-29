@@ -7,6 +7,7 @@ import { AppShell } from '@/components/app-shell';
 import { StatusBadge } from '@/components/status-badge';
 import { getRecruiterAuditions } from '@/app/lib/firestore-service';
 import { formatDate, type Audition } from '@/app/lib/types';
+import { getCastingBriefQuality } from '@/app/lib/casting-brief-quality-policy';
 import { getErrorMessage } from '@/app/lib/error-utils';
 import { useAuth } from '@/context/auth-context';
 import { EmptyState, ErrorState, LoadingState } from '@/components/async-state';
@@ -44,6 +45,9 @@ export default function RecruiterAuditionsPage() {
       ),
       selfTape: auditions.filter((item) => item.selfTapeEnabled).length,
       drafts: auditions.filter((item) => item.status === 'DRAFT').length,
+      needsReview: auditions.filter(
+        (item) => getCastingBriefQuality(item).band === 'needs_review'
+      ).length,
     }),
     [auditions]
   );
@@ -107,10 +111,11 @@ export default function RecruiterAuditionsPage() {
             icon={Video}
           />
           <MetricCard
-            label="Drafts"
-            value={stats.drafts}
-            detail="Not visible to Talent"
+            label="Needs review"
+            value={stats.needsReview}
+            detail="Quality or safety cues"
             icon={FilePenLine}
+            tone={stats.needsReview > 0 ? 'attention' : 'neutral'}
           />
         </section>
       )}
@@ -141,6 +146,10 @@ export default function RecruiterAuditionsPage() {
       <div className="mt-6 grid gap-4 lg:hidden">
         {auditions.map((audition) => (
           <article key={audition.id} className="surface rounded-md p-4">
+            {(() => {
+              const quality = getCastingBriefQuality(audition);
+              return (
+                <>
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <p className="text-xs font-black uppercase text-[#008ca6]">
@@ -151,6 +160,18 @@ export default function RecruiterAuditionsPage() {
                 </h2>
               </div>
               <StatusBadge status={audition.status} />
+            </div>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <BriefQualityPill
+                label={quality.bandLabel}
+                band={quality.band}
+              />
+              {quality.missingItems.length > 0 && (
+                <span className="text-xs font-bold text-[#657176]">
+                  {quality.missingItems.length} item
+                  {quality.missingItems.length === 1 ? '' : 's'} to review
+                </span>
+              )}
             </div>
             <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
               <div className="rounded-md bg-[#f2f6f8] p-3">
@@ -183,14 +204,22 @@ export default function RecruiterAuditionsPage() {
               </Link>
             </div>
             <p className="mt-3 text-xs font-bold text-[#657176]">
-              Next action: open applicants to shortlist, message, select, or
-              close the pipeline.
+              Next action:{' '}
+              {quality.band === 'needs_review' || quality.band === 'needs_detail'
+                ? quality.missingItems[0]?.detail ?? 'Improve the brief details.'
+                : 'Open applicants to shortlist, message, select, or close the pipeline.'}
             </p>
+                </>
+              );
+            })()}
           </article>
         ))}
       </div>
       <div className="mt-6 hidden space-y-3 lg:block">
         {auditions.map((audition) => (
+          (() => {
+            const quality = getCastingBriefQuality(audition);
+            return (
           <article
             key={audition.id}
             className="group flex items-center justify-between gap-5 rounded-md border border-[#d3dde2] bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-[#008ca6] hover:shadow-md"
@@ -203,6 +232,10 @@ export default function RecruiterAuditionsPage() {
                     Self-tape
                   </span>
                 )}
+                <BriefQualityPill
+                  label={quality.bandLabel}
+                  band={quality.band}
+                />
               </div>
               <h2 className="mt-2 text-base font-black leading-snug group-hover:text-[#008ca6]">
                 {audition.title}
@@ -217,6 +250,15 @@ export default function RecruiterAuditionsPage() {
                   {audition.applicantCount ?? 0}{' '}
                   {audition.applicantCount === 1 ? 'applicant' : 'applicants'}
                 </Link>
+                {quality.missingItems.length > 0 && (
+                  <>
+                    <span className="text-[#aab5bb]">Â·</span>
+                    <span>
+                      {quality.missingItems.length} readiness item
+                      {quality.missingItems.length === 1 ? '' : 's'}
+                    </span>
+                  </>
+                )}
               </div>
             </div>
             <div className="flex shrink-0 gap-2">
@@ -234,10 +276,37 @@ export default function RecruiterAuditionsPage() {
               </Link>
             </div>
           </article>
+            );
+          })()
         ))}
       </div>
       </>
       )}
     </AppShell>
+  );
+}
+
+function BriefQualityPill({
+  label,
+  band,
+}: {
+  label: string;
+  band: ReturnType<typeof getCastingBriefQuality>['band'];
+}) {
+  const classes =
+    band === 'strong_brief'
+      ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+      : band === 'good_brief'
+        ? 'border-[#bad7d3] bg-[#edf7f5] text-[#006b60]'
+        : band === 'needs_detail'
+          ? 'border-amber-200 bg-amber-50 text-amber-900'
+          : 'border-red-200 bg-red-50 text-red-800';
+
+  return (
+    <span
+      className={`rounded-md border px-2 py-1 text-[10px] font-black uppercase tracking-wide ${classes}`}
+    >
+      {label}
+    </span>
   );
 }

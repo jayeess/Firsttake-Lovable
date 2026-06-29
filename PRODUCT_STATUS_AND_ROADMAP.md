@@ -3,11 +3,12 @@
 **Telugu name:** నట కనెక్ట్  
 **Document date:** June 29, 2026
 **Repository:** `jayeess/Firsttake-Lovable`  
-**Current stage:** Talent Passport and Role Fit Signals added after pitch deck
-readiness; product is ready for controlled founder-led beta demos with
-explainable profile readiness, audition readiness guidance, recruiter review
-signals, slide outline, slide copy, speaker notes, route order, screenshot
-checklist, onboarding playbook, and audience talking points
+**Current stage:** Casting Brief Quality Engine and Scam Shield added after
+Talent Passport and Role Fit Signals; product is ready for controlled
+founder-led beta demos with explainable casting brief quality, safety signals,
+profile readiness, audition readiness guidance, recruiter review signals, slide
+outline, slide copy, speaker notes, route order, screenshot checklist,
+onboarding playbook, and audience talking points
 
 ## 1. Product Summary
 
@@ -59,6 +60,7 @@ Nata Connect is no longer a static demonstration. It is a working Firebase-backe
 | Role onboarding and first-session experience | Upgraded | Beta banner removed from signup; error blocks use amber styling on signup and login; four "FirstTake" → "Nata Connect" branding fixes on email-verified page; one fix in email verification prompt; Recruiter onboarding checklist "Complete company profile" step now reflects actual profile data instead of hardcoded done |
 | Trust, safety and reporting experience | Upgraded | Safety page has red-flags section, how-to-report, and post-report guidance; community-guidelines removes "where available" and names consequences; messages description consistent "never" policy; "FirstTake" branding bug fixed in conversation reminder; admin reports queue has priority guidance and filter-aware empty state; scam/unsafe-contact reports escalated to urgent priority |
 | Recruiter audition publishing experience | Upgraded | New casting brief form has field-level helper text on 10 fields; error block uses amber styling; Input component supports helper prop; self-tape instructions include safety note; max duration label clarified; header copy casting-specific; recruiter access widget reflects approved status; verification page explains publishing trust |
+| Casting brief quality and safety | Implemented | Rule-based, explainable quality and safety cues across Recruiter, Talent, and Admin surfaces |
 | Messaging and notifications experience | Upgraded | Messages inbox type chip role-aware and archived-aware; empty state active for talent; conversation header eyebrow role-aware; compose placeholder casting-specific; aside description and safety title improved; return links role-aware; notifications per-category unread counts on tabs; context-aware empty states by filter; amber error styling consistent; font-bold on timestamps; MetricCard detail font-bold globally |
 | Notifications | Implemented in-app | Email foundation exists; real provider delivery and SMS remain future work |
 | Email foundation | Phase 5B implemented | No-op provider mode by default; Resend adapter ready |
@@ -72,6 +74,14 @@ Nata Connect is no longer a static demonstration. It is a working Firebase-backe
 | Launch demo readiness | Improved | Empty states, first-time guidance, and honest roadmap messaging make the app understandable even before dense live marketplace activity |
 
 ### Latest product-design position
+
+The June 29, 2026 Casting Brief Quality Engine and Scam Shield pass added
+rule-based quality and safety cues to recruiter publishing, recruiter audition
+management, Talent audition discovery/detail, and Admin audition moderation.
+The system checks existing brief fields for clarity, deadline, compensation,
+requirements, self-tape instructions, payment request language, private contact
+pressure, pressure/guarantee language, and unrelated document requests. It does
+not claim AI, automatic detection, ranking, or guaranteed casting outcomes.
 
 The June 29, 2026 Talent Passport and Role Fit Signal Engine added
 explainable readiness guidance across Talent profile, audition detail,

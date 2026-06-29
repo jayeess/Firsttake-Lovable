@@ -7,6 +7,7 @@ import {
   formatDate,
   type Audition,
 } from '@/app/lib/types';
+import { getCastingBriefQuality } from '@/app/lib/casting-brief-quality-policy';
 import { StatusBadge } from './status-badge';
 import { VerifiedBadge } from './verified-badge';
 
@@ -28,6 +29,7 @@ export function AuditionCard({
   const deadlineSoon = isDeadlineSoon(audition.deadline);
   const postedRecently = isPostedRecently(audition.createdAt);
   const compensationLabel = getCompensationLabel(audition);
+  const quality = getCastingBriefQuality(audition);
 
   return (
     <article className="group relative overflow-hidden rounded-md border border-[#cbd6db] bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-[#008ca6] hover:shadow-md">
@@ -104,6 +106,17 @@ export function AuditionCard({
           {compensationLabel && (
             <Chip variant="neutral">{compensationLabel}</Chip>
           )}
+          <Chip
+            variant={
+              quality.band === 'needs_review'
+                ? 'urgent'
+                : quality.band === 'needs_detail'
+                  ? 'selftape'
+                  : 'trust'
+            }
+          >
+            {quality.bandLabel}
+          </Chip>
           {audition.selfTapeEnabled && (
             <Chip variant="selftape">
               <Video className="inline size-2.5 shrink-0" />
@@ -118,6 +131,12 @@ export function AuditionCard({
         <p className="mt-3 line-clamp-2 text-sm leading-6 text-[#4b535c]">
           {audition.description}
         </p>
+        {quality.safetySignals.length > 0 && (
+          <p className="mt-3 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-bold leading-5 text-amber-900">
+            Review this brief carefully and keep all audition communication on
+            Nata Connect.
+          </p>
+        )}
 
         {/* Footer: applicant count + deadline + CTA */}
         <div className="mt-4 flex flex-col gap-3 border-t border-[#e8ecef] pt-4 sm:flex-row sm:items-center sm:justify-between">

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { AppShell } from '@/components/app-shell';
 import {
@@ -24,6 +24,10 @@ import {
   normalizeSelfTapeSubmissionTypes,
   validateSelfTapeInstructions,
 } from '@/app/lib/self-tape-policy';
+import {
+  getCastingBriefQuality,
+  type CastingBriefQualitySummary,
+} from '@/app/lib/casting-brief-quality-policy';
 import { getErrorMessage } from '@/app/lib/error-utils';
 import { useAuth } from '@/context/auth-context';
 import { DevFormPresets } from '@/components/dev-form-presets';
@@ -244,6 +248,16 @@ export default function NewAuditionPage() {
   const [form, setForm] = useState<AuditionForm>(emptyAudition);
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
+  const briefQuality = useMemo(
+    () =>
+      getCastingBriefQuality({
+        ...form,
+        deadline: form.deadline,
+        status: 'DRAFT',
+        recruiterVerified: userType === 'RECRUITER',
+      }),
+    [form, userType]
+  );
 
   const publish = async (status: Extract<AuditionStatus, 'ACTIVE' | 'DRAFT'>) => {
     if (!user) {
@@ -510,6 +524,7 @@ export default function NewAuditionPage() {
           </div>
 
           <aside className="space-y-5">
+            <PublishReadinessPanel summary={briefQuality} />
             <section className="surface p-5">
               <p className="eyebrow">04 · Publishing</p>
               <div className="mt-5 space-y-5">
@@ -560,6 +575,89 @@ export default function NewAuditionPage() {
       </div>
     </AppShell>
   );
+}
+
+function PublishReadinessPanel({
+  summary,
+}: {
+  summary: CastingBriefQualitySummary;
+}) {
+  const visibleItems = summary.publishChecklist.slice(0, 5);
+  const needsAttention = [
+    ...summary.safetySignals,
+    ...summary.missingItems.filter((item) => item.kind === 'quality'),
+  ].slice(0, 4);
+
+  return (
+    <section className="surface p-5">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="eyebrow">Publish readiness</p>
+          <h2 className="mt-2 text-xl font-black">{summary.bandLabel}</h2>
+        </div>
+        <span
+          className={`rounded-md px-2.5 py-1 text-xs font-black ${briefBandClass(
+            summary.band
+          )}`}
+        >
+          {summary.score}%
+        </span>
+      </div>
+      <div className="mt-4 h-2 overflow-hidden rounded-full bg-[#dbe4e8]">
+        <div
+          className="h-full rounded-full bg-[#008ca6]"
+          style={{ width: `${summary.score}%` }}
+        />
+      </div>
+      <div className="mt-4 grid gap-2">
+        {visibleItems.map((item) => (
+          <div key={item.label} className="flex items-start gap-2 text-sm">
+            <span
+              className={`mt-1 size-2 shrink-0 rounded-full ${
+                item.complete ? 'bg-[#008ca6]' : 'bg-[#e7ad2d]'
+              }`}
+              aria-hidden="true"
+            />
+            <div>
+              <p className="font-black text-[#07111f]">{item.label}</p>
+              <p className="text-xs font-bold leading-5 text-[#657176]">
+                {item.detail}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+      {needsAttention.length > 0 && (
+        <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 p-3">
+          <p className="text-xs font-black uppercase text-amber-950">
+            Improve before publishing
+          </p>
+          <ul className="mt-2 space-y-1.5 text-xs font-bold leading-5 text-amber-900">
+            {needsAttention.map((signal) => (
+              <li key={`${signal.key}-${signal.label}`}>{signal.detail}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+      <p className="mt-4 text-xs font-bold leading-5 text-[#657176]">
+        This guidance is rule-based and transparent. It helps you write a
+        clearer brief but does not replace your own review.
+      </p>
+    </section>
+  );
+}
+
+function briefBandClass(band: CastingBriefQualitySummary['band']) {
+  if (band === 'strong_brief') {
+    return 'border border-emerald-200 bg-emerald-50 text-emerald-800';
+  }
+  if (band === 'good_brief') {
+    return 'border border-[#bad7d3] bg-[#edf7f5] text-[#006b60]';
+  }
+  if (band === 'needs_detail') {
+    return 'border border-amber-200 bg-amber-50 text-amber-900';
+  }
+  return 'border border-red-200 bg-red-50 text-red-800';
 }
 
 function Input({ label, value, onChange, type = 'text', placeholder, required = true, helper }: { label: string; value: string; onChange: (value: string) => void; type?: string; placeholder?: string; required?: boolean; helper?: string }) {

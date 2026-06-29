@@ -1,5 +1,33 @@
 # Nata Connect development test cases
 
+## Casting Brief Quality Engine and Scam Shield checks
+
+After updating casting brief quality or safety behavior, verify:
+
+- [ ] `/recruiter/auditions/new` shows Publish Readiness changing as form
+  fields are filled.
+- [ ] Required self-tape with empty instructions creates a missing readiness
+  item but does not introduce self-tape upload.
+- [ ] Payment request, private contact, pressure/guarantee, and unrelated
+  document wording create safety review cues.
+- [ ] `/recruiter/auditions` shows compact quality cues for each brief.
+- [ ] `/auditions` shows quality bands without over-warning normal posts.
+- [ ] `/auditions/[id]` shows verified recruiter, never-pay, and
+  on-platform communication cues.
+- [ ] `/admin/auditions` shows human-readable review cues without exposing
+  private verification evidence.
+- [ ] No UI copy claims AI, automatic scam detection, guaranteed casting, or
+  guaranteed jobs.
+
+Run:
+
+```powershell
+npm run lint
+npm test
+npm run build
+git diff --check
+```
+
 ## Talent Passport and Role Fit Signal checks
 
 After updating role readiness or Talent Passport behavior, verify:

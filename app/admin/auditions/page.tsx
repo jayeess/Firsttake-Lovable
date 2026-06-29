@@ -26,17 +26,13 @@ import {
   SectionHeader,
   WorkspaceHero,
 } from '@/components/product-ui';
+import {
+  getCastingBriefAdminRisk,
+  getCastingBriefQuality,
+} from '@/app/lib/casting-brief-quality-policy';
+import type { Audition } from '@/app/lib/types';
 
-type AuditionRow = {
-  id: string;
-  title?: string;
-  recruiterName?: string;
-  location?: string;
-  status?: string;
-  moderationStatus?: string;
-  selfTapeEnabled?: boolean;
-  selfTapeRequired?: boolean;
-};
+type AuditionRow = Partial<Audition> & { id: string };
 
 const moderationTone = (status?: string): AdminStatusTone =>
   status === 'REMOVED' ? 'danger' : 'success';
@@ -74,6 +70,9 @@ export default function AdminAuditionsPage() {
   const activeCount = items.filter((item) => item.status === 'ACTIVE').length;
   const closedCount = items.filter((item) => item.status === 'CLOSED').length;
   const draftCount = items.filter((item) => item.status === 'DRAFT').length;
+  const needsReviewCount = items.filter(
+    (item) => getCastingBriefAdminRisk(item).priority === 'high'
+  ).length;
 
   return (
     <AdminShell>
@@ -107,10 +106,10 @@ export default function AdminAuditionsPage() {
           icon={Clock3}
         />
         <MetricCard
-          label="Removed briefs"
-          value={removedCount}
-          tone={removedCount > 0 ? 'danger' : 'success'}
-          detail="Hidden from marketplace"
+          label="Needs review"
+          value={needsReviewCount}
+          tone={needsReviewCount > 0 ? 'danger' : 'success'}
+          detail="Quality or safety cues"
           icon={EyeOff}
         />
       </section>
@@ -162,6 +161,10 @@ export default function AdminAuditionsPage() {
       ) : !error ? (
         <div className="mt-6 grid gap-4">
           {filtered.map((item) => (
+            (() => {
+              const quality = getCastingBriefQuality(item);
+              const risk = getCastingBriefAdminRisk(item);
+              return (
             <article
               key={item.id}
               className={`surface grid gap-5 rounded-md p-5 lg:grid-cols-[1fr_auto] ${
@@ -188,12 +191,35 @@ export default function AdminAuditionsPage() {
                         : 'Self-tape optional'}
                     </AdminStatusBadge>
                   )}
+                  <AdminStatusBadge tone={riskTone(risk.priority)}>
+                    {risk.label}
+                  </AdminStatusBadge>
                 </div>
                 <h2 className="mt-2 text-xl font-black">{item.title}</h2>
                 <dl className="mt-4 grid gap-4 sm:grid-cols-2">
                   <AdminInfo label="Recruiter" value={item.recruiterName} />
                   <AdminInfo label="Location" value={item.location} />
+                  <AdminInfo
+                    label="Brief quality"
+                    value={`${quality.score}%`}
+                  />
+                  <AdminInfo
+                    label="Readiness items"
+                    value={`${quality.missingItems.length} to review`}
+                  />
                 </dl>
+                {risk.reasons.length > 0 && (
+                  <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 p-3">
+                    <p className="text-xs font-black uppercase text-amber-950">
+                      Admin review cues
+                    </p>
+                    <ul className="mt-2 space-y-1.5 text-sm font-bold leading-6 text-amber-900">
+                      {risk.reasons.map((reason) => (
+                        <li key={reason}>{reason}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
               {item.moderationStatus === 'REMOVED' ? (
                 <AdminActionGroup title="Restore marketplace visibility">
@@ -217,9 +243,14 @@ export default function AdminAuditionsPage() {
                 </AdminDangerActionGroup>
               )}
             </article>
+              );
+            })()
           ))}
         </div>
       ) : null}
     </AdminShell>
   );
 }
+
+const riskTone = (priority: ReturnType<typeof getCastingBriefAdminRisk>['priority']): AdminStatusTone =>
+  priority === 'high' ? 'danger' : priority === 'medium' ? 'attention' : 'success';
