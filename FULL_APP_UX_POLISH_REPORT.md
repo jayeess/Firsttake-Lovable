@@ -1,5 +1,25 @@
 # Full App UX Polish Report
 
+## Pitch Deck Content Pack - June 29, 2026
+
+**Goal:** Create founder-ready pitch deck content for FirstTake / Nata Connect
+without changing UI, backend behavior, Firebase configuration, or product
+features.
+
+Key deliverables:
+
+- `PITCH_DECK_OUTLINE.md` with a 10-slide deck structure.
+- `PITCH_DECK_SLIDE_COPY.md` with ready-to-copy title, subtitle, bullets, and
+  footer notes.
+- `PITCH_DECK_SPEAKER_NOTES.md` with 3-minute, 5-minute, and 8-minute delivery
+  guidance.
+- `PITCH_DECK_VISUAL_CHECKLIST.md` with screenshot and visual priorities mapped
+  to real routes.
+
+The pack keeps positioning scoped to controlled beta readiness and avoids fake
+traction, guaranteed casting, unstated partnerships, enterprise-scale claims,
+AI, payments, and direct video upload.
+
 ## Founder Demo and Pitch Readiness Pack - June 29, 2026
 
 **Goal:** Prepare FirstTake / Nata Connect for founder-led demos, pitch

@@ -1,5 +1,31 @@
 # Nata Connect development test cases
 
+## Pitch Deck Content Pack checks
+
+After updating the pitch deck content pack, verify:
+
+- [ ] `PITCH_DECK_OUTLINE.md` contains exactly the 10 requested slides with
+  title, objective, key message, suggested visual, and speaker note.
+- [ ] `PITCH_DECK_SLIDE_COPY.md` contains ready-to-copy slide title, subtitle,
+  3 to 5 bullets, and optional footer note for each slide.
+- [ ] `PITCH_DECK_SPEAKER_NOTES.md` covers 3-minute, 5-minute, and 8-minute
+  delivery formats with opening, transitions, emphasis, limits, and closing.
+- [ ] `PITCH_DECK_VISUAL_CHECKLIST.md` maps deck visuals to real routes and
+  source documents.
+- [ ] The deck does not claim fake traction, guaranteed casting, unstated
+  partnerships, enterprise-scale readiness, AI, payments, or direct video
+  upload.
+- [ ] README links to the new pitch deck files.
+
+This documentation pass should not require Firebase deploy. Run:
+
+```powershell
+npm run lint
+npm test
+npm run build
+git diff --check
+```
+
 ## Founder Demo and Pitch Readiness Pack checks
 
 After updating the founder demo pack, verify:

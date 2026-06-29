@@ -74,6 +74,14 @@ product inventory and roadmap.
 - [PITCH_TALKING_POINTS.md](PITCH_TALKING_POINTS.md) - audience-specific
   talking points for Talent, Recruiters, mentors, incubators, investors, and
   parents.
+- [PITCH_DECK_OUTLINE.md](PITCH_DECK_OUTLINE.md) - 10-slide founder pitch deck
+  structure.
+- [PITCH_DECK_SLIDE_COPY.md](PITCH_DECK_SLIDE_COPY.md) - ready-to-copy slide
+  titles, subtitles, bullets, and footer notes.
+- [PITCH_DECK_SPEAKER_NOTES.md](PITCH_DECK_SPEAKER_NOTES.md) - 3-minute,
+  5-minute, and 8-minute spoken pitch notes.
+- [PITCH_DECK_VISUAL_CHECKLIST.md](PITCH_DECK_VISUAL_CHECKLIST.md) - screenshot
+  and visual planning checklist for deck creation.
 
 ## Local Setup
 

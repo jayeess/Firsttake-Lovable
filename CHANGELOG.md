@@ -1,5 +1,18 @@
 # Changelog
 
+### Pitch Deck Content Pack
+
+- Created founder-ready pitch deck content for FirstTake / Nata Connect without
+  creating a PowerPoint file, generating images, redesigning the app, or adding
+  product features.
+- Added `PITCH_DECK_OUTLINE.md`, `PITCH_DECK_SLIDE_COPY.md`,
+  `PITCH_DECK_SPEAKER_NOTES.md`, and `PITCH_DECK_VISUAL_CHECKLIST.md`.
+- Updated README, testing, roadmap, and UX polish documentation with concise
+  references to the deck pack.
+- Deck content keeps claims scoped to controlled beta readiness and avoids fake
+  traction, guaranteed casting, unstated partnerships, enterprise-scale claims,
+  AI, payments, and direct video upload.
+
 ### Founder Demo and Pitch Readiness Pack
 
 - Created founder-ready demo and pitch documentation for FirstTake / Nata
