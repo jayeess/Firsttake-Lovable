@@ -26,7 +26,7 @@ const navGroups = [
     label: 'Overview',
     links: [
       ['/admin', 'Dashboard', Gauge],
-      ['/admin/beta-readiness', 'Beta readiness', ClipboardCheck],
+      ['/admin/beta-readiness', 'Launch readiness', ClipboardCheck],
       ['/admin/beta-feedback', 'Beta feedback', MessageSquareWarning],
     ],
   },

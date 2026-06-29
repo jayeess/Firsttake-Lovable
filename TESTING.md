@@ -1,5 +1,26 @@
 # Nata Connect development test cases
 
+## Launch Readiness Command Center checks
+
+After this pass, manually verify:
+
+- [ ] Admin nav sidebar shows "Launch readiness" (not "Beta readiness") under the Overview group.
+- [ ] `/admin/beta-readiness` loads the new Launch Readiness Command Center page title and band-based score section.
+- [ ] The readiness score (0–100%) displays with a teal progress bar and an `AdminStatusBadge` band label (Blocked / Needs attention / Almost ready / Ready for controlled launch).
+- [ ] When blockers exist (e.g. no approved recruiters), the amber blockers panel appears below the score with a "Take action →" link to the relevant admin page.
+- [ ] The "Marketplace health" section shows real-time counts: approved recruiters, pending verification, talent accounts, active auditions, and total applications.
+- [ ] Marketplace health stat badges link to `/admin/verifications`, `/admin/talents`, and `/admin/auditions` respectively.
+- [ ] The "Safety queue" section shows open reports, urgent reports, and suspended accounts, each linking to the correct admin page.
+- [ ] The "Infrastructure checks" grid shows Firebase, Firestore, Admin SDK, web env, admin user, and email status.
+- [ ] The admin dashboard `/admin` "Beta control center" section is now labelled "Launch readiness" with updated description.
+- [ ] All existing manual launch checklist, admin operations guide, and production commands sections remain intact.
+
+Run `npm test` to verify 100 unit tests pass:
+
+```powershell
+npm test
+```
+
 ## End-to-End Marketplace Launch Trial checks
 
 After this pass, manually verify:

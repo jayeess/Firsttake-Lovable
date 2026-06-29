@@ -1,5 +1,22 @@
 # Full App UX Polish Report
 
+## Launch Readiness Command Center — June 29, 2026
+
+**Goal:** Upgrade `/admin/beta-readiness` into a production-grade Launch Readiness Command Center with real data, policy-based scoring, and a full safety/blocker view.
+
+Key improvements in this pass:
+
+- **Policy library** (`app/lib/launch-readiness-policy.ts`): Introduced `LaunchReadinessBand` (`blocked` / `needs_attention` / `almost_ready` / `ready`), a 10-signal scoring model (100 pts total covering infrastructure, marketplace health, and safety), and helpers `scoreLaunchReadiness`, `getReadinessBand`, `getLaunchBlockers`, and `getLaunchReadinessSummary`. Critical infrastructure failures override band to `blocked` regardless of score.
+- **API view** (`app/api/admin/data/route.ts` — `launchReadiness` view): Single parallel Firestore batch returns system checks, real marketplace stats (recruiter approval counts, active auditions, application totals, talent counts), live open/urgent report counts, and env validation — all needed by the command center in one request.
+- **Command center** (`app/admin/beta-readiness/page.tsx`): Band display with progress bar, amber blockers panel with action links, marketplace health section (recruiter pipeline, talent, casting supply), safety queue section (open/urgent reports, suspended accounts), infrastructure checks grid, plus all existing manual checklists, admin operations guide, and production commands.
+- **Admin nav** (`components/admin-shell.tsx`): "Beta readiness" renamed to "Launch readiness".
+- **Admin dashboard** (`app/admin/page.tsx`): "Beta control center" section renamed to "Launch readiness" with updated description.
+- **17 new tests** (`tests/launch-readiness-policy.test.mts`): Band, score, blockers, severity, summary, and actionHref forwarding. Total: 100 tests, all passing.
+
+See `LAUNCH_READINESS_COMMAND_CENTER_REPORT.md` for the full implementation record.
+
+---
+
 ## End-to-End Marketplace Launch Trial — June 29, 2026
 
 **Goal:** Audit every major route and component for real launch readiness across 25+ files covering user flow clarity, empty/loading/error states, role-based navigation, safety copy, and action continuity.

@@ -182,6 +182,95 @@ export async function GET(request: Request) {
       });
     }
 
+    if (view === 'launchReadiness') {
+      const email = getEmailProviderStatus();
+      const [
+        admins,
+        users,
+        recruiterVerifications,
+        talentVerifications,
+        auditions,
+        applications,
+        openReports,
+      ] = await Promise.all([
+        db.collection('users').where('isAdmin', '==', true).limit(1).get(),
+        db.collection('users').get(),
+        db.collection('recruiterVerifications').get(),
+        db.collection('talentVerifications').get(),
+        db.collection('auditions').get(),
+        db.collectionGroup('applications').get(),
+        db
+          .collection('reports')
+          .where('status', 'in', ['open', 'under_review'])
+          .get(),
+      ]);
+      const userData = users.docs.map((item) => item.data());
+      const verificationData = recruiterVerifications.docs.map((item) =>
+        item.data()
+      );
+      const auditionData = auditions.docs.map((item) => item.data());
+      const applicationData = applications.docs.map((item) => item.data());
+      const openReportData = openReports.docs.map((item) => item.data());
+      return Response.json({
+        checks: {
+          firebaseProjectConnected: true,
+          adminSdkConfigured: validateServerFirebaseEnv().ok,
+          publicFirebaseConfigured: validatePublicFirebaseEnv().ok,
+          adminUserExists: !admins.empty,
+          firestoreReachable: true,
+          anyUserExists: !users.empty,
+          recruiterVerificationEnabled: true,
+          talentVerificationEnabled: true,
+          emailNotificationFoundationAdded: true,
+          emailDeliveryModeSafe: true,
+          emailProviderConfigured: email.configured,
+          emailNoopModeActive: !email.configured,
+          notificationPreferencesEnabled: true,
+          pwaManifestAdded: true,
+        },
+        stats: {
+          totalUsers: users.size,
+          talents: userData.filter((u) => u.userType === 'TALENT').length,
+          recruiters: userData.filter((u) => u.userType === 'RECRUITER').length,
+          pendingVerifications: verificationData.filter(
+            (v) => v.status === 'pending'
+          ).length,
+          pendingTalentVerifications: talentVerifications.docs.filter(
+            (v) => v.data().talentVerificationStatus === 'pending'
+          ).length,
+          approvedRecruiters: verificationData.filter(
+            (v) => v.status === 'approved'
+          ).length,
+          suspendedUsers: userData.filter(
+            (u) => u.accountStatus === 'SUSPENDED'
+          ).length,
+          activeAuditions: auditionData.filter(
+            (a) => a.status === 'ACTIVE' && a.moderationStatus !== 'REMOVED'
+          ).length,
+          totalApplications: applications.size,
+          selfTapeRequests: auditionData.filter(
+            (a) => a.selfTapeEnabled === true
+          ).length,
+          selfTapeSubmissions: applicationData.filter(
+            (a) =>
+              a.selfTapeStatus === 'submitted' ||
+              a.selfTapeStatus === 'reviewed' ||
+              Boolean(a.selfTapeSubmission)
+          ).length,
+        },
+        reports: {
+          openCount: openReportData.filter((r) => r.status === 'open').length,
+          urgentCount: openReportData.filter((r) => r.priority === 'urgent')
+            .length,
+        },
+        env: {
+          public: validatePublicFirebaseEnv(),
+          server: validateServerFirebaseEnv(),
+          email,
+        },
+      });
+    }
+
     const [
       users,
       verifications,

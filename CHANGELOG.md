@@ -1,5 +1,16 @@
 # Changelog
 
+### Launch Readiness Command Center
+
+- **`app/lib/launch-readiness-policy.ts`** (new): Policy library with `LaunchReadinessBand`, `LaunchReadinessInput`, `LaunchReadinessSummary`, and `LaunchReadinessItem` types. Exports `scoreLaunchReadiness`, `getReadinessBand`, `getLaunchItems`, `getLaunchBlockers`, and `getLaunchReadinessSummary`. Scoring covers 10 weighted signals (100 pts total) across infrastructure, marketplace health, and safety.
+- **`app/api/admin/data/route.ts`**: Added `launchReadiness` view that returns checks, real marketplace stats (users, recruiters, approvals, active auditions, applications), live open/urgent report counts, and env details — all in one parallel Firestore batch.
+- **`app/admin/beta-readiness/page.tsx`** (upgraded to Launch Readiness Command Center): Band-based readiness score (0–100%) with progress bar, blockers panel with action links, real-time marketplace health section (recruiter pipeline, talent, casting supply), safety queue section (open/urgent reports, suspended accounts), infrastructure checks grid, and all existing manual checklist, admin operations, and production commands sections. Fetches from new `launchReadiness` API view.
+- **`components/admin-shell.tsx`**: Renamed nav link label "Beta readiness" → "Launch readiness".
+- **`app/admin/page.tsx`**: Renamed "Beta control center" section to "Launch readiness" with updated eyebrow and description linking to the command center.
+- **`tests/launch-readiness-policy.test.mts`** (new): 17 tests covering band calculation, score edge cases (zero/full/partial), blocker identification, severity classification, summary helper, and actionHref forwarding. Total: 100 tests, all passing.
+- Created `LAUNCH_READINESS_COMMAND_CENTER_REPORT.md`.
+- No payment, subscription, AI, calendar, video calls, direct or self-tape video upload, fake data, celebrity names, or security changes.
+
 ### End-to-End Marketplace Launch Trial
 
 - **`app/dashboard/page.tsx`**: Removed local `nextStepMessages` constant (duplicate of the lib's `TALENT_NEXT_STEP_MESSAGES`). Updated `RecentApplication` to call `getApplicationNextStep(status)` from `app/lib/application-pipeline` — the canonical unit-tested source.

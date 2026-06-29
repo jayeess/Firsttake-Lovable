@@ -230,9 +230,9 @@ export default function AdminDashboardPage() {
 
           <section className="surface mt-6 rounded-md p-5">
             <SectionHeader
-              eyebrow="Private beta operations"
-              title="Beta control center"
-              description="Monitor feedback, review readiness, and run admin checks during the controlled rollout."
+              eyebrow="Launch operations"
+              title="Launch readiness"
+              description="Real-time platform health, infrastructure status, safety queue, and launch checklist in one view."
             />
             <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {[
@@ -243,8 +243,8 @@ export default function AdminDashboardPage() {
                   Icon: MessageSquare,
                 },
                 {
-                  label: 'Beta readiness',
-                  body: 'Check launch blockers, environment readiness, and rule status.',
+                  label: 'Launch readiness',
+                  body: 'Real-time score, blockers, marketplace health, and safety queue.',
                   href: '/admin/beta-readiness',
                   Icon: ClipboardCheck,
                 },
