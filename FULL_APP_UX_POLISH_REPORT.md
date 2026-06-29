@@ -1,5 +1,22 @@
 # Full App UX Polish Report
 
+## Audition Submission Studio and Casting Review Room — June 29, 2026
+
+**Goal:** Make the audition application and recruiter applicant-review experience feel like a premium casting operating system by surfacing the "Application Pack" concept, extracting shared helpers into the lib, adding trust/safety cues, and backing everything with tests.
+
+Key improvements in this pass:
+
+- **Shared lib helpers** (`app/lib/application-pipeline.ts`): `TALENT_NEXT_STEP_MESSAGES`, `getApplicationNextStep`, `getRecruiterNextAction`, `ApplicationPackSummary`, and `getApplicationPackSummary` are now exported and tested. Previously these were inline objects/functions buried in page components.
+- **Application Pack in audition detail** (`/auditions/[id]`): The Talent apply aside now shows a concise "Application pack" bullet list — profile snapshot, bio, portfolio media, cover message, and self-tape (with required/optional distinction) — so Talent know exactly what the recruiter receives before submitting.
+- **Pack chip strip in applications tracker** (`/applications`): Each application card now shows a "Pack" chip row — Profile snapshot (always included), Cover message (teal when present, muted when missing), and Self-tape pending/submitted (when the audition requires one). Derived from `getApplicationPackSummary`.
+- **Pack chips in recruiter review room** (`/recruiter/auditions/[id]/applicants`): The compact `ApplicantCard` chip row now includes Cover message and Self-tape chips alongside the existing category/experience/location/completeness chips — giving the recruiter an at-a-glance pack summary before expanding.
+- **Casting integrity safety notice** (`/recruiter/auditions/[id]/applicants`): A `SafetyNotice` below the NextActionPanel reminds recruiters never to request payment, deposits, or personal financial details from applicants.
+- **3 new unit tests** (`tests/application-pipeline.test.mts`): `getApplicationNextStep`, `getRecruiterNextAction`, and `getApplicationPackSummary` (4 edge cases). Total: 79 tests, all passing.
+
+See `AUDITION_SUBMISSION_STUDIO_CASTING_REVIEW_ROOM_REPORT.md` for the full change list and verification results.
+
+---
+
 ## Trust-Verified Media and Document Upload System - June 29, 2026
 
 **Goal:** Add the controlled Firebase Storage upload foundation for trustworthy Talent media and Recruiter verification evidence without adding video upload, payments, AI, fake data, or security shortcuts.

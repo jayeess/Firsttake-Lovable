@@ -3,8 +3,11 @@ import test from 'node:test';
 import {
   canRecruiterTransition,
   filterApplicants,
+  getApplicationNextStep,
+  getApplicationPackSummary,
   getApplicationStatus,
   getPipelineCounts,
+  getRecruiterNextAction,
   sortApplicants,
   validateRecruiterReview,
 } from '../app/lib/application-pipeline.ts';
@@ -129,6 +132,50 @@ test('applicant filters cover verification, media, showreel, completeness, ratin
     language: 'hindi',
   });
   assert.deepEqual(result.map((item) => item.application.id), ['Asha']);
+});
+
+test('getApplicationNextStep returns per-status talent guidance', () => {
+  assert.match(getApplicationNextStep('APPLIED'), /casting team/);
+  assert.match(getApplicationNextStep('SHORTLISTED'), /shortlist/);
+  assert.match(getApplicationNextStep('SELECTED'), /selected/i);
+  assert.match(getApplicationNextStep('REJECTED'), /Keep applying/);
+  assert.match(getApplicationNextStep('WITHDRAWN'), /withdrew/);
+});
+
+test('getRecruiterNextAction returns per-status recruiter guidance', () => {
+  assert.match(getRecruiterNextAction('APPLIED'), /Viewed/);
+  assert.match(getRecruiterNextAction('SHORTLISTED'), /Callback/);
+  assert.match(getRecruiterNextAction('FINAL_ROUND'), /Select or Reject/);
+  assert.match(getRecruiterNextAction('SELECTED'), /message/i);
+  assert.equal(getRecruiterNextAction('WITHDRAWN'), '');
+});
+
+test('getApplicationPackSummary reflects cover message and self-tape presence', () => {
+  assert.deepEqual(
+    getApplicationPackSummary({ coverMessage: '', selfTapeSubmission: undefined }, 0),
+    { hasCoverMessage: false, hasSelfTape: false, mediaCount: 0 }
+  );
+  assert.deepEqual(
+    getApplicationPackSummary(
+      { coverMessage: '  Hello  ', selfTapeSubmission: { type: 'link', url: 'https://vimeo.com/x' } },
+      3
+    ),
+    { hasCoverMessage: true, hasSelfTape: true, mediaCount: 3 }
+  );
+  assert.deepEqual(
+    getApplicationPackSummary(
+      { coverMessage: '   ', selfTapeSubmission: { type: 'link', url: '' } },
+      0
+    ),
+    { hasCoverMessage: false, hasSelfTape: false, mediaCount: 0 }
+  );
+  assert.deepEqual(
+    getApplicationPackSummary(
+      { coverMessage: undefined, selfTapeSubmission: { type: 'upload', storagePath: 'talent-media/uid/tape.mp4' } },
+      1
+    ),
+    { hasCoverMessage: false, hasSelfTape: true, mediaCount: 1 }
+  );
 });
 
 test('pipeline counts and sorting use normalized statuses', () => {

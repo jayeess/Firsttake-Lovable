@@ -1,5 +1,23 @@
 # Nata Connect development test cases
 
+## Audition Submission Studio and Casting Review Room checks
+
+After this pass, verify:
+
+- [ ] On `/auditions/[id]`, the apply aside shows an "Application pack" section for Talent listing profile, bio, media, cover message, and self-tape (when enabled). Required self-tape uses an amber bullet. Recruiter accounts do not see this section.
+- [ ] On `/applications`, each application card shows a "Pack" chip strip — "Profile snapshot" (always teal), "Cover message" (teal when filled, muted when empty), and a "Self-tape" chip when `selfTapeEnabled`.
+- [ ] On `/recruiter/auditions/[id]/applicants`, the `ApplicantCard` compact chip row shows "Cover message" and "Self-tape" chips when the applicant included them. The chips derive from `getApplicationPackSummary`.
+- [ ] The Casting Integrity `SafetyNotice` appears below the casting board `NextActionPanel` on the recruiter applicants page.
+- [ ] The next-step copy in `/applications` cards and the next-action copy in the recruiter review panel remain unchanged from previous passes.
+
+Run `npm test` to verify 79 unit tests pass:
+
+```powershell
+npm test
+```
+
+See `AUDITION_SUBMISSION_STUDIO_CASTING_REVIEW_ROOM_REPORT.md` for the full change list.
+
 ## Trust-verified media and document upload checks
 
 After the upload foundation pass, verify:

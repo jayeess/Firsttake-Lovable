@@ -259,3 +259,61 @@ export const getStatusTimestampField = (
   if (status === 'SELECTED') return 'selectedAt';
   return null;
 };
+
+export const TALENT_NEXT_STEP_MESSAGES: Record<ApplicationStatus, string> = {
+  APPLIED: 'Waiting for the casting team to open your application.',
+  VIEWED:
+    'The casting team opened your application and may be reviewing other applicants.',
+  UNDER_REVIEW: 'The casting team is reviewing your profile and materials.',
+  MAYBE: 'You are in the casting pool. Watch for an update.',
+  SHORTLISTED:
+    'You made the shortlist. The recruiter may message you about next steps.',
+  CALLBACK: 'You have a callback. Watch for a message from the casting team.',
+  FINAL_ROUND:
+    'You made the final round. The casting team is making their decision.',
+  SELECTED:
+    'You were selected. The recruiter will contact you through messages with next steps.',
+  REJECTED:
+    'The casting team moved forward with another applicant. Keep applying — every audition is a separate opportunity.',
+  WITHDRAWN: 'You withdrew this application.',
+};
+
+export const getApplicationNextStep = (status: ApplicationStatus): string =>
+  TALENT_NEXT_STEP_MESSAGES[status];
+
+const RECRUITER_NEXT_ACTION_MAP: Record<ApplicationStatus, string> = {
+  APPLIED: 'Open this profile and log your first look by moving to Viewed.',
+  VIEWED:
+    'Review the profile and materials. Move to Shortlisted, Reviewing, or Rejected.',
+  UNDER_REVIEW:
+    'Compare with your shortlist. Move to Shortlisted, Maybe, or Rejected.',
+  MAYBE: 'Make a final call — Shortlist, Callback, or Reject this application.',
+  SHORTLISTED:
+    'Confirm your shortlist. Move to Callback or message to discuss next steps.',
+  CALLBACK: 'Discuss next steps via messages. Move to Final Round when ready.',
+  FINAL_ROUND: 'Make the casting decision — Select or Reject.',
+  SELECTED: 'Send a message to share next steps with the Talent member.',
+  REJECTED: 'Application closed. No further action required.',
+  WITHDRAWN: '',
+};
+
+export const getRecruiterNextAction = (status: ApplicationStatus): string =>
+  RECRUITER_NEXT_ACTION_MAP[status] ?? '';
+
+export type ApplicationPackSummary = {
+  hasCoverMessage: boolean;
+  hasSelfTape: boolean;
+  mediaCount: number;
+};
+
+export const getApplicationPackSummary = (
+  application: Pick<Application, 'coverMessage' | 'selfTapeSubmission'>,
+  mediaCount: number
+): ApplicationPackSummary => ({
+  hasCoverMessage: Boolean(application.coverMessage?.trim()),
+  hasSelfTape: Boolean(
+    application.selfTapeSubmission?.url ||
+      application.selfTapeSubmission?.storagePath
+  ),
+  mediaCount,
+});

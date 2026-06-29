@@ -14,6 +14,8 @@ import {
 import {
   APPLICATION_PIPELINE_STATUSES,
   APPLICATION_STATUS_LABELS,
+  getApplicationNextStep,
+  getApplicationPackSummary,
   getApplicationStatus,
 } from '@/app/lib/application-pipeline';
 import {
@@ -85,18 +87,6 @@ const positiveTimeline: ApplicationStatus[] = [
   'SELECTED',
 ];
 
-const nextStepMessages: Record<ApplicationStatus, string> = {
-  APPLIED: 'Waiting for the casting team to open your application.',
-  VIEWED: 'The casting team opened your application and may be reviewing other applicants.',
-  UNDER_REVIEW: 'The casting team is reviewing your profile and materials.',
-  MAYBE: 'You are in the casting pool. Watch for an update.',
-  SHORTLISTED: 'You made the shortlist. The recruiter may message you about next steps.',
-  CALLBACK: 'You have a callback. Watch for a message from the casting team.',
-  FINAL_ROUND: 'You made the final round. The casting team is making their decision.',
-  SELECTED: 'You were selected. The recruiter will contact you through messages with next steps.',
-  REJECTED: 'The casting team moved forward with another applicant. Keep applying — every audition is a separate opportunity.',
-  WITHDRAWN: 'You withdrew this application.',
-};
 
 const emptyMessages: Record<ApplicationView, string> = {
   ACTIVE: 'No active applications right now.',
@@ -474,6 +464,22 @@ export default function ApplicationsPage() {
                   value={application.audition?.recruiterName ?? 'Recruiter'}
                 />
               </div>
+              <div className="mt-3 flex flex-wrap items-center gap-1.5">
+                <span className="text-[10px] font-black uppercase tracking-wide text-[#7b8a90]">
+                  Pack
+                </span>
+                <PackTag included label="Profile snapshot" />
+                <PackTag
+                  included={Boolean(application.coverMessage?.trim())}
+                  label="Cover message"
+                />
+                {application.audition?.selfTapeEnabled && (
+                  <PackTag
+                    included={Boolean(application.selfTapeSubmission?.url)}
+                    label={getApplicationPackSummary(application, 0).hasSelfTape ? 'Self-tape submitted' : 'Self-tape pending'}
+                  />
+                )}
+              </div>
               <div className="mt-4 flex items-start gap-3 rounded-md border border-[#9fc9c4] bg-[#edf7f5] p-3">
                 <div className="mt-0.5 size-1.5 shrink-0 rounded-full bg-[#008ca6]" />
                 <div>
@@ -481,7 +487,7 @@ export default function ApplicationsPage() {
                     Next step
                   </p>
                   <p className="mt-0.5 text-sm font-bold text-[#183139]">
-                    {nextStepMessages[status]}
+                    {getApplicationNextStep(status)}
                   </p>
                 </div>
               </div>
@@ -690,7 +696,7 @@ function ApplicationProgress({ status }: { status: ApplicationStatus }) {
     return (
       <div className="mt-4 rounded-md border border-[#dce2e8] bg-[#f6f7f8] p-3 text-sm text-[#59666b]">
         <span className="font-black text-[#07111f]">Closed state:</span>{' '}
-        {nextStepMessages[status]}
+        {getApplicationNextStep(status)}
       </div>
     );
   }
@@ -759,4 +765,18 @@ function selfTapeToneClass(tone: string) {
       : tone === 'success'
         ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
         : 'border-[#d3dde2] bg-white text-[#657176]';
+}
+
+function PackTag({ included, label }: { included: boolean; label: string }) {
+  return (
+    <span
+      className={`inline-flex items-center rounded border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
+        included
+          ? 'border-[#9fc9c4] bg-[#edf7f5] text-[#006b60]'
+          : 'border-[#d8e3e8] bg-[#f7fafb] text-[#9aabaf]'
+      }`}
+    >
+      {label}
+    </span>
+  );
 }

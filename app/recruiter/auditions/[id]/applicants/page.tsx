@@ -7,8 +7,10 @@ import { type ReactNode, useEffect, useMemo, useState } from 'react';
 import {
   APPLICATION_STATUS_LABELS,
   filterApplicants,
+  getApplicationPackSummary,
   getApplicationStatus,
   getPipelineCounts,
+  getRecruiterNextAction,
   sortApplicants,
   type ApplicantFilters,
   type ApplicantSort,
@@ -42,7 +44,7 @@ import { useAuth } from '@/context/auth-context';
 import { ApplicationMessageButton } from '@/components/application-message-button';
 import { getConversations } from '@/app/lib/messaging-client';
 import { getConversationId } from '@/app/lib/messaging-policy';
-import { NextActionPanel } from '@/components/product-ui';
+import { NextActionPanel, SafetyNotice } from '@/components/product-ui';
 
 const initialFilters: ApplicantFilters = {
   status: 'ALL',
@@ -471,6 +473,12 @@ export default function AuditionApplicantsPage() {
         />
       </div>
 
+      <div className="mt-4">
+        <SafetyNotice title="Casting integrity">
+          Never request payment, deposits, or personal financial information from applicants. All casting decisions must stay within Nata Connect. Applicants can report policy violations immediately.
+        </SafetyNotice>
+      </div>
+
       {error && (
         <ErrorState
           title="Applicant pipeline needs attention"
@@ -637,6 +645,7 @@ function ApplicantCard({
     ? `${talent.firstName} ${talent.lastName}`.trim()
     : application.talentEmail ?? 'Talent profile unavailable';
   const featuredMedia = media.find((item) => item.isFeatured) ?? media[0];
+  const pack = getApplicationPackSummary(application, media.length);
   const [note, setNote] = useState(
     application.recruiterNote ?? application.recruiterNotes ?? ''
   );
@@ -698,6 +707,12 @@ function ApplicantCard({
                 ))}
                 {media.length > 0 && (
                   <TalentChip tone="media">{media.length} media</TalentChip>
+                )}
+                {pack.hasCoverMessage && (
+                  <TalentChip>Cover message</TalentChip>
+                )}
+                {pack.hasSelfTape && (
+                  <TalentChip tone="score">Self-tape</TalentChip>
                 )}
               </div>
             </div>
@@ -1037,7 +1052,7 @@ function ApplicantCard({
                 <div className="mt-4 rounded-md border border-[#d7e0e4] bg-[#f6f9fa] p-3 text-sm">
                   <p className="font-black text-[#263238]">Next action</p>
                   <p className="mt-1 leading-6 text-[#4f5963]">
-                    {getNextRecruiterAction(status)}
+                    {getRecruiterNextAction(status)}
                   </p>
                 </div>
               )}
@@ -1124,21 +1139,6 @@ function StatusTimeline({ application }: { application: AuditionApplicant['appli
   );
 }
 
-function getNextRecruiterAction(status: ApplicationStatus): string {
-  const actions: Record<ApplicationStatus, string> = {
-    APPLIED: 'Open this profile and log your first look by moving to Viewed.',
-    VIEWED: 'Review the profile and materials. Move to Shortlisted, Reviewing, or Rejected.',
-    UNDER_REVIEW: 'Compare with your shortlist. Move to Shortlisted, Maybe, or Rejected.',
-    MAYBE: 'Make a final call — Shortlist, Callback, or Reject this application.',
-    SHORTLISTED: 'Confirm your shortlist. Move to Callback or message to discuss next steps.',
-    CALLBACK: 'Discuss next steps via messages. Move to Final Round when ready.',
-    FINAL_ROUND: 'Make the casting decision — Select or Reject.',
-    SELECTED: 'Send a message to share next steps with the Talent member.',
-    REJECTED: 'Application closed. No further action required.',
-    WITHDRAWN: '',
-  };
-  return actions[status] ?? '';
-}
 
 function getRecruiterTimelineCopy(
   status: ApplicationStatus,

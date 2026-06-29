@@ -1,5 +1,15 @@
 # Changelog
 
+### Audition Submission Studio and Casting Review Room
+
+- **`app/lib/application-pipeline.ts`**: Extracted `TALENT_NEXT_STEP_MESSAGES`, `getApplicationNextStep`, `getRecruiterNextAction`, `ApplicationPackSummary` type, and `getApplicationPackSummary` into the shared lib — previously inline constants in the page components; now tested and reusable.
+- **`app/auditions/[id]/page.tsx`**: Added **Application Pack** section to the Talent apply aside — bullet list of what the recruiter receives (profile snapshot, bio, portfolio media, cover message, self-tape if enabled). Required self-tape uses an amber dot; all other items use teal. Visible to Talent only.
+- **`app/applications/page.tsx`**: Replaced local `nextStepMessages` with `getApplicationNextStep` import. Added **PackTag** chip strip to each application card (between ApplicationMeta and Next Step box) — shows Profile snapshot (always included), Cover message (included/absent), and Self-tape pending/submitted when `selfTapeEnabled`.
+- **`app/recruiter/auditions/[id]/applicants/page.tsx`**: Replaced local `getNextRecruiterAction` with `getRecruiterNextAction` import. Added **Casting Integrity** `SafetyNotice` below the `NextActionPanel` reminding recruiters never to request payment from applicants. Added **Cover message** and **Self-tape** chips to the `ApplicantCard` compact chip row derived from `getApplicationPackSummary`.
+- **`tests/application-pipeline.test.mts`**: Added 3 new tests — `getApplicationNextStep`, `getRecruiterNextAction`, and `getApplicationPackSummary` (4 cases: empty, full, whitespace-only, storagePath-only). Total: 79 tests.
+- Created `AUDITION_SUBMISSION_STUDIO_CASTING_REVIEW_ROOM_REPORT.md`.
+- No Firestore rules, APIs, authentication, payment, AI, storage upload, video upload, fake data, or security features changed.
+
 ### Trust-Verified Media and Document Upload System
 
 - Added shared upload validation and path policy in `app/lib/upload-policy.ts`.

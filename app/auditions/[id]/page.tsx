@@ -281,6 +281,43 @@ export default function AuditionDetailPage() {
                   className="field mt-2 py-3"
                 />
               </label>
+              <div className="mt-4 rounded-md border border-[#d7e3e7] bg-[#f7fafb] p-3">
+                <p className="text-[10px] font-black uppercase tracking-wide text-[#008ca6]">
+                  Application pack
+                </p>
+                <ul className="mt-2 space-y-1.5 text-xs font-bold text-[#40535c]">
+                  <li className="flex items-start gap-2">
+                    <span className="mt-1 size-1.5 shrink-0 rounded-full bg-[#008ca6]" aria-hidden="true" />
+                    Profile snapshot — category, experience, location
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="mt-1 size-1.5 shrink-0 rounded-full bg-[#008ca6]" aria-hidden="true" />
+                    Bio and professional links
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="mt-1 size-1.5 shrink-0 rounded-full bg-[#008ca6]" aria-hidden="true" />
+                    Portfolio media and showreel links
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="mt-1 size-1.5 shrink-0 rounded-full bg-[#008ca6]" aria-hidden="true" />
+                    Cover message (recommended)
+                  </li>
+                  {audition.selfTapeEnabled && (
+                    <li className="flex items-start gap-2">
+                      <span
+                        className={`mt-1 size-1.5 shrink-0 rounded-full ${
+                          audition.selfTapeRequired ? 'bg-amber-500' : 'bg-[#008ca6]'
+                        }`}
+                        aria-hidden="true"
+                      />
+                      Self-tape link —{' '}
+                      {audition.selfTapeRequired
+                        ? 'required, add from My Applications after submitting'
+                        : 'optional, add from My Applications after submitting'}
+                    </li>
+                  )}
+                </ul>
+              </div>
               {error && (
                 <p className="mt-3 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-bold text-amber-900">
                   Could not submit — try again in a moment.
