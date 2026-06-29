@@ -3,7 +3,7 @@
 **Telugu name:** నట కనెక్ట్  
 **Document date:** June 29, 2026
 **Repository:** `jayeess/Firsttake-Lovable`  
-**Current stage:** Audition Submission Studio and Casting Review Room completed; 79 unit tests pass; ready for verification and deploy
+**Current stage:** Callback and Selection Decision Workflow completed; 83 unit tests pass; ready for verification and deploy
 
 ## 1. Product Summary
 

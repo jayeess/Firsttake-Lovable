@@ -20,6 +20,7 @@ import type { ApplicationStatus, Audition } from '@/app/lib/types';
 import {
   getApplicationStatus,
   getStatusTimestampField,
+  TALENT_VISIBLE_NOTE_MAX_LENGTH,
   validateRecruiterReview,
 } from '@/app/lib/application-pipeline';
 import { getInitialSelfTapeStatus } from '@/app/lib/self-tape-policy';
@@ -159,6 +160,7 @@ export async function PATCH(request: Request) {
       recruiterRating?: number | null;
       internalTags?: string[];
       rejectionReason?: string;
+      talentNextStepNote?: string;
     };
     const auditionId = body.auditionId?.trim();
     const applicationId = body.applicationId?.trim();
@@ -170,7 +172,8 @@ export async function PATCH(request: Request) {
       body.status !== undefined ||
       requestedNote !== undefined ||
       body.recruiterRating !== undefined ||
-      body.internalTags !== undefined;
+      body.internalTags !== undefined ||
+      body.talentNextStepNote !== undefined;
     if (!hasReviewChange) {
       throw new AdminRequestError('Add a status, note, rating, or tag update.');
     }
@@ -204,6 +207,7 @@ export async function PATCH(request: Request) {
       recruiterNote: requestedNote,
       recruiterRating: body.recruiterRating,
       internalTags: body.internalTags,
+      talentNextStepNote: body.talentNextStepNote,
     });
     if (policyError) throw new AdminRequestError(policyError, 409);
 
@@ -250,6 +254,10 @@ export async function PATCH(request: Request) {
       updates.rejectionReason =
         body.rejectionReason?.trim().slice(0, 2000) ?? '';
     }
+    if (body.talentNextStepNote !== undefined) {
+      const trimmed = body.talentNextStepNote.trim().slice(0, TALENT_VISIBLE_NOTE_MAX_LENGTH);
+      updates.talentNextStepNote = trimmed || FieldValue.delete();
+    }
     await applicationRef.update(updates);
 
     const auditionTitle = auditionSnapshot.data()?.title ?? 'an audition';
@@ -280,6 +288,15 @@ export async function PATCH(request: Request) {
     if (requestedNote !== undefined) {
       await writeAuditLog({
         action: 'recruiter_note_updated',
+        actor,
+        targetId: `${auditionId}/${applicationId}`,
+        targetType: 'application',
+        metadata: { auditionId, applicationId },
+      });
+    }
+    if (body.talentNextStepNote !== undefined) {
+      await writeAuditLog({
+        action: 'talent_visible_note_updated',
         actor,
         targetId: `${auditionId}/${applicationId}`,
         targetType: 'application',

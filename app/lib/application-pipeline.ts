@@ -65,11 +65,28 @@ export type ApplicantFilters = {
   language: string;
 };
 
+export const TALENT_VISIBLE_NOTE_MAX_LENGTH = 400;
+
+const CONTACT_DETAIL_PATTERN =
+  /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b|(?:\+?\d[\s().-]*){8,}/i;
+
+export const validateTalentVisibleNote = (note: string): string | null => {
+  const trimmed = note.trim();
+  if (trimmed.length > TALENT_VISIBLE_NOTE_MAX_LENGTH) {
+    return `Note must be ${TALENT_VISIBLE_NOTE_MAX_LENGTH} characters or fewer.`;
+  }
+  if (CONTACT_DETAIL_PATTERN.test(trimmed)) {
+    return 'Remove contact details before saving. Keep all communication on-platform.';
+  }
+  return null;
+};
+
 export type RecruiterReviewInput = {
   status?: ApplicationStatus;
   recruiterNote?: string;
   recruiterRating?: number | null;
   internalTags?: string[];
+  talentNextStepNote?: string;
 };
 
 export const getApplicationStatus = (
@@ -113,6 +130,10 @@ export const validateRecruiterReview = (
       input.internalTags.some((tag) => tag.length > 30))
   ) {
     return 'Use no more than 10 tags with 30 characters per tag.';
+  }
+  if (input.talentNextStepNote !== undefined) {
+    const noteError = validateTalentVisibleNote(input.talentNextStepNote);
+    if (noteError) return noteError;
   }
   return null;
 };
@@ -317,3 +338,76 @@ export const getApplicationPackSummary = (
   ),
   mediaCount,
 });
+
+export type TalentStageGuidance = {
+  headline: string;
+  detail: string;
+  checkMessages: boolean;
+};
+
+const TALENT_STAGE_GUIDANCE: Record<ApplicationStatus, TalentStageGuidance> = {
+  APPLIED: {
+    headline: 'Application submitted.',
+    detail: 'The casting team will review your profile when applications are opened.',
+    checkMessages: false,
+  },
+  VIEWED: {
+    headline: 'Your application was opened.',
+    detail: 'The recruiter has seen your profile. Watch for a status update.',
+    checkMessages: false,
+  },
+  UNDER_REVIEW: {
+    headline: 'Actively under review.',
+    detail: 'The casting team is comparing your profile and materials.',
+    checkMessages: false,
+  },
+  MAYBE: {
+    headline: 'In the consideration pool.',
+    detail: 'The casting team has not made a final decision. Watch for a status update.',
+    checkMessages: true,
+  },
+  SHORTLISTED: {
+    headline: 'You made the shortlist.',
+    detail: 'Strong application. The recruiter may message you about next steps.',
+    checkMessages: true,
+  },
+  CALLBACK: {
+    headline: 'Callback received.',
+    detail: 'Prepare for the next step. Check Messages for recruiter instructions and respond promptly.',
+    checkMessages: true,
+  },
+  FINAL_ROUND: {
+    headline: 'You are in serious consideration.',
+    detail: 'The casting team is making their final decision. Keep all communication on-platform.',
+    checkMessages: true,
+  },
+  SELECTED: {
+    headline: 'You have been selected.',
+    detail: 'Confirm role details through Messages on Nata Connect. Selection never requires a platform fee.',
+    checkMessages: true,
+  },
+  REJECTED: {
+    headline: 'This role is not moving forward.',
+    detail: 'The casting team chose another applicant. Keep your profile ready for the next opportunity.',
+    checkMessages: false,
+  },
+  WITHDRAWN: {
+    headline: 'You withdrew this application.',
+    detail: 'This application is closed. Apply to new casting calls when ready.',
+    checkMessages: false,
+  },
+};
+
+export const getTalentStageGuidance = (
+  status: ApplicationStatus
+): TalentStageGuidance => TALENT_STAGE_GUIDANCE[status];
+
+export const getDecisionSafetyCue = (status: ApplicationStatus): string | null => {
+  if (status === 'SELECTED') {
+    return 'Selection on Nata Connect never requires a platform fee. If anyone asks you to pay, report it immediately.';
+  }
+  if (status === 'CALLBACK' || status === 'FINAL_ROUND') {
+    return 'Keep all next-step communication on Nata Connect. Do not share personal contact details.';
+  }
+  return null;
+};

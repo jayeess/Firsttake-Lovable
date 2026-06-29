@@ -1,5 +1,27 @@
 # Nata Connect development test cases
 
+## Callback and Selection Decision Workflow checks
+
+After this pass, verify:
+
+- [ ] On `/applications`, each application card shows `TalentStageCard` with tonal styling — emerald for SELECTED, amber for CALLBACK/FINAL_ROUND, gray for REJECTED/WITHDRAWN, teal for all others.
+- [ ] When a recruiter has saved a `talentNextStepNote`, the "Recruiter note" block with an amber left border appears inside `TalentStageCard` on the Talent applications page.
+- [ ] SELECTED, CALLBACK, and FINAL_ROUND stage cards show the correct safety cue below the detail text.
+- [ ] CALLBACK, FINAL_ROUND, and SELECTED cards show the "Check Messages" hint; the hint reads "Recruiter sent a message" when unread is true.
+- [ ] REJECTED and WITHDRAWN cards show the muted gray card only (no "Closed state" box below it).
+- [ ] On `/recruiter/auditions/[id]/applicants`, the expanded Private casting notes aside shows a "Talent-visible note" textarea with amber border below Internal tags.
+- [ ] Typing a phone number or email in the Talent-visible note textarea shows a validation error and disables Save.
+- [ ] The Next action panel for CALLBACK/FINAL_ROUND/SELECTED shows the decision safety cue paragraph below the next-action text.
+- [ ] The PATCH `/api/applications` handler accepts `talentNextStepNote`, trims to 400 chars, and clears the field when an empty string is sent.
+
+Run `npm test` to verify 83 unit tests pass:
+
+```powershell
+npm test
+```
+
+See `CALLBACK_SELECTION_DECISION_WORKFLOW_REPORT.md` for the full change list.
+
 ## Audition Submission Studio and Casting Review Room checks
 
 After this pass, verify:

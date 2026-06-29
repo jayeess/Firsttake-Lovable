@@ -14,9 +14,10 @@ import {
 import {
   APPLICATION_PIPELINE_STATUSES,
   APPLICATION_STATUS_LABELS,
-  getApplicationNextStep,
   getApplicationPackSummary,
   getApplicationStatus,
+  getDecisionSafetyCue,
+  getTalentStageGuidance,
 } from '@/app/lib/application-pipeline';
 import {
   formatDate,
@@ -428,6 +429,9 @@ export default function ApplicationsPage() {
           filtered.map((application) => (
             (() => {
               const status = getApplicationStatus(application);
+              const hasUnread = unreadConversationIds.has(
+                getConversationId(application.auditionId, application.id)
+              );
               return (
             <article
               key={`${application.auditionId}-${application.id}`}
@@ -480,17 +484,11 @@ export default function ApplicationsPage() {
                   />
                 )}
               </div>
-              <div className="mt-4 flex items-start gap-3 rounded-md border border-[#9fc9c4] bg-[#edf7f5] p-3">
-                <div className="mt-0.5 size-1.5 shrink-0 rounded-full bg-[#008ca6]" />
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-wide text-[#008ca6]">
-                    Next step
-                  </p>
-                  <p className="mt-0.5 text-sm font-bold text-[#183139]">
-                    {getApplicationNextStep(status)}
-                  </p>
-                </div>
-              </div>
+              <TalentStageCard
+                status={status}
+                talentNextStepNote={application.talentNextStepNote}
+                hasUnread={hasUnread}
+              />
 
               <ApplicationProgress status={status} />
               {status === 'REJECTED' &&
@@ -528,12 +526,7 @@ export default function ApplicationsPage() {
                   label={
                     status === 'WITHDRAWN'
                       ? 'Conversation unavailable'
-                      : unreadConversationIds.has(
-                            getConversationId(
-                              application.auditionId,
-                              application.id
-                            )
-                          )
+                      : hasUnread
                         ? 'Message Recruiter (new)'
                         : 'Message Recruiter'
                   }
@@ -692,14 +685,7 @@ function SelfTapePanel({
 }
 
 function ApplicationProgress({ status }: { status: ApplicationStatus }) {
-  if (status === 'REJECTED' || status === 'WITHDRAWN') {
-    return (
-      <div className="mt-4 rounded-md border border-[#dce2e8] bg-[#f6f7f8] p-3 text-sm text-[#59666b]">
-        <span className="font-black text-[#07111f]">Closed state:</span>{' '}
-        {getApplicationNextStep(status)}
-      </div>
-    );
-  }
+  if (status === 'REJECTED' || status === 'WITHDRAWN') return null;
 
   if (status === 'MAYBE') {
     return (
@@ -736,6 +722,68 @@ function ApplicationProgress({ status }: { status: ApplicationStatus }) {
           );
         })}
       </div>
+    </div>
+  );
+}
+
+function TalentStageCard({
+  status,
+  talentNextStepNote,
+  hasUnread,
+}: {
+  status: ApplicationStatus;
+  talentNextStepNote?: string;
+  hasUnread: boolean;
+}) {
+  const guidance = getTalentStageGuidance(status);
+  const safetyCue = getDecisionSafetyCue(status);
+  const borderBg =
+    status === 'SELECTED'
+      ? 'border-emerald-200 bg-emerald-50'
+      : status === 'CALLBACK' || status === 'FINAL_ROUND'
+        ? 'border-[#f0d980] bg-[#fffbee]'
+        : status === 'REJECTED' || status === 'WITHDRAWN'
+          ? 'border-[#dce2e8] bg-[#f6f7f8]'
+          : 'border-[#9fc9c4] bg-[#edf7f5]';
+  const eyebrowColor =
+    status === 'SELECTED'
+      ? 'text-emerald-700'
+      : status === 'CALLBACK' || status === 'FINAL_ROUND'
+        ? 'text-[#a56b00]'
+        : status === 'REJECTED' || status === 'WITHDRAWN'
+          ? 'text-[#657176]'
+          : 'text-[#008ca6]';
+  return (
+    <div className={`mt-4 rounded-md border p-3 ${borderBg}`}>
+      <p className={`text-[10px] font-black uppercase tracking-wide ${eyebrowColor}`}>
+        Stage update
+      </p>
+      <p className="mt-0.5 font-black text-[#07111f]">{guidance.headline}</p>
+      <p className="mt-1 text-sm leading-6 text-[#374348]">{guidance.detail}</p>
+      {talentNextStepNote?.trim() && (
+        <div className="mt-3 border-l-2 border-[#e7ad2d] pl-3">
+          <p className="text-[10px] font-black uppercase tracking-wide text-[#a56b00]">
+            Recruiter note
+          </p>
+          <p className="mt-0.5 text-sm leading-6 text-[#4f5963]">
+            {talentNextStepNote}
+          </p>
+        </div>
+      )}
+      {safetyCue && (
+        <p className="mt-3 text-xs font-bold text-[#526168]">{safetyCue}</p>
+      )}
+      {guidance.checkMessages && (
+        <p
+          className={`mt-3 text-xs font-black ${
+            hasUnread ? 'text-[#008ca6]' : 'text-[#526168]'
+          }`}
+        >
+          {hasUnread
+            ? 'Recruiter sent a message — check Messages now.'
+            : 'Keep Messages open for recruiter instructions.'}
+        </p>
+      )}
     </div>
   );
 }

@@ -1,5 +1,17 @@
 # Changelog
 
+### Callback and Selection Decision Workflow
+
+- **`app/lib/application-pipeline.ts`**: Added `TALENT_VISIBLE_NOTE_MAX_LENGTH`, `validateTalentVisibleNote`, `TalentStageGuidance` type, `getTalentStageGuidance`, and `getDecisionSafetyCue`. Extended `RecruiterReviewInput` with `talentNextStepNote` and `validateRecruiterReview` to validate it.
+- **`app/lib/types.ts`**: Added `talentNextStepNote?: string` to `Application` interface.
+- **`app/api/applications/route.ts`**: PATCH handler now accepts, validates (server-side via `validateRecruiterReview`), trims, and persists `talentNextStepNote`. Clears with `FieldValue.delete()` when empty. Writes audit log `talent_visible_note_updated`.
+- **`app/applications/page.tsx`**: Replaced the single-line "Next step" teal box with `TalentStageCard` — tonal styling per stage, headline, detail, optional recruiter note (amber border), safety cue for CALLBACK/FINAL_ROUND/SELECTED, and a messaging hint when unread. `ApplicationProgress` for REJECTED/WITHDRAWN now returns null (TalentStageCard covers these). Removed unused `getApplicationNextStep` import.
+- **`app/recruiter/auditions/[id]/applicants/page.tsx`**: Added "Talent-visible note" textarea (amber border) in the private casting notes aside with inline validation, 400-char cap, and contact-detail blocking. Added decision safety cue to the Next action panel for CALLBACK/FINAL_ROUND/SELECTED stages.
+- **`tests/application-pipeline.test.mts`**: Added 4 new tests for `getTalentStageGuidance`, `getDecisionSafetyCue`, `validateTalentVisibleNote`, and `validateRecruiterReview` with `talentNextStepNote`. Total: 83 tests.
+- Created `CALLBACK_SELECTION_DECISION_WORKFLOW_REPORT.md`.
+- No Firestore rules changed (Admin SDK bypasses client rules for writes; talent reads already covered by wildcard rule).
+- No calendar, video, payment, AI, fake data, or security changes.
+
 ### Audition Submission Studio and Casting Review Room
 
 - **`app/lib/application-pipeline.ts`**: Extracted `TALENT_NEXT_STEP_MESSAGES`, `getApplicationNextStep`, `getRecruiterNextAction`, `ApplicationPackSummary` type, and `getApplicationPackSummary` into the shared lib — previously inline constants in the page components; now tested and reusable.

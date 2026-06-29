@@ -1,5 +1,21 @@
 # Full App UX Polish Report
 
+## Callback and Selection Decision Workflow — June 29, 2026
+
+**Goal:** Make the CALLBACK → FINAL_ROUND → SELECTED journey clear and safe for Talent, give recruiters a bounded talent-visible note field, and surface stage-specific decision guidance in both the Talent applications tracker and the Recruiter review room.
+
+Key improvements in this pass:
+
+- **Shared lib helpers** (`app/lib/application-pipeline.ts`): `getTalentStageGuidance`, `getDecisionSafetyCue`, `validateTalentVisibleNote`, and `TALENT_VISIBLE_NOTE_MAX_LENGTH` are now exported and tested. `RecruiterReviewInput` extended with `talentNextStepNote`.
+- **TalentStageCard** (`/applications`): Replaces the single-line "Next step" box with a tonal stage card — headline + detail per status, optional recruiter note block (amber border), safety cue for sensitive stages, and a check-messages hint. Stage tones: emerald (SELECTED), amber (CALLBACK/FINAL_ROUND), gray (REJECTED/WITHDRAWN), teal (all others).
+- **Talent-visible note field** (`/recruiter/auditions/[id]/applicants`): Added a bounded textarea (amber border, 400-char cap) in the Private casting notes aside. Contact details are blocked on blur and on save. The field is Talent-visible; it is clearly distinguished from the private Recruiter note. The decision safety cue appears in the Next action panel for CALLBACK/FINAL_ROUND/SELECTED.
+- **API and schema** (`app/api/applications/route.ts`, `app/lib/types.ts`): `talentNextStepNote` is accepted, validated, trimmed, and persisted through the existing Admin SDK PATCH route. No Firestore rules change needed.
+- **4 new unit tests** (`tests/application-pipeline.test.mts`): `getTalentStageGuidance`, `getDecisionSafetyCue`, `validateTalentVisibleNote`, and `validateRecruiterReview` with `talentNextStepNote`. Total: 83 tests, all passing.
+
+See `CALLBACK_SELECTION_DECISION_WORKFLOW_REPORT.md` for the full change list and verification results.
+
+---
+
 ## Audition Submission Studio and Casting Review Room — June 29, 2026
 
 **Goal:** Make the audition application and recruiter applicant-review experience feel like a premium casting operating system by surfacing the "Application Pack" concept, extracting shared helpers into the lib, adding trust/safety cues, and backing everything with tests.

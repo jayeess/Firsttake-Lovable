@@ -376,6 +376,7 @@ export interface Application {
   recruiterRating?: number;
   internalTags?: string[];
   rejectionReason?: string;
+  talentNextStepNote?: string;
   reviewedAt?: Date | Timestamp;
   shortlistedAt?: Date | Timestamp;
   rejectedAt?: Date | Timestamp;

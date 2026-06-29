@@ -6,10 +6,13 @@ import {
   getApplicationNextStep,
   getApplicationPackSummary,
   getApplicationStatus,
+  getDecisionSafetyCue,
   getPipelineCounts,
   getRecruiterNextAction,
+  getTalentStageGuidance,
   sortApplicants,
   validateRecruiterReview,
+  validateTalentVisibleNote,
 } from '../app/lib/application-pipeline.ts';
 import type { AuditionApplicant } from '../app/lib/types.ts';
 
@@ -175,6 +178,73 @@ test('getApplicationPackSummary reflects cover message and self-tape presence', 
       1
     ),
     { hasCoverMessage: false, hasSelfTape: true, mediaCount: 1 }
+  );
+});
+
+test('getTalentStageGuidance returns stage-appropriate copy and checkMessages flag', () => {
+  const callback = getTalentStageGuidance('CALLBACK');
+  assert.match(callback.headline, /Callback/);
+  assert.equal(callback.checkMessages, true);
+
+  const finalRound = getTalentStageGuidance('FINAL_ROUND');
+  assert.match(finalRound.detail, /on-platform/);
+  assert.equal(finalRound.checkMessages, true);
+
+  const selected = getTalentStageGuidance('SELECTED');
+  assert.match(selected.headline, /selected/i);
+  assert.match(selected.detail, /platform fee/);
+  assert.equal(selected.checkMessages, true);
+
+  const rejected = getTalentStageGuidance('REJECTED');
+  assert.equal(rejected.checkMessages, false);
+
+  const withdrawn = getTalentStageGuidance('WITHDRAWN');
+  assert.equal(withdrawn.checkMessages, false);
+  assert.match(withdrawn.detail, /closed/i);
+});
+
+test('getDecisionSafetyCue returns safety copy for sensitive stages only', () => {
+  assert.match(getDecisionSafetyCue('SELECTED') ?? '', /platform fee/);
+  assert.match(getDecisionSafetyCue('CALLBACK') ?? '', /Nata Connect/);
+  assert.match(getDecisionSafetyCue('FINAL_ROUND') ?? '', /contact details/);
+  assert.equal(getDecisionSafetyCue('APPLIED'), null);
+  assert.equal(getDecisionSafetyCue('SHORTLISTED'), null);
+  assert.equal(getDecisionSafetyCue('REJECTED'), null);
+});
+
+test('validateTalentVisibleNote accepts valid notes and rejects violations', () => {
+  assert.equal(validateTalentVisibleNote(''), null);
+  assert.equal(validateTalentVisibleNote('Callback at 2 pm. Please confirm availability.'), null);
+
+  const tooLong = 'x'.repeat(401);
+  assert.match(validateTalentVisibleNote(tooLong) ?? '', /400 characters/);
+
+  assert.match(
+    validateTalentVisibleNote('Email us at casting@example.com') ?? '',
+    /contact details/
+  );
+  assert.match(
+    validateTalentVisibleNote('Call +91 98765 43210 to confirm') ?? '',
+    /contact details/
+  );
+});
+
+test('validateRecruiterReview rejects invalid talentNextStepNote', () => {
+  assert.equal(
+    validateRecruiterReview('SHORTLISTED', { talentNextStepNote: 'Callback tomorrow.' }),
+    null
+  );
+  assert.match(
+    validateRecruiterReview('CALLBACK', {
+      talentNextStepNote: 'Contact us at director@studio.com',
+    }) ?? '',
+    /contact details/
+  );
+  assert.match(
+    validateRecruiterReview('FINAL_ROUND', {
+      talentNextStepNote: 'x'.repeat(401),
+    }) ?? '',
+    /400 characters/
   );
 });
 

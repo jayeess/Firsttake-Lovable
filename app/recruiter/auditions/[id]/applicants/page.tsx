@@ -9,9 +9,12 @@ import {
   filterApplicants,
   getApplicationPackSummary,
   getApplicationStatus,
+  getDecisionSafetyCue,
   getPipelineCounts,
   getRecruiterNextAction,
   sortApplicants,
+  TALENT_VISIBLE_NOTE_MAX_LENGTH,
+  validateTalentVisibleNote,
   type ApplicantFilters,
   type ApplicantSort,
   type RecruiterReviewInput,
@@ -194,6 +197,9 @@ export default function AuditionApplicantsPage() {
                     : {}),
                   ...(review.internalTags !== undefined
                     ? { internalTags: review.internalTags }
+                    : {}),
+                  ...(review.talentNextStepNote !== undefined
+                    ? { talentNextStepNote: review.talentNextStepNote }
                     : {}),
                   ...(review.status === 'REJECTED'
                     ? { rejectionReason }
@@ -651,6 +657,8 @@ function ApplicantCard({
   );
   const [tags, setTags] = useState((application.internalTags ?? []).join(', '));
   const [rating, setRating] = useState(application.recruiterRating ?? 0);
+  const [talentNote, setTalentNote] = useState(application.talentNextStepNote ?? '');
+  const [talentNoteError, setTalentNoteError] = useState('');
 
   const changeStatus = async (nextStatus: ApplicationStatus) => {
     const rejectionReason =
@@ -1030,10 +1038,51 @@ function ApplicantCard({
                 />
               </label>
 
+              <div className="mt-4">
+                <label className="block text-sm font-bold">
+                  Talent-visible note
+                  <span className="ml-1 text-xs font-normal text-[#657176]">
+                    optional · shown to applicant
+                  </span>
+                  <textarea
+                    value={talentNote}
+                    onChange={(event) => {
+                      setTalentNote(event.target.value);
+                      if (talentNoteError) setTalentNoteError('');
+                    }}
+                    onBlur={() => {
+                      if (talentNote.trim()) {
+                        const err = validateTalentVisibleNote(talentNote);
+                        setTalentNoteError(err ?? '');
+                      }
+                    }}
+                    maxLength={TALENT_VISIBLE_NOTE_MAX_LENGTH}
+                    rows={3}
+                    disabled={status === 'WITHDRAWN'}
+                    className="mt-2 w-full border border-[#e0c364] p-3 font-normal disabled:opacity-50"
+                    placeholder="Optional note visible to the applicant (e.g. callback instructions, what to prepare)"
+                  />
+                </label>
+                {talentNoteError && (
+                  <p className="mt-1 text-xs font-bold text-red-600">{talentNoteError}</p>
+                )}
+                <p className="mt-1 text-xs text-[#7b8a90]">
+                  Max {TALENT_VISIBLE_NOTE_MAX_LENGTH} characters. Do not include contact details.
+                </p>
+              </div>
+
               <button
                 type="button"
-                disabled={busy || status === 'WITHDRAWN'}
-                onClick={() =>
+                disabled={busy || status === 'WITHDRAWN' || Boolean(talentNoteError)}
+                onClick={() => {
+                  if (talentNote.trim()) {
+                    const err = validateTalentVisibleNote(talentNote);
+                    if (err) {
+                      setTalentNoteError(err);
+                      return;
+                    }
+                  }
+                  setTalentNoteError('');
                   void onUpdate({
                     recruiterNote: note,
                     recruiterRating: rating || null,
@@ -1041,8 +1090,9 @@ function ApplicantCard({
                       .split(',')
                       .map((tag) => tag.trim())
                       .filter(Boolean),
-                  })
-                }
+                    talentNextStepNote: talentNote,
+                  });
+                }}
                 className="primary-button mt-5 w-full disabled:opacity-50"
               >
                 {busy ? 'Saving review...' : 'Save private review'}
@@ -1054,6 +1104,11 @@ function ApplicantCard({
                   <p className="mt-1 leading-6 text-[#4f5963]">
                     {getRecruiterNextAction(status)}
                   </p>
+                  {getDecisionSafetyCue(status) && (
+                    <p className="mt-2 border-t border-[#e3e8ec] pt-2 text-xs text-[#526168]">
+                      {getDecisionSafetyCue(status)}
+                    </p>
+                  )}
                 </div>
               )}
 
