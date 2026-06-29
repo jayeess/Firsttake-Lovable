@@ -28,11 +28,13 @@ the operator checklist and known limitations.
 - Tab-scoped Firebase sessions for testing different accounts concurrently
 - Talent and recruiter profile forms
 - Talent profile completeness scoring and optional verification
+- Talent Passport and explainable Role Readiness signals for auditions
 - Talent profile photo, portfolio images, and external showreel links
 - Opt-in shareable Talent profiles at `/t/[slug]` using sanitized public
   snapshots, safe slugs, selected public media, and verified badges
 - Recruiter-facing featured media and portfolio previews
 - Recruiter audition creation and applicant review
+- Recruiter-facing applicant role fit signals for guidance only
 - Talent audition discovery, application submission, and status tracking
 - Self-tape requests on auditions with Talent link submission and Recruiter
   review status

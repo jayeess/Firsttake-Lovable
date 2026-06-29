@@ -1,5 +1,31 @@
 # Nata Connect development test cases
 
+## Talent Passport and Role Fit Signal checks
+
+After updating role readiness or Talent Passport behavior, verify:
+
+- [ ] `/talent/profile` shows the Talent Passport summary without blocking
+  profile editing, media management, or verification submission.
+- [ ] `/auditions/[id]` shows Role Readiness for signed-in Talent users and
+  still allows applications to active auditions.
+- [ ] `/applications` shows a lightweight Future Role Readiness cue for
+  submitted roles when the audition and Talent profile are available.
+- [ ] `/recruiter/auditions/[id]/applicants` shows Role Fit Signals only as
+  recruiter guidance and does not auto-rank or auto-decide applicants.
+- [ ] Required self-tape guidance still points to external link submission
+  after applying.
+- [ ] No UI copy claims AI matching, guaranteed casting, automated ranking, or
+  guaranteed jobs.
+
+Run:
+
+```powershell
+npm run lint
+npm test
+npm run build
+git diff --check
+```
+
 ## Pitch Deck Content Pack checks
 
 After updating the pitch deck content pack, verify:

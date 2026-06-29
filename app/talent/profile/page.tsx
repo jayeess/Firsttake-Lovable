@@ -21,6 +21,7 @@ import { DevFormPresets } from '@/components/dev-form-presets';
 import {
   canSubmitTalentVerification,
 } from '@/app/lib/talent-trust-policy';
+import { getTalentPassportSummary } from '@/app/lib/role-fit-policy';
 import {
   calculateTalentProfileCompleteness,
   TALENT_VERIFICATION_MINIMUM_SCORE,
@@ -220,6 +221,10 @@ export default function TalentProfilePage() {
 
   const completeness = useMemo(
     () => calculateTalentProfileCompleteness(profile),
+    [profile]
+  );
+  const talentPassport = useMemo(
+    () => getTalentPassportSummary(profile),
     [profile]
   );
   const verificationStatus =
@@ -480,6 +485,65 @@ export default function TalentProfilePage() {
           details in your public bio, and keep callbacks on-platform.
           Verification notes and private account data stay internal.
         </PrivacyNote>
+        <section className="mt-5 rounded-md border border-[#d7e2e6] bg-white p-4 shadow-sm sm:p-5">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <p className="eyebrow">Talent passport</p>
+              <h2 className="mt-2 text-2xl font-black">
+                {talentPassport.bandLabel}
+              </h2>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-[#657176]">
+                A recruiter-facing summary of profile strength, portfolio
+                readiness, trust status, and self-tape preparedness. It is
+                guidance only and never guarantees a casting outcome.
+              </p>
+            </div>
+            <span className="inline-flex min-h-10 items-center rounded-md border border-[#bad7d3] bg-[#edf7f5] px-3 text-sm font-black text-[#006b60]">
+              {talentPassport.score}% ready
+            </span>
+          </div>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            {talentPassport.items.map((item) => (
+              <article
+                key={item.label}
+                className={`rounded-md border p-3 ${
+                  item.complete
+                    ? 'border-[#bad7d3] bg-[#edf7f5]'
+                    : 'border-amber-200 bg-amber-50'
+                }`}
+              >
+                <p className="text-sm font-black text-[#07111f]">
+                  {item.label}
+                </p>
+                <p className="mt-1 text-xs font-bold leading-5 text-[#526874]">
+                  {item.detail}
+                </p>
+                {!item.complete && item.actionHref && (
+                  <Link
+                    href={item.actionHref}
+                    className="mt-2 inline-flex text-xs font-black text-[#008ca6] hover:underline"
+                  >
+                    Improve this
+                  </Link>
+                )}
+              </article>
+            ))}
+          </div>
+          {talentPassport.nextActions.length > 0 && (
+            <div className="mt-4 rounded-md border border-[#dbe4e8] bg-[#f7fafb] p-3">
+              <p className="text-xs font-black uppercase text-[#008ca6]">
+                Recommended next actions
+              </p>
+              <ul className="mt-2 space-y-1.5 text-sm leading-6 text-[#526874]">
+                {talentPassport.nextActions.map((action) => (
+                  <li key={action} className="border-l-2 border-[#e7ad2d] pl-3">
+                    {action}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </section>
         {!emailVerified && (
           <div className="mt-4">
             <EmailVerificationPrompt />

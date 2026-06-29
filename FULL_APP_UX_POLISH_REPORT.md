@@ -1,5 +1,33 @@
 # Full App UX Polish Report
 
+## Talent Passport and Role Fit Signals - June 29, 2026
+
+**Goal:** Add a transparent Talent Passport and role readiness layer without
+changing backend permissions, Firestore rules, schemas, upload behavior, or
+application submission rules.
+
+Key improvements:
+
+- `app/lib/role-fit-policy.ts` centralizes explainable readiness signals for
+  profile completeness, category, experience, languages, location/work mode,
+  skills, portfolio, external self-tape readiness, and Talent verification.
+- `/talent/profile` now includes a Talent Passport section showing profile
+  foundation, skills/languages, portfolio and showreel readiness, public
+  profile status, trust status, and self-tape link preparedness.
+- `/auditions/[id]` now gives Talent users a compact Role Readiness panel
+  before applying. It is guidance only and does not block active applications.
+- `/applications` shows a lightweight Future Role Readiness cue so Talent
+  users know what to improve for similar roles.
+- `/recruiter/auditions/[id]/applicants` now shows recruiter-facing Role Fit
+  Signals inside expanded applicant review, with clear copy that final casting
+  decisions remain with the recruiter.
+- `tests/role-fit-policy.test.mts` adds coverage for bands, missing items,
+  self-tape/media readiness, checklist output, Talent Passport behavior, and
+  no fake AI or automated ranking language.
+
+See `TALENT_PASSPORT_ROLE_FIT_SIGNAL_ENGINE_REPORT.md` for the full change
+record.
+
 ## Pitch Deck Content Pack - June 29, 2026
 
 **Goal:** Create founder-ready pitch deck content for FirstTake / Nata Connect

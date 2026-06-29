@@ -3,12 +3,13 @@
 import { Bookmark } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { AppShell } from '@/components/app-shell';
 import { StatusBadge } from '@/components/status-badge';
 import {
   getAuditionById,
   getSavedAuditions,
+  getTalentProfile,
   setAuditionSaved,
   submitApplication,
 } from '@/app/lib/firestore-service';
@@ -17,6 +18,7 @@ import {
   EXPERIENCE_LABELS,
   formatDate,
   type Audition,
+  type TalentProfile,
 } from '@/app/lib/types';
 import { getErrorMessage } from '@/app/lib/error-utils';
 import { useAuth } from '@/context/auth-context';
@@ -24,6 +26,7 @@ import { VerifiedBadge } from '@/components/verified-badge';
 import { EmptyState, ErrorState, LoadingState } from '@/components/async-state';
 import { ReportButton } from '@/components/report-button';
 import { NextActionPanel, SafetyNotice } from '@/components/product-ui';
+import { getRoleFitSummary, type RoleFitSignalStatus } from '@/app/lib/role-fit-policy';
 
 const AUDITION_TYPE_LABELS: Record<string, string> = {
   FILM: 'Film',
@@ -59,6 +62,7 @@ export default function AuditionDetailPage() {
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
+  const [talentProfile, setTalentProfile] = useState<TalentProfile | null>(null);
 
   useEffect(() => {
     void getAuditionById(id)
@@ -71,10 +75,24 @@ export default function AuditionDetailPage() {
 
   useEffect(() => {
     if (!user || userType !== 'TALENT') return;
-    void getSavedAuditions(user.uid)
-      .then((items) => setSaved(items.some((item) => item.auditionId === id)))
+    void Promise.all([
+      getSavedAuditions(user.uid),
+      getTalentProfile(user.uid).catch(() => null),
+    ])
+      .then(([items, profile]) => {
+        setSaved(items.some((item) => item.auditionId === id));
+        setTalentProfile(profile);
+      })
       .catch(() => undefined);
   }, [id, user, userType]);
+
+  const roleFit = useMemo(
+    () =>
+      talentProfile && audition
+        ? getRoleFitSummary(talentProfile, audition)
+        : null,
+    [audition, talentProfile]
+  );
 
   const toggleSaved = async () => {
     setSaving(true);
@@ -270,6 +288,9 @@ export default function AuditionDetailPage() {
                   This audition is no longer accepting applications.
                 </p>
               )}
+              {userType === 'TALENT' && (
+                <RoleReadinessPanel roleFit={roleFit} hasProfile={Boolean(talentProfile)} />
+              )}
               <label className="mt-4 block text-sm font-bold">
                 Cover message
                 <textarea
@@ -344,6 +365,91 @@ export default function AuditionDetailPage() {
       </div>
     </AppShell>
   );
+}
+
+function RoleReadinessPanel({
+  roleFit,
+  hasProfile,
+}: {
+  roleFit: ReturnType<typeof getRoleFitSummary> | null;
+  hasProfile: boolean;
+}) {
+  if (!hasProfile) {
+    return (
+      <section className="mt-4 rounded-md border border-amber-200 bg-amber-50 p-3">
+        <p className="text-[10px] font-black uppercase tracking-wide text-amber-900">
+          Before you apply
+        </p>
+        <p className="mt-2 text-sm font-bold leading-6 text-amber-950">
+          Complete your Talent profile so recruiters receive a clear casting
+          snapshot with your skills, languages, location, and portfolio.
+        </p>
+        <Link
+          href="/talent/profile"
+          className="mt-3 inline-flex text-sm font-black text-[#008ca6] hover:underline"
+        >
+          Build profile
+        </Link>
+      </section>
+    );
+  }
+
+  if (!roleFit) return null;
+
+  return (
+    <section className="mt-4 rounded-md border border-[#bad7d3] bg-[#edf7f5] p-3">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-[10px] font-black uppercase tracking-wide text-[#008ca6]">
+            Role readiness
+          </p>
+          <h3 className="mt-1 text-lg font-black text-[#07111f]">
+            {roleFit.bandLabel}
+          </h3>
+        </div>
+        <span className="rounded-md bg-white px-2.5 py-1 text-xs font-black text-[#008ca6]">
+          {roleFit.score}%
+        </span>
+      </div>
+      <div className="mt-3 flex flex-wrap gap-1.5">
+        {roleFit.signals.slice(0, 5).map((signal) => (
+          <span
+            key={signal.key}
+            className={`rounded-md border px-2.5 py-1 text-xs font-bold ${signalToneClass(signal.status)}`}
+          >
+            {signal.label}
+          </span>
+        ))}
+      </div>
+      <ul className="mt-3 space-y-2 text-xs font-bold leading-5 text-[#40535c]">
+        {(roleFit.missingItems.length > 0
+          ? roleFit.missingItems.slice(0, 3)
+          : roleFit.checklist.slice(0, 3)
+        ).map((item) => (
+          <li key={item.label} className="border-l-2 border-[#00a4b8] pl-3">
+            {item.detail}
+          </li>
+        ))}
+      </ul>
+      <p className="mt-3 text-xs leading-5 text-[#526874]">
+        Signals are guidance only. They do not block applications or guarantee
+        recruiter decisions.
+      </p>
+    </section>
+  );
+}
+
+function signalToneClass(status: RoleFitSignalStatus) {
+  if (status === 'strong') {
+    return 'border-emerald-200 bg-emerald-50 text-emerald-800';
+  }
+  if (status === 'good') {
+    return 'border-[#bad7d3] bg-white text-[#006b60]';
+  }
+  if (status === 'attention') {
+    return 'border-amber-200 bg-amber-50 text-amber-900';
+  }
+  return 'border-red-200 bg-red-50 text-red-800';
 }
 
 function Detail({ label, value }: { label: string; value: string }) {

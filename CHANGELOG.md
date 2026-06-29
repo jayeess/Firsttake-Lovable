@@ -1,5 +1,24 @@
 # Changelog
 
+### Talent Passport and Role Fit Signals
+
+- Added `app/lib/role-fit-policy.ts` with explainable readiness helpers for
+  profile completeness, category, experience, languages, location/work mode,
+  skills, portfolio, self-tape readiness, and Talent verification status.
+- Added Role Readiness guidance to audition detail pages for Talent users.
+- Added a Talent Passport section on `/talent/profile` summarizing profile
+  foundation, skills/languages, portfolio, public profile, trust status, and
+  self-tape link readiness.
+- Added recruiter-facing Role Fit Signals inside applicant review, with clear
+  guidance that final casting decisions remain with the recruiter.
+- Added lightweight Future Role Readiness cues on `/applications`.
+- Added `tests/role-fit-policy.test.mts` covering strong signals, missing
+  details, missing media/self-tape actions, readiness bands, checklist output,
+  Talent Passport behavior, and no fake AI/ranking language.
+- Created `TALENT_PASSPORT_ROLE_FIT_SIGNAL_ENGINE_REPORT.md`.
+- No Firestore rules, schemas, permissions, APIs, upload behavior, payment,
+  AI, fake data, or security settings changed.
+
 ### Pitch Deck Content Pack
 
 - Created founder-ready pitch deck content for FirstTake / Nata Connect without

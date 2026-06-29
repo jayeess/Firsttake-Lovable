@@ -7,6 +7,7 @@ import { AppShell } from '@/components/app-shell';
 import { StatusBadge } from '@/components/status-badge';
 import {
   deleteApplication,
+  getTalentProfile,
   getTalentApplications,
   removeSelfTape,
   submitSelfTapeLink,
@@ -23,6 +24,7 @@ import {
   formatDate,
   type Application,
   type ApplicationStatus,
+  type TalentProfile,
 } from '@/app/lib/types';
 import { getErrorMessage } from '@/app/lib/error-utils';
 import { useAuth } from '@/context/auth-context';
@@ -43,6 +45,7 @@ import {
   SafetyNotice,
   WorkspaceHero,
 } from '@/components/product-ui';
+import { getRoleFitSummary } from '@/app/lib/role-fit-policy';
 
 type ApplicationView = 'ACTIVE' | 'SHORTLISTED' | 'COMPLETED' | 'ALL';
 
@@ -118,6 +121,7 @@ export default function ApplicationsPage() {
   const [withdrawingId, setWithdrawingId] = useState('');
   const [selfTapeBusyId, setSelfTapeBusyId] = useState('');
   const [selfTapeDrafts, setSelfTapeDrafts] = useState<Record<string, string>>({});
+  const [talentProfile, setTalentProfile] = useState<TalentProfile | null>(null);
   const [unreadConversationIds, setUnreadConversationIds] = useState<Set<string>>(
     new Set()
   );
@@ -129,10 +133,12 @@ export default function ApplicationsPage() {
 
     void Promise.all([
       getTalentApplications(user.uid),
+      getTalentProfile(user.uid).catch(() => null),
       getConversations().catch(() => ({ conversations: [] })),
     ])
-      .then(([applicationData, conversationData]) => {
+      .then(([applicationData, profileData, conversationData]) => {
         setApplications(applicationData);
+        setTalentProfile(profileData);
         setUnreadConversationIds(
           new Set(
             conversationData.conversations
@@ -432,6 +438,14 @@ export default function ApplicationsPage() {
               const hasUnread = unreadConversationIds.has(
                 getConversationId(application.auditionId, application.id)
               );
+              const roleFit =
+                talentProfile && application.audition
+                  ? getRoleFitSummary(talentProfile, application.audition, {
+                      hasSelfTapeSubmission: Boolean(
+                        application.selfTapeSubmission?.url
+                      ),
+                    })
+                  : null;
               return (
             <article
               key={`${application.auditionId}-${application.id}`}
@@ -489,6 +503,27 @@ export default function ApplicationsPage() {
                 talentNextStepNote={application.talentNextStepNote}
                 hasUnread={hasUnread}
               />
+              {roleFit && (
+                <div className="mt-4 rounded-md border border-[#d7e3e7] bg-[#f7fafb] p-3">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-wide text-[#008ca6]">
+                        Future role readiness
+                      </p>
+                      <p className="mt-1 text-sm font-black text-[#07111f]">
+                        {roleFit.bandLabel}
+                      </p>
+                    </div>
+                    <span className="w-fit rounded-md bg-white px-2.5 py-1 text-xs font-black text-[#008ca6]">
+                      {roleFit.score}%
+                    </span>
+                  </div>
+                  <p className="mt-2 text-xs font-bold leading-5 text-[#657176]">
+                    {roleFit.missingItems[0]?.detail ??
+                      'Your profile already gives recruiters useful context for similar roles.'}
+                  </p>
+                </div>
+              )}
 
               <ApplicationProgress status={status} />
               {status === 'REJECTED' &&

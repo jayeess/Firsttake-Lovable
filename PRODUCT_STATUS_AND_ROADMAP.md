@@ -3,7 +3,11 @@
 **Telugu name:** నట కనెక్ట్  
 **Document date:** June 29, 2026
 **Repository:** `jayeess/Firsttake-Lovable`  
-**Current stage:** Pitch deck content pack added after founder demo readiness; product is ready for controlled founder-led beta demos with slide outline, slide copy, speaker notes, route order, screenshot checklist, onboarding playbook, and audience talking points
+**Current stage:** Talent Passport and Role Fit Signals added after pitch deck
+readiness; product is ready for controlled founder-led beta demos with
+explainable profile readiness, audition readiness guidance, recruiter review
+signals, slide outline, slide copy, speaker notes, route order, screenshot
+checklist, onboarding playbook, and audience talking points
 
 ## 1. Product Summary
 
@@ -34,6 +38,7 @@ Nata Connect is no longer a static demonstration. It is a working Firebase-backe
 | --- | --- | --- |
 | Brand and visual identity | Strong | Distinctive and market-relevant |
 | Talent onboarding | Working | Suitable for MVP testing |
+| Talent Passport and role readiness | Implemented | Explainable guidance only; no AI matching, ranking, or guarantees |
 | Recruiter onboarding | Working with demo approval | Needs real administration |
 | Audition creation | Working | Core fields and draft/publish states exist |
 | Audition discovery | Working | Search and filtering exist |
@@ -67,6 +72,14 @@ Nata Connect is no longer a static demonstration. It is a working Firebase-backe
 | Launch demo readiness | Improved | Empty states, first-time guidance, and honest roadmap messaging make the app understandable even before dense live marketplace activity |
 
 ### Latest product-design position
+
+The June 29, 2026 Talent Passport and Role Fit Signal Engine added
+explainable readiness guidance across Talent profile, audition detail,
+applications, and recruiter applicant review. Signals use profile
+completeness, category, experience, languages, location/work mode, skills,
+portfolio, external self-tape readiness, and Talent verification status. They
+do not block applications, rank applicants, automate decisions, or claim AI
+matching.
 
 The June 29, 2026 Pitch Deck Content Pack converted the founder narrative into
 a 10-slide deck plan with ready-to-copy slide text, speaker notes for 3-minute,
@@ -109,6 +122,10 @@ The June 25, 2026 Cinematic Product Design and Flow Transformation pass upgraded
 ### Talent features
 
 - Talent profile creation and editing
+- Talent Passport summary for profile strength, portfolio readiness, public
+  profile readiness, trust status, and self-tape link readiness
+- Audition-specific Role Readiness guidance before applying
+- Application tracker Future Role Readiness cues for profile improvement
 - Fields for:
   - Name
   - Age

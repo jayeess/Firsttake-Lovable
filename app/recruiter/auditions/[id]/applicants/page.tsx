@@ -39,6 +39,11 @@ import {
   getSelfTapeStatus,
   SELF_TAPE_STATUS_LABELS,
 } from '@/app/lib/self-tape-policy';
+import {
+  getRoleFitSummary,
+  type RoleFitSignalStatus,
+  type RoleFitSummary,
+} from '@/app/lib/role-fit-policy';
 import { AppShell } from '@/components/app-shell';
 import { EmptyState, ErrorState, LoadingState } from '@/components/async-state';
 import { StatusBadge } from '@/components/status-badge';
@@ -652,6 +657,13 @@ function ApplicantCard({
     : application.talentEmail ?? 'Talent profile unavailable';
   const featuredMedia = media.find((item) => item.isFeatured) ?? media[0];
   const pack = getApplicationPackSummary(application, media.length);
+  const roleFit =
+    talent && audition
+      ? getRoleFitSummary(talent, audition, {
+          mediaCount: media.length,
+          hasSelfTapeSubmission: selfTapeAvailable,
+        })
+      : null;
   const [note, setNote] = useState(
     application.recruiterNote ?? application.recruiterNotes ?? ''
   );
@@ -721,6 +733,9 @@ function ApplicantCard({
                 )}
                 {pack.hasSelfTape && (
                   <TalentChip tone="score">Self-tape</TalentChip>
+                )}
+                {roleFit && (
+                  <TalentChip tone="score">{roleFit.bandLabel}</TalentChip>
                 )}
               </div>
             </div>
@@ -816,6 +831,8 @@ function ApplicantCard({
               <ReviewSection title="Status timeline">
                 <StatusTimeline application={application} />
               </ReviewSection>
+
+              {roleFit && <RoleFitReviewPanel roleFit={roleFit} />}
 
               {showSelfTape && (
                 <ReviewSection title="Self-tape submission">
@@ -1192,6 +1209,66 @@ function StatusTimeline({ application }: { application: AuditionApplicant['appli
       ))}
     </ol>
   );
+}
+
+function RoleFitReviewPanel({ roleFit }: { roleFit: RoleFitSummary }) {
+  return (
+    <ReviewSection title="Role fit signals">
+      <div className="rounded-md border border-[#d7e0e4] bg-white p-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <p className="text-sm font-bold text-[#657176]">
+              Explainable review cues from the submitted profile and this
+              casting brief.
+            </p>
+            <h3 className="mt-1 text-xl font-black text-[#07111f]">
+              {roleFit.bandLabel}
+            </h3>
+          </div>
+          <span className="inline-flex min-h-9 items-center rounded-md border border-[#bad7d3] bg-[#edf7f5] px-3 text-sm font-black text-[#006b60]">
+            {roleFit.score}% readiness
+          </span>
+        </div>
+        <div className="mt-4 grid gap-2 sm:grid-cols-2">
+          {roleFit.signals.map((signal) => (
+            <div
+              key={signal.key}
+              className={`rounded-md border p-3 ${roleSignalToneClass(signal.status)}`}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <p className="text-sm font-black text-[#07111f]">
+                  {signal.label}
+                </p>
+                <span className="text-xs font-black uppercase">
+                  {signal.status.replace('_', ' ')}
+                </span>
+              </div>
+              <p className="mt-1 text-xs font-bold leading-5">
+                {signal.detail}
+              </p>
+            </div>
+          ))}
+        </div>
+        <p className="mt-4 border-l-2 border-[#e7ad2d] pl-3 text-xs font-bold leading-5 text-[#657176]">
+          Fit signals are guidance only. Final casting decisions remain with
+          the recruiter and should consider the full application.
+        </p>
+      </div>
+    </ReviewSection>
+  );
+}
+
+function roleSignalToneClass(status: RoleFitSignalStatus) {
+  if (status === 'strong') {
+    return 'border-emerald-200 bg-emerald-50 text-emerald-800';
+  }
+  if (status === 'good') {
+    return 'border-[#bad7d3] bg-[#edf7f5] text-[#006b60]';
+  }
+  if (status === 'attention') {
+    return 'border-amber-200 bg-amber-50 text-amber-900';
+  }
+  return 'border-red-200 bg-red-50 text-red-800';
 }
 
 
