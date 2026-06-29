@@ -1,5 +1,33 @@
 # Changelog
 
+### Message Safety Coach and On-Platform Trust Guard
+
+- Added `app/lib/message-safety-policy.ts` with rule-based (no AI) message
+  safety helpers covering payment language, off-platform pressure, unrelated
+  document requests, guaranteed role claims, and urgency pressure — each with
+  a severity level and a plain-language detail string.
+- Added a dynamic safety coach to the message composer in
+  `/messages/[conversationId]`: visible only when body length exceeds 15
+  characters and a risk signal is detected; shows the band label and flagged
+  signal details in amber; never blocks sending.
+- Replaced the static "Platform safety" aside in `/messages/[conversationId]`
+  with a structured "Safe messaging" trust guard populated dynamically by
+  `getSafeConversationReminders`.
+- Added two inbox safety cues to the dark panel in `/messages`:
+  "Legitimate auditions never charge a fee to apply" and
+  "Keep scheduling details on-platform."
+- Added "Safe Messaging During Auditions" section to `/safety`.
+- Expanded "Messaging Safely" section in `/help` to a full 5-sentence guide.
+- Added "Professional messaging" `SafetyNotice` to
+  `/recruiter/auditions/[id]/applicants` alongside the existing "Casting
+  integrity" notice.
+- Added `tests/message-safety-policy.test.mts` with 41 unit tests covering all
+  signal detectors, band logic, summary shape, high-risk helper, reminders,
+  and safe reply templates.
+- Created `MESSAGE_SAFETY_COACH_TRUST_GUARD_REPORT.md`.
+- No Firestore rules, schemas, APIs, auth permissions, payment, AI, fake data,
+  direct video upload, or self-tape video upload changed.
+
 ### Casting Brief Quality Engine and Scam Shield
 
 - Added `app/lib/casting-brief-quality-policy.ts` with transparent,

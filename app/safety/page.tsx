@@ -21,6 +21,10 @@ export default function SafetyPage() {
           body: 'Use Nata Connect messaging for all audition communication. Never share your home address, personal phone number, or private email in chat. If someone pressures you to move conversations off the platform, that is a warning sign — report the thread.',
         },
         {
+          title: 'Safe Messaging During Auditions',
+          body: 'Review messages carefully before responding. Warning signs in a casting message include: requests to pay fees, pressure to move to WhatsApp or Telegram, requests for government IDs or bank details, claims of a guaranteed role before auditions are complete, and urgent deadlines designed to rush decisions. Keep a clear record by staying inside Nata Connect. When something feels pressurising or out of place, report the thread — you are not required to respond to unsafe messages.',
+        },
+        {
           title: 'Verified Recruiter Trust Signals',
           body: 'Look for the "Verified recruiter" badge on casting briefs and profiles. Verified recruiters have had their company and identity reviewed by the Nata Connect trust team. A badge improves confidence, but always review role details, production context, and recruiter behavior carefully before applying.',
         },

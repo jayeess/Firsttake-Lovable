@@ -1,5 +1,33 @@
 # Full App UX Polish Report
 
+## Message Safety Coach and On-Platform Trust Guard — June 29, 2026
+
+**Goal:** Add transparent, rule-based message safety guidance across the
+messaging flow without using AI, blocking sending, or changing any backend
+permissions, schemas, Firestore rules, payment logic, or upload behavior.
+
+Key improvements:
+
+- `app/lib/message-safety-policy.ts` centralizes five contextual signal
+  detectors (payment language, off-platform pressure, document requests,
+  guaranteed role claims, urgency pressure), a four-band severity system
+  (`looks_professional` → `needs_trust_review`), role-specific safe reminders,
+  and suggested safe reply templates — all rule-based regex, no AI.
+- `/messages/[conversationId]` now shows a dynamic safety coach in amber below
+  the compose area when the message body (after 15 characters) contains risk
+  language. The coach names the band and explains each flagged signal. Sending
+  is never blocked.
+- `/messages/[conversationId]` aside replaced the plain "Platform safety" text
+  with a structured "Safe messaging" trust guard listing 5 role-appropriate
+  reminders per user type.
+- `/messages` inbox added two inbox-safety habits to the existing dark aside:
+  no fee legitimate auditions, and keep scheduling on-platform.
+- `/safety` added a "Safe Messaging During Auditions" section.
+- `/help` expanded "Messaging Safely" to a 5-sentence guide.
+- `/recruiter/auditions/[id]/applicants` added a "Professional messaging"
+  `SafetyNotice` alongside the "Casting integrity" notice in a two-column grid.
+- `tests/message-safety-policy.test.mts` adds 41 unit tests; total: 158 pass.
+
 ## Casting Brief Quality Engine and Scam Shield - June 29, 2026
 
 **Goal:** Add transparent, rule-based casting brief quality and safety signals

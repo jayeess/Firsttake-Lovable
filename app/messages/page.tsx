@@ -287,6 +287,8 @@ export default function MessagesPage() {
             <p className="font-black text-[#ffd66d]">Inbox habits</p>
             <p className="text-white/70">Reply while roles are active.</p>
             <p className="text-white/70">Never share personal contact details in chat.</p>
+            <p className="text-white/70">Legitimate auditions never charge a fee to apply.</p>
+            <p className="text-white/70">Keep scheduling details on-platform.</p>
             <p className="text-white/70">Report anything that feels unsafe.</p>
           </div>
         </aside>

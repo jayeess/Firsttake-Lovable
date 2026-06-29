@@ -29,7 +29,7 @@ export default function HelpPage() {
         },
         {
           title: 'Messaging Safely',
-          body: 'Use platform messaging for application-linked conversations. Avoid sharing sensitive personal information and report unsafe contact pressure.',
+          body: 'Use platform messaging for application-linked conversations. Keep all casting communication inside Nata Connect — never share personal contact details, financial information, or government ID documents in chat. Legitimate auditions do not charge fees or pressure you to move to WhatsApp, Telegram, or other apps. If a message feels unsafe, report the thread using the Report button. You are never required to respond to unsafe or pressurising messages.',
         },
         {
           title: 'Reporting Abuse',

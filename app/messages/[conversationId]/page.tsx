@@ -3,13 +3,17 @@
 import { ArrowLeft, MessageCircle, Send, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   getConversation,
   markConversationRead,
   sendMessage,
 } from '@/app/lib/messaging-client';
 import { MESSAGE_MAX_LENGTH } from '@/app/lib/messaging-policy';
+import {
+  getMessageSafetySummary,
+  getSafeConversationReminders,
+} from '@/app/lib/message-safety-policy';
 import type { Conversation, ConversationMessage } from '@/app/lib/types';
 import { AppShell } from '@/components/app-shell';
 import { ErrorState, LoadingState } from '@/components/async-state';
@@ -105,6 +109,14 @@ export default function ConversationPage() {
       ? conversation?.talentNameSnapshot
       : conversation?.recruiterNameSnapshot;
   const readOnly = conversation?.status !== 'active';
+
+  const safetySummary = useMemo(
+    () => (body.length > 15 ? getMessageSafetySummary(body) : null),
+    [body]
+  );
+  const safetyCoachVisible =
+    safetySummary !== null && safetySummary.band !== 'looks_professional';
+  const safeReminders = getSafeConversationReminders(userType);
 
   return (
     <AppShell>
@@ -244,6 +256,20 @@ export default function ConversationPage() {
                   We could not complete this action. Try again in a moment.
                 </p>
               )}
+              {safetyCoachVisible && safetySummary && (
+                <div className="mb-3 rounded-md border border-amber-200 bg-amber-50 p-3" role="status" aria-live="polite">
+                  <p className="text-xs font-black text-amber-900">
+                    {safetySummary.bandLabel} — review before sending
+                  </p>
+                  <ul className="mt-1.5 space-y-1">
+                    {safetySummary.flaggedSignals.map((signal) => (
+                      <li key={signal.key} className="text-xs leading-5 text-amber-800">
+                        · {signal.detail}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
               <div className="mb-3 flex items-start gap-2 rounded-md bg-[#f7fbfc] p-3 text-xs leading-5 text-[#657176]">
                 <ShieldCheck className="mt-0.5 size-4 shrink-0 text-[#008ca6]" />
                 <p>
@@ -288,13 +314,27 @@ export default function ConversationPage() {
               This conversation is linked to the casting call application. Keep
               next steps and decisions here for a clear, shared record.
             </p>
-            <div className="mt-4 rounded-md bg-[#edf7f5] p-3 text-sm text-[#234b47]">
-              <p className="font-black">Platform safety</p>
-              <p className="mt-1 leading-6">
-                Never share personal contact details or request payment in
-                casting conversations. Keep all communication here.
+
+            <div className="mt-4 rounded-md border border-[#bad7d3] bg-[#edf7f5] p-3">
+              <p className="text-xs font-black uppercase text-[#008ca6]">
+                Safe messaging
               </p>
+              <ul className="mt-2 space-y-1.5">
+                {safeReminders.map((reminder, i) => (
+                  <li
+                    key={i}
+                    className="flex items-start gap-1.5 text-xs leading-5 text-[#234b47]"
+                  >
+                    <span
+                      className="mt-1.5 size-1 shrink-0 rounded-full bg-[#008ca6]"
+                      aria-hidden="true"
+                    />
+                    {reminder}
+                  </li>
+                ))}
+              </ul>
             </div>
+
             <div className="mt-4 rounded-md border border-[#d7e0e4] p-3 text-sm">
               <p className="font-black">Application status</p>
               <div className="mt-2">

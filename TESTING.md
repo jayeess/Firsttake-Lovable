@@ -1,5 +1,25 @@
 # Nata Connect development test cases
 
+## Message Safety Coach and Trust Guard checks
+
+After updating message safety policy or messaging UI, verify:
+
+- [ ] Type a message containing "audition fee" in `/messages/[conversationId]`
+  — safety coach appears in amber with band label and signal detail.
+- [ ] Safety coach disappears once risk language is removed from the composer.
+- [ ] Coach is never shown for clean professional messages.
+- [ ] Sending is always possible even when the coach is visible.
+- [ ] The "Safe messaging" aside in the conversation view lists role-correct
+  reminders (5 items for both Talent and Recruiter).
+- [ ] `/messages` inbox aside shows "Legitimate auditions never charge a fee"
+  and "Keep scheduling details on-platform."
+- [ ] `/safety` includes "Safe Messaging During Auditions" section.
+- [ ] `/help` "Messaging Safely" section covers fee, off-platform pressure,
+  reporting, and the right not to respond.
+- [ ] `/recruiter/auditions/[id]/applicants` shows both "Casting integrity"
+  and "Professional messaging" safety notices side by side.
+- [ ] No UI copy claims AI, AI moderation, or AI detection.
+
 ## Casting Brief Quality Engine and Scam Shield checks
 
 After updating casting brief quality or safety behavior, verify:

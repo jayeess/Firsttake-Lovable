@@ -3,12 +3,13 @@
 **Telugu name:** నట కనెక్ట్  
 **Document date:** June 29, 2026
 **Repository:** `jayeess/Firsttake-Lovable`  
-**Current stage:** Casting Brief Quality Engine and Scam Shield added after
-Talent Passport and Role Fit Signals; product is ready for controlled
-founder-led beta demos with explainable casting brief quality, safety signals,
-profile readiness, audition readiness guidance, recruiter review signals, slide
-outline, slide copy, speaker notes, route order, screenshot checklist,
-onboarding playbook, and audience talking points
+**Current stage:** Message Safety Coach and On-Platform Trust Guard added after
+Casting Brief Quality Engine and Scam Shield; product is ready for controlled
+founder-led beta demos with rule-based message safety guidance, explainable
+casting brief quality, safety signals, profile readiness, audition readiness
+guidance, recruiter review signals, slide outline, slide copy, speaker notes,
+route order, screenshot checklist, onboarding playbook, and audience talking
+points
 
 ## 1. Product Summary
 

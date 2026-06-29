@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronDown, ExternalLink, Search, Star } from 'lucide-react';
+import { ChevronDown, ExternalLink, MessageSquare, Search, Star } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { type ReactNode, useEffect, useMemo, useState } from 'react';
@@ -484,9 +484,12 @@ export default function AuditionApplicantsPage() {
         />
       </div>
 
-      <div className="mt-4">
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <SafetyNotice title="Casting integrity">
           Never request payment, deposits, or personal financial information from applicants. All casting decisions must stay within Nata Connect. Applicants can report policy violations immediately.
+        </SafetyNotice>
+        <SafetyNotice title="Professional messaging" icon={MessageSquare}>
+          Keep all recruiter messages professional and role-specific. Never ask Talent to pay to audition or be shortlisted. Avoid requesting unrelated personal documents. Keep scheduling details clear and on-platform.
         </SafetyNotice>
       </div>
 
