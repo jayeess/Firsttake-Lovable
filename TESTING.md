@@ -1,5 +1,36 @@
 # Nata Connect development test cases
 
+## Audition Share Kit and Public Opportunity Page checks
+
+After updating share kit policy, audition detail, or recruiter auditions list
+behavior, verify:
+
+- [ ] `/auditions/[id]` shows Opportunity Share Kit panel below Source
+  Transparency panel: source, category, location, deadline, compensation,
+  self-tape note (if enabled), safety notes, and disclaimer.
+- [ ] Share copy templates appear only for the audition owner (recruiter).
+- [ ] Missing item count tip appears for the owner when items are improvable.
+- [ ] `needs_trust_review` band shows no share copy recommendation.
+- [ ] `/recruiter/auditions` shows `ShareReadinessPill` in both mobile card and
+  desktop row view alongside Brief Quality and Source Transparency pills.
+- [ ] Improvement tips appear in the mobile card view: missing item count or
+  "ready to share" confirmation.
+- [ ] Share copy avoids "guarantee", "AI", "certified", and "best opportunity"
+  language.
+- [ ] Public safety notes do not expose private admin, moderation, email, or
+  phone data.
+- [ ] Self-tape note warns about external link submission only.
+- [ ] No new public unauthenticated route was created.
+
+Run:
+
+```
+npm run lint
+npm test
+npm run build
+git diff --check
+```
+
 ## Talent Opportunity Radar and Career Command Center checks
 
 After updating Talent radar, dashboard, profile, or application focus behavior,

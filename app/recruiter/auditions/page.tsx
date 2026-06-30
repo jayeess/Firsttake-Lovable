@@ -9,6 +9,8 @@ import { getRecruiterAuditions } from '@/app/lib/firestore-service';
 import { formatDate, type Audition } from '@/app/lib/types';
 import { getCastingBriefQuality } from '@/app/lib/casting-brief-quality-policy';
 import { getRecruiterTrustPassport } from '@/app/lib/recruiter-trust-passport-policy';
+import { getAuditionShareReadiness } from '@/app/lib/audition-share-kit-policy';
+import type { ShareReadinessBand } from '@/app/lib/audition-share-kit-policy';
 import { getErrorMessage } from '@/app/lib/error-utils';
 import { useAuth } from '@/context/auth-context';
 import { EmptyState, ErrorState, LoadingState } from '@/components/async-state';
@@ -152,6 +154,7 @@ export default function RecruiterAuditionsPage() {
               const trustPassport = getRecruiterTrustPassport(null, audition, {
                 briefQuality: quality,
               });
+              const shareReadiness = getAuditionShareReadiness(audition);
               return (
                 <>
             <div className="flex items-start justify-between gap-3">
@@ -173,6 +176,10 @@ export default function RecruiterAuditionsPage() {
               <SourceTransparencyPill
                 label={trustPassport.bandLabel}
                 band={trustPassport.band}
+              />
+              <ShareReadinessPill
+                label={shareReadiness.bandLabel}
+                band={shareReadiness.band}
               />
               {quality.missingItems.length > 0 && (
                 <span className="text-xs font-bold text-[#657176]">
@@ -222,6 +229,16 @@ export default function RecruiterAuditionsPage() {
                 ? quality.missingItems[0]?.detail ?? 'Improve the brief details.'
                 : 'Open applicants to shortlist, message, select, or close the pipeline.'}
             </p>
+            {shareReadiness.missingCount > 0 && shareReadiness.band !== 'needs_trust_review' && (
+              <p className="mt-2 text-xs text-[#8a9899]">
+                Share kit: {shareReadiness.missingCount} item{shareReadiness.missingCount === 1 ? '' : 's'} to improve opportunity page quality.
+              </p>
+            )}
+            {shareReadiness.band === 'share_ready' && (
+              <p className="mt-2 text-xs font-bold text-[#008ca6]">
+                Share kit: Brief is ready to share as a public casting opportunity.
+              </p>
+            )}
                 </>
               );
             })()}
@@ -235,6 +252,7 @@ export default function RecruiterAuditionsPage() {
             const trustPassport = getRecruiterTrustPassport(null, audition, {
               briefQuality: quality,
             });
+            const shareReadiness = getAuditionShareReadiness(audition);
             return (
           <article
             key={audition.id}
@@ -255,6 +273,10 @@ export default function RecruiterAuditionsPage() {
                 <SourceTransparencyPill
                   label={trustPassport.bandLabel}
                   band={trustPassport.band}
+                />
+                <ShareReadinessPill
+                  label={shareReadiness.bandLabel}
+                  band={shareReadiness.band}
                 />
               </div>
               <h2 className="mt-2 text-base font-black leading-snug group-hover:text-[#008ca6]">
@@ -348,6 +370,31 @@ function BriefQualityPill({
       : band === 'good_brief'
         ? 'border-[#bad7d3] bg-[#edf7f5] text-[#006b60]'
         : band === 'needs_detail'
+          ? 'border-amber-200 bg-amber-50 text-amber-900'
+          : 'border-red-200 bg-red-50 text-red-800';
+
+  return (
+    <span
+      className={`rounded-md border px-2 py-1 text-[10px] font-black uppercase tracking-wide ${classes}`}
+    >
+      {label}
+    </span>
+  );
+}
+
+function ShareReadinessPill({
+  label,
+  band,
+}: {
+  label: string;
+  band: ShareReadinessBand;
+}) {
+  const classes =
+    band === 'share_ready'
+      ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+      : band === 'good_opportunity_page'
+        ? 'border-[#bad7d3] bg-[#edf7f5] text-[#006b60]'
+        : band === 'needs_brief_detail'
           ? 'border-amber-200 bg-amber-50 text-amber-900'
           : 'border-red-200 bg-red-50 text-red-800';
 

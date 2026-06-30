@@ -45,6 +45,11 @@ import {
   getRecruiterTrustPassport,
   type RecruiterTrustPassport,
 } from '@/app/lib/recruiter-trust-passport-policy';
+import {
+  getAuditionShareKit,
+  getPublicOpportunitySummary,
+  type AuditionShareKit,
+} from '@/app/lib/audition-share-kit-policy';
 
 const AUDITION_TYPE_LABELS: Record<string, string> = {
   FILM: 'Film',
@@ -126,6 +131,10 @@ export default function AuditionDetailPage() {
           })
         : null,
     [audition, briefQuality]
+  );
+  const shareKit = useMemo(
+    () => (audition ? getAuditionShareKit(audition) : null),
+    [audition]
   );
 
   const toggleSaved = async () => {
@@ -253,6 +262,13 @@ export default function AuditionDetailPage() {
               summary={briefQuality}
               recruiterVerified={audition.recruiterVerified === true}
               recruiterTrust={recruiterTrust}
+            />
+          )}
+          {shareKit && (
+            <OpportunityShareKitPanel
+              audition={audition}
+              shareKit={shareKit}
+              isOwner={userType === 'RECRUITER' && audition.recruiterId === user?.uid}
             />
           )}
           <Section title="About the role" body={audition.description} />
@@ -478,6 +494,131 @@ function AlreadyAppliedPanel({
       </Link>
     </div>
   );
+}
+
+function OpportunityShareKitPanel({
+  audition,
+  shareKit,
+  isOwner,
+}: {
+  audition: Audition;
+  shareKit: AuditionShareKit;
+  isOwner: boolean;
+}) {
+  const summary = getPublicOpportunitySummary(audition);
+
+  return (
+    <section className="mt-6 rounded-md border border-[#d3dfe3] bg-[#f5f9fa] p-4">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <p className="eyebrow">Opportunity page</p>
+          <h2 className="mt-2 text-xl font-black">
+            {summary.title}
+          </h2>
+        </div>
+        <span
+          className={`w-fit rounded-md px-2.5 py-1 text-xs font-black ${shareKitBandClass(shareKit.band)}`}
+        >
+          {shareKit.bandLabel}
+        </span>
+      </div>
+
+      <dl className="mt-4 grid gap-3 sm:grid-cols-2">
+        {summary.sourceName && (
+          <div className="rounded-md border border-[#d3dfe3] bg-white p-3">
+            <dt className="text-[10px] font-black uppercase tracking-wide text-[#657176]">
+              Casting source
+            </dt>
+            <dd className="mt-1 text-sm font-black">{summary.sourceName}</dd>
+          </div>
+        )}
+        {summary.category && (
+          <div className="rounded-md border border-[#d3dfe3] bg-white p-3">
+            <dt className="text-[10px] font-black uppercase tracking-wide text-[#657176]">
+              Category
+            </dt>
+            <dd className="mt-1 text-sm font-black">{summary.category}</dd>
+          </div>
+        )}
+        {summary.location && (
+          <div className="rounded-md border border-[#d3dfe3] bg-white p-3">
+            <dt className="text-[10px] font-black uppercase tracking-wide text-[#657176]">
+              Location
+            </dt>
+            <dd className="mt-1 text-sm font-black">{summary.location}</dd>
+          </div>
+        )}
+        <div className="rounded-md border border-[#d3dfe3] bg-white p-3">
+          <dt className="text-[10px] font-black uppercase tracking-wide text-[#657176]">
+            Apply by
+          </dt>
+          <dd className="mt-1 text-sm font-black">{summary.deadline}</dd>
+        </div>
+        <div className="rounded-md border border-[#d3dfe3] bg-white p-3">
+          <dt className="text-[10px] font-black uppercase tracking-wide text-[#657176]">
+            Compensation
+          </dt>
+          <dd className="mt-1 text-sm font-black">{summary.compensation}</dd>
+        </div>
+      </dl>
+
+      {summary.selfTapeNote && (
+        <p className="mt-3 rounded-md border border-[#e0c364] bg-[#fdf9eb] px-3 py-2 text-xs font-bold leading-5 text-[#7a5500]">
+          {summary.selfTapeNote}
+        </p>
+      )}
+
+      {isOwner && shareKit.shareCopyTemplates.length > 0 && (
+        <div className="mt-4">
+          <p className="text-[10px] font-black uppercase tracking-wide text-[#657176]">
+            Share copy
+          </p>
+          <ul className="mt-2 space-y-2">
+            {shareKit.shareCopyTemplates.map((template, index) => (
+              <li
+                key={index}
+                className="rounded-md border border-[#d3dfe3] bg-white px-3 py-2 text-xs leading-5 text-[#374348]"
+              >
+                {template}
+              </li>
+            ))}
+          </ul>
+          {shareKit.missingItems.length > 0 && (
+            <p className="mt-3 text-xs font-bold text-[#657176]">
+              {shareKit.missingItems.length} item{shareKit.missingItems.length === 1 ? '' : 's'} to add for a stronger opportunity page:{' '}
+              {shareKit.missingItems
+                .slice(0, 2)
+                .map((item) => item.label)
+                .join(', ')}
+              {shareKit.missingItems.length > 2 ? `, +${shareKit.missingItems.length - 2} more` : ''}.
+            </p>
+          )}
+        </div>
+      )}
+
+      <ul className="mt-4 space-y-1">
+        {shareKit.publicSafetyNotes.map((note, index) => (
+          <li
+            key={index}
+            className="flex items-start gap-2 text-xs leading-5 text-[#526874]"
+          >
+            <span className="mt-0.5 size-1.5 shrink-0 rounded-full bg-[#008ca6]" aria-hidden="true" />
+            {note}
+          </li>
+        ))}
+      </ul>
+      <p className="mt-3 border-t border-[#e1e8ec] pt-3 text-[10px] leading-4 text-[#8a9899]">
+        {shareKit.disclaimer}
+      </p>
+    </section>
+  );
+}
+
+function shareKitBandClass(band: AuditionShareKit['band']) {
+  if (band === 'share_ready') return 'border border-emerald-200 bg-emerald-50 text-emerald-800';
+  if (band === 'good_opportunity_page') return 'border border-[#bad7d3] bg-[#edf7f5] text-[#006b60]';
+  if (band === 'needs_brief_detail') return 'border border-[#e0c364] bg-[#fdf9eb] text-[#7a5500]';
+  return 'border border-red-200 bg-red-50 text-red-800';
 }
 
 function CastingBriefTrustPanel({

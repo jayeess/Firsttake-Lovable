@@ -1,5 +1,32 @@
 # Changelog
 
+### Audition Share Kit and Public Opportunity Page
+
+- Added `app/lib/audition-share-kit-policy.ts`, a pure, rule-based helper for
+  share readiness bands, share kit checklists, safe share copy templates, public
+  opportunity summaries, public safety notes, and improvement tips. Self-contained
+  module with no cross-module imports beyond `types.ts`.
+- Added `OpportunityShareKitPanel` to `/auditions/[id]` showing a structured
+  public opportunity context card: casting source, category, location, deadline,
+  compensation, self-tape note, share copy (owner-only), missing item tips
+  (owner-only), safety notes, and disclaimer.
+- Added `ShareReadinessPill` to `/recruiter/auditions` for both mobile card view
+  and desktop row view, showing share readiness band (Share-ready, Good
+  opportunity page, Needs brief detail, Needs trust review) alongside Brief
+  Quality and Source Transparency pills.
+- Added share kit improvement tips to the recruiter auditions list: missing item
+  count tip for addressable gaps, and a "ready to share" confirmation for
+  share-ready briefs.
+- Added `tests/audition-share-kit-policy.test.mts` with 26 test cases covering:
+  band assignment for all four bands, self-tape instruction completeness, share
+  copy language safety, safety note content, public summary structure, missing
+  item filtering, copy template output, and improvement tip safety for
+  `needs_trust_review`.
+- No new public route, Firestore rules, schema changes, AI, auto-ranking,
+  payment, calendar, video calls, direct video upload, self-tape video upload,
+  fake data, celebrity names, copyrighted project names, guaranteed casting
+  claims, certificate language, or private data exposure was added.
+
 ### Talent Opportunity Radar and Career Command Center
 
 - Added `app/lib/talent-opportunity-radar-policy.ts`, a pure, rule-based helper

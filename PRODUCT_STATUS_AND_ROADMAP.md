@@ -3,14 +3,15 @@
 **Telugu name:** నట కనెక్ట్  
 **Document date:** June 29, 2026
 **Repository:** `jayeess/Firsttake-Lovable`  
-**Current stage:** Talent Opportunity Radar and Career Command Center added;
-product is ready for controlled founder-led beta demos with privacy-safe public
-Talent sharing, transparent recruiter source signals, application journey
-tracking, proof receipts, message safety guidance, explainable casting brief
-quality, safety signals, profile readiness, audition readiness guidance,
-Talent command-center guidance, recruiter decision-room signals, slide outline,
-slide copy, speaker notes, route order, screenshot checklist, onboarding
-playbook, and audience talking points
+**Current stage:** Audition Share Kit and Public Opportunity Page added;
+product is ready for controlled founder-led beta demos with shareable casting
+opportunity pages, recruiter share readiness signals, privacy-safe public Talent
+sharing, transparent recruiter source signals, application journey tracking,
+proof receipts, message safety guidance, explainable casting brief quality,
+safety signals, profile readiness, audition readiness guidance, Talent
+command-center guidance, recruiter decision-room signals, slide outline, slide
+copy, speaker notes, route order, screenshot checklist, onboarding playbook,
+and audience talking points
 
 ## 1. Product Summary
 
@@ -45,6 +46,7 @@ Nata Connect is no longer a static demonstration. It is a working Firebase-backe
 | Talent Share Kit and Public Casting Passport | Implemented | Public-profile only, privacy-safe, guidance-first sharing layer |
 | Recruiter onboarding | Working with demo approval | Needs real administration |
 | Recruiter Trust Passport and source transparency | Implemented | Guidance-only trust context; no private evidence exposure, AI, legal certification, or casting guarantees |
+| Audition Share Kit and Public Opportunity Page | Implemented | Share readiness bands, structured opportunity context, safe share copy, owner tips, and public safety notes; no new public route or Firestore rule changes |
 | Audition creation | Working | Core fields and draft/publish states exist |
 | Audition discovery | Working | Search and filtering exist |
 | Applications | Working | Duplicate applications are prevented |

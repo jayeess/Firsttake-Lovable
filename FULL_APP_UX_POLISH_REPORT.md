@@ -1,5 +1,41 @@
 # Full App UX Polish Report
 
+## Audition Share Kit and Public Opportunity Page - June 30, 2026
+
+**Goal:** Make FirstTake auditions shareable through clean, professional
+casting opportunity context instead of raw WhatsApp screenshot links, while
+giving Talent safe, structured role context and giving recruiters clear share
+readiness signals.
+
+Key improvements:
+
+- `app/lib/audition-share-kit-policy.ts` centralizes share readiness bands,
+  share kit checklists (11 items: title, description, category, location,
+  deadline, compensation, requirements, self-tape, source, payment safety,
+  communication safety), safe share copy templates, public opportunity summary,
+  public safety notes, and improvement tips. Self-contained module with no
+  cross-module imports beyond `types.ts`.
+- `/auditions/[id]` now shows an `OpportunityShareKitPanel` below the Source
+  Transparency panel: casting source, category, location, deadline,
+  compensation, self-tape note (conditional), share copy templates (owner
+  only), missing item tip (owner only), public safety notes, and disclaimer.
+- `/recruiter/auditions` now shows a `ShareReadinessPill` in both mobile card
+  and desktop row view alongside Brief Quality and Source Transparency pills.
+  Mobile card also shows improvement tips: missing item count or "ready to
+  share" confirmation.
+- `tests/audition-share-kit-policy.test.mts` with 26 test cases covering all
+  four bands, self-tape instruction completeness, share copy language safety,
+  safety note content and privacy, public summary structure, missing item
+  filtering, copy template output, and improvement tip safety.
+
+Known limitation: No new public unauthenticated route (`/o/[id]`) was created.
+A public route would require Firestore security rules changes to allow
+unauthenticated reads, which is outside the scope of this pass. The existing
+`/auditions/[id]` (authenticated) route is enhanced instead.
+
+See `AUDITION_SHARE_KIT_PUBLIC_OPPORTUNITY_PAGE_REPORT.md` for the full change
+record.
+
 ## Talent Opportunity Radar and Career Command Center - June 30, 2026
 
 **Goal:** Make the Talent side feel like a premium, action-oriented career
