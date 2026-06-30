@@ -82,8 +82,8 @@ export default function Dashboard() {
     if (!user || !userType) return;
     if (userType === 'TALENT') {
       void Promise.all([
-        getTalentApplications(user.uid),
-        getTalentProfile(user.uid),
+        getTalentApplications(user.uid).catch(() => [] as Application[]),
+        getTalentProfile(user.uid).catch(() => null),
         getAuditions().catch(() => []),
         getSavedAuditions(user.uid).catch(() => []),
         getConversations().catch(() => ({ conversations: [] })),
