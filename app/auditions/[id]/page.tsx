@@ -20,6 +20,8 @@ import {
   formatDate,
   type Application,
   type Audition,
+  type ScreeningAnswer,
+  type ScreeningQuestion,
   type TalentProfile,
 } from '@/app/lib/types';
 import {
@@ -87,6 +89,7 @@ export default function AuditionDetailPage() {
   const [reloadKey, setReloadKey] = useState(0);
   const [talentProfile, setTalentProfile] = useState<TalentProfile | null>(null);
   const [existingApplication, setExistingApplication] = useState<Application | null>(null);
+  const [screeningAnswers, setScreeningAnswers] = useState<Record<string, string | boolean | string[]>>({});
 
   useEffect(() => {
     void getAuditionById(id)
@@ -155,10 +158,28 @@ export default function AuditionDetailPage() {
       router.push('/auth/login');
       return;
     }
+    const questions = audition?.screeningQuestions ?? [];
+    const missingRequired = questions.filter((q) => {
+      if (!q.required) return false;
+      if (q.type === 'yes_no') return false;
+      const ans = screeningAnswers[q.id];
+      if (q.type === 'multi_choice') return !Array.isArray(ans) || (ans as string[]).length === 0;
+      return typeof ans !== 'string' || ans.trim().length === 0;
+    });
+    if (missingRequired.length > 0) {
+      setError(`Please answer ${missingRequired.length === 1 ? 'the required question' : `all ${missingRequired.length} required questions`} before submitting.`);
+      return;
+    }
+    const answers: ScreeningAnswer[] = questions.map((q) => ({
+      questionId: q.id,
+      questionPromptSnapshot: q.prompt,
+      type: q.type,
+      answer: screeningAnswers[q.id] ?? (q.type === 'yes_no' ? false : q.type === 'multi_choice' ? [] : ''),
+    }));
     setApplying(true);
     setError('');
     try {
-      await submitApplication(id, user.uid, coverMessage);
+      await submitApplication(id, user.uid, coverMessage, answers.length > 0 ? answers : undefined);
       router.push('/applications');
     } catch (err: unknown) {
       setError(getErrorMessage(err, 'Unable to submit application'));
@@ -364,6 +385,26 @@ export default function AuditionDetailPage() {
                   className="field mt-2 py-3"
                 />
               </label>
+              {(audition.screeningQuestions ?? []).length > 0 && (
+                <div className="mt-4 space-y-3">
+                  <p className="text-[10px] font-black uppercase tracking-wide text-[#008ca6]">
+                    Screening questions
+                  </p>
+                  {audition.screeningQuestions!.map((q) => (
+                    <ScreeningAnswerField
+                      key={q.id}
+                      question={q}
+                      value={screeningAnswers[q.id]}
+                      onChange={(val) =>
+                        setScreeningAnswers((prev) => ({ ...prev, [q.id]: val }))
+                      }
+                    />
+                  ))}
+                  <p className="text-xs leading-5 text-[#8a9899]">
+                    Answers are visible only to the recruiter and platform admins. They do not guarantee selection.
+                  </p>
+                </div>
+              )}
               <div className="mt-4 rounded-md border border-[#d7e3e7] bg-[#f7fafb] p-3">
                 <p className="text-[10px] font-black uppercase tracking-wide text-[#008ca6]">
                   Application pack
@@ -845,5 +886,85 @@ function Section({ title, body }: { title: string; body: string }) {
       <h2 className="text-xl font-black">{title}</h2>
       <p className="mt-3 whitespace-pre-line leading-7 text-[#4f5963]">{body}</p>
     </section>
+  );
+}
+
+function ScreeningAnswerField({
+  question,
+  value,
+  onChange,
+}: {
+  question: ScreeningQuestion;
+  value: string | boolean | string[] | undefined;
+  onChange: (value: string | boolean | string[]) => void;
+}) {
+  return (
+    <div className="rounded-md border border-[#d7e3e7] bg-[#f7fafb] p-3">
+      <p className="text-sm font-bold leading-5">
+        {question.prompt}
+        {question.required && <span className="ml-1 text-red-500">*</span>}
+      </p>
+      {question.helpText && (
+        <p className="mt-1 text-xs leading-5 text-[#657176]">{question.helpText}</p>
+      )}
+      <div className="mt-2">
+        {question.type === 'yes_no' && (
+          <div className="flex gap-4">
+            {([true, false] as const).map((bool) => (
+              <label key={String(bool)} className="flex items-center gap-2 text-sm font-bold">
+                <input
+                  type="radio"
+                  checked={value === bool}
+                  onChange={() => onChange(bool)}
+                  className="accent-[#008ca6]"
+                />
+                {bool ? 'Yes' : 'No'}
+              </label>
+            ))}
+          </div>
+        )}
+        {question.type === 'short_text' && (
+          <textarea
+            rows={3}
+            value={typeof value === 'string' ? value : ''}
+            onChange={(e) => onChange(e.target.value)}
+            maxLength={600}
+            className="field"
+            placeholder="Your answer…"
+          />
+        )}
+        {question.type === 'single_choice' &&
+          (question.options ?? []).map((opt) => (
+            <label key={opt} className="mt-1.5 flex items-center gap-2 text-sm font-bold">
+              <input
+                type="radio"
+                checked={value === opt}
+                onChange={() => onChange(opt)}
+                className="accent-[#008ca6]"
+              />
+              {opt}
+            </label>
+          ))}
+        {question.type === 'multi_choice' &&
+          (question.options ?? []).map((opt) => (
+            <label key={opt} className="mt-1.5 flex items-center gap-2 text-sm font-bold">
+              <input
+                type="checkbox"
+                checked={Array.isArray(value) && (value as string[]).includes(opt)}
+                onChange={(e) => {
+                  const current = Array.isArray(value) ? (value as string[]) : [];
+                  onChange(
+                    e.target.checked
+                      ? [...current, opt]
+                      : current.filter((v) => v !== opt)
+                  );
+                }}
+                className="accent-[#008ca6]"
+              />
+              {opt}
+            </label>
+          ))}
+      </div>
+    </div>
   );
 }

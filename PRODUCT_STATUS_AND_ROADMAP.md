@@ -3,15 +3,17 @@
 **Telugu name:** నట కనెక్ట్  
 **Document date:** June 29, 2026
 **Repository:** `jayeess/Firsttake-Lovable`  
-**Current stage:** Audition Share Kit and Public Opportunity Page added;
-product is ready for controlled founder-led beta demos with shareable casting
-opportunity pages, recruiter share readiness signals, privacy-safe public Talent
-sharing, transparent recruiter source signals, application journey tracking,
-proof receipts, message safety guidance, explainable casting brief quality,
-safety signals, profile readiness, audition readiness guidance, Talent
-command-center guidance, recruiter decision-room signals, slide outline, slide
-copy, speaker notes, route order, screenshot checklist, onboarding playbook,
-and audience talking points
+**Current stage:** Casting Application Kit and Screening Questions added;
+product is ready for controlled founder-led beta demos with role-specific
+screening questions for recruiters, Talent answer flow in the apply form,
+recruiter decision-room screening answer review, shareable casting opportunity
+pages, recruiter share readiness signals, privacy-safe public Talent sharing,
+transparent recruiter source signals, application journey tracking, proof
+receipts, message safety guidance, explainable casting brief quality, safety
+signals, profile readiness, audition readiness guidance, Talent command-center
+guidance, recruiter decision-room signals, slide outline, slide copy, speaker
+notes, route order, screenshot checklist, onboarding playbook, and audience
+talking points
 
 ## 1. Product Summary
 

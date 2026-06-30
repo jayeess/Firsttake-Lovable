@@ -568,6 +568,12 @@ export default function ApplicationsPage() {
                     label={getApplicationPackSummary(application, 0).hasSelfTape ? 'Self-tape submitted' : 'Self-tape pending'}
                   />
                 )}
+                {(application.screeningAnswers ?? []).length > 0 && (
+                  <PackTag
+                    included
+                    label={`${application.screeningAnswers!.length} screening answer${application.screeningAnswers!.length !== 1 ? 's' : ''}`}
+                  />
+                )}
               </div>
               <TalentStageCard
                 status={status}

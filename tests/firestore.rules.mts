@@ -837,6 +837,68 @@ test('Recruiters can create and manage only their own auditions', async () => {
   );
 });
 
+test('Audition create rejects more than 8 screening questions', async () => {
+  const db = environment.authenticatedContext('recruiter-a').firestore();
+  const tooManyQuestions = Array.from({ length: 9 }, (_, i) => ({
+    id: `q${i}`,
+    prompt: `Question ${i + 1}`,
+    type: 'yes_no',
+    required: false,
+    order: i,
+  }));
+  await assertFails(
+    setDoc(
+      doc(db, 'auditions/recruiter-a-sq-over'),
+      audition('recruiter-a', { screeningQuestions: tooManyQuestions })
+    )
+  );
+});
+
+test('Audition create allows up to 8 screening questions', async () => {
+  const db = environment.authenticatedContext('recruiter-a').firestore();
+  const questions = Array.from({ length: 8 }, (_, i) => ({
+    id: `q${i}`,
+    prompt: `Question ${i + 1}`,
+    type: 'yes_no',
+    required: false,
+    order: i,
+  }));
+  await assertSucceeds(
+    setDoc(
+      doc(db, 'auditions/recruiter-a-sq-max'),
+      audition('recruiter-a', { screeningQuestions: questions })
+    )
+  );
+});
+
+test('Audition update rejects more than 8 screening questions', async () => {
+  const db = environment.authenticatedContext('recruiter-a').firestore();
+  const tooManyQuestions = Array.from({ length: 9 }, (_, i) => ({
+    id: `q${i}`,
+    prompt: `Question ${i + 1}`,
+    type: 'yes_no',
+    required: false,
+    order: i,
+  }));
+  await assertFails(
+    updateDoc(doc(db, 'auditions/visible-a'), { screeningQuestions: tooManyQuestions })
+  );
+});
+
+test('Audition update allows up to 8 screening questions', async () => {
+  const db = environment.authenticatedContext('recruiter-a').firestore();
+  const questions = Array.from({ length: 4 }, (_, i) => ({
+    id: `q${i}`,
+    prompt: `Question ${i + 1}`,
+    type: 'yes_no',
+    required: false,
+    order: i,
+  }));
+  await assertSucceeds(
+    updateDoc(doc(db, 'auditions/visible-a'), { screeningQuestions: questions })
+  );
+});
+
 test('Recruiters cannot approve themselves', async () => {
   const db = environment.authenticatedContext('recruiter-a').firestore();
   await assertFails(

@@ -52,6 +52,7 @@ export async function POST(request: Request) {
     const body = (await request.json()) as {
       auditionId?: string;
       coverMessage?: string;
+      screeningAnswers?: unknown[];
     };
     const auditionId = body.auditionId?.trim();
     if (!auditionId) {
@@ -62,6 +63,35 @@ export async function POST(request: Request) {
     const auditionRef = db.collection('auditions').doc(auditionId);
     const applicationRef = auditionRef.collection('applications').doc(actor.uid);
     let audition: (Omit<Audition, 'id'> & { deadline: Timestamp }) | null = null;
+
+    // Sanitize screening answers: trim strings, enforce size limits, allow only safe shapes
+    const sanitizedAnswers = (() => {
+      if (!Array.isArray(body.screeningAnswers)) return [];
+      return body.screeningAnswers
+        .filter((a): a is Record<string, unknown> => typeof a === 'object' && a !== null)
+        .slice(0, 8)
+        .map((a) => {
+          const qType = typeof a.type === 'string' ? a.type : 'short_text';
+          let answer: string | boolean | string[] = '';
+          if (qType === 'yes_no') {
+            answer = a.answer === true || a.answer === false ? a.answer : false;
+          } else if (qType === 'multi_choice' && Array.isArray(a.answer)) {
+            answer = (a.answer as unknown[])
+              .filter((v): v is string => typeof v === 'string')
+              .slice(0, 4)
+              .map((v) => v.trim().slice(0, 80));
+          } else if (typeof a.answer === 'string') {
+            answer = a.answer.trim().slice(0, 600);
+          }
+          return {
+            questionId: typeof a.questionId === 'string' ? a.questionId.trim().slice(0, 100) : '',
+            questionPromptSnapshot: typeof a.questionPromptSnapshot === 'string' ? a.questionPromptSnapshot.trim().slice(0, 180) : '',
+            type: qType,
+            answer,
+          };
+        })
+        .filter((a) => a.questionId);
+    })();
 
     await db.runTransaction(async (transaction) => {
       const [auditionSnapshot, applicationSnapshot] = await Promise.all([
@@ -91,6 +121,7 @@ export async function POST(request: Request) {
         talentId: actor.uid,
         talentEmail: actor.email ?? null,
         coverMessage: body.coverMessage?.trim().slice(0, 3000) ?? '',
+        screeningAnswers: sanitizedAnswers,
         status: 'APPLIED',
         recruiterStatus: 'APPLIED',
         selfTapeStatus: getInitialSelfTapeStatus({

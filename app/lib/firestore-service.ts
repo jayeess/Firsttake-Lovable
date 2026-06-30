@@ -27,6 +27,8 @@ import type {
   AuditionType,
   ExperienceLevel,
   RecruiterProfile,
+  ScreeningAnswer,
+  ScreeningQuestion,
   TalentCategory,
   TalentProfile,
   TalentMedia,
@@ -342,6 +344,7 @@ export const createAudition = async (
     selfTapeInstructions?: string;
     selfTapeSubmissionTypes?: Array<'upload' | 'link'>;
     selfTapeMaxDurationSeconds?: number | null;
+    screeningQuestions?: ScreeningQuestion[];
     deadline: Date;
     status: 'ACTIVE' | 'DRAFT';
   }
@@ -677,7 +680,8 @@ export const deleteAudition = async (auditionId: string) => {
 export const submitApplication = async (
   auditionId: string,
   talentId: string,
-  coverMessage?: string
+  coverMessage?: string,
+  screeningAnswers?: ScreeningAnswer[]
 ) => {
   try {
     const user = getFirebaseAuth().currentUser;
@@ -688,7 +692,7 @@ export const submitApplication = async (
         Authorization: `Bearer ${await user.getIdToken()}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ auditionId, coverMessage }),
+      body: JSON.stringify({ auditionId, coverMessage, screeningAnswers }),
     });
     const payload = await response.json();
     if (!response.ok) {

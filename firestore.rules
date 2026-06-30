@@ -442,7 +442,8 @@ service cloud.firestore {
       allow create: if isRecruiter()
         && recruiterApproved(request.auth.uid)
         && request.resource.data.recruiterId == request.auth.uid
-        && request.resource.data.moderationStatus == 'VISIBLE';
+        && request.resource.data.moderationStatus == 'VISIBLE'
+        && request.resource.data.get('screeningQuestions', []).size() <= 8;
       allow update: if isRecruiter()
         && recruiterApproved(request.auth.uid)
         && resource.data.recruiterId == request.auth.uid
@@ -452,7 +453,8 @@ service cloud.firestore {
         && request.resource.data.get('moderationStatus', 'VISIBLE')
           == resource.data.get('moderationStatus', 'VISIBLE')
         && request.resource.data.get('moderationReason', '')
-          == resource.data.get('moderationReason', '');
+          == resource.data.get('moderationReason', '')
+        && request.resource.data.get('screeningQuestions', []).size() <= 8;
       allow delete: if false;
 
       match /applications/{talentId} {

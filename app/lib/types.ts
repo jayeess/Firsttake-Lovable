@@ -49,6 +49,25 @@ export type TalentVerificationStatus =
   | 'suspended';
 export type ModerationStatus = 'VISIBLE' | 'REMOVED';
 export type SelfTapeSubmissionType = 'upload' | 'link';
+export type ScreeningQuestionType = 'short_text' | 'yes_no' | 'single_choice' | 'multi_choice';
+
+export interface ScreeningQuestion {
+  id: string;
+  prompt: string;
+  type: ScreeningQuestionType;
+  required: boolean;
+  options?: string[];
+  helpText?: string;
+  order: number;
+}
+
+export interface ScreeningAnswer {
+  questionId: string;
+  questionPromptSnapshot: string;
+  type: ScreeningQuestionType;
+  answer: string | string[] | boolean;
+  answeredAt?: Date | Timestamp;
+}
 export type SelfTapeStatus =
   | 'not_requested'
   | 'requested'
@@ -351,6 +370,7 @@ export interface Audition {
   selfTapeInstructions?: string;
   selfTapeSubmissionTypes?: SelfTapeSubmissionType[];
   selfTapeMaxDurationSeconds?: number | null;
+  screeningQuestions?: ScreeningQuestion[];
   createdAt?: Date | Timestamp;
   updatedAt?: Date | Timestamp;
 }
@@ -401,6 +421,7 @@ export interface Application {
     updatedAt?: Date | Timestamp;
   };
   selfTapeReviewedAt?: Date | Timestamp;
+  screeningAnswers?: ScreeningAnswer[];
   createdAt?: Date | Timestamp;
   lastStatusChange?: Date | Timestamp;
   updatedAt?: Date | Timestamp;

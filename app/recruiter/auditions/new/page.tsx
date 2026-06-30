@@ -19,11 +19,17 @@ import {
   type WorkMode,
   type PaymentType,
   type SelfTapeSubmissionType,
+  type ScreeningQuestionType,
 } from '@/app/lib/types';
 import {
   normalizeSelfTapeSubmissionTypes,
   validateSelfTapeInstructions,
 } from '@/app/lib/self-tape-policy';
+import {
+  MAX_SCREENING_QUESTIONS,
+  getScreeningQuestionTemplates,
+  getScreeningQuestionSafetyFlags,
+} from '@/app/lib/casting-application-kit-policy';
 import {
   getCastingBriefQuality,
   type CastingBriefQualitySummary,
@@ -31,6 +37,21 @@ import {
 import { getErrorMessage } from '@/app/lib/error-utils';
 import { useAuth } from '@/context/auth-context';
 import { DevFormPresets } from '@/components/dev-form-presets';
+
+type ScreeningQuestionDraft = {
+  id: string;
+  prompt: string;
+  type: ScreeningQuestionType;
+  required: boolean;
+  options: string[];
+  helpText: string;
+};
+
+const screeningTemplates = getScreeningQuestionTemplates().map((t) => ({
+  ...t,
+  options: t.options ?? [],
+  helpText: t.helpText ?? '',
+}));
 
 type AuditionForm = {
   title: string;
@@ -51,6 +72,7 @@ type AuditionForm = {
   selfTapeInstructions: string;
   selfTapeSubmissionTypes: SelfTapeSubmissionType[];
   selfTapeMaxDurationSeconds: number | null;
+  screeningQuestions: ScreeningQuestionDraft[];
   deadline: string;
 };
 
@@ -73,6 +95,7 @@ const emptyAudition: AuditionForm = {
   selfTapeInstructions: '',
   selfTapeSubmissionTypes: ['link'],
   selfTapeMaxDurationSeconds: null,
+  screeningQuestions: [],
   deadline: '',
 };
 
@@ -109,6 +132,7 @@ const auditionPresets: Array<{
       selfTapeInstructions: '',
       selfTapeSubmissionTypes: ['link'],
       selfTapeMaxDurationSeconds: null,
+      screeningQuestions: [],
       deadline: dateFromToday(21),
     },
   },
@@ -134,6 +158,7 @@ const auditionPresets: Array<{
       selfTapeInstructions: '',
       selfTapeSubmissionTypes: ['link'],
       selfTapeMaxDurationSeconds: null,
+      screeningQuestions: [],
       deadline: dateFromToday(14),
     },
   },
@@ -160,6 +185,7 @@ const auditionPresets: Array<{
         'Submit a 60-90 second sample reading one warm commercial line in Hindi and one in English. Use a clean, quiet recording and share an unlisted video link.',
       selfTapeSubmissionTypes: ['link'],
       selfTapeMaxDurationSeconds: 90,
+      screeningQuestions: [],
       deadline: dateFromToday(10),
     },
   },
@@ -186,6 +212,7 @@ const auditionPresets: Array<{
         'Optional: share a recent 45-60 second movement clip that shows musicality and full-body framing.',
       selfTapeSubmissionTypes: ['link'],
       selfTapeMaxDurationSeconds: 60,
+      screeningQuestions: [],
       deadline: dateFromToday(18),
     },
   },
@@ -211,6 +238,7 @@ const auditionPresets: Array<{
       selfTapeInstructions: '',
       selfTapeSubmissionTypes: ['link'],
       selfTapeMaxDurationSeconds: null,
+      screeningQuestions: [],
       deadline: dateFromToday(12),
     },
   },
@@ -237,6 +265,7 @@ const auditionPresets: Array<{
         'Record a 60-90 second self-tape introducing yourself and performing a short natural conversation beat. Phone video is fine; prioritize clear audio and light.',
       selfTapeSubmissionTypes: ['link'],
       selfTapeMaxDurationSeconds: 90,
+      screeningQuestions: [],
       deadline: dateFromToday(9),
     },
   },
@@ -308,6 +337,17 @@ export default function NewAuditionPage() {
           form.selfTapeEnabled && form.selfTapeMaxDurationSeconds
             ? Number(form.selfTapeMaxDurationSeconds)
             : null,
+        screeningQuestions: form.screeningQuestions
+          .filter((q) => q.prompt.trim().length > 0)
+          .map((q, i) => ({
+            id: q.id,
+            prompt: q.prompt.trim(),
+            type: q.type,
+            required: q.required,
+            order: i,
+            ...(q.options.filter(Boolean).length > 0 ? { options: q.options.filter(Boolean) } : {}),
+            ...(q.helpText.trim() ? { helpText: q.helpText.trim() } : {}),
+          })),
         recruiterName: profile?.companyName ?? user.email ?? 'Recruiter',
         deadline: new Date(form.deadline),
         status,
@@ -325,6 +365,33 @@ export default function NewAuditionPage() {
     value: string | number | boolean | string[] | null
   ) =>
     setForm((current) => ({ ...current, [key]: value }));
+
+  const addQuestion = (template?: ScreeningQuestionDraft) => {
+    if (form.screeningQuestions.length >= MAX_SCREENING_QUESTIONS) return;
+    setForm((current) => ({
+      ...current,
+      screeningQuestions: [
+        ...current.screeningQuestions,
+        template
+          ? { ...template, id: crypto.randomUUID() }
+          : { id: crypto.randomUUID(), prompt: '', type: 'short_text' as ScreeningQuestionType, required: false, options: [], helpText: '' },
+      ],
+    }));
+  };
+
+  const removeQuestion = (id: string) =>
+    setForm((current) => ({
+      ...current,
+      screeningQuestions: current.screeningQuestions.filter((q) => q.id !== id),
+    }));
+
+  const updateQuestion = (id: string, patch: Partial<ScreeningQuestionDraft>) =>
+    setForm((current) => ({
+      ...current,
+      screeningQuestions: current.screeningQuestions.map((q) =>
+        q.id === id ? { ...q, ...patch } : q
+      ),
+    }));
 
   return (
     <AppShell requiredRole="RECRUITER">
@@ -521,12 +588,68 @@ export default function NewAuditionPage() {
                 )}
               </div>
             </section>
+
+            <section className="surface p-6">
+              <p className="eyebrow">04 · Casting Application Kit</p>
+              <p className="mt-2 text-sm leading-6 text-[#657176]">
+                Add up to {MAX_SCREENING_QUESTIONS} role-specific questions that Talent answer when applying.
+                Answers are visible only to you and platform admins.
+                Do not ask for payment, private documents, or off-platform contact.
+              </p>
+
+              {form.screeningQuestions.length > 0 && (
+                <div className="mt-5 space-y-4">
+                  {form.screeningQuestions.map((q, index) => (
+                    <ScreeningQuestionEditor
+                      key={q.id}
+                      index={index}
+                      question={q}
+                      onChange={(patch) => updateQuestion(q.id, patch)}
+                      onRemove={() => removeQuestion(q.id)}
+                    />
+                  ))}
+                </div>
+              )}
+
+              <div className="mt-5 flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => addQuestion()}
+                  disabled={form.screeningQuestions.length >= MAX_SCREENING_QUESTIONS}
+                  className="secondary-button disabled:opacity-40"
+                >
+                  + Add question
+                </button>
+                <span className="text-sm text-[#657176]">
+                  {form.screeningQuestions.length} / {MAX_SCREENING_QUESTIONS}
+                </span>
+              </div>
+
+              {form.screeningQuestions.length < MAX_SCREENING_QUESTIONS && (
+                <div className="mt-5 border-t border-[#d8e2e6] pt-4">
+                  <p className="text-xs font-black uppercase text-[#657176]">Start from a template</p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {screeningTemplates.map((template) => (
+                      <button
+                        key={template.id}
+                        type="button"
+                        onClick={() => addQuestion(template)}
+                        disabled={form.screeningQuestions.length >= MAX_SCREENING_QUESTIONS}
+                        className="rounded-md border border-[#d8e2e6] px-3 py-1.5 text-xs font-bold text-[#07111f] hover:border-[#008ca6] hover:text-[#008ca6] disabled:opacity-40"
+                      >
+                        {template.prompt.length > 55 ? template.prompt.slice(0, 55) + '…' : template.prompt}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </section>
           </div>
 
           <aside className="space-y-5">
             <PublishReadinessPanel summary={briefQuality} />
             <section className="surface p-5">
-              <p className="eyebrow">04 · Publishing</p>
+              <p className="eyebrow">05 · Publishing</p>
               <div className="mt-5 space-y-5">
                 <Input label="Positions" type="number" value={String(form.numberOfPositions)} onChange={(v) => update('numberOfPositions', Number(v))} />
                 <Input label="Application deadline" type="date" value={form.deadline} onChange={(v) => update('deadline', v)} helper="Give Talent at least 7 days to prepare and apply." />
@@ -658,6 +781,145 @@ function briefBandClass(band: CastingBriefQualitySummary['band']) {
     return 'border border-amber-200 bg-amber-50 text-amber-900';
   }
   return 'border border-red-200 bg-red-50 text-red-800';
+}
+
+function ScreeningQuestionEditor({
+  index,
+  question,
+  onChange,
+  onRemove,
+}: {
+  index: number;
+  question: ScreeningQuestionDraft;
+  onChange: (patch: Partial<ScreeningQuestionDraft>) => void;
+  onRemove: () => void;
+}) {
+  const safetyFlags = getScreeningQuestionSafetyFlags({ prompt: question.prompt, type: question.type });
+  const hasOptions = question.type === 'single_choice' || question.type === 'multi_choice';
+
+  return (
+    <div className="rounded-md border border-[#d8e2e6] bg-[#f8fbfc] p-4">
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-xs font-black uppercase text-[#008ca6]">Question {index + 1}</span>
+        <button type="button" onClick={onRemove} className="text-xs font-bold text-red-600 hover:text-red-800">
+          Remove
+        </button>
+      </div>
+
+      <label className="mt-3 block text-sm font-bold">
+        Prompt
+        <input
+          type="text"
+          value={question.prompt}
+          onChange={(e) => onChange({ prompt: e.target.value })}
+          maxLength={180}
+          className="field mt-1"
+          placeholder="Example: Are you available for the listed shoot dates?"
+        />
+      </label>
+      {safetyFlags.length > 0 && (
+        <div className="mt-2 rounded border border-red-200 bg-red-50 p-2 text-xs leading-5 text-red-800">
+          {safetyFlags.map((flag) => <p key={flag}>{flag}</p>)}
+        </div>
+      )}
+
+      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+        <label className="block text-sm font-bold">
+          Answer type
+          <select
+            value={question.type}
+            onChange={(e) => onChange({ type: e.target.value as ScreeningQuestionType, options: [] })}
+            className="field mt-1"
+          >
+            <option value="yes_no">Yes / No</option>
+            <option value="short_text">Short text</option>
+            <option value="single_choice">Single choice</option>
+            <option value="multi_choice">Multiple choice</option>
+          </select>
+        </label>
+        <label className="mt-5 flex items-center gap-2 text-sm font-bold">
+          <input
+            type="checkbox"
+            checked={question.required}
+            onChange={(e) => onChange({ required: e.target.checked })}
+            className="size-4 accent-[#008ca6]"
+          />
+          Required
+        </label>
+      </div>
+
+      {hasOptions && (
+        <ScreeningOptionsEditor
+          options={question.options}
+          onChange={(options) => onChange({ options })}
+        />
+      )}
+
+      <label className="mt-3 block text-xs font-bold text-[#657176]">
+        Help text (optional)
+        <input
+          type="text"
+          value={question.helpText}
+          onChange={(e) => onChange({ helpText: e.target.value })}
+          maxLength={240}
+          className="field mt-1"
+          placeholder="Optional guidance shown to Talent below the question"
+        />
+      </label>
+    </div>
+  );
+}
+
+function ScreeningOptionsEditor({
+  options,
+  onChange,
+}: {
+  options: string[];
+  onChange: (options: string[]) => void;
+}) {
+  const updateOption = (i: number, value: string) => {
+    const next = [...options];
+    next[i] = value;
+    onChange(next);
+  };
+  const removeOption = (i: number) => onChange(options.filter((_, idx) => idx !== i));
+
+  return (
+    <div className="mt-3">
+      <p className="text-xs font-black uppercase text-[#657176]">Answer options</p>
+      <div className="mt-2 space-y-2">
+        {options.map((opt, i) => (
+          <div key={i} className="flex gap-2">
+            <input
+              type="text"
+              value={opt}
+              onChange={(e) => updateOption(i, e.target.value)}
+              maxLength={80}
+              className="field flex-1"
+              placeholder={`Option ${i + 1}`}
+            />
+            <button
+              type="button"
+              onClick={() => removeOption(i)}
+              className="px-2 text-sm font-black text-red-500 hover:text-red-800"
+              aria-label="Remove option"
+            >
+              ×
+            </button>
+          </div>
+        ))}
+      </div>
+      {options.length < 6 && (
+        <button
+          type="button"
+          onClick={() => onChange([...options, ''])}
+          className="mt-2 text-xs font-bold text-[#008ca6] hover:text-[#006b80]"
+        >
+          + Add option
+        </button>
+      )}
+    </div>
+  );
 }
 
 function Input({ label, value, onChange, type = 'text', placeholder, required = true, helper }: { label: string; value: string; onChange: (value: string) => void; type?: string; placeholder?: string; required?: boolean; helper?: string }) {

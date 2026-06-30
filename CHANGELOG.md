@@ -1,5 +1,45 @@
 # Changelog
 
+### Casting Application Kit and Screening Questions
+
+- Added `app/lib/casting-application-kit-policy.ts`, a self-contained, rule-based
+  policy module with no cross-module imports beyond `types.ts`. Exports constants,
+  validation, safety flag detection, normalization, templates, answer sanitization,
+  Talent-facing summaries, and Recruiter-facing review helpers.
+- Added `ScreeningQuestionType`, `ScreeningQuestion`, and `ScreeningAnswer` to
+  `app/lib/types.ts`. Added `screeningQuestions?: ScreeningQuestion[]` to `Audition`
+  and `screeningAnswers?: ScreeningAnswer[]` to `Application`.
+- Added `screeningQuestions` size limit (≤ 8) to Firestore rules for both audition
+  create and update paths.
+- Updated `app/lib/firestore-service.ts`: `createAudition` accepts
+  `screeningQuestions`; `submitApplication` accepts and passes `screeningAnswers`.
+- Updated `app/api/applications/route.ts` POST handler: accepts
+  `screeningAnswers` from request body, sanitizes each answer inline (trim,
+  enforce type-specific size limits, filter unknown shapes), and stores sanitized
+  answers alongside the application document.
+- Updated `app/recruiter/auditions/new/page.tsx`: added "04 · Casting Application
+  Kit" section with up to 8 editable questions, template picker (6 templates),
+  inline safety flag warnings, options editor for choice questions, and counter.
+  Publishing section renumbered to "05 · Publishing". Questions are normalized and
+  passed to `createAudition` on submit.
+- Updated `app/auditions/[id]/page.tsx`: Talent apply form now shows inline
+  screening questions when the audition has them. Required questions must be
+  answered before submission. Answers are passed to `submitApplication`.
+- Updated `app/recruiter/auditions/[id]/applicants/page.tsx`: `ScreeningAnswersPanel`
+  added to `ApplicantCard` expanded view (after "Application message", before
+  "Status timeline") using `getRecruiterScreeningReview` to display formatted
+  answer rows per question.
+- Updated `app/applications/page.tsx`: pack tags row shows a "N screening answer(s)"
+  cue when `application.screeningAnswers` is present.
+- Added `tests/casting-application-kit-policy.test.mts` with 38 test cases covering
+  safety flag detection, question validation, multi-question validation, normalization,
+  checklist generation, template validation, answer sanitization, answer validation,
+  screening summaries, recruiter review, and Talent guidance.
+- Added 4 Firestore rules emulator tests for screeningQuestions size limit
+  (create reject over 8, create allow up to 8, update reject over 8, update allow up to 8).
+- No AI, no auto-ranking, no auto-selection, no payment, no fake data, no guaranteed
+  casting, no private data exposure, no security weakening.
+
 ### Audition Share Kit and Public Opportunity Page
 
 - Added `app/lib/audition-share-kit-policy.ts`, a pure, rule-based helper for

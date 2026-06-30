@@ -33,7 +33,10 @@ import {
   type ApplicationStatus,
   type Audition,
   type AuditionApplicant,
+  type ScreeningAnswer,
+  type ScreeningQuestion,
 } from '@/app/lib/types';
+import { getRecruiterScreeningReview } from '@/app/lib/casting-application-kit-policy';
 import {
   getSelfTapeBadgeTone,
   getSelfTapeStatus,
@@ -927,6 +930,13 @@ function ApplicantCard({
                 </p>
               </ReviewSection>
 
+              {(audition?.screeningQuestions ?? []).length > 0 && (
+                <ScreeningAnswersPanel
+                  questions={audition!.screeningQuestions!}
+                  answers={application.screeningAnswers ?? []}
+                />
+              )}
+
               <ReviewSection title="Status timeline">
                 <StatusTimeline application={application} />
               </ReviewSection>
@@ -1293,6 +1303,40 @@ function ReviewSection({
       <h3 className="text-lg font-black">{title}</h3>
       <div className="mt-3">{children}</div>
     </section>
+  );
+}
+
+function ScreeningAnswersPanel({
+  questions,
+  answers,
+}: {
+  questions: ScreeningQuestion[];
+  answers: ScreeningAnswer[];
+}) {
+  const review = getRecruiterScreeningReview(questions, answers);
+  return (
+    <ReviewSection title="Screening answers">
+      {review.hasAnswers ? (
+        <div className="space-y-3">
+          {review.items.map((item) => (
+            <div key={item.questionId} className="rounded-md border border-[#d7e3e7] bg-white p-3">
+              <p className="text-[10px] font-black uppercase tracking-wide text-[#657176]">
+                {item.required ? 'Required' : 'Optional'}
+              </p>
+              <p className="mt-1 text-sm font-bold leading-5 text-[#07111f]">{item.prompt}</p>
+              <p className={`mt-1.5 text-sm leading-6 ${item.answered ? 'text-[#4f5963]' : 'italic text-[#9aa4aa]'}`}>
+                {item.answerDisplay}
+              </p>
+            </div>
+          ))}
+          <p className="text-xs leading-5 text-[#8a9899]">{review.reviewNote}</p>
+        </div>
+      ) : (
+        <p className="leading-7 text-[#4f5963]">
+          This applicant did not submit screening answers.
+        </p>
+      )}
+    </ReviewSection>
   );
 }
 

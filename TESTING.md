@@ -1,5 +1,46 @@
 # Nata Connect development test cases
 
+## Casting Application Kit and Screening Questions checks
+
+After updating screening question policy, apply flow, recruiter form, or
+applicant review behavior, verify:
+
+- [ ] Recruiter audition creation form (new) shows "04 · Casting Application Kit"
+  section with add button, counter (0 / 8), and 6 template chips.
+- [ ] Clicking "Add question" shows an editor card with prompt, answer type,
+  required toggle, help text, and Remove button.
+- [ ] Selecting "single_choice" or "multi_choice" type shows the options editor.
+- [ ] Safety flags appear inline when a prompt contains payment, bank, OTP,
+  government ID, or off-platform language.
+- [ ] Adding more than 8 questions is disabled (button goes dim at 8).
+- [ ] Template chips are hidden once 8 questions are added.
+- [ ] Publishing passes `screeningQuestions` (non-empty prompts only) to Firestore.
+- [ ] Audition with 9+ questions is rejected by Firestore rules (emulator test).
+- [ ] Talent apply form shows inline screening questions when the audition has them.
+- [ ] Required questions (marked with *) block submission until answered.
+- [ ] Yes/No renders radio buttons; short_text renders a textarea; single_choice
+  renders radios; multi_choice renders checkboxes.
+- [ ] Screening answers are passed to `submitApplication` and stored on the
+  application document.
+- [ ] In the Decision Room (applicants page), expanding an applicant card shows
+  "Screening answers" section with each question and the formatted answer.
+- [ ] Unanswered questions show "—" not blank or error.
+- [ ] ReviewNote in the screening answers panel says answers are a reference,
+  not automatic ranking or selection.
+- [ ] My Applications pack tags row shows "N screening answer(s)" when answers exist.
+- [ ] No AI language, no auto-ranking, no guaranteed casting, no private data
+  exposed, no payment references added anywhere.
+
+Run:
+
+```
+npm run lint
+npm test
+npm run build
+git diff --check
+npm run emulators:test   # requires local Firebase emulators
+```
+
 ## Audition Share Kit and Public Opportunity Page checks
 
 After updating share kit policy, audition detail, or recruiter auditions list
