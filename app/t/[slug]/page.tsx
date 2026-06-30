@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ExternalLink, Film, MapPin } from 'lucide-react';
+import { ExternalLink, Film, MapPin, ShieldCheck, Sparkles } from 'lucide-react';
 import { cache } from 'react';
 import { getAdminDb } from '@/app/lib/firebase-admin';
 import {
@@ -12,6 +12,7 @@ import {
 import { PublicProfileShareButton } from '@/components/public-profile-share-button';
 import { VerifiedBadge } from '@/components/verified-badge';
 import { ReportButton } from '@/components/report-button';
+import { getPublicCastingPassport } from '@/app/lib/talent-share-kit-policy';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -73,6 +74,7 @@ export default async function PublicTalentPage({
   const featured = media.find((item) => item.isFeatured);
   const gallery = media.filter((item) => item.type === 'image');
   const showreels = media.filter((item) => item.type !== 'image');
+  const castingPassport = getPublicCastingPassport(profile, media);
 
   return (
     <main className="min-h-screen bg-[#edf4f7] text-[#07111f]">
@@ -83,7 +85,7 @@ export default async function PublicTalentPage({
             <span className="text-[#12c5df]">Connect</span>
           </Link>
           <span className="text-xs font-black uppercase text-white/65">
-            Public Talent profile
+            Public Casting Passport
           </span>
         </div>
       </header>
@@ -103,7 +105,7 @@ export default async function PublicTalentPage({
           <div>
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
-                <p className="eyebrow">{CATEGORY_LABELS[profile.category]}</p>
+                <p className="eyebrow">Public Casting Passport</p>
                 <div className="mt-2 flex flex-wrap items-center gap-3">
                   <h1 className="text-4xl font-black">{profile.displayName}</h1>
                   {profile.talentVerificationStatus === 'verified' && (
@@ -121,6 +123,7 @@ export default async function PublicTalentPage({
               </div>
             </div>
             <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm font-bold text-[#53656d]">
+              <span>{CATEGORY_LABELS[profile.category]}</span>
               <span>{EXPERIENCE_LABELS[profile.experienceLevel]}</span>
               {profile.location && (
                 <span className="inline-flex items-center gap-2">
@@ -132,6 +135,24 @@ export default async function PublicTalentPage({
             <p className="mt-6 max-w-3xl whitespace-pre-line leading-7 text-[#42545c]">
               {profile.bio}
             </p>
+            <div className="mt-5 grid gap-3 sm:grid-cols-3">
+              <PassportMetric
+                label="Passport"
+                value={castingPassport.bandLabel}
+              />
+              <PassportMetric
+                label="Public media"
+                value={`${media.length} item${media.length === 1 ? '' : 's'}`}
+              />
+              <PassportMetric
+                label="Trust cue"
+                value={
+                  profile.talentVerificationStatus === 'verified'
+                    ? 'Verified Talent'
+                    : 'Profile shared safely'
+                }
+              />
+            </div>
             {((profile.skills ?? []).length > 0 ||
               (profile.languages ?? []).length > 0) && (
               <div className="mt-6 space-y-3">
@@ -168,6 +189,66 @@ export default async function PublicTalentPage({
               </div>
             )}
           </div>
+        </section>
+
+        <section className="mt-7 grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
+          <div className="rounded-md border border-[#cbd9df] bg-white p-5 md:p-6">
+            <div className="flex items-start gap-3">
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-md bg-[#edf7f5] text-[#008ca6]">
+                <Sparkles aria-hidden="true" className="size-5" />
+              </span>
+              <div>
+                <p className="eyebrow">Casting identity summary</p>
+                <h2 className="mt-2 text-2xl font-black">
+                  {castingPassport.headline}
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-[#657176]">
+                  {castingPassport.summary} This page is designed for casting
+                  review, mentorship, and professional opportunity sharing.
+                </p>
+              </div>
+            </div>
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              {castingPassport.checklist.slice(1, 7).map((item) => (
+                <div
+                  key={item.key}
+                  className={`rounded-md border p-3 ${
+                    item.complete
+                      ? 'border-[#bad7d3] bg-[#edf7f5]'
+                      : 'border-[#d7e3e7] bg-[#f7fafb]'
+                  }`}
+                >
+                  <p className="text-sm font-black">{item.label}</p>
+                  <p className="mt-1 text-xs font-bold leading-5 text-[#526874]">
+                    {item.detail}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+          <aside className="rounded-md border border-[#cbd9df] bg-[#071524] p-5 text-white md:p-6">
+            <div className="flex items-start gap-3">
+              <ShieldCheck
+                aria-hidden="true"
+                className="mt-0.5 size-6 shrink-0 text-[#efb526]"
+              />
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.14em] text-[#55e6f7]">
+                  Shared through FirstTake
+                </p>
+                <h2 className="mt-2 text-xl font-black">
+                  Nata Connect public profile
+                </h2>
+              </div>
+            </div>
+            <ul className="mt-4 space-y-2 text-sm font-bold leading-6 text-white/78">
+              {castingPassport.privacyNotes.slice(0, 3).map((note) => (
+                <li key={note} className="border-l-2 border-[#efb526] pl-3">
+                  {note}
+                </li>
+              ))}
+            </ul>
+          </aside>
         </section>
 
         {(featured || gallery.length > 0 || showreels.length > 0) && (
@@ -271,5 +352,16 @@ export default async function PublicTalentPage({
         </p>
       </div>
     </main>
+  );
+}
+
+function PassportMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-md border border-[#d7e3e7] bg-[#f7fafb] p-3">
+      <p className="text-[10px] font-black uppercase tracking-wide text-[#657176]">
+        {label}
+      </p>
+      <p className="mt-1 text-sm font-black text-[#07111f]">{value}</p>
+    </div>
   );
 }

@@ -3,13 +3,13 @@
 **Telugu name:** నట కనెక్ట్  
 **Document date:** June 29, 2026
 **Repository:** `jayeess/Firsttake-Lovable`  
-**Current stage:** Recruiter Trust Passport and Source Transparency added;
-product is ready for controlled founder-led beta demos with transparent,
-rule-based recruiter source signals, application journey tracking, proof
-receipts, message safety guidance, explainable casting brief quality, safety
-signals, profile readiness, audition readiness guidance, recruiter review
-signals, slide outline, slide copy, speaker notes, route order, screenshot
-checklist, onboarding playbook, and audience talking points
+**Current stage:** Talent Share Kit and Public Casting Passport added; product
+is ready for controlled founder-led beta demos with privacy-safe public Talent
+sharing, transparent recruiter source signals, application journey tracking,
+proof receipts, message safety guidance, explainable casting brief quality,
+safety signals, profile readiness, audition readiness guidance, recruiter
+review signals, slide outline, slide copy, speaker notes, route order,
+screenshot checklist, onboarding playbook, and audience talking points
 
 ## 1. Product Summary
 
@@ -41,6 +41,7 @@ Nata Connect is no longer a static demonstration. It is a working Firebase-backe
 | Brand and visual identity | Strong | Distinctive and market-relevant |
 | Talent onboarding | Working | Suitable for MVP testing |
 | Talent Passport and role readiness | Implemented | Explainable guidance only; no AI matching, ranking, or guarantees |
+| Talent Share Kit and Public Casting Passport | Implemented | Public-profile only, privacy-safe, guidance-first sharing layer |
 | Recruiter onboarding | Working with demo approval | Needs real administration |
 | Recruiter Trust Passport and source transparency | Implemented | Guidance-only trust context; no private evidence exposure, AI, legal certification, or casting guarantees |
 | Audition creation | Working | Core fields and draft/publish states exist |
@@ -76,6 +77,16 @@ Nata Connect is no longer a static demonstration. It is a working Firebase-backe
 | Launch demo readiness | Improved | Empty states, first-time guidance, and honest roadmap messaging make the app understandable even before dense live marketplace activity |
 
 ### Latest product-design position
+
+The June 30, 2026 Talent Share Kit and Public Casting Passport pass made
+Talent profiles more shareable and marketable without exposing private data.
+Talent now see public profile readiness, safe share copy, privacy reminders,
+and missing public items on `/talent/profile`; `/t/[slug]` now reads as a
+public casting passport with identity summary, public media count, trust cue,
+selected work, and FirstTake / Nata Connect context. Applications and recruiter
+applicant review include lightweight passport continuity cues. The feature uses
+existing public profile and public media fields only and does not claim AI,
+legal certification, guaranteed casting, or guaranteed jobs.
 
 The June 29, 2026 Recruiter Trust Passport and Source Transparency pass added
 rule-based recruiter source context across audition cards, audition detail,

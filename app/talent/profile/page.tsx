@@ -1,11 +1,12 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AppShell } from '@/components/app-shell';
 import { useAuth } from '@/context/auth-context';
 import {
   createTalentProfile,
+  getTalentMedia,
   getTalentProfile,
   getTalentVerification,
   submitTalentVerification,
@@ -15,6 +16,7 @@ import {
   EXPERIENCE_LABELS,
   type TalentProfile,
   type TalentVerification,
+  type TalentMedia,
 } from '@/app/lib/types';
 import { getErrorMessage } from '@/app/lib/error-utils';
 import { DevFormPresets } from '@/components/dev-form-presets';
@@ -22,6 +24,7 @@ import {
   canSubmitTalentVerification,
 } from '@/app/lib/talent-trust-policy';
 import { getTalentPassportSummary } from '@/app/lib/role-fit-policy';
+import { getTalentShareKit } from '@/app/lib/talent-share-kit-policy';
 import {
   calculateTalentProfileCompleteness,
   TALENT_VERIFICATION_MINIMUM_SCORE,
@@ -200,19 +203,22 @@ export default function TalentProfilePage() {
   const [verification, setVerification] =
     useState<TalentVerification | null>(null);
   const [profileSaved, setProfileSaved] = useState(false);
+  const [media, setMedia] = useState<TalentMedia[]>([]);
 
   useEffect(() => {
     if (!user) return;
     void Promise.all([
       getTalentProfile(user.uid),
       getTalentVerification(user.uid),
+      getTalentMedia(user.uid).catch(() => []),
     ])
-      .then(([data, verificationData]) => {
+      .then(([data, verificationData, mediaData]) => {
         if (data) {
           setProfile(data);
           setProfileSaved(true);
         }
         setVerification(verificationData);
+        setMedia(mediaData);
       })
       .catch((err: unknown) =>
         setError(getErrorMessage(err, 'Unable to load profile'))
@@ -227,6 +233,11 @@ export default function TalentProfilePage() {
     () => getTalentPassportSummary(profile),
     [profile]
   );
+  const shareKit = useMemo(
+    () => getTalentShareKit(profile, media),
+    [media, profile]
+  );
+  const updateMedia = useCallback((items: TalentMedia[]) => setMedia(items), []);
   const verificationStatus =
     verification?.talentVerificationStatus ??
     profile.talentVerificationStatus ??
@@ -485,6 +496,110 @@ export default function TalentProfilePage() {
           details in your public bio, and keep callbacks on-platform.
           Verification notes and private account data stay internal.
         </PrivacyNote>
+
+        <section className="mt-5 rounded-md border border-[#d7e2e6] bg-white p-4 shadow-sm sm:p-5">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <p className="eyebrow">Talent Share Kit</p>
+              <h2 className="mt-2 text-2xl font-black">
+                {shareKit.bandLabel}
+              </h2>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-[#657176]">
+                {shareKit.headline} Use one privacy-safe public casting link
+                instead of sending scattered photos, links, and messages.
+              </p>
+            </div>
+            <span className="inline-flex min-h-10 w-fit items-center rounded-md border border-[#bad7d3] bg-[#edf7f5] px-3 text-sm font-black text-[#006b60]">
+              {shareKit.score}% share-ready
+            </span>
+          </div>
+          <div className="mt-4 h-2 overflow-hidden rounded-full bg-[#dbe4e8]">
+            <div
+              className="h-full rounded-full bg-[#008ca6]"
+              style={{ width: `${shareKit.score}%` }}
+            />
+          </div>
+          <div className="mt-5 grid gap-3 lg:grid-cols-[minmax(0,1fr)_320px]">
+            <div className="grid gap-3 sm:grid-cols-2">
+              {shareKit.checklist.slice(0, 8).map((item) => (
+                <article
+                  key={item.key}
+                  className={`rounded-md border p-3 ${
+                    item.complete
+                      ? 'border-[#bad7d3] bg-[#edf7f5]'
+                      : item.optional
+                        ? 'border-[#d7e3e7] bg-[#f7fafb]'
+                        : 'border-amber-200 bg-amber-50'
+                  }`}
+                >
+                  <p className="text-sm font-black text-[#07111f]">
+                    {item.label}
+                  </p>
+                  <p className="mt-1 text-xs font-bold leading-5 text-[#526874]">
+                    {item.detail}
+                  </p>
+                </article>
+              ))}
+            </div>
+            <aside className="rounded-md border border-[#d7e3e7] bg-[#f8fbfc] p-4">
+              <p className="text-sm font-black">Public casting link</p>
+              {shareKit.publicUrl ? (
+                <Link
+                  href={shareKit.publicUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-2 inline-flex text-sm font-black text-[#008ca6] hover:underline"
+                >
+                  Preview {shareKit.publicUrl}
+                </Link>
+              ) : (
+                <Link
+                  href="#public-profile"
+                  className="mt-2 inline-flex text-sm font-black text-[#008ca6] hover:underline"
+                >
+                  Create public profile link
+                </Link>
+              )}
+              <p className="mt-4 text-xs font-black uppercase text-[#657176]">
+                Safe share copy
+              </p>
+              <div className="mt-2 space-y-2">
+                {shareKit.shareCopyTemplates.slice(0, 2).map((template) => (
+                  <p
+                    key={template}
+                    className="rounded-md border border-[#d7e3e7] bg-white p-3 text-xs font-bold leading-5 text-[#526874]"
+                  >
+                    {template}
+                  </p>
+                ))}
+              </div>
+            </aside>
+          </div>
+          {shareKit.missingItems.length > 0 && (
+            <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 p-4">
+              <p className="text-sm font-black text-amber-950">
+                Improve before broad sharing
+              </p>
+              <ul className="mt-2 space-y-1.5 text-sm leading-6 text-amber-900">
+                {shareKit.missingItems.slice(0, 4).map((item) => (
+                  <li key={item.key} className="border-l-2 border-amber-300 pl-3">
+                    {item.detail}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          <div className="mt-4 rounded-md border border-[#dbe4e8] bg-[#f7fafb] p-3">
+            <p className="text-xs font-black uppercase text-[#008ca6]">
+              Privacy reminders
+            </p>
+            <ul className="mt-2 space-y-1.5 text-xs font-bold leading-5 text-[#526874]">
+              {shareKit.privacyNotes.slice(0, 3).map((note) => (
+                <li key={note}>{note}</li>
+              ))}
+            </ul>
+          </div>
+        </section>
         <section className="mt-5 rounded-md border border-[#d7e2e6] bg-white p-4 shadow-sm sm:p-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
@@ -558,6 +673,7 @@ export default function TalentProfilePage() {
                 onProfileChange={(updates) =>
                   setProfile((current) => ({ ...current, ...updates }))
                 }
+                onMediaChange={updateMedia}
               />
             </div>
             <div id="public-profile" className="scroll-mt-24">

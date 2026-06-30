@@ -1,5 +1,33 @@
 # Nata Connect development test cases
 
+## Talent Share Kit and Public Casting Passport checks
+
+After updating the Talent Share Kit or public profile behavior, verify:
+
+- [ ] `/talent/profile` shows Talent Share Kit readiness, missing public items,
+  safe share copy, public link cue, and privacy reminders.
+- [ ] `/talent/profile` counts only active media marked Public profile as public
+  portfolio readiness.
+- [ ] `/t/[slug]` reads as a Public Casting Passport with identity summary,
+  skills, languages, media, trust cue, and FirstTake / Nata Connect context.
+- [ ] `/t/[slug]` never shows email, phone, private documents, private admin
+  notes, private reports, hidden media, or private account fields.
+- [ ] `/applications` shows a lightweight cue to keep the public casting
+  passport share-ready.
+- [ ] `/recruiter/auditions/[id]/applicants` shows passport context as
+  recruiter guidance only and does not rank applicants or automate decisions.
+- [ ] No UI copy claims AI, legal certification, guaranteed casting, guaranteed
+  jobs, payment features, direct video upload, or self-tape video upload.
+
+Run:
+
+```powershell
+npm run lint
+npm test
+npm run build
+git diff --check
+```
+
 ## Recruiter Trust Passport and Source Transparency checks
 
 After updating recruiter trust or source transparency behavior, verify:

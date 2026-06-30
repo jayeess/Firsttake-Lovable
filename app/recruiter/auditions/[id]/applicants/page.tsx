@@ -44,6 +44,7 @@ import {
   type RoleFitSignalStatus,
   type RoleFitSummary,
 } from '@/app/lib/role-fit-policy';
+import { getTalentShareKit } from '@/app/lib/talent-share-kit-policy';
 import { AppShell } from '@/components/app-shell';
 import { EmptyState, ErrorState, LoadingState } from '@/components/async-state';
 import { StatusBadge } from '@/components/status-badge';
@@ -706,6 +707,7 @@ function ApplicantCard({
           hasSelfTapeSubmission: selfTapeAvailable,
         })
       : null;
+  const shareKit = talent ? getTalentShareKit(talent, media) : null;
   const [note, setNote] = useState(
     application.recruiterNote ?? application.recruiterNotes ?? ''
   );
@@ -990,6 +992,28 @@ function ApplicantCard({
                       View public portfolio →
                     </Link>
                   )}
+                </ReviewSection>
+              )}
+
+              {shareKit && (
+                <ReviewSection title="Public Casting Passport">
+                  <div className="rounded-md border border-[#d7e3e7] bg-white p-4">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                      <div>
+                        <p className="text-sm font-black">
+                          {shareKit.bandLabel}
+                        </p>
+                        <p className="mt-2 text-sm leading-6 text-[#657176]">
+                          Public passport context helps review only. It does
+                          not rank applicants, replace audition judgment, or
+                          expose private Talent verification notes.
+                        </p>
+                      </div>
+                      <span className="w-fit rounded-md bg-[#edf7f5] px-2.5 py-1 text-xs font-black text-[#008ca6]">
+                        {shareKit.score}% share-ready
+                      </span>
+                    </div>
+                  </div>
                 </ReviewSection>
               )}
 

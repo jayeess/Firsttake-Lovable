@@ -1,5 +1,35 @@
 # Full App UX Polish Report
 
+## Talent Share Kit and Public Casting Passport - June 30, 2026
+
+**Goal:** Make Talent profiles easier to share professionally while keeping the
+public experience privacy-safe, non-AI, and guidance-first.
+
+Key improvements:
+
+- `app/lib/talent-share-kit-policy.ts` centralizes public profile readiness,
+  Share Kit checklists, missing items, safe share copy templates, public-safe
+  recruiter visibility notes, and privacy reminders.
+- `/talent/profile` now includes a Talent Share Kit panel with readiness band,
+  public link cue, missing public items, safe share copy templates, and privacy
+  notes.
+- `components/talent-media-manager.tsx` reports media changes back to the
+  profile page so only active public media improves public sharing readiness.
+- `/t/[slug]` now presents the public page as a Public Casting Passport with
+  identity summary, public media count, public-safe trust cue, selected work,
+  and FirstTake / Nata Connect sharing context.
+- `/applications` now includes a lightweight passport continuity cue so Talent
+  can keep their public profile share-ready while tracking applications.
+- `/recruiter/auditions/[id]/applicants` now shows a small public passport
+  context cue during applicant review, explicitly guidance-only and not ranking
+  or decision automation.
+- `tests/talent-share-kit-policy.test.mts` covers share-ready profiles, missing
+  public detail, private/document media exclusion, privacy notes, safe share
+  copy, public-safe checklist output, and safe fallbacks.
+
+See `TALENT_SHARE_KIT_PUBLIC_CASTING_PASSPORT_REPORT.md` for the full change
+record.
+
 ## Recruiter Trust Passport and Source Transparency - June 29, 2026
 
 **Goal:** Add recruiter source transparency across Talent, Recruiter, and Admin

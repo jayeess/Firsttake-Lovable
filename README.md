@@ -29,6 +29,8 @@ the operator checklist and known limitations.
 - Talent and recruiter profile forms
 - Talent profile completeness scoring and optional verification
 - Talent Passport and explainable Role Readiness signals for auditions
+- Talent Share Kit and Public Casting Passport for privacy-safe external
+  sharing
 - Talent profile photo, portfolio images, and external showreel links
 - Opt-in shareable Talent profiles at `/t/[slug]` using sanitized public
   snapshots, safe slugs, selected public media, and verified badges
@@ -66,7 +68,9 @@ behavior and [PWA_READINESS.md](PWA_READINESS.md) for installability notes. See
 [PRODUCT_STATUS_AND_ROADMAP.md](PRODUCT_STATUS_AND_ROADMAP.md) for the full
 product inventory and roadmap. See
 [RECRUITER_TRUST_PASSPORT_SOURCE_TRANSPARENCY_REPORT.md](RECRUITER_TRUST_PASSPORT_SOURCE_TRANSPARENCY_REPORT.md)
-for the latest source transparency pass.
+for the recruiter source transparency pass and
+[TALENT_SHARE_KIT_PUBLIC_CASTING_PASSPORT_REPORT.md](TALENT_SHARE_KIT_PUBLIC_CASTING_PASSPORT_REPORT.md)
+for the public Talent sharing pass.
 
 ## Founder Demo and Pitch Pack
 

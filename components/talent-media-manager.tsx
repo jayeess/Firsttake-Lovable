@@ -50,10 +50,12 @@ export function TalentMediaManager({
   uid,
   profile,
   onProfileChange,
+  onMediaChange,
 }: {
   uid: string;
   profile: TalentProfile;
   onProfileChange: (updates: Partial<TalentProfile>) => void;
+  onMediaChange?: (media: TalentMedia[]) => void;
 }) {
   const [media, setMedia] = useState<TalentMedia[]>([]);
   const [loading, setLoading] = useState(true);
@@ -67,7 +69,10 @@ export function TalentMediaManager({
   const load = () => {
     setLoading(true);
     void getTalentMedia(uid)
-      .then(setMedia)
+      .then((items) => {
+        setMedia(items);
+        onMediaChange?.(items);
+      })
       .catch((loadError: unknown) =>
         setError(
           loadError instanceof Error
@@ -80,7 +85,10 @@ export function TalentMediaManager({
 
   useEffect(() => {
     void getTalentMedia(uid)
-      .then(setMedia)
+      .then((items) => {
+        setMedia(items);
+        onMediaChange?.(items);
+      })
       .catch((loadError: unknown) =>
         setError(
           loadError instanceof Error
@@ -89,7 +97,7 @@ export function TalentMediaManager({
         )
       )
       .finally(() => setLoading(false));
-  }, [uid]);
+  }, [onMediaChange, uid]);
 
   const uploadPhoto = async (file?: File) => {
     if (!file) return;

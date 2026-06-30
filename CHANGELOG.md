@@ -1,5 +1,28 @@
 # Changelog
 
+### Talent Share Kit and Public Casting Passport
+
+- Added `app/lib/talent-share-kit-policy.ts`, a pure, rule-based helper for
+  public profile readiness, Share Kit checklists, safe share copy templates,
+  public-safe recruiter visibility notes, and privacy reminders.
+- Added a Talent Share Kit panel to `/talent/profile` with readiness band,
+  public link cue, missing items, share copy templates, and privacy notes.
+- Updated `components/talent-media-manager.tsx` so the profile page can evaluate
+  actual active public media choices while keeping private media private.
+- Upgraded `/t/[slug]` into a Public Casting Passport with identity metrics,
+  public media count, trust cue, casting identity summary, and FirstTake /
+  Nata Connect sharing context.
+- Added a lightweight Public Casting Passport cue to `/applications`.
+- Added a recruiter-facing passport context cue to expanded applicant review in
+  `/recruiter/auditions/[id]/applicants`, explicitly as guidance only.
+- Added `tests/talent-share-kit-policy.test.mts` covering share-ready profiles,
+  missing public details, private/document media exclusion, privacy notes, safe
+  share copy, checklist safety, and empty fallback text.
+- Created `TALENT_SHARE_KIT_PUBLIC_CASTING_PASSPORT_REPORT.md`.
+- No Firestore rules, schemas, APIs, auth permissions, payment, AI, direct video
+  upload, self-tape video upload, fake data, or guaranteed casting claims were
+  added.
+
 ### Recruiter Trust Passport and Source Transparency
 
 - Added `app/lib/recruiter-trust-passport-policy.ts`, a pure, rule-based helper

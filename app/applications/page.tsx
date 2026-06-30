@@ -46,6 +46,7 @@ import {
   WorkspaceHero,
 } from '@/components/product-ui';
 import { getRoleFitSummary } from '@/app/lib/role-fit-policy';
+import { getTalentShareKit } from '@/app/lib/talent-share-kit-policy';
 import {
   getCastingJourneySteps,
   getApplicationProofChecklist,
@@ -180,6 +181,7 @@ export default function ApplicationsPage() {
     const selfTapeStatus = getSelfTapeStatus(application, application.audition);
     return selfTapeStatus === 'missing' || selfTapeStatus === 'requested';
   }).length;
+  const shareKit = talentProfile ? getTalentShareKit(talentProfile) : null;
 
   const withdraw = async (application: Application) => {
     if (!window.confirm('Withdraw this application?')) return;
@@ -302,6 +304,26 @@ export default function ApplicationsPage() {
           icon={ClipboardList}
         />
       </div>
+      {shareKit && (
+        <section className="mt-5 rounded-md border border-[#d7e3e7] bg-white p-4 shadow-sm">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="eyebrow">Public Casting Passport</p>
+              <h2 className="mt-1 text-xl font-black">
+                {shareKit.bandLabel}
+              </h2>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-[#657176]">
+                Your public casting passport supports applications by giving
+                recruiters a clean, privacy-safe profile to review when you
+                share it outside a single audition.
+              </p>
+            </div>
+            <Link href="/talent/profile" className="secondary-button sm:w-auto">
+              Keep share-ready
+            </Link>
+          </div>
+        </section>
+      )}
 
       <section className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <MetricCard
