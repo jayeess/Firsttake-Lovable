@@ -18,6 +18,7 @@ import { AppShell } from '@/components/app-shell';
 import { StatusBadge } from '@/components/status-badge';
 import { EmailVerificationPrompt } from '@/components/email-verification-prompt';
 import {
+  getAuditions,
   getRecruiterAuditions,
   getRecruiterProfile,
   getSavedAuditions,
@@ -45,6 +46,12 @@ import {
   SELF_TAPE_STATUS_LABELS,
 } from '@/app/lib/self-tape-policy';
 import { calculateTalentProfileCompleteness } from '@/app/lib/profile-completeness';
+import {
+  getTalentApplicationFocus,
+  getTalentCommandCenterSummary,
+  getTalentOpportunityRadar,
+  getTalentProfileGrowthPlan,
+} from '@/app/lib/talent-opportunity-radar-policy';
 
 const statusValue = (items: Application[], status: Application['status']) =>
   items.filter((item) => getApplicationStatus(item) === status).length;
@@ -77,11 +84,13 @@ export default function Dashboard() {
       void Promise.all([
         getTalentApplications(user.uid),
         getTalentProfile(user.uid),
+        getAuditions().catch(() => []),
         getSavedAuditions(user.uid).catch(() => []),
         getConversations().catch(() => ({ conversations: [] })),
-      ]).then(([items, profileData, savedItems, conversationData]) => {
+      ]).then(([items, profileData, auditionData, savedItems, conversationData]) => {
         setApplications(items);
         setProfile(profileData);
+        setAuditions(auditionData);
         setSavedAuditions(savedItems);
         setFirstName(profileData?.firstName ?? '');
         setUnreadConversationCount(
@@ -194,6 +203,7 @@ export default function Dashboard() {
             emailVerified={emailVerified}
             firstName={firstName}
             profile={profile}
+            auditions={auditions}
             savedAuditions={savedAuditions}
             unreadConversationCount={unreadConversationCount}
           />
@@ -276,6 +286,7 @@ function TalentWorkspace({
   emailVerified,
   firstName,
   profile,
+  auditions,
   savedAuditions,
   unreadConversationCount,
 }: {
@@ -283,6 +294,7 @@ function TalentWorkspace({
   emailVerified: boolean;
   firstName: string;
   profile: TalentProfile | null;
+  auditions: Audition[];
   savedAuditions: SavedAudition[];
   unreadConversationCount: number;
 }) {
@@ -347,6 +359,32 @@ function TalentWorkspace({
     },
   ];
   const readinessHints = getReadinessHints(profile, completion);
+  const savedAuditionIds = savedAuditions.map((item) => item.auditionId);
+  const commandCenter = getTalentCommandCenterSummary(
+    profile,
+    auditions,
+    applications,
+    {
+      savedAuditionIds,
+      unreadMessageCount: unreadConversationCount,
+    }
+  );
+  const opportunityRadar = getTalentOpportunityRadar(
+    profile,
+    auditions,
+    applications,
+    {
+      savedAuditionIds,
+      unreadMessageCount: unreadConversationCount,
+    }
+  );
+  const applicationFocus = getTalentApplicationFocus(applications, {
+    unreadMessageCount: unreadConversationCount,
+  });
+  const growthPlan = getTalentProfileGrowthPlan(profile);
+  const radarPreview = opportunityRadar.opportunities
+    .filter((item) => !item.applied)
+    .slice(0, 3);
 
   return (
     <>
@@ -400,6 +438,107 @@ function TalentWorkspace({
         />
       )}
 
+      <section className="mt-5">
+        <div className="rounded-md border border-[#cbd6db] bg-white p-4 shadow-sm sm:p-5">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <p className="eyebrow">Career Command Center</p>
+              <h2 className="mt-1 text-2xl font-black leading-tight sm:text-3xl">
+                {opportunityRadar.headline}
+              </h2>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-[#657176]">
+                {commandCenter.detail}
+              </p>
+            </div>
+            <Link href="/auditions" className="primary-button sm:w-auto">
+              Open opportunity radar
+              <ArrowRight className="size-4" />
+            </Link>
+          </div>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            {commandCenter.metrics.map((metric) => (
+              <article key={metric.label} className="rounded-md border border-[#d8e3e8] bg-[#f7fafb] p-3">
+                <p className="text-xs font-black uppercase text-[#657176]">
+                  {metric.label}
+                </p>
+                <p className="mt-1 text-2xl font-black text-[#07111f]">
+                  {metric.value}
+                </p>
+                <p className="mt-1 text-xs font-bold leading-5 text-[#657176]">
+                  {metric.detail}
+                </p>
+              </article>
+            ))}
+          </div>
+          <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+            <article className="rounded-md border border-[#bad7d3] bg-[#edf7f5] p-4">
+              <p className="eyebrow">Today&apos;s next actions</p>
+              <div className="mt-3 space-y-2">
+                {commandCenter.nextActions.map((action) => (
+                  <Link
+                    key={`${action.title}-${action.actionHref}`}
+                    href={action.actionHref}
+                    className="block rounded-md border border-[#cfe2df] bg-white/90 p-3 transition hover:border-[#008ca6]"
+                  >
+                    <p className="text-sm font-black text-[#07111f]">
+                      {action.title}
+                    </p>
+                    <p className="mt-1 text-xs font-bold leading-5 text-[#526168]">
+                      {action.detail}
+                    </p>
+                    <span className="mt-2 inline-flex text-xs font-black uppercase text-[#008ca6]">
+                      {action.actionLabel}
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            </article>
+            <article className="rounded-md border border-[#d7e3e7] bg-white p-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <p className="eyebrow">Opportunity Radar</p>
+                  <h3 className="mt-1 text-xl font-black">
+                    Profile-ready and safety-aware review
+                  </h3>
+                </div>
+                <Link href="/auditions" className="secondary-button sm:w-auto">
+                  Browse roles
+                </Link>
+              </div>
+              <div className="mt-3 space-y-2">
+                {radarPreview.length > 0 ? (
+                  radarPreview.map((item) => (
+                    <Link
+                      key={item.auditionId}
+                      href={item.actionHref}
+                      className="block rounded-md border border-[#dce3e7] bg-[#f7fafb] p-3 transition hover:border-[#008ca6]"
+                    >
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                        <div>
+                          <p className="text-sm font-black text-[#07111f]">
+                            {item.title}
+                          </p>
+                          <p className="mt-1 text-xs font-bold leading-5 text-[#657176]">
+                            {item.headline}
+                          </p>
+                        </div>
+                        <span className="w-fit rounded-md border border-[#bad7d3] bg-[#edf7f5] px-2 py-1 text-[10px] font-black uppercase text-[#006b60]">
+                          {item.bandLabel}
+                        </span>
+                      </div>
+                    </Link>
+                  ))
+                ) : (
+                  <p className="rounded-md border border-[#dce3e7] bg-[#f7fafb] p-3 text-sm font-bold leading-6 text-[#657176]">
+                    {opportunityRadar.detail}
+                  </p>
+                )}
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
       <section className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(280px,0.85fr)]">
         <article className="surface relative overflow-hidden p-4 sm:p-5">
           <div className="absolute left-0 top-0 h-full w-1 bg-[#d8a843]" />
@@ -413,10 +552,10 @@ function TalentWorkspace({
                 {nextAction.title}
               </h2>
               <p className="mt-2 text-sm leading-6 text-[#5b6872]">
-                {nextAction.body}
+                {applicationFocus.nextAction.detail}
               </p>
-              <Link href={nextAction.href} className="primary-button mt-4 sm:w-auto">
-                {nextAction.cta}
+              <Link href={applicationFocus.nextAction.actionHref} className="primary-button mt-4 sm:w-auto">
+                {applicationFocus.nextAction.actionLabel}
                 <ArrowRight className="size-4" />
               </Link>
             </div>
@@ -450,6 +589,9 @@ function TalentWorkspace({
                 {hint}
               </p>
             ))}
+            <p className="text-sm leading-5 text-[#5b6872]">
+              {growthPlan.headline}
+            </p>
           </div>
           <div className="mt-4 flex flex-col gap-2 sm:flex-row">
             <Link href="/talent/profile" className="secondary-button sm:w-auto">

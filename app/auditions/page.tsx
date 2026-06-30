@@ -49,6 +49,7 @@ import {
   SafetyNotice,
   WorkspaceHero,
 } from '@/components/product-ui';
+import { getTalentOpportunityRadar } from '@/app/lib/talent-opportunity-radar-policy';
 
 const getActiveFilters = (
   filters: AuditionDiscoveryFilters
@@ -168,6 +169,20 @@ export default function AuditionsPage() {
   );
   const verifiedCount = auditions.filter((item) => item.recruiterVerified).length;
   const appliedCount = appliedIds.size;
+  const opportunityRadar = useMemo(
+    () =>
+      getTalentOpportunityRadar(profile, auditions, [], {
+        savedAuditionIds: Array.from(savedIds),
+      }),
+    [auditions, profile, savedIds]
+  );
+  const opportunityById = useMemo(
+    () =>
+      new Map(
+        opportunityRadar.opportunities.map((item) => [item.auditionId, item])
+      ),
+    [opportunityRadar]
+  );
 
   const toggleSaved = async (auditionId: string) => {
     const nextSaved = !savedIds.has(auditionId);
@@ -534,6 +549,7 @@ export default function AuditionsPage() {
               audition={audition}
               saved={savedIds.has(audition.id)}
               applied={appliedIds.has(audition.id)}
+              opportunity={opportunityById.get(audition.id)}
               saving={savingId === audition.id}
               recommendationScore={
                 sort === 'RECOMMENDED'

@@ -29,6 +29,8 @@ the operator checklist and known limitations.
 - Talent and recruiter profile forms
 - Talent profile completeness scoring and optional verification
 - Talent Passport and explainable Role Readiness signals for auditions
+- Talent Opportunity Radar and Career Command Center for profile growth,
+  safer opportunity review, application focus, and next actions
 - Talent Share Kit and Public Casting Passport for privacy-safe external
   sharing
 - Talent profile photo, portfolio images, and external showreel links
@@ -74,7 +76,9 @@ for the recruiter source transparency pass and
 [TALENT_SHARE_KIT_PUBLIC_CASTING_PASSPORT_REPORT.md](TALENT_SHARE_KIT_PUBLIC_CASTING_PASSPORT_REPORT.md)
 for the public Talent sharing pass. See
 [RECRUITER_CASTING_SLATE_DECISION_ROOM_REPORT.md](RECRUITER_CASTING_SLATE_DECISION_ROOM_REPORT.md)
-for the recruiter decision-room pass.
+for the recruiter decision-room pass and
+[TALENT_OPPORTUNITY_RADAR_CAREER_COMMAND_CENTER_REPORT.md](TALENT_OPPORTUNITY_RADAR_CAREER_COMMAND_CENTER_REPORT.md)
+for the Talent command-center pass.
 
 ## Founder Demo and Pitch Pack
 

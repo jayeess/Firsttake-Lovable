@@ -52,6 +52,7 @@ import {
   getApplicationProofChecklist,
   type CastingJourneyStep,
 } from '@/app/lib/casting-journey-policy';
+import { getTalentApplicationFocus } from '@/app/lib/talent-opportunity-radar-policy';
 
 type ApplicationView = 'ACTIVE' | 'SHORTLISTED' | 'COMPLETED' | 'ALL';
 
@@ -182,6 +183,13 @@ export default function ApplicationsPage() {
     return selfTapeStatus === 'missing' || selfTapeStatus === 'requested';
   }).length;
   const shareKit = talentProfile ? getTalentShareKit(talentProfile) : null;
+  const applicationFocus = useMemo(
+    () =>
+      getTalentApplicationFocus(applications, {
+        unreadMessageCount: unreadConversationIds.size,
+      }),
+    [applications, unreadConversationIds.size]
+  );
 
   const withdraw = async (application: Application) => {
     if (!window.confirm('Withdraw this application?')) return;
@@ -332,6 +340,34 @@ export default function ApplicationsPage() {
           are recorded updates, not guarantees of work or future casting.
         </SafetyNotice>
       </div>
+
+      <section className="mt-5 rounded-md border border-[#bad7d3] bg-[#edf7f5] p-4 shadow-sm sm:p-5">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <p className="eyebrow">Application Focus</p>
+            <h2 className="mt-1 text-xl font-black text-[#07111f]">
+              {applicationFocus.headline}
+            </h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-[#31524f]">
+              {applicationFocus.nextAction.detail}
+            </p>
+          </div>
+          <div className="grid gap-2 sm:grid-cols-4 lg:min-w-[420px]">
+            <FocusMetric label="Active" value={applicationFocus.activeCount} />
+            <FocusMetric label="Callback" value={applicationFocus.callbackCount} />
+            <FocusMetric label="Self-tape" value={applicationFocus.selfTapeMissingCount} />
+            <FocusMetric label="Messages" value={applicationFocus.unreadMessageCount} />
+          </div>
+        </div>
+        <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+          <Link href={applicationFocus.nextAction.actionHref} className="primary-button sm:w-auto">
+            {applicationFocus.nextAction.actionLabel}
+          </Link>
+          <Link href="/notifications" className="secondary-button sm:w-auto">
+            Check notifications
+          </Link>
+        </div>
+      </section>
 
       <section className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <MetricCard
@@ -646,6 +682,17 @@ function ApplicationMeta({ label, value }: { label: string; value: string }) {
     <div className="rounded-md border border-[#d8e3e8] bg-[#f7fafb] p-3">
       <p className="text-[10px] font-black uppercase tracking-wide text-[#657176]">{label}</p>
       <p className="mt-1 text-sm font-black text-[#07111f]">{value}</p>
+    </div>
+  );
+}
+
+function FocusMetric({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-md border border-[#cfe2df] bg-white/90 p-3">
+      <p className="text-[10px] font-black uppercase tracking-wide text-[#657176]">
+        {label}
+      </p>
+      <p className="mt-1 text-xl font-black text-[#07111f]">{value}</p>
     </div>
   );
 }

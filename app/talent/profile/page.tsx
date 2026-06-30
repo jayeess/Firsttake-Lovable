@@ -25,6 +25,7 @@ import {
 } from '@/app/lib/talent-trust-policy';
 import { getTalentPassportSummary } from '@/app/lib/role-fit-policy';
 import { getTalentShareKit } from '@/app/lib/talent-share-kit-policy';
+import { getTalentProfileGrowthPlan } from '@/app/lib/talent-opportunity-radar-policy';
 import {
   calculateTalentProfileCompleteness,
   TALENT_VERIFICATION_MINIMUM_SCORE,
@@ -235,6 +236,10 @@ export default function TalentProfilePage() {
   );
   const shareKit = useMemo(
     () => getTalentShareKit(profile, media),
+    [media, profile]
+  );
+  const growthPlan = useMemo(
+    () => getTalentProfileGrowthPlan(profile, media),
     [media, profile]
   );
   const updateMedia = useCallback((items: TalentMedia[]) => setMedia(items), []);
@@ -488,6 +493,52 @@ export default function TalentProfilePage() {
             ]}
           />
         </div>
+
+        <section className="mt-4 rounded-md border border-[#bad7d3] bg-[#edf7f5] p-4 shadow-sm sm:p-5">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <p className="eyebrow">Growth Plan</p>
+              <h2 className="mt-1 text-2xl font-black text-[#07111f]">
+                {growthPlan.headline}
+              </h2>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-[#31524f]">
+                {growthPlan.bandLabel}. Focus on the next visible profile
+                signals that help recruiters understand your fit faster.
+              </p>
+            </div>
+            <span className="inline-flex w-fit rounded-md border border-[#9fc9c4] bg-white/90 px-3 py-2 text-sm font-black text-[#006b60]">
+              {growthPlan.score}% career-ready
+            </span>
+          </div>
+          {growthPlan.missingFields.length > 0 && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {growthPlan.missingFields.slice(0, 6).map((field) => (
+                <span
+                  key={field}
+                  className="rounded-md border border-[#cfe2df] bg-white/90 px-2.5 py-1 text-xs font-black text-[#006b60]"
+                >
+                  {field}
+                </span>
+              ))}
+            </div>
+          )}
+          <div className="mt-4 grid gap-3 md:grid-cols-3">
+            {growthPlan.actions.slice(0, 3).map((action) => (
+              <Link
+                key={action.title}
+                href={action.actionHref}
+                className="rounded-md border border-[#cfe2df] bg-white/90 p-3 transition hover:border-[#008ca6]"
+              >
+                <p className="text-sm font-black text-[#07111f]">
+                  {action.title}
+                </p>
+                <p className="mt-1 text-xs font-bold leading-5 text-[#526168]">
+                  {action.detail}
+                </p>
+              </Link>
+            ))}
+          </div>
+        </section>
 
         <PrivacyNote title="What is visible where" className="mt-4">
           Recruiters see profile details when you apply. Public profile settings

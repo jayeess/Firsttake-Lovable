@@ -1,5 +1,34 @@
 # Full App UX Polish Report
 
+## Talent Opportunity Radar and Career Command Center - June 30, 2026
+
+**Goal:** Make the Talent side feel like a premium, action-oriented career
+workspace while keeping opportunity guidance transparent, rule-based,
+non-automated, and safety-first.
+
+Key improvements:
+
+- `app/lib/talent-opportunity-radar-policy.ts` centralizes Talent command-center
+  summaries, next actions, opportunity buckets, profile growth plans,
+  application focus, safety focus, and empty states.
+- `/dashboard` now includes a Career Command Center with metrics, today's next
+  actions, an Opportunity Radar preview, profile/passport readiness, application
+  focus, saved audition continuity, messages, and safety links.
+- `/auditions` and `components/audition-card.tsx` now show lightweight cues such
+  as Profile-ready, Worth reviewing, Prepare first, and Needs safety review.
+- `/applications` now has an Application Focus panel for active applications,
+  callback/final activity, self-tape needs, and unread messages.
+- `/talent/profile` now includes a Growth Plan that explains what improves
+  Talent Passport and Public Casting Passport readiness using existing profile
+  and media fields.
+- `tests/talent-opportunity-radar-policy.test.mts` covers strong profiles,
+  incomplete profiles, applied audition grouping, weak briefs, unclear sources,
+  self-tape preparation, application focus, safety focus, command-center
+  metrics, empty states, and safe non-automation language.
+
+See `TALENT_OPPORTUNITY_RADAR_CAREER_COMMAND_CENTER_REPORT.md` for the full
+change record.
+
 ## Recruiter Casting Slate and Decision Room - June 30, 2026
 
 **Goal:** Make recruiter applicant review feel like a professional casting

@@ -1,5 +1,28 @@
 # Changelog
 
+### Talent Opportunity Radar and Career Command Center
+
+- Added `app/lib/talent-opportunity-radar-policy.ts`, a pure, rule-based helper
+  for Talent opportunity guidance, command-center summaries, next actions,
+  opportunity buckets, profile growth plans, application focus, safety focus,
+  and empty states.
+- Upgraded `/dashboard` for Talent into a Career Command Center with metrics,
+  next actions, Opportunity Radar preview, application focus, profile/passport
+  readiness, saved audition continuity, messages, and safety links.
+- Updated `/auditions` and `components/audition-card.tsx` with lightweight
+  Talent-facing cues such as Profile-ready, Worth reviewing, Prepare first,
+  and Needs safety review.
+- Added a compact Application Focus section to `/applications` for active
+  applications, callback/final activity, self-tape needs, and unread messages.
+- Added a Growth Plan section to `/talent/profile` using existing profile and
+  media fields to explain what improves Talent Passport and Public Casting
+  Passport readiness.
+- Added `tests/talent-opportunity-radar-policy.test.mts`.
+- Created `TALENT_OPPORTUNITY_RADAR_CAREER_COMMAND_CENTER_REPORT.md`.
+- No Firestore rules, schemas, APIs, auth permissions, payment, AI, calendar,
+  video calls, direct video upload, self-tape video upload, fake data,
+  automatic ranking, or guaranteed casting claims were added.
+
 ### Recruiter Casting Slate and Decision Room
 
 - Added `app/lib/casting-slate-policy.ts`, a pure, rule-based helper for

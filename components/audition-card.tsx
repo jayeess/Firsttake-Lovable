@@ -9,6 +9,7 @@ import {
 } from '@/app/lib/types';
 import { getCastingBriefQuality } from '@/app/lib/casting-brief-quality-policy';
 import { getRecruiterTrustPassport } from '@/app/lib/recruiter-trust-passport-policy';
+import type { TalentOpportunityItem } from '@/app/lib/talent-opportunity-radar-policy';
 import { StatusBadge } from './status-badge';
 import { VerifiedBadge } from './verified-badge';
 
@@ -17,6 +18,7 @@ export function AuditionCard({
   saved = false,
   saving = false,
   applied = false,
+  opportunity,
   recommendationScore,
   onToggleSaved,
 }: {
@@ -24,6 +26,7 @@ export function AuditionCard({
   saved?: boolean;
   saving?: boolean;
   applied?: boolean;
+  opportunity?: TalentOpportunityItem;
   recommendationScore?: number;
   onToggleSaved?: () => void;
 }) {
@@ -61,7 +64,7 @@ export function AuditionCard({
           <div className="flex shrink-0 items-center gap-2">
             {recommendationScore !== undefined && recommendationScore > 0 && (
               <span className="rounded-md border border-[#e0c364] bg-[#fdf9eb] px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-[#7a5500]">
-                {recommendationScore}% match
+                {recommendationScore}% readiness
               </span>
             )}
             {applied && (
@@ -152,6 +155,18 @@ export function AuditionCard({
             Nata Connect.
           </p>
         )}
+        {opportunity && !applied && (
+          <div
+            className={`mt-3 rounded-md border px-3 py-2 text-xs font-bold leading-5 ${opportunityCueClass(
+              opportunity.band
+            )}`}
+          >
+            <p className="font-black uppercase tracking-wide">
+              {opportunity.bandLabel}
+            </p>
+            <p className="mt-1">{opportunity.headline}</p>
+          </div>
+        )}
 
         {/* Footer: applicant count + deadline + CTA */}
         <div className="mt-4 flex flex-col gap-3 border-t border-[#e8ecef] pt-4 sm:flex-row sm:items-center sm:justify-between">
@@ -193,6 +208,19 @@ function Chip({
       {children}
     </span>
   );
+}
+
+function opportunityCueClass(band: TalentOpportunityItem['band']) {
+  if (band === 'profile_ready') {
+    return 'border-[#9fc9c4] bg-[#edf7f5] text-[#006b60]';
+  }
+  if (band === 'needs_safety_review') {
+    return 'border-amber-200 bg-amber-50 text-amber-900';
+  }
+  if (band === 'prepare_before_applying') {
+    return 'border-[#e0c364] bg-[#fdf9eb] text-[#7a5500]';
+  }
+  return 'border-[#d5dee3] bg-[#f4f6f8] text-[#4e5e66]';
 }
 
 const WORK_MODE_LABELS = {

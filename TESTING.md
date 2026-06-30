@@ -1,5 +1,35 @@
 # Nata Connect development test cases
 
+## Talent Opportunity Radar and Career Command Center checks
+
+After updating Talent radar, dashboard, profile, or application focus behavior,
+verify:
+
+- [ ] `/dashboard` for Talent shows Career Command Center, next actions,
+  metrics, and Opportunity Radar preview.
+- [ ] Dashboard action links route to `/talent/profile`, `/auditions`,
+  `/applications`, `/messages`, or `/notifications` as appropriate.
+- [ ] `/auditions` cards show profile-ready, worth reviewing, prepare first, or
+  safety review cues without hiding save/apply behavior.
+- [ ] Applied auditions are not presented as fresh opportunities.
+- [ ] `/applications` shows Application Focus with active, callback, self-tape,
+  and messages counts.
+- [ ] `/talent/profile` shows Growth Plan and existing profile save,
+  verification, public profile, and media flows still work.
+- [ ] Required self-tapes remain external link submissions only.
+- [ ] No UI copy claims AI, automatic ranking, best roles, guaranteed casting,
+  guaranteed jobs, payments, calendar scheduling, video calls, or upload-based
+  self-tapes.
+
+Run:
+
+```powershell
+npm run lint
+npm test
+npm run build
+git diff --check
+```
+
 ## Recruiter Casting Slate and Decision Room checks
 
 After updating recruiter applicant review or casting slate behavior, verify:

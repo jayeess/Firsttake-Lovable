@@ -3,13 +3,14 @@
 **Telugu name:** నట కనెక్ట్  
 **Document date:** June 29, 2026
 **Repository:** `jayeess/Firsttake-Lovable`  
-**Current stage:** Recruiter Casting Slate and Decision Room added; product is
-ready for controlled founder-led beta demos with privacy-safe public Talent
-sharing, transparent recruiter source signals, application journey tracking,
-proof receipts, message safety guidance, explainable casting brief quality,
-safety signals, profile readiness, audition readiness guidance, recruiter
-decision-room signals, slide outline, slide copy, speaker notes, route order,
-screenshot checklist, onboarding playbook, and audience talking points
+**Current stage:** Talent Opportunity Radar and Career Command Center added;
+product is ready for controlled founder-led beta demos with privacy-safe public
+Talent sharing, transparent recruiter source signals, application journey
+tracking, proof receipts, message safety guidance, explainable casting brief
+quality, safety signals, profile readiness, audition readiness guidance,
+Talent command-center guidance, recruiter decision-room signals, slide outline,
+slide copy, speaker notes, route order, screenshot checklist, onboarding
+playbook, and audience talking points
 
 ## 1. Product Summary
 
@@ -40,7 +41,7 @@ Nata Connect is no longer a static demonstration. It is a working Firebase-backe
 | --- | --- | --- |
 | Brand and visual identity | Strong | Distinctive and market-relevant |
 | Talent onboarding | Working | Suitable for MVP testing |
-| Talent Passport and role readiness | Implemented | Explainable guidance only; no AI matching, ranking, or guarantees |
+| Talent Passport and role readiness | Upgraded | Explainable Talent Opportunity Radar and Growth Plan guidance; no AI matching, ranking, or guarantees |
 | Talent Share Kit and Public Casting Passport | Implemented | Public-profile only, privacy-safe, guidance-first sharing layer |
 | Recruiter onboarding | Working with demo approval | Needs real administration |
 | Recruiter Trust Passport and source transparency | Implemented | Guidance-only trust context; no private evidence exposure, AI, legal certification, or casting guarantees |
@@ -77,6 +78,17 @@ Nata Connect is no longer a static demonstration. It is a working Firebase-backe
 | Launch demo readiness | Improved | Empty states, first-time guidance, and honest roadmap messaging make the app understandable even before dense live marketplace activity |
 
 ### Latest product-design position
+
+The June 30, 2026 Talent Opportunity Radar and Career Command Center pass made
+the Talent experience more action-oriented. `/dashboard` now summarizes next
+actions, profile/passport readiness, opportunity cues, application attention,
+saved auditions, messages, and safety reminders. `/auditions` cards show
+lightweight profile-ready, worth reviewing, prepare-first, and safety-review
+cues. `/applications` includes Application Focus, and `/talent/profile` includes
+a Growth Plan for Talent Passport and Public Casting Passport improvement. The
+feature is transparent, rule-based, guidance-only, and does not rank auditions,
+claim AI, automate applications, guarantee work, add payments, or add video
+upload.
 
 The June 30, 2026 Recruiter Casting Slate and Decision Room pass made recruiter
 applicant review more operational and easier to understand. Recruiters now see
