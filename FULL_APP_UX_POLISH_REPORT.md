@@ -1,5 +1,33 @@
 # Full App UX Polish Report
 
+## Recruiter Casting Slate and Decision Room - June 30, 2026
+
+**Goal:** Make recruiter applicant review feel like a professional casting
+decision workspace while keeping all outcomes human-led and using only existing
+application data.
+
+Key improvements:
+
+- `app/lib/casting-slate-policy.ts` centralizes slate grouping, counts,
+  decision readiness, review checklist, stage-safe actions, empty states, and
+  safety notes.
+- `/recruiter/auditions/[id]/applicants` now has a Casting Slate overview with
+  review-ready and self-tape pending context above the existing pipeline tabs.
+- Expanded applicant cards now include a Casting Decision Room panel showing
+  stage, profile completeness, portfolio context, self-tape status, private
+  review note signal, checklist, next actions, and human-decision reminder.
+- `/recruiter/auditions` now calls the applicant review surface a decision
+  room and adds lightweight slate context without loading unavailable stage
+  counts.
+- `/applications` now explains that casting stages are progress signals and not
+  guaranteed work.
+- `tests/casting-slate-policy.test.mts` covers stage grouping, counts,
+  self-tape cues, closed statuses, checklist output, next actions, empty states,
+  and safe non-automation language.
+
+See `RECRUITER_CASTING_SLATE_DECISION_ROOM_REPORT.md` for the full change
+record.
+
 ## Talent Share Kit and Public Casting Passport - June 30, 2026
 
 **Goal:** Make Talent profiles easier to share professionally while keeping the

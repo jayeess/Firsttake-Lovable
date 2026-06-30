@@ -1,5 +1,28 @@
 # Changelog
 
+### Recruiter Casting Slate and Decision Room
+
+- Added `app/lib/casting-slate-policy.ts`, a pure, rule-based helper for
+  recruiter slate grouping, stage counts, applicant decision readiness,
+  review checklists, next actions, and safety notes.
+- Added a Casting Slate overview to
+  `/recruiter/auditions/[id]/applicants` with review-ready counts,
+  self-tape pending counts, stage-safe next action copy, and safety reminders.
+- Added a Casting Decision Room panel to expanded applicant review using
+  existing application, Talent profile, portfolio, self-tape, note, tag, and
+  rating fields.
+- Updated `/recruiter/auditions` so recruiter-owned briefs clearly route to
+  the decision room without pretending stage counts are available on the list.
+- Added Talent-facing stage clarity copy to `/applications`, explaining that
+  statuses are progress signals and not guaranteed work.
+- Added `tests/casting-slate-policy.test.mts` covering stage grouping,
+  slate counts, self-tape readiness, closed statuses, checklist output, empty
+  states, next actions, and safety language.
+- Created `RECRUITER_CASTING_SLATE_DECISION_ROOM_REPORT.md`.
+- No Firestore rules, schemas, APIs, auth permissions, payment, AI, direct video
+  upload, self-tape video upload, fake data, applicant ranking, or guaranteed
+  casting claims were added.
+
 ### Talent Share Kit and Public Casting Passport
 
 - Added `app/lib/talent-share-kit-policy.ts`, a pure, rule-based helper for

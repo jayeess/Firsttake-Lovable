@@ -197,12 +197,17 @@ export default function RecruiterAuditionsPage() {
                 </p>
               </div>
             </div>
+            <p className="mt-3 rounded-md border border-[#bad7d3] bg-[#edf7f5] p-3 text-xs font-bold leading-5 text-[#31524f]">
+              {audition.applicantCount
+                ? 'Open the decision room to review stages, self-tape cues, private notes, and next actions.'
+                : 'Applicants will appear in the decision room after Talent submits for this role.'}
+            </p>
             <div className="mt-4 grid gap-2 sm:grid-cols-2">
               <Link
                 href={`/recruiter/auditions/${audition.id}/applicants`}
                 className="primary-button"
               >
-                Review applicants
+                Open decision room
               </Link>
               <Link
                 href={`/auditions/${audition.id}`}
@@ -259,13 +264,13 @@ export default function RecruiterAuditionsPage() {
                 <span>Closes {formatDate(audition.deadline)}</span>
                 <span className="text-[#aab5bb]">·</span>
                 <Link
-                  href={`/recruiter/auditions/${audition.id}/applicants`}
-                  className="font-black text-[#008ca6] hover:underline"
-                >
+                href={`/recruiter/auditions/${audition.id}/applicants`}
+                className="font-black text-[#008ca6] hover:underline"
+              >
                   {audition.applicantCount ?? 0}{' '}
                   {audition.applicantCount === 1 ? 'applicant' : 'applicants'}
                 </Link>
-                {quality.missingItems.length > 0 && (
+                  {quality.missingItems.length > 0 && (
                   <>
                     <span className="text-[#aab5bb]">Â·</span>
                     <span>
@@ -274,6 +279,12 @@ export default function RecruiterAuditionsPage() {
                     </span>
                   </>
                 )}
+                <span className="text-[#aab5bb]">-</span>
+                <span>
+                  {audition.applicantCount
+                    ? 'Decision room ready'
+                    : 'Decision room waiting'}
+                </span>
               </div>
             </div>
             <div className="flex shrink-0 gap-2">
@@ -287,7 +298,7 @@ export default function RecruiterAuditionsPage() {
                 href={`/recruiter/auditions/${audition.id}/applicants`}
                 className="primary-button min-h-10 py-2 text-sm sm:w-auto"
               >
-                Review applicants
+                Decision room
               </Link>
             </div>
           </article>

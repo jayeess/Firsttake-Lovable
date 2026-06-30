@@ -44,6 +44,15 @@ import {
   type RoleFitSignalStatus,
   type RoleFitSummary,
 } from '@/app/lib/role-fit-policy';
+import {
+  getCastingDecisionReadiness,
+  getCastingSlateCounts,
+  getCastingSlateNextActions,
+  getCastingSlateReviewChecklist,
+  getCastingSlateSafetyNotes,
+  getCastingSlateSummary,
+  type CastingDecisionSignal,
+} from '@/app/lib/casting-slate-policy';
 import { getTalentShareKit } from '@/app/lib/talent-share-kit-policy';
 import { AppShell } from '@/components/app-shell';
 import { EmptyState, ErrorState, LoadingState } from '@/components/async-state';
@@ -141,6 +150,14 @@ export default function AuditionApplicantsPage() {
   }, [id, reloadKey, router, user]);
 
   const counts = useMemo(() => getPipelineCounts(applicants), [applicants]);
+  const slateSummary = useMemo(
+    () => getCastingSlateSummary(applicants, audition),
+    [applicants, audition]
+  );
+  const slateCounts = useMemo(
+    () => getCastingSlateCounts(applicants, audition),
+    [applicants, audition]
+  );
   const selfTapeSubmittedCount = useMemo(
     () =>
       applicants.filter(({ application }) => {
@@ -307,6 +324,41 @@ export default function AuditionApplicantsPage() {
         <ReviewMetric label="Final round" value={String(counts.FINAL_ROUND)} />
         <ReviewMetric label="Selected" value={String(counts.SELECTED)} />
         <ReviewMetric label="Rejected" value={String(counts.REJECTED)} />
+        <ReviewMetric
+          label="Review-ready"
+          value={String(slateCounts.reviewReady)}
+        />
+        <ReviewMetric
+          label="Self-tape pending"
+          value={String(slateCounts.selfTapeMissing)}
+        />
+      </section>
+
+      <section className="mt-5 rounded-md border border-[#bad7d3] bg-[#edf7f5] p-4 shadow-sm sm:p-5">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <p className="eyebrow">Casting slate</p>
+            <h2 className="mt-1 text-xl font-black text-[#07111f]">
+              {slateSummary.headline}
+            </h2>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-[#31524f]">
+              {slateSummary.detail}
+            </p>
+          </div>
+          <div className="rounded-md border border-[#9fc9c4] bg-white p-3 text-sm font-bold text-[#234b47] lg:max-w-sm">
+            {slateSummary.nextAction}
+          </div>
+        </div>
+        <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+          {getCastingSlateSafetyNotes().map((note) => (
+            <p
+              key={note}
+              className="rounded-md border border-[#cfe2df] bg-white/80 p-3 text-xs font-bold leading-5 text-[#526168]"
+            >
+              {note}
+            </p>
+          ))}
+        </div>
       </section>
 
       <section
@@ -708,6 +760,9 @@ function ApplicantCard({
         })
       : null;
   const shareKit = talent ? getTalentShareKit(talent, media) : null;
+  const decisionReadiness = getCastingDecisionReadiness(applicant, audition);
+  const slateChecklist = getCastingSlateReviewChecklist(applicant, audition);
+  const slateNextActions = getCastingSlateNextActions(applicant, audition);
   const [note, setNote] = useState(
     application.recruiterNote ?? application.recruiterNotes ?? ''
   );
@@ -875,6 +930,12 @@ function ApplicantCard({
               <ReviewSection title="Status timeline">
                 <StatusTimeline application={application} />
               </ReviewSection>
+
+              <CastingDecisionRoomPanel
+                readiness={decisionReadiness}
+                checklist={slateChecklist}
+                nextActions={slateNextActions}
+              />
 
               {roleFit && <RoleFitReviewPanel roleFit={roleFit} />}
 
@@ -1235,6 +1296,117 @@ function ReviewSection({
   );
 }
 
+function CastingDecisionRoomPanel({
+  readiness,
+  checklist,
+  nextActions,
+}: {
+  readiness: ReturnType<typeof getCastingDecisionReadiness>;
+  checklist: ReturnType<typeof getCastingSlateReviewChecklist>;
+  nextActions: string[];
+}) {
+  return (
+    <ReviewSection title="Casting decision room">
+      <div className="rounded-md border border-[#d7e0e4] bg-white p-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <p className="text-sm font-bold text-[#657176]">
+              Human-led review status for this applicant.
+            </p>
+            <h3 className="mt-1 text-xl font-black text-[#07111f]">
+              {readiness.headline}
+            </h3>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-[#4f5963]">
+              {readiness.summary}
+            </p>
+          </div>
+          <span
+            className={`inline-flex w-fit min-h-9 items-center rounded-md border px-3 text-xs font-black uppercase ${decisionBandClass(
+              readiness.band
+            )}`}
+          >
+            {readiness.bandLabel}
+          </span>
+        </div>
+
+        <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+          {readiness.signals.map((signal) => (
+            <CastingSignalPill key={signal.label} signal={signal} />
+          ))}
+        </div>
+
+        <div className="mt-4 rounded-md border border-[#e0c364] bg-[#fffbee] p-3">
+          <p className="text-xs font-black uppercase text-[#8a6400]">
+            Suggested next action
+          </p>
+          <p className="mt-1 text-sm font-bold leading-6 text-[#4f5963]">
+            {readiness.nextAction}
+          </p>
+        </div>
+
+        <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(260px,0.75fr)]">
+          <div>
+            <p className="text-xs font-black uppercase text-[#008ca6]">
+              Review checklist
+            </p>
+            <div className="mt-2 space-y-2">
+              {checklist.map((item) => (
+                <div
+                  key={item.label}
+                  className="rounded-md border border-[#dce3e7] bg-[#f7fafb] p-3"
+                >
+                  <div className="flex items-start gap-2">
+                    <span
+                      aria-hidden="true"
+                      className={`mt-0.5 inline-flex size-4 shrink-0 items-center justify-center rounded-full border text-[10px] font-black ${
+                        item.complete
+                          ? 'border-[#008ca6] bg-[#008ca6] text-white'
+                          : 'border-[#aab5bb] bg-white text-[#657176]'
+                      }`}
+                    >
+                      {item.complete ? 'OK' : '-'}
+                    </span>
+                    <div>
+                      <p className="text-sm font-black text-[#07111f]">
+                        {item.label}
+                      </p>
+                      <p className="mt-0.5 text-xs font-bold leading-5 text-[#657176]">
+                        {item.detail}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div>
+            <p className="text-xs font-black uppercase text-[#008ca6]">
+              Stage-safe actions
+            </p>
+            <ol className="mt-2 space-y-2">
+              {nextActions.map((action, index) => (
+                <li
+                  key={action}
+                  className="rounded-md border border-[#dce3e7] bg-[#f7fafb] p-3 text-sm font-bold leading-6 text-[#4f5963]"
+                >
+                  <span className="mr-2 text-[#008ca6]">
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
+                  {action}
+                </li>
+              ))}
+            </ol>
+          </div>
+        </div>
+
+        <p className="mt-4 rounded-md border border-[#cbd6db] bg-[#f6f9fa] p-3 text-xs font-bold leading-5 text-[#526168]">
+          {readiness.safetyNote}
+        </p>
+      </div>
+    </ReviewSection>
+  );
+}
+
 function ApplicantDetail({ label, value }: { label: string; value: string }) {
   return (
     <div>
@@ -1242,6 +1414,36 @@ function ApplicantDetail({ label, value }: { label: string; value: string }) {
       <p className="mt-1 font-bold capitalize">{value}</p>
     </div>
   );
+}
+
+function CastingSignalPill({ signal }: { signal: CastingDecisionSignal }) {
+  const classes =
+    signal.tone === 'good'
+      ? 'border-[#bad7d3] bg-[#edf7f5] text-[#006b60]'
+      : signal.tone === 'attention'
+        ? 'border-amber-200 bg-amber-50 text-amber-900'
+        : 'border-[#dce3e7] bg-[#f7fafb] text-[#526168]';
+
+  return (
+    <div className={`rounded-md border p-3 ${classes}`}>
+      <p className="text-[10px] font-black uppercase tracking-wide">
+        {signal.label}
+      </p>
+      <p className="mt-1 text-sm font-black">{signal.value}</p>
+    </div>
+  );
+}
+
+function decisionBandClass(
+  band: ReturnType<typeof getCastingDecisionReadiness>['band']
+) {
+  if (band === 'review_ready' || band === 'decision_stage') {
+    return 'border-[#bad7d3] bg-[#edf7f5] text-[#006b60]';
+  }
+  if (band === 'needs_self_tape' || band === 'needs_profile_context') {
+    return 'border-amber-200 bg-amber-50 text-amber-900';
+  }
+  return 'border-[#dce3e7] bg-[#f7fafb] text-[#526168]';
 }
 
 function StatusTimeline({ application }: { application: AuditionApplicant['application'] }) {

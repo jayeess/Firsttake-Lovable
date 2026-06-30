@@ -3,12 +3,12 @@
 **Telugu name:** నట కనెక్ట్  
 **Document date:** June 29, 2026
 **Repository:** `jayeess/Firsttake-Lovable`  
-**Current stage:** Talent Share Kit and Public Casting Passport added; product
-is ready for controlled founder-led beta demos with privacy-safe public Talent
+**Current stage:** Recruiter Casting Slate and Decision Room added; product is
+ready for controlled founder-led beta demos with privacy-safe public Talent
 sharing, transparent recruiter source signals, application journey tracking,
 proof receipts, message safety guidance, explainable casting brief quality,
 safety signals, profile readiness, audition readiness guidance, recruiter
-review signals, slide outline, slide copy, speaker notes, route order,
+decision-room signals, slide outline, slide copy, speaker notes, route order,
 screenshot checklist, onboarding playbook, and audience talking points
 
 ## 1. Product Summary
@@ -47,7 +47,7 @@ Nata Connect is no longer a static demonstration. It is a working Firebase-backe
 | Audition creation | Working | Core fields and draft/publish states exist |
 | Audition discovery | Working | Search and filtering exist |
 | Applications | Working | Duplicate applications are prevented |
-| Recruiter applicant review | Working | Viewed, shortlisted, and rejected states exist |
+| Recruiter applicant review | Upgraded | Casting Slate and Decision Room organize existing statuses, self-tape cues, notes, and checklist guidance without ranking or automation |
 | Role separation | Working | Talent and recruiter routes are guarded |
 | Authentication | Working, recently improved | Tab-scoped sessions support different accounts |
 | Security rules | MVP-level | Good role foundations, requires production review |
@@ -77,6 +77,18 @@ Nata Connect is no longer a static demonstration. It is a working Firebase-backe
 | Launch demo readiness | Improved | Empty states, first-time guidance, and honest roadmap messaging make the app understandable even before dense live marketplace activity |
 
 ### Latest product-design position
+
+The June 30, 2026 Recruiter Casting Slate and Decision Room pass made recruiter
+applicant review more operational and easier to understand. Recruiters now see
+a slate overview on `/recruiter/auditions/[id]/applicants`, plus an expanded
+decision-room panel per applicant with stage, profile completeness, portfolio
+context, self-tape state, private review note signal, review checklist, and
+stage-safe next actions. `/recruiter/auditions` now routes briefs into the
+decision room, while `/applications` explains to Talent that casting statuses
+are progress signals and not guaranteed work. The pass uses existing
+application, Talent profile, portfolio, and audition fields only. It does not
+rank applicants, automate decisions, claim AI, add payments, or add direct
+video upload.
 
 The June 30, 2026 Talent Share Kit and Public Casting Passport pass made
 Talent profiles more shareable and marketable without exposing private data.

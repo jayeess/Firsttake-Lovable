@@ -36,6 +36,8 @@ the operator checklist and known limitations.
   snapshots, safe slugs, selected public media, and verified badges
 - Recruiter-facing featured media and portfolio previews
 - Recruiter audition creation and applicant review
+- Recruiter Casting Slate and Decision Room for stage grouping, self-tape
+  review cues, private-note readiness, and human-led next actions
 - Casting brief quality and safety cues for Recruiter, Talent, and Admin views
 - Recruiter Trust Passport and source transparency cues for audition cards,
   audition detail, recruiter readiness, and Admin review
@@ -70,7 +72,9 @@ product inventory and roadmap. See
 [RECRUITER_TRUST_PASSPORT_SOURCE_TRANSPARENCY_REPORT.md](RECRUITER_TRUST_PASSPORT_SOURCE_TRANSPARENCY_REPORT.md)
 for the recruiter source transparency pass and
 [TALENT_SHARE_KIT_PUBLIC_CASTING_PASSPORT_REPORT.md](TALENT_SHARE_KIT_PUBLIC_CASTING_PASSPORT_REPORT.md)
-for the public Talent sharing pass.
+for the public Talent sharing pass. See
+[RECRUITER_CASTING_SLATE_DECISION_ROOM_REPORT.md](RECRUITER_CASTING_SLATE_DECISION_ROOM_REPORT.md)
+for the recruiter decision-room pass.
 
 ## Founder Demo and Pitch Pack
 

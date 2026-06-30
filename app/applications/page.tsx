@@ -325,6 +325,14 @@ export default function ApplicationsPage() {
         </section>
       )}
 
+      <div className="mt-5">
+        <SafetyNotice title="Casting stages are progress signals">
+          Recruiter statuses show where your application sits in their review
+          workflow. Shortlist, callback, final round, selected, and not selected
+          are recorded updates, not guarantees of work or future casting.
+        </SafetyNotice>
+      </div>
+
       <section className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <MetricCard
           label="Active"

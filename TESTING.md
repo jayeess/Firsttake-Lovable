@@ -1,5 +1,34 @@
 # Nata Connect development test cases
 
+## Recruiter Casting Slate and Decision Room checks
+
+After updating recruiter applicant review or casting slate behavior, verify:
+
+- [ ] `/recruiter/auditions` uses "decision room" entry points for recruiter
+  casting briefs.
+- [ ] `/recruiter/auditions/[id]/applicants` shows a Casting Slate overview
+  with total, review-ready, and self-tape pending context.
+- [ ] Applicant stage tabs still filter the existing pipeline correctly.
+- [ ] Expanded applicant cards show the Casting Decision Room panel.
+- [ ] Missing required self-tapes produce an external-link reminder only.
+- [ ] Selected, rejected, and withdrawn applications show closed guidance
+  without promising work.
+- [ ] Private notes, internal tags, ratings, Talent-visible notes, and message
+  actions still use the existing save/update behavior.
+- [ ] `/applications` explains that casting stages are progress signals, not
+  guaranteed work or guaranteed jobs.
+- [ ] No UI copy claims AI, automatic shortlisting, applicant ranking, automatic
+  selection, direct video upload, payment, or guaranteed casting.
+
+Run:
+
+```powershell
+npm run lint
+npm test
+npm run build
+git diff --check
+```
+
 ## Talent Share Kit and Public Casting Passport checks
 
 After updating the Talent Share Kit or public profile behavior, verify:
