@@ -123,6 +123,7 @@ export default function ApplicationsPage() {
     'ALL'
   );
   const [error, setError] = useState('');
+  const [applicationsWarning, setApplicationsWarning] = useState('');
   const [loading, setLoading] = useState(true);
   const [reloadKey, setReloadKey] = useState(0);
   const [withdrawingId, setWithdrawingId] = useState('');
@@ -139,7 +140,12 @@ export default function ApplicationsPage() {
     }
 
     void Promise.all([
-      getTalentApplications(user.uid),
+      getTalentApplications(user.uid).catch(() => {
+        setApplicationsWarning(
+          'Some application details could not be refreshed. Your saved application records are still protected. Try again, or check back after a refresh.'
+        );
+        return [] as Application[];
+      }),
       getTalentProfile(user.uid).catch(() => null),
       getConversations().catch(() => ({ conversations: [] })),
     ])
@@ -479,13 +485,31 @@ export default function ApplicationsPage() {
       {error && (
         <ErrorState
           title="Applications could not be loaded"
-          message="We could not load this section. Try refreshing the page."
+          message="Some application details could not be refreshed. Your saved application records are still protected. Try again, or check back after a refresh."
           onRetry={() => {
             setLoading(true);
             setError('');
+            setApplicationsWarning('');
             setReloadKey((current) => current + 1);
           }}
         />
+      )}
+
+      {!error && applicationsWarning && (
+        <div className="mt-5 rounded-md border border-amber-200 bg-amber-50 p-4">
+          <p className="text-sm font-bold text-amber-800">{applicationsWarning}</p>
+          <button
+            type="button"
+            className="mt-2 text-sm font-bold text-amber-700 underline"
+            onClick={() => {
+              setLoading(true);
+              setApplicationsWarning('');
+              setReloadKey((current) => current + 1);
+            }}
+          >
+            Retry
+          </button>
+        </div>
       )}
 
       <div className="mt-6 space-y-4">

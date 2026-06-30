@@ -210,7 +210,7 @@ export default function TalentProfilePage() {
     if (!user) return;
     void Promise.all([
       getTalentProfile(user.uid),
-      getTalentVerification(user.uid),
+      getTalentVerification(user.uid).catch(() => null),
       getTalentMedia(user.uid).catch(() => []),
     ])
       .then(([data, verificationData, mediaData]) => {

@@ -66,8 +66,8 @@ export default function RecruiterVerificationPage() {
   useEffect(() => {
     if (!user) return;
     void Promise.all([
-      getRecruiterProfile(user.uid),
-      getRecruiterVerification(user.uid),
+      getRecruiterProfile(user.uid).catch(() => null),
+      getRecruiterVerification(user.uid).catch(() => null),
     ])
       .then(([profile, existing]) => {
         setVerification(existing);
