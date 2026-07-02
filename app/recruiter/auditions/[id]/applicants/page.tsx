@@ -1429,6 +1429,7 @@ function TalentPoolPanel({
         status: validated.status,
         tags: validated.tags,
         privateNote: validated.privateNote,
+        existingCreatedAt: entry?.createdAt,
       });
       setEntry(savedEntry);
       setPoolTags(savedEntry.tags.join(', '));

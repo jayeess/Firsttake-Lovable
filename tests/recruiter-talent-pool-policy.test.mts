@@ -24,6 +24,21 @@ test('normalizes and dedupes safe Talent Pool tags', () => {
   );
 });
 
+test('validates live safe Talent Pool save input', () => {
+  assert.deepEqual(
+    validateTalentPoolEntryInput({
+      status: 'SAVED',
+      tags: 'Callback potential',
+      privateNote: 'Good timing.',
+    }),
+    {
+      status: 'SAVED',
+      tags: ['Callback potential'],
+      privateNote: 'Good timing.',
+    }
+  );
+});
+
 test('enforces tag count and tag length limits', () => {
   assert.throws(
     () => normalizeTalentPoolTags(Array.from({ length: 21 }, (_, index) => `pool-${index}`)),

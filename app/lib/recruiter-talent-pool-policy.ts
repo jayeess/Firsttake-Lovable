@@ -151,15 +151,19 @@ export const getTalentPoolSaveErrorMessage = (error: unknown) => {
   const message = error instanceof Error ? error.message : String(error ?? '');
   const lowerMessage = message.toLocaleLowerCase();
 
+  if (lowerMessage.includes('missing talent or recruiter context')) {
+    return 'Missing Talent or recruiter context. Refresh and try again.';
+  }
+
   if (lowerMessage.includes('permission') || lowerMessage.includes('missing or insufficient')) {
-    return 'We could not save this Talent Pool entry for this recruiter account. Refresh, sign in again, and try once more.';
+    return 'Permission denied while saving Talent Pool entry.';
   }
 
   if (lowerMessage.includes('offline') && lowerMessage.includes('contact')) {
     return 'Remove off-platform contact instructions before saving this Talent Pool note.';
   }
 
-  return message || 'We could not save this entry. Please refresh and try again.';
+  return message || 'Could not save Talent Pool entry. Please refresh and try again.';
 };
 
 export const getTalentPoolStatusLabel = (status: TalentPoolStatus) => {

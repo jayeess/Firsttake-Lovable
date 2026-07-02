@@ -91,6 +91,10 @@ service cloud.firestore {
         ]);
     }
 
+    function ownsTalentPoolEntryId(entryId) {
+      return signedIn() && entryId.matches(request.auth.uid + '__.*');
+    }
+
     match /users/{uid} {
       allow create: if ownsUser(uid)
         && request.resource.data.userType in ['TALENT', 'RECRUITER'];
@@ -247,7 +251,10 @@ service cloud.firestore {
     }
 
     match /recruiterTalentPool/{entryId} {
-      allow read: if isRecruiter()
+      allow get: if isRecruiter()
+        && (ownsTalentPoolEntryId(entryId)
+          || resource.data.recruiterId == request.auth.uid);
+      allow list: if isRecruiter()
         && resource.data.recruiterId == request.auth.uid;
       allow create: if isRecruiter()
         && request.resource.data.recruiterId == request.auth.uid
@@ -258,12 +265,7 @@ service cloud.firestore {
         && request.resource.data.recruiterId == resource.data.recruiterId
         && request.resource.data.talentId == resource.data.talentId
         && request.resource.data.id == resource.data.id
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-          'status',
-          'tags',
-          'privateNote',
-          'updatedAt'
-        ])
+        && entryId == request.resource.data.id
         && validTalentPoolEntry(request.resource.data);
       allow delete: if isRecruiter()
         && resource.data.recruiterId == request.auth.uid;

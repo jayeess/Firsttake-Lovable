@@ -291,6 +291,40 @@ test('recruiter can manage their own private Talent Pool entry', async () => {
   await assertSucceeds(deleteDoc(doc(db, path)));
 });
 
+test('recruiter can create and replace exact safe Talent Pool entry from Decision Room', async () => {
+  const db = environment.authenticatedContext('recruiter-a').firestore();
+  const path = 'recruiterTalentPool/recruiter-a__talent-a';
+  const ref = doc(db, path);
+
+  await assertSucceeds(getDoc(ref));
+  await assertSucceeds(
+    setDoc(
+      ref,
+      talentPoolEntry('recruiter-a', 'talent-a', {
+        status: 'SAVED',
+        tags: ['Callback potential'],
+        privateNote: 'Good timing.',
+        sourceApplicationId: 'talent-a',
+        sourceAuditionId: 'pipeline-a',
+        sourceAuditionTitleSnapshot: 'E2E_TEST Casting Call',
+      })
+    )
+  );
+  await assertSucceeds(
+    setDoc(
+      ref,
+      talentPoolEntry('recruiter-a', 'talent-a', {
+        status: 'WATCHLIST',
+        tags: ['Callback potential', 'Telugu speaker'],
+        privateNote: 'Good timing. Revisit for weekend roles.',
+        sourceApplicationId: 'talent-a',
+        sourceAuditionId: 'pipeline-a',
+        sourceAuditionTitleSnapshot: 'E2E_TEST Casting Call',
+      })
+    )
+  );
+});
+
 test('Talent Pool entries are private to the owning recruiter', async () => {
   await environment.withSecurityRulesDisabled(async (context) => {
     await setDoc(

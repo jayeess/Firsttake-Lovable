@@ -760,6 +760,7 @@ export type SaveTalentToPoolInput = {
   status: TalentPoolStatus;
   tags?: string[] | string;
   privateNote?: string;
+  existingCreatedAt?: RecruiterTalentPoolEntry['createdAt'];
 };
 
 export type UpdateTalentPoolEntryInput = {
@@ -786,12 +787,13 @@ export const saveTalentToPool = async (
 ): Promise<RecruiterTalentPoolEntry> => {
   try {
     const user = getFirebaseAuth().currentUser;
-    if (!user) throw new Error('Please sign in again.');
+    if (!user || !user.uid || !input.talentId || !input.talentNameSnapshot.trim()) {
+      throw new Error('Missing Talent or recruiter context. Refresh and try again.');
+    }
 
     const validated = validateTalentPoolEntryInput(input);
     const entryId = getRecruiterTalentPoolEntryId(user.uid, input.talentId);
     const entryRef = doc(getFirestoreDb(), 'recruiterTalentPool', entryId);
-    const existing = await getDoc(entryRef);
     const now = new Date();
     const entry: RecruiterTalentPoolEntry = {
       id: entryId,
@@ -816,16 +818,23 @@ export const saveTalentToPool = async (
       status: validated.status,
       tags: validated.tags,
       privateNote: validated.privateNote,
-      createdAt: existing.exists()
-        ? ((existing.data().createdAt as RecruiterTalentPoolEntry['createdAt'] | undefined) ?? now)
-        : now,
+      createdAt: input.existingCreatedAt ?? now,
       updatedAt: now,
     };
 
     await setDoc(entryRef, entry);
     return entry;
   } catch (error: unknown) {
-    throw new Error(getErrorMessage(error, 'Failed to save Talent to pool'));
+    const code =
+      typeof error === 'object' && error !== null && 'code' in error
+        ? String((error as { code?: unknown }).code)
+        : '';
+    const message = error instanceof Error ? error.message : '';
+    if (code.includes('permission-denied') || message.toLowerCase().includes('permission')) {
+      throw new Error('Permission denied while saving Talent Pool entry.');
+    }
+    if (message) throw new Error(message);
+    throw new Error('Could not save Talent Pool entry. Please refresh and try again.');
   }
 };
 

@@ -1,5 +1,23 @@
 # Changelog
 
+### Talent Pool Write Failure Fix
+
+- Fixed the remaining Private Talent Pool save failure in the recruiter
+  applicant Decision Room.
+- Removed the blocked pre-write `getDoc` existence check from
+  `saveTalentToPool`; first-time saves now write the deterministic entry
+  directly.
+- Preserved existing `createdAt` for updates when the panel has already loaded
+  an existing Talent Pool entry.
+- Improved Talent Pool save error categories for missing context, permission
+  denial, validation, and unknown save failures.
+- Updated Firestore rules so recruiters can safely check their own
+  deterministic Talent Pool entry path and replace their own complete valid
+  private entry shape.
+- Added unit and emulator coverage for the exact safe live case:
+  `Callback potential` plus `Good timing.`.
+- Created `TALENT_POOL_WRITE_FAILURE_FIX_REPORT.md`.
+
 ### Recruiter Review and Talent Pool Save Flow
 
 - Fixed Decision Room private review UX so recruiters get a clear success state

@@ -1,5 +1,31 @@
 # Nata Connect development test cases
 
+## Talent Pool write failure regression checks
+
+After updating Talent Pool save logic or `recruiterTalentPool` rules, verify:
+
+- [ ] Recruiter opens an applicant Decision Room.
+- [ ] Private Talent Pool status is `Saved`.
+- [ ] Tags field contains `Callback potential`.
+- [ ] Private pool note contains `Good timing.`
+- [ ] Save succeeds and shows a success message.
+- [ ] Refreshing the applicant review shows the existing saved state.
+- [ ] `/recruiter/talent-pool` lists the entry.
+- [ ] Updating the same entry succeeds.
+- [ ] Talent cannot read the private Talent Pool entry.
+- [ ] An unrelated recruiter cannot read or write the entry.
+- [ ] Invalid status and oversized note/tag payloads are still rejected.
+
+Run:
+
+```powershell
+npm run lint
+npm test
+npm run build
+npm run emulators:test
+git diff --check
+```
+
 ## Recruiter Review and Talent Pool Save Flow checks
 
 After updating the Decision Room private review form, Talent Pool policy, or
