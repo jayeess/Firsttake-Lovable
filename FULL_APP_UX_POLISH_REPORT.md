@@ -1,5 +1,27 @@
 # Full App UX Polish Report
 
+## Audition Lifecycle Studio - July 2, 2026
+
+**Goal:** Make recruiter audition management feel like a real casting
+operations workflow after the brief is created.
+
+Key improvements:
+
+- `/recruiter/auditions` now exposes lifecycle actions for editing,
+  duplicating, publishing drafts, closing, reopening, and opening the Decision
+  Room.
+- `/recruiter/auditions/[id]/edit` provides a focused brief editor for safe
+  role fields, deadlines, compensation, self-tape settings, and screening
+  questions.
+- `/auditions/[id]` now shows availability guidance and disables application
+  submission when a role is closed, expired, cancelled, removed, or draft-only.
+- Discovery data is filtered through lifecycle policy so expired or inactive
+  roles do not appear as open opportunities.
+- Firestore rules and tests protect applicant counts, moderation fields, and
+  invalid statuses from recruiter-side lifecycle edits.
+
+See `AUDITION_LIFECYCLE_STUDIO_REPORT.md` for the full change record.
+
 ## Recruiter Review and Talent Pool Save Flow - July 2, 2026
 
 **Goal:** Make the recruiter Decision Room save flow feel reliable, clear, and

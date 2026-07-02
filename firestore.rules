@@ -39,6 +39,15 @@ service cloud.firestore {
         == 'approved';
     }
 
+    function validAuditionStatus(status) {
+      return status in [
+        'ACTIVE',
+        'CLOSED',
+        'CANCELLED',
+        'DRAFT'
+      ];
+    }
+
     function validTalentPoolStatus(status) {
       return status in [
         'SAVED',
@@ -519,12 +528,16 @@ service cloud.firestore {
       allow create: if isRecruiter()
         && recruiterApproved(request.auth.uid)
         && request.resource.data.recruiterId == request.auth.uid
+        && validAuditionStatus(request.resource.data.status)
+        && request.resource.data.get('applicantCount', 0) == 0
         && request.resource.data.moderationStatus == 'VISIBLE'
         && request.resource.data.get('screeningQuestions', []).size() <= 8;
       allow update: if isRecruiter()
         && recruiterApproved(request.auth.uid)
+        && resource.data.get('moderationStatus', 'VISIBLE') != 'REMOVED'
         && resource.data.recruiterId == request.auth.uid
         && request.resource.data.recruiterId == resource.data.recruiterId
+        && validAuditionStatus(request.resource.data.status)
         && request.resource.data.get('applicantCount', 0)
           == resource.data.get('applicantCount', 0)
         && request.resource.data.get('moderationStatus', 'VISIBLE')

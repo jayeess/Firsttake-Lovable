@@ -1,16 +1,39 @@
 'use client';
 
 import Link from 'next/link';
-import { BriefcaseBusiness, ClipboardList, FilePenLine, Video } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import {
+  BriefcaseBusiness,
+  ClipboardList,
+  Copy,
+  FilePenLine,
+  type LucideIcon,
+  PenLine,
+  RefreshCcw,
+  Rocket,
+  Square,
+  Video,
+} from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { AppShell } from '@/components/app-shell';
 import { StatusBadge } from '@/components/status-badge';
-import { getRecruiterAuditions } from '@/app/lib/firestore-service';
+import {
+  closeAudition,
+  duplicateAuditionAsDraft,
+  getRecruiterAuditions,
+  publishAuditionDraft,
+  reopenAudition,
+} from '@/app/lib/firestore-service';
 import { formatDate, type Audition } from '@/app/lib/types';
 import { getCastingBriefQuality } from '@/app/lib/casting-brief-quality-policy';
 import { getRecruiterTrustPassport } from '@/app/lib/recruiter-trust-passport-policy';
 import { getAuditionShareReadiness } from '@/app/lib/audition-share-kit-policy';
 import type { ShareReadinessBand } from '@/app/lib/audition-share-kit-policy';
+import {
+  getAuditionLifecycleActions,
+  getAuditionLifecycleBadge,
+  getAuditionLifecycleGuidance,
+} from '@/app/lib/audition-lifecycle-policy';
 import { getErrorMessage } from '@/app/lib/error-utils';
 import { useAuth } from '@/context/auth-context';
 import { EmptyState, ErrorState, LoadingState } from '@/components/async-state';
@@ -23,11 +46,14 @@ import {
 } from '@/components/product-ui';
 
 export default function RecruiterAuditionsPage() {
+  const router = useRouter();
   const { user } = useAuth();
   const [auditions, setAuditions] = useState<Audition[]>([]);
   const [error, setError] = useState('');
+  const [actionError, setActionError] = useState('');
   const [loading, setLoading] = useState(true);
   const [reloadKey, setReloadKey] = useState(0);
+  const [actingId, setActingId] = useState('');
 
   useEffect(() => {
     if (!user) return;
@@ -38,6 +64,36 @@ export default function RecruiterAuditionsPage() {
       )
       .finally(() => setLoading(false));
   }, [reloadKey, user]);
+
+  const runLifecycleAction = async (
+    auditionId: string,
+    action: () => Promise<void>
+  ) => {
+    setActingId(auditionId);
+    setActionError('');
+    try {
+      await action();
+      setReloadKey((current) => current + 1);
+    } catch (err: unknown) {
+      setActionError(getErrorMessage(err, 'The audition could not be updated'));
+    } finally {
+      setActingId('');
+    }
+  };
+
+  const duplicateBrief = async (auditionId: string) => {
+    if (!user) return;
+    setActingId(auditionId);
+    setActionError('');
+    try {
+      const draftId = await duplicateAuditionAsDraft(auditionId, user.uid);
+      router.push(`/recruiter/auditions/${draftId}/edit`);
+    } catch (err: unknown) {
+      setActionError(getErrorMessage(err, 'The audition could not be duplicated'));
+    } finally {
+      setActingId('');
+    }
+  };
 
   const stats = useMemo(
     () => ({
@@ -85,6 +141,16 @@ export default function RecruiterAuditionsPage() {
           onRetry={() => {
             setLoading(true);
             setError('');
+            setReloadKey((current) => current + 1);
+          }}
+        />
+      )}
+      {actionError && (
+        <ErrorState
+          title="The casting brief was not updated"
+          message="We could not complete that action. Try refreshing the page."
+          onRetry={() => {
+            setActionError('');
             setReloadKey((current) => current + 1);
           }}
         />
@@ -151,6 +217,10 @@ export default function RecruiterAuditionsPage() {
           <article key={audition.id} className="surface rounded-md p-4">
             {(() => {
               const quality = getCastingBriefQuality(audition);
+              const lifecycleBadge = getAuditionLifecycleBadge(audition);
+              const lifecycleActions = user
+                ? getAuditionLifecycleActions(audition, user.uid)
+                : null;
               const trustPassport = getRecruiterTrustPassport(null, audition, {
                 briefQuality: quality,
               });
@@ -166,7 +236,7 @@ export default function RecruiterAuditionsPage() {
                   {audition.title}
                 </h2>
               </div>
-              <StatusBadge status={audition.status} />
+              <LifecyclePill badge={lifecycleBadge} />
             </div>
             <div className="mt-3 flex flex-wrap items-center gap-2">
               <BriefQualityPill
@@ -205,11 +275,20 @@ export default function RecruiterAuditionsPage() {
               </div>
             </div>
             <p className="mt-3 rounded-md border border-[#bad7d3] bg-[#edf7f5] p-3 text-xs font-bold leading-5 text-[#31524f]">
+              {getAuditionLifecycleGuidance(audition)}{' '}
               {audition.applicantCount
                 ? 'Open the decision room to review stages, self-tape cues, private notes, and next actions.'
                 : 'Applicants will appear in the decision room after Talent submits for this role.'}
             </p>
             <div className="mt-4 grid gap-2 sm:grid-cols-2">
+              {lifecycleActions?.canEdit && (
+                <Link
+                  href={`/recruiter/auditions/${audition.id}/edit`}
+                  className="secondary-button"
+                >
+                  Edit brief
+                </Link>
+              )}
               <Link
                 href={`/recruiter/auditions/${audition.id}/applicants`}
                 className="primary-button"
@@ -222,6 +301,50 @@ export default function RecruiterAuditionsPage() {
               >
                 View brief
               </Link>
+              {lifecycleActions?.canPublish && (
+                <LifecycleButton
+                  icon={Rocket}
+                  label="Publish draft"
+                  disabled={actingId === audition.id}
+                  onClick={() =>
+                    void runLifecycleAction(audition.id, () =>
+                      publishAuditionDraft(audition.id, user!.uid)
+                    )
+                  }
+                />
+              )}
+              {lifecycleActions?.canClose && (
+                <LifecycleButton
+                  icon={Square}
+                  label="Close audition"
+                  disabled={actingId === audition.id}
+                  onClick={() =>
+                    void runLifecycleAction(audition.id, () =>
+                      closeAudition(audition.id, user!.uid)
+                    )
+                  }
+                />
+              )}
+              {lifecycleActions?.canReopen && (
+                <LifecycleButton
+                  icon={RefreshCcw}
+                  label="Reopen"
+                  disabled={actingId === audition.id}
+                  onClick={() =>
+                    void runLifecycleAction(audition.id, () =>
+                      reopenAudition(audition.id, user!.uid)
+                    )
+                  }
+                />
+              )}
+              {lifecycleActions?.canDuplicate && (
+                <LifecycleButton
+                  icon={Copy}
+                  label="Duplicate"
+                  disabled={actingId === audition.id}
+                  onClick={() => void duplicateBrief(audition.id)}
+                />
+              )}
             </div>
             <p className="mt-3 text-xs font-bold text-[#657176]">
               Next action:{' '}
@@ -249,6 +372,10 @@ export default function RecruiterAuditionsPage() {
         {auditions.map((audition) => (
           (() => {
             const quality = getCastingBriefQuality(audition);
+            const lifecycleBadge = getAuditionLifecycleBadge(audition);
+            const lifecycleActions = user
+              ? getAuditionLifecycleActions(audition, user.uid)
+              : null;
             const trustPassport = getRecruiterTrustPassport(null, audition, {
               briefQuality: quality,
             });
@@ -260,6 +387,7 @@ export default function RecruiterAuditionsPage() {
           >
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-3">
+                <LifecyclePill badge={lifecycleBadge} />
                 <StatusBadge status={audition.status} />
                 {audition.selfTapeEnabled && (
                   <span className="rounded-md border border-[#e0c364] bg-[#fdf9eb] px-2 py-1 text-[10px] font-black uppercase tracking-wide text-[#7a5500]">
@@ -307,9 +435,20 @@ export default function RecruiterAuditionsPage() {
                     ? 'Decision room ready'
                     : 'Decision room waiting'}
                 </span>
+                <span className="text-[#aab5bb]">-</span>
+                <span>{getAuditionLifecycleGuidance(audition)}</span>
               </div>
             </div>
-            <div className="flex shrink-0 gap-2">
+            <div className="flex max-w-md shrink-0 flex-wrap justify-end gap-2">
+              {lifecycleActions?.canEdit && (
+                <Link
+                  href={`/recruiter/auditions/${audition.id}/edit`}
+                  className="secondary-button min-h-10 py-2 text-sm sm:w-auto"
+                >
+                  <PenLine className="size-4" />
+                  Edit
+                </Link>
+              )}
               <Link
                 href={`/auditions/${audition.id}`}
                 className="secondary-button min-h-10 py-2 text-sm sm:w-auto"
@@ -322,6 +461,54 @@ export default function RecruiterAuditionsPage() {
               >
                 Decision room
               </Link>
+              {lifecycleActions?.canPublish && (
+                <LifecycleButton
+                  icon={Rocket}
+                  label="Publish"
+                  disabled={actingId === audition.id}
+                  compact
+                  onClick={() =>
+                    void runLifecycleAction(audition.id, () =>
+                      publishAuditionDraft(audition.id, user!.uid)
+                    )
+                  }
+                />
+              )}
+              {lifecycleActions?.canClose && (
+                <LifecycleButton
+                  icon={Square}
+                  label="Close"
+                  disabled={actingId === audition.id}
+                  compact
+                  onClick={() =>
+                    void runLifecycleAction(audition.id, () =>
+                      closeAudition(audition.id, user!.uid)
+                    )
+                  }
+                />
+              )}
+              {lifecycleActions?.canReopen && (
+                <LifecycleButton
+                  icon={RefreshCcw}
+                  label="Reopen"
+                  disabled={actingId === audition.id}
+                  compact
+                  onClick={() =>
+                    void runLifecycleAction(audition.id, () =>
+                      reopenAudition(audition.id, user!.uid)
+                    )
+                  }
+                />
+              )}
+              {lifecycleActions?.canDuplicate && (
+                <LifecycleButton
+                  icon={Copy}
+                  label="Duplicate"
+                  disabled={actingId === audition.id}
+                  compact
+                  onClick={() => void duplicateBrief(audition.id)}
+                />
+              )}
             </div>
           </article>
             );
@@ -331,6 +518,57 @@ export default function RecruiterAuditionsPage() {
       </>
       )}
     </AppShell>
+  );
+}
+
+function LifecyclePill({
+  badge,
+}: {
+  badge: ReturnType<typeof getAuditionLifecycleBadge>;
+}) {
+  const classes =
+    badge.tone === 'success'
+      ? 'border-[#9fc9c4] bg-[#edf7f5] text-[#006b60]'
+      : badge.tone === 'attention'
+        ? 'border-[#e0c364] bg-[#fdf9eb] text-[#7a5500]'
+        : badge.tone === 'danger'
+          ? 'border-red-200 bg-red-50 text-red-800'
+          : 'border-[#cdd5da] bg-[#f4f6f7] text-[#4e5e66]';
+
+  return (
+    <span
+      className={`rounded-md border px-2.5 py-1 text-[10px] font-black uppercase tracking-wide ${classes}`}
+    >
+      {badge.label}
+    </span>
+  );
+}
+
+function LifecycleButton({
+  icon: Icon,
+  label,
+  disabled,
+  compact = false,
+  onClick,
+}: {
+  icon: LucideIcon;
+  label: string;
+  disabled?: boolean;
+  compact?: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      onClick={onClick}
+      className={`secondary-button min-h-10 py-2 text-sm disabled:opacity-50 ${
+        compact ? 'sm:w-auto' : ''
+      }`}
+    >
+      <Icon className="size-4" />
+      {disabled ? 'Working...' : label}
+    </button>
   );
 }
 

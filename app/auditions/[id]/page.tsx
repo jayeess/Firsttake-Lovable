@@ -52,6 +52,11 @@ import {
   getPublicOpportunitySummary,
   type AuditionShareKit,
 } from '@/app/lib/audition-share-kit-policy';
+import {
+  canTalentApplyToAudition,
+  getAuditionLifecycleBadge,
+  getAuditionLifecycleGuidance,
+} from '@/app/lib/audition-lifecycle-policy';
 
 const AUDITION_TYPE_LABELS: Record<string, string> = {
   FILM: 'Film',
@@ -139,6 +144,14 @@ export default function AuditionDetailPage() {
     () => (audition ? getAuditionShareKit(audition) : null),
     [audition]
   );
+  const lifecycleBadge = useMemo(
+    () => (audition ? getAuditionLifecycleBadge(audition) : null),
+    [audition]
+  );
+  const canApply = useMemo(
+    () => (audition ? canTalentApplyToAudition(audition) : false),
+    [audition]
+  );
 
   const toggleSaved = async () => {
     setSaving(true);
@@ -156,6 +169,10 @@ export default function AuditionDetailPage() {
   const handleApply = async () => {
     if (!user) {
       router.push('/auth/login');
+      return;
+    }
+    if (!audition || !canTalentApplyToAudition(audition)) {
+      setError('This audition is not accepting applications.');
       return;
     }
     const questions = audition?.screeningQuestions ?? [];
@@ -232,6 +249,21 @@ export default function AuditionDetailPage() {
             </div>
             <div className="flex items-center gap-2">
               <StatusBadge status={audition.status} />
+              {lifecycleBadge && (
+                <span
+                  className={`rounded-md border px-2.5 py-1 text-[10px] font-black uppercase tracking-wide ${
+                    lifecycleBadge.tone === 'success'
+                      ? 'border-[#9fc9c4] bg-[#edf7f5] text-[#006b60]'
+                      : lifecycleBadge.tone === 'attention'
+                        ? 'border-[#e0c364] bg-[#fdf9eb] text-[#7a5500]'
+                        : lifecycleBadge.tone === 'danger'
+                          ? 'border-red-200 bg-red-50 text-red-800'
+                          : 'border-[#cdd5da] bg-[#f4f6f7] text-[#4e5e66]'
+                  }`}
+                >
+                  {lifecycleBadge.label}
+                </span>
+              )}
               {audition.recruiterId !== user?.uid && (
                 <ReportButton
                   targetType="audition"
@@ -292,6 +324,23 @@ export default function AuditionDetailPage() {
               isOwner={userType === 'RECRUITER' && audition.recruiterId === user?.uid}
             />
           )}
+          <section className="mt-6 rounded-md border border-[#d7e3e7] bg-[#f7fafb] p-4">
+            <p className="eyebrow">Audition availability</p>
+            <h2 className="mt-2 text-xl font-black">
+              {canApply ? 'Open for applications' : 'Not accepting applications'}
+            </h2>
+            <p className="mt-2 text-sm font-bold leading-6 text-[#657176]">
+              {getAuditionLifecycleGuidance(audition)}
+            </p>
+            {userType === 'RECRUITER' && audition.recruiterId === user?.uid && (
+              <Link
+                href={`/recruiter/auditions/${audition.id}/edit`}
+                className="secondary-button mt-4 w-fit"
+              >
+                Edit lifecycle
+              </Link>
+            )}
+          </section>
           <Section title="About the role" body={audition.description} />
           <Section title="Requirements" body={audition.requirements} />
           {audition.selfTapeEnabled && (
@@ -366,9 +415,9 @@ export default function AuditionDetailPage() {
                 message to stand out to the casting team.
               </p>
 
-              {audition.status !== 'ACTIVE' && (
+              {!canApply && (
                 <p className="mt-3 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-bold text-amber-900">
-                  This audition is no longer accepting applications.
+                  {getAuditionLifecycleGuidance(audition)}
                 </p>
               )}
               {userType === 'TALENT' && (
@@ -449,7 +498,7 @@ export default function AuditionDetailPage() {
               )}
               <button
                 type="button"
-                disabled={applying || audition.status !== 'ACTIVE'}
+                disabled={applying || !canApply}
                 onClick={handleApply}
                 className="primary-button mt-4 w-full"
               >

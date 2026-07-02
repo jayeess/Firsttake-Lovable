@@ -1,5 +1,36 @@
 # Nata Connect development test cases
 
+## Audition Lifecycle Studio checks
+
+After updating audition lifecycle, recruiter brief editing, discovery, or
+audition rules, verify:
+
+- [ ] Recruiter creates or opens a draft audition.
+- [ ] `/recruiter/auditions` shows lifecycle badges and the correct actions.
+- [ ] Edit brief opens `/recruiter/auditions/[id]/edit`.
+- [ ] Safe fields, self-tape settings, and screening questions save without
+  changing applicant history.
+- [ ] Publish Draft works only for a verified recruiter with a future deadline
+  and a safe brief.
+- [ ] Close audition keeps existing applicants visible in the Decision Room.
+- [ ] Reopen works only for closed, visible briefs with a future deadline.
+- [ ] Duplicate creates a new draft and does not copy applicants, applicant
+  counts, moderation fields, private notes, or Talent Pool entries.
+- [ ] Talent discovery excludes draft, removed, closed, cancelled, and expired
+  auditions.
+- [ ] `/auditions/[id]` disables application submission for inactive or expired
+  briefs and shows a clear availability reason.
+
+Run:
+
+```powershell
+npm run lint
+npm test
+npm run build
+npm run emulators:test
+git diff --check
+```
+
 ## Talent Pool write failure regression checks
 
 After updating Talent Pool save logic or `recruiterTalentPool` rules, verify:

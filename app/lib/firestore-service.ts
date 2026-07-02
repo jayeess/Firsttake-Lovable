@@ -47,8 +47,19 @@ import type {
 import type { RecruiterReviewInput } from './application-pipeline';
 import { calculateTalentProfileCompleteness } from './profile-completeness';
 import { buildAuditionSearchFields } from './audition-discovery';
+import {
+  canRecruiterCloseAudition,
+  canRecruiterEditAudition,
+  canRecruiterPublishAudition,
+  canRecruiterReopenAudition,
+  canTalentApplyToAudition,
+  getDuplicateAuditionDraft,
+} from './audition-lifecycle-policy';
 import { normalizeNotificationPreferences } from './notification-preferences';
 import { validateTalentPoolEntryInput } from './recruiter-talent-pool-policy';
+import { normalizeSelfTapeSubmissionTypes, validateSelfTapeInstructions } from './self-tape-policy';
+import { validateScreeningQuestions } from './casting-application-kit-policy';
+import { getCastingBriefQuality } from './casting-brief-quality-policy';
 
 export interface UserAccount {
   uid: string;
@@ -57,6 +68,29 @@ export interface UserAccount {
   accountStatus: 'ACTIVE' | 'SUSPENDED';
   notificationPreferences?: NotificationPreferences;
 }
+
+export type AuditionBriefInput = {
+  title: string;
+  description: string;
+  category: TalentCategory;
+  experienceLevel: ExperienceLevel;
+  location: string;
+  duration: string;
+  requirements: string;
+  numberOfPositions: number;
+  payInfo?: string;
+  languages?: string[];
+  auditionType?: AuditionType;
+  workMode?: WorkMode;
+  paymentType?: PaymentType;
+  selfTapeEnabled?: boolean;
+  selfTapeRequired?: boolean;
+  selfTapeInstructions?: string;
+  selfTapeSubmissionTypes?: Array<'upload' | 'link'>;
+  selfTapeMaxDurationSeconds?: number | null;
+  screeningQuestions?: ScreeningQuestion[];
+  deadline: Date;
+};
 
 export const getUserNotificationPreferences = async (uid: string) => {
   const snapshot = await getDoc(doc(getFirestoreDb(), 'users', uid));
@@ -325,51 +359,110 @@ export const updateRecruiterProfile = async (
 
 // ==================== AUDITIONS ====================
 
+const assertRecruiterCanManageAuditions = async (recruiterId: string) => {
+  const account = await getUserAccount(recruiterId);
+  if (account?.userType !== 'RECRUITER') {
+    throw new Error('Only recruiter accounts can manage auditions.');
+  }
+  if (account.accountStatus === 'SUSPENDED') {
+    throw new Error('This recruiter account is suspended.');
+  }
+
+  const verification = await getRecruiterVerification(recruiterId);
+  if (verification?.status !== 'approved') {
+    throw new Error('Recruiter verification approval is required.');
+  }
+};
+
+const normalizeAuditionBriefInput = (
+  input: AuditionBriefInput
+): AuditionBriefInput => {
+  if (!input.deadline || input.deadline.getTime() <= Date.now()) {
+    throw new Error('Choose a deadline in the future.');
+  }
+  if (input.numberOfPositions < 1) {
+    throw new Error('Choose at least one position.');
+  }
+
+  const selfTapeInstructions = validateSelfTapeInstructions(
+    input.selfTapeInstructions ?? ''
+  );
+  const screeningQuestions = (input.screeningQuestions ?? [])
+    .filter((question) => question.prompt.trim().length > 0)
+    .map((question, index) => ({
+      ...question,
+      id: question.id || `question-${index + 1}`,
+      prompt: question.prompt.trim(),
+      order: index,
+      options: question.options?.map((option) => option.trim()).filter(Boolean),
+      helpText: question.helpText?.trim() ?? '',
+    }));
+  const screeningError = validateScreeningQuestions(screeningQuestions);
+  if (screeningError) throw new Error(screeningError);
+
+  return {
+    ...input,
+    title: input.title.trim(),
+    description: input.description.trim(),
+    location: input.location.trim(),
+    duration: input.duration.trim(),
+    requirements: input.requirements.trim(),
+    payInfo: input.payInfo?.trim() ?? '',
+    languages: (input.languages ?? [])
+      .map((language) => language.trim())
+      .filter(Boolean),
+    numberOfPositions: Number(input.numberOfPositions),
+    selfTapeEnabled: input.selfTapeEnabled ?? false,
+    selfTapeRequired: input.selfTapeEnabled
+      ? input.selfTapeRequired ?? false
+      : false,
+    selfTapeInstructions: input.selfTapeEnabled ? selfTapeInstructions : '',
+    selfTapeSubmissionTypes: normalizeSelfTapeSubmissionTypes(
+      input.selfTapeEnabled ?? false,
+      input.selfTapeSubmissionTypes ?? ['link']
+    ),
+    selfTapeMaxDurationSeconds:
+      input.selfTapeEnabled && input.selfTapeMaxDurationSeconds
+        ? Number(input.selfTapeMaxDurationSeconds)
+        : null,
+    screeningQuestions,
+  };
+};
+
+const getOwnedAuditionForMutation = async (
+  auditionId: string,
+  recruiterId: string
+) => {
+  await assertRecruiterCanManageAuditions(recruiterId);
+  const snapshot = await getDoc(doc(getFirestoreDb(), 'auditions', auditionId));
+  if (!snapshot.exists()) throw new Error('This audition could not be found.');
+  const audition = { id: snapshot.id, ...snapshot.data() } as Audition;
+  if (!canRecruiterEditAudition(audition, recruiterId)) {
+    throw new Error('You can only manage your own active casting briefs.');
+  }
+  return audition;
+};
+
 export const createAudition = async (
   recruiterId: string,
-  auditionData: {
+  auditionData: AuditionBriefInput & {
     recruiterName?: string;
-    title: string;
-    description: string;
-    category: TalentCategory;
-    experienceLevel: ExperienceLevel;
-    location: string;
-    duration: string;
-    requirements: string;
-    numberOfPositions: number;
-    payInfo?: string;
-    languages?: string[];
-    auditionType?: AuditionType;
-    workMode?: WorkMode;
-    paymentType?: PaymentType;
-    selfTapeEnabled?: boolean;
-    selfTapeRequired?: boolean;
-    selfTapeInstructions?: string;
-    selfTapeSubmissionTypes?: Array<'upload' | 'link'>;
-    selfTapeMaxDurationSeconds?: number | null;
-    screeningQuestions?: ScreeningQuestion[];
-    deadline: Date;
     status: 'ACTIVE' | 'DRAFT';
   }
 ) => {
   try {
-    const account = await getUserAccount(recruiterId);
-    if (account?.userType !== 'RECRUITER') {
-      throw new Error('Only recruiter accounts can create auditions.');
-    }
-    if (account.accountStatus === 'SUSPENDED') {
-      throw new Error('This recruiter account is suspended.');
-    }
-
-    const verification = await getRecruiterVerification(recruiterId);
-    if (verification?.status !== 'approved') {
-      throw new Error('Recruiter verification approval is required.');
-    }
+    await assertRecruiterCanManageAuditions(recruiterId);
+    const normalized = normalizeAuditionBriefInput(auditionData);
 
     const docRef = await addDoc(collection(getFirestoreDb(), 'auditions'), {
       recruiterId,
-      ...auditionData,
-      ...buildAuditionSearchFields(auditionData),
+      ...normalized,
+      recruiterName: auditionData.recruiterName,
+      status: auditionData.status,
+      ...buildAuditionSearchFields({
+        ...normalized,
+        recruiterName: auditionData.recruiterName,
+      }),
       applicantCount: 0,
       moderationStatus: 'VISIBLE',
       recruiterVerified: true,
@@ -608,7 +701,9 @@ export const getAuditions = async (
           }) as Audition
       )
       .filter((audition) => audition.moderationStatus !== 'REMOVED');
-    return Promise.all(auditions.map(addRecruiterTrust));
+    return Promise.all(
+      auditions.filter((audition) => canTalentApplyToAudition(audition)).map(addRecruiterTrust)
+    );
   } catch (error: unknown) {
     throw new Error(getErrorMessage(error, 'Failed to load auditions'));
   }
@@ -667,6 +762,118 @@ export const updateAudition = async (
     });
   } catch (error: unknown) {
     throw new Error(getErrorMessage(error, 'Failed to update audition'));
+  }
+};
+
+export const updateAuditionBrief = async (
+  auditionId: string,
+  recruiterId: string,
+  input: AuditionBriefInput
+) => {
+  try {
+    const audition = await getOwnedAuditionForMutation(auditionId, recruiterId);
+    const normalized = normalizeAuditionBriefInput(input);
+    await updateDoc(doc(getFirestoreDb(), 'auditions', auditionId), {
+      ...normalized,
+      ...buildAuditionSearchFields({
+        ...normalized,
+        recruiterName: audition.recruiterName,
+      }),
+      updatedAt: new Date(),
+    });
+  } catch (error: unknown) {
+    throw new Error(getErrorMessage(error, 'Failed to update audition'));
+  }
+};
+
+export const closeAudition = async (
+  auditionId: string,
+  recruiterId: string
+) => {
+  try {
+    const audition = await getOwnedAuditionForMutation(auditionId, recruiterId);
+    if (!canRecruiterCloseAudition(audition)) {
+      throw new Error('This casting brief cannot be closed.');
+    }
+    await updateDoc(doc(getFirestoreDb(), 'auditions', auditionId), {
+      status: 'CLOSED',
+      updatedAt: new Date(),
+    });
+  } catch (error: unknown) {
+    throw new Error(getErrorMessage(error, 'Failed to close audition'));
+  }
+};
+
+export const reopenAudition = async (
+  auditionId: string,
+  recruiterId: string
+) => {
+  try {
+    const audition = await getOwnedAuditionForMutation(auditionId, recruiterId);
+    if (!canRecruiterReopenAudition(audition)) {
+      throw new Error('This casting brief cannot be reopened.');
+    }
+    await updateDoc(doc(getFirestoreDb(), 'auditions', auditionId), {
+      status: 'ACTIVE',
+      updatedAt: new Date(),
+    });
+  } catch (error: unknown) {
+    throw new Error(getErrorMessage(error, 'Failed to reopen audition'));
+  }
+};
+
+export const publishAuditionDraft = async (
+  auditionId: string,
+  recruiterId: string
+) => {
+  try {
+    const audition = await getOwnedAuditionForMutation(auditionId, recruiterId);
+    const publishCandidate = {
+      ...audition,
+      recruiterVerified: audition.recruiterVerified ?? true,
+    };
+    if (
+      !canRecruiterPublishAudition(
+        publishCandidate,
+        new Date(),
+        getCastingBriefQuality(publishCandidate).band
+      )
+    ) {
+      throw new Error(
+        'Review the brief, deadline, and safety cues before publishing.'
+      );
+    }
+    await updateDoc(doc(getFirestoreDb(), 'auditions', auditionId), {
+      status: 'ACTIVE',
+      recruiterVerified: true,
+      updatedAt: new Date(),
+    });
+    const user = getFirebaseAuth().currentUser;
+    if (user?.uid === recruiterId) {
+      await fetch('/api/auditions/published', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${await user.getIdToken()}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ auditionId }),
+      }).catch(() => undefined);
+    }
+  } catch (error: unknown) {
+    throw new Error(getErrorMessage(error, 'Failed to publish audition'));
+  }
+};
+
+export const duplicateAuditionAsDraft = async (
+  auditionId: string,
+  recruiterId: string
+) => {
+  try {
+    const audition = await getOwnedAuditionForMutation(auditionId, recruiterId);
+    const draft = getDuplicateAuditionDraft(audition);
+    return createAudition(recruiterId, draft);
+  } catch (error: unknown) {
+    throw new Error(getErrorMessage(error, 'Failed to duplicate audition'));
   }
 };
 

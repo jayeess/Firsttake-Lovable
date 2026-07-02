@@ -1,5 +1,23 @@
 # Changelog
 
+### Audition Lifecycle Studio
+
+- Added recruiter-owned audition lifecycle management: edit brief, duplicate
+  as draft, publish draft, close, and reopen.
+- Created `/recruiter/auditions/[id]/edit` for safe brief updates covering
+  core role fields, deadline, compensation, self-tape settings, and screening
+  questions.
+- Added lifecycle badges and next-action controls to `/recruiter/auditions`.
+- Improved `/auditions/[id]` with Talent-facing availability guidance for open,
+  closing soon, closed, expired, draft, cancelled, and removed states.
+- Kept draft, removed, closed, cancelled, and expired auditions out of normal
+  Talent discovery.
+- Added `app/lib/audition-lifecycle-policy.ts` and service helpers for
+  applicant-safe lifecycle writes.
+- Updated Firestore rules and emulator tests so invalid statuses, applicant
+  count edits, moderation edits, and removed-audition updates are rejected.
+- Created `AUDITION_LIFECYCLE_STUDIO_REPORT.md`.
+
 ### Talent Pool Write Failure Fix
 
 - Fixed the remaining Private Talent Pool save failure in the recruiter

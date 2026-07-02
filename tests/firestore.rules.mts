@@ -972,6 +972,34 @@ test('Recruiters can create and manage only their own auditions', async () => {
   );
 });
 
+test('Audition lifecycle updates require valid statuses and visible briefs', async () => {
+  const db = environment.authenticatedContext('recruiter-a').firestore();
+  await assertSucceeds(
+    updateDoc(doc(db, 'auditions/visible-a'), { status: 'CLOSED' })
+  );
+  await assertSucceeds(
+    updateDoc(doc(db, 'auditions/visible-a'), { status: 'ACTIVE' })
+  );
+  await assertFails(
+    updateDoc(doc(db, 'auditions/visible-a'), { status: 'ARCHIVED' })
+  );
+  await assertFails(
+    updateDoc(doc(db, 'auditions/removed-a'), { status: 'ACTIVE' })
+  );
+});
+
+test('Audition lifecycle edits cannot change applicant counts or moderation fields', async () => {
+  const db = environment.authenticatedContext('recruiter-a').firestore();
+  await assertFails(
+    updateDoc(doc(db, 'auditions/visible-a'), { applicantCount: 99 })
+  );
+  await assertFails(
+    updateDoc(doc(db, 'auditions/visible-a'), {
+      moderationStatus: 'REMOVED',
+    })
+  );
+});
+
 test('Audition create rejects more than 8 screening questions', async () => {
   const db = environment.authenticatedContext('recruiter-a').firestore();
   const tooManyQuestions = Array.from({ length: 9 }, (_, i) => ({

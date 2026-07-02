@@ -10,7 +10,8 @@ recruiter decision-room screening answer review, shareable casting opportunity
 pages, recruiter share readiness signals, privacy-safe public Talent sharing,
 transparent recruiter source signals, application journey tracking, proof
 receipts, message safety guidance, explainable casting brief quality, safety
-signals, private recruiter Talent Pool memory, profile readiness, audition readiness guidance, Talent command-center
+signals, private recruiter Talent Pool memory, audition lifecycle management,
+profile readiness, audition readiness guidance, Talent command-center
 guidance, recruiter decision-room signals, slide outline, slide copy, speaker
 notes, route order, screenshot checklist, onboarding playbook, and audience
 talking points
@@ -38,6 +39,16 @@ The product has a distinct bilingual identity, **Nata Connect | నట కనె
 
 Nata Connect is no longer a static demonstration. It is a working Firebase-backed MVP with role-based workflows and real persisted data.
 
+### Latest lifecycle position
+
+The July 2, 2026 Audition Lifecycle Studio pass made recruiter casting briefs
+manageable after creation. Recruiters can now edit safe brief fields, duplicate
+an existing audition into a new draft, publish drafts, close auditions without
+deleting applicant history, and reopen closed auditions when the deadline is
+still valid. Talent-facing discovery and audition details now use lifecycle
+guidance so inactive, removed, closed, cancelled, and expired roles do not
+appear as open opportunities.
+
 ### Product maturity assessment
 
 | Area | Status | Assessment |
@@ -49,7 +60,7 @@ Nata Connect is no longer a static demonstration. It is a working Firebase-backe
 | Recruiter onboarding | Working with demo approval | Needs real administration |
 | Recruiter Trust Passport and source transparency | Implemented | Guidance-only trust context; no private evidence exposure, AI, legal certification, or casting guarantees |
 | Audition Share Kit and Public Opportunity Page | Implemented | Share readiness bands, structured opportunity context, safe share copy, owner tips, and public safety notes; no new public route or Firestore rule changes |
-| Audition creation | Working | Core fields and draft/publish states exist |
+| Audition lifecycle | Upgraded | Recruiters can edit safe brief fields, duplicate drafts, publish, close, and reopen while applicant history remains intact |
 | Audition discovery | Working | Search and filtering exist |
 | Applications | Hardened | Duplicate applications are prevented; Talent tracker now keeps notification, callback, shortlisted, completed, and retry states consistent |
 | Recruiter applicant review | Upgraded | Casting Slate, Decision Room, and private recruiter Talent Pool organize existing statuses, self-tape cues, notes, tags, and future-fit memory without ranking or automation |
