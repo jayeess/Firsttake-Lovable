@@ -1,5 +1,40 @@
 # Nata Connect development test cases
 
+## Recruiter Talent Pool and Private Casting CRM checks
+
+After updating Talent Pool policy, Firestore services, recruiter applicant
+review, or recruiter navigation, verify:
+
+- [ ] `/recruiter/auditions/[id]/applicants` expanded applicant review shows
+  "Private Talent Pool" in the aside.
+- [ ] Recruiter can save an applicant with safe tags such as "Telugu speaker",
+  "theatre", "voice artist", or "callback potential".
+- [ ] Saved applicants show the current Talent Pool status and link to
+  `/recruiter/talent-pool`.
+- [ ] Updating status, tags, or private pool note does not change application
+  status, Talent-visible note, selected/rejected state, or message state.
+- [ ] Unsafe tags/notes mentioning payment, bank details, OTP/password, private
+  documents, off-platform pressure, sensitive identity categories, body-shaming,
+  or abusive comments are blocked by the policy helper.
+- [ ] `/recruiter/talent-pool` lists saved Talent entries with status filter,
+  search, tags, private note preview, public portfolio link when available, and
+  source review link when available.
+- [ ] Remove action deletes the recruiter-owned Talent Pool entry only.
+- [ ] Talent users cannot read Talent Pool entries or private recruiter notes.
+- [ ] Another recruiter cannot read or write the owning recruiter's Talent Pool.
+- [ ] No copy claims AI, automatic ranking, automatic selection, best Talent,
+  guaranteed casting, or guaranteed jobs.
+
+Run:
+
+```powershell
+npm run lint
+npm test
+npm run build
+git diff --check
+npm run emulators:test   # required because firestore.rules changed
+```
+
 ## Casting Application Kit and Screening Questions checks
 
 After updating screening question policy, apply flow, recruiter form, or

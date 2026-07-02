@@ -39,6 +39,58 @@ service cloud.firestore {
         == 'approved';
     }
 
+    function validTalentPoolStatus(status) {
+      return status in [
+        'SAVED',
+        'WATCHLIST',
+        'FUTURE_FIT',
+        'DO_NOT_CONTACT'
+      ];
+    }
+
+    function validTalentPoolEntry(data) {
+      return data.id is string
+        && data.id == data.recruiterId + '__' + data.talentId
+        && data.recruiterId is string
+        && data.talentId is string
+        && data.talentId.size() > 0
+        && data.talentId.size() <= 128
+        && data.talentNameSnapshot is string
+        && data.talentNameSnapshot.size() > 0
+        && data.talentNameSnapshot.size() <= 120
+        && data.get('talentPublicSlug', '') is string
+        && data.get('talentPublicSlug', '').size() <= 120
+        && data.get('talentCategorySnapshot', '') is string
+        && data.get('talentCategorySnapshot', '').size() <= 60
+        && data.get('sourceApplicationId', '') is string
+        && data.get('sourceApplicationId', '').size() <= 128
+        && data.get('sourceAuditionId', '') is string
+        && data.get('sourceAuditionId', '').size() <= 128
+        && data.get('sourceAuditionTitleSnapshot', '') is string
+        && data.get('sourceAuditionTitleSnapshot', '').size() <= 160
+        && validTalentPoolStatus(data.status)
+        && data.tags is list
+        && data.tags.size() <= 20
+        && data.privateNote is string
+        && data.privateNote.size() <= 1000
+        && data.keys().hasOnly([
+          'id',
+          'recruiterId',
+          'talentId',
+          'talentNameSnapshot',
+          'talentPublicSlug',
+          'talentCategorySnapshot',
+          'sourceApplicationId',
+          'sourceAuditionId',
+          'sourceAuditionTitleSnapshot',
+          'status',
+          'tags',
+          'privateNote',
+          'createdAt',
+          'updatedAt'
+        ]);
+    }
+
     match /users/{uid} {
       allow create: if ownsUser(uid)
         && request.resource.data.userType in ['TALENT', 'RECRUITER'];
@@ -192,6 +244,29 @@ service cloud.firestore {
         ])
         && request.resource.data.read == true;
       allow create, delete: if false;
+    }
+
+    match /recruiterTalentPool/{entryId} {
+      allow read: if isRecruiter()
+        && resource.data.recruiterId == request.auth.uid;
+      allow create: if isRecruiter()
+        && request.resource.data.recruiterId == request.auth.uid
+        && entryId == request.resource.data.id
+        && validTalentPoolEntry(request.resource.data);
+      allow update: if isRecruiter()
+        && resource.data.recruiterId == request.auth.uid
+        && request.resource.data.recruiterId == resource.data.recruiterId
+        && request.resource.data.talentId == resource.data.talentId
+        && request.resource.data.id == resource.data.id
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'status',
+          'tags',
+          'privateNote',
+          'updatedAt'
+        ])
+        && validTalentPoolEntry(request.resource.data);
+      allow delete: if isRecruiter()
+        && resource.data.recruiterId == request.auth.uid;
     }
 
     match /reports/{reportId} {

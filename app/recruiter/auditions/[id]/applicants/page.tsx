@@ -1,6 +1,14 @@
 'use client';
 
-import { ChevronDown, ExternalLink, MessageSquare, Search, Star } from 'lucide-react';
+import {
+  Bookmark,
+  ChevronDown,
+  ExternalLink,
+  MessageSquare,
+  Search,
+  Star,
+  Trash2,
+} from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { type ReactNode, useEffect, useMemo, useState } from 'react';
@@ -23,18 +31,25 @@ import { getErrorMessage } from '@/app/lib/error-utils';
 import {
   getAuditionApplicants,
   getAuditionById,
+  getTalentPoolEntryForTalent,
   markSelfTapeReviewed,
+  removeTalentPoolEntry,
+  saveTalentToPool,
   updateApplicationReview,
 } from '@/app/lib/firestore-service';
 import {
   CATEGORY_LABELS,
   EXPERIENCE_LABELS,
   formatDate,
+  type Application,
   type ApplicationStatus,
   type Audition,
   type AuditionApplicant,
+  type RecruiterTalentPoolEntry,
   type ScreeningAnswer,
   type ScreeningQuestion,
+  type TalentPoolStatus,
+  type TalentProfile,
 } from '@/app/lib/types';
 import { getRecruiterScreeningReview } from '@/app/lib/casting-application-kit-policy';
 import {
@@ -67,6 +82,13 @@ import { getConversations } from '@/app/lib/messaging-client';
 import { getConversationId } from '@/app/lib/messaging-policy';
 import { NextActionPanel, SafetyNotice } from '@/components/product-ui';
 import { getRecruiterJourneySummary } from '@/app/lib/casting-journey-policy';
+import {
+  getTalentPoolGuidance,
+  getTalentPoolStatusLabel,
+  getTalentPoolStatusTone,
+  TALENT_POOL_STATUSES,
+  validateTalentPoolEntryInput,
+} from '@/app/lib/recruiter-talent-pool-policy';
 
 const initialFilters: ApplicantFilters = {
   status: 'ALL',
@@ -1145,6 +1167,12 @@ function ApplicantCard({
                 application={application}
                 audition={audition}
               />
+              <TalentPoolPanel
+                application={application}
+                audition={audition}
+                talent={talent}
+                talentName={name}
+              />
               <h3 className="text-lg font-black">Private casting notes</h3>
               <p className="mt-1 text-sm leading-6 text-[#657176]">
                 Notes, tags, and ratings are visible only to the audition owner
@@ -1288,6 +1316,251 @@ function ApplicantCard({
         </div>
       )}
     </article>
+  );
+}
+
+function TalentPoolPanel({
+  application,
+  audition,
+  talent,
+  talentName,
+}: {
+  application: Application;
+  audition: Audition | null;
+  talent: TalentProfile | null;
+  talentName: string;
+}) {
+  const guidance = getTalentPoolGuidance();
+  const [entry, setEntry] = useState<RecruiterTalentPoolEntry | null>(null);
+  const [poolStatus, setPoolStatus] = useState<TalentPoolStatus>('SAVED');
+  const [poolTags, setPoolTags] = useState('');
+  const [poolNote, setPoolNote] = useState('');
+  const [poolLoading, setPoolLoading] = useState(true);
+  const [poolBusy, setPoolBusy] = useState(false);
+  const [poolError, setPoolError] = useState('');
+  const [poolMessage, setPoolMessage] = useState('');
+
+  useEffect(() => {
+    let active = true;
+
+    if (!talent) {
+      return;
+    }
+
+    void getTalentPoolEntryForTalent(application.talentId)
+      .then((loadedEntry) => {
+        if (!active) return;
+        setEntry(loadedEntry);
+        setPoolStatus(loadedEntry?.status ?? 'SAVED');
+        setPoolTags((loadedEntry?.tags ?? []).join(', '));
+        setPoolNote(loadedEntry?.privateNote ?? '');
+      })
+      .catch((error: unknown) => {
+        if (!active) return;
+        setPoolError(getErrorMessage(error, 'Unable to load Talent Pool status'));
+      })
+      .finally(() => {
+        if (active) setPoolLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [application.talentId, talent]);
+
+  const handleSave = async () => {
+    if (!talent) return;
+    setPoolBusy(true);
+    setPoolError('');
+    setPoolMessage('');
+    try {
+      validateTalentPoolEntryInput({
+        status: poolStatus,
+        tags: poolTags,
+        privateNote: poolNote,
+      });
+      const savedEntry = await saveTalentToPool({
+        talentId: application.talentId,
+        talentNameSnapshot: talentName,
+        talentPublicSlug: talent.publicSlug,
+        talentCategorySnapshot: talent.category,
+        sourceApplicationId: application.id,
+        sourceAuditionId: audition?.id ?? application.auditionId,
+        sourceAuditionTitleSnapshot: audition?.title,
+        status: poolStatus,
+        tags: poolTags,
+        privateNote: poolNote,
+      });
+      setEntry(savedEntry);
+      setPoolTags(savedEntry.tags.join(', '));
+      setPoolNote(savedEntry.privateNote ?? '');
+      setPoolMessage(entry ? 'Talent Pool entry updated.' : 'Saved to Talent Pool.');
+    } catch (error: unknown) {
+      setPoolError(getErrorMessage(error, 'Unable to save Talent Pool entry'));
+    } finally {
+      setPoolBusy(false);
+    }
+  };
+
+  const handleRemove = async () => {
+    if (!entry) return;
+    const confirmed = window.confirm(
+      'Remove this Talent from your private Talent Pool? The application review stays unchanged.'
+    );
+    if (!confirmed) return;
+    setPoolBusy(true);
+    setPoolError('');
+    setPoolMessage('');
+    try {
+      await removeTalentPoolEntry(entry.id);
+      setEntry(null);
+      setPoolStatus('SAVED');
+      setPoolTags('');
+      setPoolNote('');
+      setPoolMessage('Removed from Talent Pool.');
+    } catch (error: unknown) {
+      setPoolError(getErrorMessage(error, 'Unable to remove Talent Pool entry'));
+    } finally {
+      setPoolBusy(false);
+    }
+  };
+
+  return (
+    <section className="mb-5 rounded-md border border-[#bad7d3] bg-[#f7fbfb] p-4">
+      <div className="flex items-start gap-3">
+        <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-[#edf7f5] text-[#008ca6]">
+          <Bookmark aria-hidden="true" className="size-4" />
+        </span>
+        <div className="min-w-0">
+          <p className="text-xs font-black uppercase text-[#008ca6]">
+            Private Talent Pool
+          </p>
+          <h3 className="mt-1 text-lg font-black">
+            {entry ? 'Saved for future casting' : 'Save for future casting'}
+          </h3>
+          <p className="mt-1 text-sm leading-6 text-[#657176]">
+            Private recruiter memory for role-fit observations. This does not
+            change the application status.
+          </p>
+        </div>
+      </div>
+
+      {!talent ? (
+        <p className="mt-4 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm font-bold text-amber-900">
+          Talent profile details are unavailable, so this applicant cannot be
+          saved to the pool yet.
+        </p>
+      ) : (
+        <>
+          {poolLoading ? (
+            <p className="mt-4 text-sm font-bold text-[#657176]">
+              Checking Talent Pool status...
+            </p>
+          ) : (
+            <div className="mt-4 space-y-4">
+              <label className="block text-sm font-bold">
+                Pool status
+                <select
+                  value={poolStatus}
+                  onChange={(event) =>
+                    setPoolStatus(event.target.value as TalentPoolStatus)
+                  }
+                  className="mt-2 min-h-11 w-full rounded-md border border-[#cbd6db] bg-white px-3 font-normal"
+                >
+                  {TALENT_POOL_STATUSES.map((status) => (
+                    <option key={status} value={status}>
+                      {getTalentPoolStatusLabel(status)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="block text-sm font-bold">
+                Tags
+                <input
+                  value={poolTags}
+                  onChange={(event) => setPoolTags(event.target.value)}
+                  className="mt-2 min-h-11 w-full rounded-md border border-[#cbd6db] bg-white px-3 font-normal"
+                  placeholder="Telugu speaker, dancer, callback potential"
+                />
+              </label>
+
+              <label className="block text-sm font-bold">
+                Private pool note
+                <textarea
+                  value={poolNote}
+                  onChange={(event) => setPoolNote(event.target.value)}
+                  maxLength={1000}
+                  rows={4}
+                  className="mt-2 w-full rounded-md border border-[#cbd6db] bg-white p-3 font-normal"
+                  placeholder="Role-fit memory, future callback ideas, portfolio observations"
+                />
+              </label>
+
+              <div className="rounded-md border border-[#e7d69a] bg-[#fff9e8] p-3 text-xs leading-5 text-[#6b520b]">
+                <p className="font-black">{guidance.title}</p>
+                <p className="mt-1">{guidance.description}</p>
+              </div>
+
+              {entry && (
+                <div className="flex flex-wrap items-center gap-2">
+                  <span
+                    className={`rounded-md border px-2.5 py-1 text-xs font-black uppercase ${talentPoolToneClass(
+                      getTalentPoolStatusTone(entry.status)
+                    )}`}
+                  >
+                    {getTalentPoolStatusLabel(entry.status)}
+                  </span>
+                  <Link
+                    href="/recruiter/talent-pool"
+                    className="text-xs font-black text-[#008ca6] hover:underline"
+                  >
+                    Open Talent Pool
+                  </Link>
+                </div>
+              )}
+
+              {poolError && (
+                <p className="rounded-md border border-red-200 bg-red-50 p-3 text-sm font-bold text-red-700">
+                  {poolError}
+                </p>
+              )}
+              {poolMessage && (
+                <p className="rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm font-bold text-emerald-800">
+                  {poolMessage}
+                </p>
+              )}
+
+              <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
+                <button
+                  type="button"
+                  onClick={() => void handleSave()}
+                  disabled={poolBusy}
+                  className="primary-button disabled:opacity-50"
+                >
+                  {poolBusy
+                    ? 'Saving...'
+                    : entry
+                      ? 'Update Talent Pool'
+                      : 'Save to Talent Pool'}
+                </button>
+                {entry && (
+                  <button
+                    type="button"
+                    onClick={() => void handleRemove()}
+                    disabled={poolBusy}
+                    className="secondary-button gap-2 border-red-200 text-red-700 disabled:opacity-50 sm:w-auto"
+                  >
+                    <Trash2 aria-hidden="true" className="size-4" />
+                    Remove
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+        </>
+      )}
+    </section>
   );
 }
 
@@ -1585,6 +1858,19 @@ function roleSignalToneClass(status: RoleFitSignalStatus) {
     return 'border-amber-200 bg-amber-50 text-amber-900';
   }
   return 'border-red-200 bg-red-50 text-red-800';
+}
+
+function talentPoolToneClass(tone: string) {
+  if (tone === 'positive') {
+    return 'border-emerald-200 bg-emerald-50 text-emerald-800';
+  }
+  if (tone === 'attention') {
+    return 'border-[#e7d69a] bg-[#fff9e8] text-[#7a5608]';
+  }
+  if (tone === 'caution') {
+    return 'border-red-200 bg-red-50 text-red-700';
+  }
+  return 'border-[#bad7d3] bg-[#edf7f5] text-[#006b60]';
 }
 
 

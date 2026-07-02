@@ -27,6 +27,7 @@ import type {
   AuditionType,
   ExperienceLevel,
   RecruiterProfile,
+  RecruiterTalentPoolEntry,
   ScreeningAnswer,
   ScreeningQuestion,
   TalentCategory,
@@ -38,6 +39,7 @@ import type {
   UserType,
   RecruiterVerification,
   SavedAudition,
+  TalentPoolStatus,
   WorkMode,
   PaymentType,
   NotificationPreferences,
@@ -46,6 +48,7 @@ import type { RecruiterReviewInput } from './application-pipeline';
 import { calculateTalentProfileCompleteness } from './profile-completeness';
 import { buildAuditionSearchFields } from './audition-discovery';
 import { normalizeNotificationPreferences } from './notification-preferences';
+import { validateTalentPoolEntryInput } from './recruiter-talent-pool-policy';
 
 export interface UserAccount {
   uid: string;
@@ -743,6 +746,170 @@ export const setAuditionSaved = async (
   const payload = await response.json();
   if (!response.ok) {
     throw new Error(payload.error ?? 'Failed to update saved auditions');
+  }
+};
+
+export type SaveTalentToPoolInput = {
+  talentId: string;
+  talentNameSnapshot: string;
+  talentPublicSlug?: string;
+  talentCategorySnapshot?: string;
+  sourceApplicationId?: string;
+  sourceAuditionId?: string;
+  sourceAuditionTitleSnapshot?: string;
+  status: TalentPoolStatus;
+  tags?: string[] | string;
+  privateNote?: string;
+};
+
+export type UpdateTalentPoolEntryInput = {
+  status?: TalentPoolStatus;
+  tags?: string[] | string;
+  privateNote?: string;
+};
+
+export const getRecruiterTalentPoolEntryId = (
+  recruiterId: string,
+  talentId: string
+) => `${recruiterId}__${talentId}`;
+
+const talentPoolUpdatedAt = (entry: RecruiterTalentPoolEntry) => {
+  const value = entry.updatedAt ?? entry.createdAt;
+  if (!value) return 0;
+  if (value instanceof Date) return value.getTime();
+  if (typeof value === 'string') return new Date(value).getTime();
+  return value.toMillis();
+};
+
+export const saveTalentToPool = async (
+  input: SaveTalentToPoolInput
+): Promise<RecruiterTalentPoolEntry> => {
+  try {
+    const user = getFirebaseAuth().currentUser;
+    if (!user) throw new Error('Please sign in again.');
+
+    const validated = validateTalentPoolEntryInput(input);
+    const entryId = getRecruiterTalentPoolEntryId(user.uid, input.talentId);
+    const entryRef = doc(getFirestoreDb(), 'recruiterTalentPool', entryId);
+    const existing = await getDoc(entryRef);
+    const now = new Date();
+    const entry: RecruiterTalentPoolEntry = {
+      id: entryId,
+      recruiterId: user.uid,
+      talentId: input.talentId,
+      talentNameSnapshot: input.talentNameSnapshot,
+      ...(input.talentPublicSlug
+        ? { talentPublicSlug: input.talentPublicSlug }
+        : {}),
+      ...(input.talentCategorySnapshot
+        ? { talentCategorySnapshot: input.talentCategorySnapshot }
+        : {}),
+      ...(input.sourceApplicationId
+        ? { sourceApplicationId: input.sourceApplicationId }
+        : {}),
+      ...(input.sourceAuditionId
+        ? { sourceAuditionId: input.sourceAuditionId }
+        : {}),
+      ...(input.sourceAuditionTitleSnapshot
+        ? { sourceAuditionTitleSnapshot: input.sourceAuditionTitleSnapshot }
+        : {}),
+      status: validated.status,
+      tags: validated.tags,
+      privateNote: validated.privateNote,
+      createdAt: existing.exists()
+        ? (existing.data().createdAt as RecruiterTalentPoolEntry['createdAt'])
+        : now,
+      updatedAt: now,
+    };
+
+    await setDoc(entryRef, entry, { merge: true });
+    return entry;
+  } catch (error: unknown) {
+    throw new Error(getErrorMessage(error, 'Failed to save Talent to pool'));
+  }
+};
+
+export const getRecruiterTalentPool = async (
+  recruiterId?: string
+): Promise<RecruiterTalentPoolEntry[]> => {
+  try {
+    const user = getFirebaseAuth().currentUser;
+    if (!user) throw new Error('Please sign in again.');
+    if (recruiterId && recruiterId !== user.uid) {
+      throw new Error('You can only open your own Talent Pool.');
+    }
+
+    const poolQuery = query(
+      collection(getFirestoreDb(), 'recruiterTalentPool'),
+      where('recruiterId', '==', user.uid)
+    );
+    const snapshot = await getDocs(poolQuery);
+    return snapshot.docs
+      .map(
+        (item) =>
+          ({
+            id: item.id,
+            ...item.data(),
+          }) as RecruiterTalentPoolEntry
+      )
+      .sort((first, second) => talentPoolUpdatedAt(second) - talentPoolUpdatedAt(first));
+  } catch (error: unknown) {
+    throw new Error(getErrorMessage(error, 'Failed to load Talent Pool'));
+  }
+};
+
+export const getTalentPoolEntryForTalent = async (
+  talentId: string
+): Promise<RecruiterTalentPoolEntry | null> => {
+  try {
+    const user = getFirebaseAuth().currentUser;
+    if (!user) throw new Error('Please sign in again.');
+    const entryId = getRecruiterTalentPoolEntryId(user.uid, talentId);
+    const snapshot = await getDoc(
+      doc(getFirestoreDb(), 'recruiterTalentPool', entryId)
+    );
+    if (!snapshot.exists()) return null;
+    return {
+      id: snapshot.id,
+      ...snapshot.data(),
+    } as RecruiterTalentPoolEntry;
+  } catch (error: unknown) {
+    throw new Error(getErrorMessage(error, 'Failed to load Talent Pool entry'));
+  }
+};
+
+export const updateTalentPoolEntry = async (
+  entryId: string,
+  patch: UpdateTalentPoolEntryInput
+) => {
+  try {
+    const current = await getDoc(
+      doc(getFirestoreDb(), 'recruiterTalentPool', entryId)
+    );
+    if (!current.exists()) throw new Error('Talent Pool entry was not found.');
+    const existing = current.data() as RecruiterTalentPoolEntry;
+    const validated = validateTalentPoolEntryInput({
+      status: patch.status ?? existing.status,
+      tags: patch.tags ?? existing.tags,
+      privateNote: patch.privateNote ?? existing.privateNote ?? '',
+    });
+
+    await updateDoc(doc(getFirestoreDb(), 'recruiterTalentPool', entryId), {
+      status: validated.status,
+      tags: validated.tags,
+      privateNote: validated.privateNote,
+      updatedAt: new Date(),
+    });
+  } catch (error: unknown) {
+    throw new Error(getErrorMessage(error, 'Failed to update Talent Pool entry'));
+  }
+};
+
+export const removeTalentPoolEntry = async (entryId: string) => {
+  try {
+    await deleteDoc(doc(getFirestoreDb(), 'recruiterTalentPool', entryId));
+  } catch (error: unknown) {
+    throw new Error(getErrorMessage(error, 'Failed to remove Talent Pool entry'));
   }
 };
 

@@ -61,6 +61,28 @@ const audition = (
   ...overrides,
 });
 
+const talentPoolEntry = (
+  recruiterId: string,
+  talentId: string,
+  overrides: Record<string, unknown> = {}
+) => ({
+  id: `${recruiterId}__${talentId}`,
+  recruiterId,
+  talentId,
+  talentNameSnapshot: 'Maya Rao',
+  talentPublicSlug: 'maya-rao',
+  talentCategorySnapshot: 'ACTOR',
+  sourceApplicationId: talentId,
+  sourceAuditionId: 'pipeline-a',
+  sourceAuditionTitleSnapshot: 'E2E_TEST Casting Call',
+  status: 'WATCHLIST',
+  tags: ['Telugu speaker', 'theatre'],
+  privateNote: 'Strong dialogue instincts for future roles.',
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  ...overrides,
+});
+
 async function seed() {
   await environment.withSecurityRulesDisabled(async (context) => {
     const db = context.firestore();
@@ -248,6 +270,83 @@ after(async () => {
 test('unauthenticated users cannot write protected data', async () => {
   const db = environment.unauthenticatedContext().firestore();
   await assertFails(setDoc(doc(db, 'users/anonymous'), user('anonymous', 'TALENT')));
+});
+
+test('recruiter can manage their own private Talent Pool entry', async () => {
+  const db = environment.authenticatedContext('recruiter-a').firestore();
+  const path = 'recruiterTalentPool/recruiter-a__talent-a';
+
+  await assertSucceeds(setDoc(doc(db, path), talentPoolEntry('recruiter-a', 'talent-a')));
+  await assertSucceeds(getDoc(doc(db, path)));
+  await assertSucceeds(
+    updateDoc(doc(db, path), {
+      status: 'FUTURE_FIT',
+      tags: ['future fit', 'good diction'],
+      privateNote: 'Revisit for future dialogue-heavy roles.',
+      updatedAt: serverTimestamp(),
+    })
+  );
+  await assertSucceeds(deleteDoc(doc(db, path)));
+});
+
+test('Talent Pool entries are private to the owning recruiter', async () => {
+  await environment.withSecurityRulesDisabled(async (context) => {
+    await setDoc(
+      doc(context.firestore(), 'recruiterTalentPool/recruiter-a__talent-a'),
+      talentPoolEntry('recruiter-a', 'talent-a')
+    );
+  });
+
+  const ownerDb = environment.authenticatedContext('recruiter-a').firestore();
+  const otherRecruiterDb = environment
+    .authenticatedContext('recruiter-b')
+    .firestore();
+  const talentDb = environment.authenticatedContext('talent-a').firestore();
+  const unauthDb = environment.unauthenticatedContext().firestore();
+  const path = 'recruiterTalentPool/recruiter-a__talent-a';
+
+  await assertSucceeds(getDoc(doc(ownerDb, path)));
+  await assertFails(getDoc(doc(otherRecruiterDb, path)));
+  await assertFails(getDoc(doc(talentDb, path)));
+  await assertFails(getDoc(doc(unauthDb, path)));
+});
+
+test('recruiter cannot write another recruiter Talent Pool entry', async () => {
+  const db = environment.authenticatedContext('recruiter-b').firestore();
+
+  await assertFails(
+    setDoc(
+      doc(db, 'recruiterTalentPool/recruiter-a__talent-a'),
+      talentPoolEntry('recruiter-a', 'talent-a')
+    )
+  );
+});
+
+test('Talent Pool rules reject invalid status and oversized fields', async () => {
+  const db = environment.authenticatedContext('recruiter-a').firestore();
+
+  await assertFails(
+    setDoc(
+      doc(db, 'recruiterTalentPool/recruiter-a__talent-a'),
+      talentPoolEntry('recruiter-a', 'talent-a', { status: 'SELECTED' })
+    )
+  );
+  await assertFails(
+    setDoc(
+      doc(db, 'recruiterTalentPool/recruiter-a__talent-a'),
+      talentPoolEntry('recruiter-a', 'talent-a', {
+        tags: Array.from({ length: 21 }, (_, index) => `tag-${index}`),
+      })
+    )
+  );
+  await assertFails(
+    setDoc(
+      doc(db, 'recruiterTalentPool/recruiter-a__talent-a'),
+      talentPoolEntry('recruiter-a', 'talent-a', {
+        privateNote: 'x'.repeat(1001),
+      })
+    )
+  );
 });
 
 test('conversation participants can read while non-participants cannot', async () => {

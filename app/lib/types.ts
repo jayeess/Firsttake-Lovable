@@ -135,6 +135,11 @@ export type NotificationType =
   | 'conversation_blocked';
 export type ConversationStatus = 'active' | 'archived' | 'blocked' | 'closed';
 export type MessageModerationStatus = 'active' | 'hidden' | 'removed';
+export type TalentPoolStatus =
+  | 'SAVED'
+  | 'WATCHLIST'
+  | 'FUTURE_FIT'
+  | 'DO_NOT_CONTACT';
 export type ReportTargetType =
   | 'audition'
   | 'talentProfile'
@@ -381,6 +386,23 @@ export interface SavedAudition {
   titleSnapshot: string;
   recruiterId: string;
   deadlineSnapshot: Date | Timestamp;
+}
+
+export interface RecruiterTalentPoolEntry {
+  id: string;
+  recruiterId: string;
+  talentId: string;
+  talentNameSnapshot: string;
+  talentPublicSlug?: string;
+  talentCategorySnapshot?: TalentCategory | string;
+  sourceApplicationId?: string;
+  sourceAuditionId?: string;
+  sourceAuditionTitleSnapshot?: string;
+  status: TalentPoolStatus;
+  tags: string[];
+  privateNote?: string;
+  createdAt?: Date | Timestamp;
+  updatedAt?: Date | Timestamp;
 }
 
 export interface Application {

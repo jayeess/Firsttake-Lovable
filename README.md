@@ -40,6 +40,8 @@ the operator checklist and known limitations.
 - Recruiter audition creation and applicant review
 - Recruiter Casting Slate and Decision Room for stage grouping, self-tape
   review cues, private-note readiness, and human-led next actions
+- Recruiter Talent Pool for saving promising applicants into a private,
+  recruiter-owned casting memory with bounded notes and tags
 - Casting brief quality and safety cues for Recruiter, Talent, and Admin views
 - Recruiter Trust Passport and source transparency cues for audition cards,
   audition detail, recruiter readiness, and Admin review
@@ -77,6 +79,8 @@ for the recruiter source transparency pass and
 for the public Talent sharing pass. See
 [RECRUITER_CASTING_SLATE_DECISION_ROOM_REPORT.md](RECRUITER_CASTING_SLATE_DECISION_ROOM_REPORT.md)
 for the recruiter decision-room pass and
+[RECRUITER_TALENT_POOL_PRIVATE_CASTING_CRM_REPORT.md](RECRUITER_TALENT_POOL_PRIVATE_CASTING_CRM_REPORT.md)
+for the private recruiter Talent Pool pass. See
 [TALENT_OPPORTUNITY_RADAR_CAREER_COMMAND_CENTER_REPORT.md](TALENT_OPPORTUNITY_RADAR_CAREER_COMMAND_CENTER_REPORT.md)
 for the Talent command-center pass.
 

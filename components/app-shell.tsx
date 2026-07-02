@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import {
   BriefcaseBusiness,
+  Bookmark,
   ClipboardList,
   Home,
   LayoutDashboard,
@@ -46,10 +47,11 @@ const recruiterLinks: NavLink[] = [
   { href: '/dashboard', label: 'Workspace', shortLabel: 'Dashboard', mark: '01', icon: LayoutDashboard },
   { href: '/recruiter/auditions', label: 'Casting calls', shortLabel: 'Auditions', mark: '02', icon: BriefcaseBusiness, exact: true },
   { href: '/recruiter/auditions', label: 'Applicants', shortLabel: 'Applicants', mark: '03', icon: UsersRound, activePattern: '/recruiter/auditions/' },
-  { href: '/messages', label: 'Messages', shortLabel: 'Messages', mark: '04', icon: MessageSquare },
-  { href: '/recruiter/profile', label: 'Company profile', shortLabel: 'Profile', mark: '05', icon: UserRound },
-  { href: '/recruiter/auditions/new', label: 'Post an audition', shortLabel: 'Post', mark: '06', icon: PlusCircle },
-  { href: '/recruiter/verification', label: 'Verification', shortLabel: 'Verify', mark: '07', icon: ShieldCheck },
+  { href: '/recruiter/talent-pool', label: 'Talent Pool', shortLabel: 'Pool', mark: '04', icon: Bookmark },
+  { href: '/messages', label: 'Messages', shortLabel: 'Messages', mark: '05', icon: MessageSquare },
+  { href: '/recruiter/profile', label: 'Company profile', shortLabel: 'Profile', mark: '06', icon: UserRound },
+  { href: '/recruiter/auditions/new', label: 'Post an audition', shortLabel: 'Post', mark: '07', icon: PlusCircle },
+  { href: '/recruiter/verification', label: 'Verification', shortLabel: 'Verify', mark: '08', icon: ShieldCheck },
 ];
 
 const mobileRecruiterLinks = recruiterLinks.slice(0, 5);

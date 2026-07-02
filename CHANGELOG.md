@@ -1,5 +1,33 @@
 # Changelog
 
+### Recruiter Talent Pool and Private Casting CRM
+
+- Added `RecruiterTalentPoolEntry` and `TalentPoolStatus` to `app/lib/types.ts`
+  for recruiter-owned saved Talent records with display snapshots, bounded
+  private notes, tags, source audition context, and status.
+- Added `app/lib/recruiter-talent-pool-policy.ts`, a pure helper for Talent Pool
+  status labels/tones, tag normalization, note validation, unsafe language
+  detection, safe guidance copy, and empty-state copy.
+- Added Firestore service helpers for saving, loading, updating, and removing
+  recruiter Talent Pool entries. Deterministic IDs prevent duplicate entries for
+  the same recruiter/Talent pair in normal use.
+- Added `recruiterTalentPool/{entryId}` Firestore rules so only the owning
+  recruiter can create/read/update/delete their entries. Talent, unrelated
+  recruiters, and unauthenticated users cannot read private recruiter notes.
+- Updated `/recruiter/auditions/[id]/applicants` with an inline "Private Talent
+  Pool" panel in expanded applicant review. This does not change application
+  status transitions or Talent-visible application history.
+- Added `/recruiter/talent-pool` with metrics, status filter, search, private
+  note previews, tags, source audition links, public portfolio links when
+  available, and remove action.
+- Added a recruiter navigation item for Talent Pool.
+- Added `tests/recruiter-talent-pool-policy.test.mts` and updated
+  `tests/firestore.rules.mts` with privacy and validation emulator coverage.
+- Created `RECRUITER_TALENT_POOL_PRIVATE_CASTING_CRM_REPORT.md`.
+- No AI, automatic ranking, automatic selection, payment, calendar, video call,
+  self-tape upload, fake data, guaranteed casting, or private Talent data
+  exposure was added.
+
 ### Casting Application Kit and Screening Questions
 
 - Added `app/lib/casting-application-kit-policy.ts`, a self-contained, rule-based

@@ -1,5 +1,38 @@
 # Full App UX Polish Report
 
+## Recruiter Talent Pool and Private Casting CRM - July 2, 2026
+
+**Goal:** Help recruiters remember promising applicants across auditions through
+a private, safe casting memory layer without adding ranking, automation, or
+private Talent data exposure.
+
+Key improvements:
+
+- `app/lib/recruiter-talent-pool-policy.ts` centralizes Talent Pool statuses,
+  tag normalization, note/tag safety validation, guidance copy, and safe empty
+  states.
+- Expanded applicant review at `/recruiter/auditions/[id]/applicants` now
+  includes a "Private Talent Pool" panel for saving or updating applicants with
+  bounded private notes, safe tags, and a recruiter-only status.
+- `/recruiter/talent-pool` gives recruiters a dedicated saved Talent workspace
+  with metrics, status filter, search, source audition links, public portfolio
+  links when available, and remove actions.
+- `components/app-shell.tsx` adds Talent Pool to recruiter navigation so the
+  saved workflow has a clear home.
+- `firestore.rules` protects `recruiterTalentPool/{entryId}` so only the owning
+  recruiter can read or write entries. Talent, unrelated recruiters, and
+  unauthenticated users cannot access private pool notes.
+- `tests/recruiter-talent-pool-policy.test.mts` and `tests/firestore.rules.mts`
+  cover policy safety and ownership rules.
+
+Known limitation: Firestore rules bound the tag list and note size, while
+per-tag string length and unsafe-word validation are enforced by the shared
+policy helper. Saving from public Talent profiles was intentionally skipped for
+this MVP to avoid changing public profile privacy behavior.
+
+See `RECRUITER_TALENT_POOL_PRIVATE_CASTING_CRM_REPORT.md` for the full change
+record.
+
 ## Audition Share Kit and Public Opportunity Page - June 30, 2026
 
 **Goal:** Make FirstTake auditions shareable through clean, professional

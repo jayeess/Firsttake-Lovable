@@ -3,14 +3,14 @@
 **Telugu name:** నట కనెక్ట్  
 **Document date:** June 29, 2026
 **Repository:** `jayeess/Firsttake-Lovable`  
-**Current stage:** Casting Application Kit and Screening Questions added;
+**Current stage:** Recruiter Talent Pool and Private Casting CRM added;
 product is ready for controlled founder-led beta demos with role-specific
 screening questions for recruiters, Talent answer flow in the apply form,
 recruiter decision-room screening answer review, shareable casting opportunity
 pages, recruiter share readiness signals, privacy-safe public Talent sharing,
 transparent recruiter source signals, application journey tracking, proof
 receipts, message safety guidance, explainable casting brief quality, safety
-signals, profile readiness, audition readiness guidance, Talent command-center
+signals, private recruiter Talent Pool memory, profile readiness, audition readiness guidance, Talent command-center
 guidance, recruiter decision-room signals, slide outline, slide copy, speaker
 notes, route order, screenshot checklist, onboarding playbook, and audience
 talking points
@@ -52,7 +52,7 @@ Nata Connect is no longer a static demonstration. It is a working Firebase-backe
 | Audition creation | Working | Core fields and draft/publish states exist |
 | Audition discovery | Working | Search and filtering exist |
 | Applications | Working | Duplicate applications are prevented |
-| Recruiter applicant review | Upgraded | Casting Slate and Decision Room organize existing statuses, self-tape cues, notes, and checklist guidance without ranking or automation |
+| Recruiter applicant review | Upgraded | Casting Slate, Decision Room, and private recruiter Talent Pool organize existing statuses, self-tape cues, notes, tags, and future-fit memory without ranking or automation |
 | Role separation | Working | Talent and recruiter routes are guarded |
 | Authentication | Working, recently improved | Tab-scoped sessions support different accounts |
 | Security rules | MVP-level | Good role foundations, requires production review |
@@ -82,6 +82,15 @@ Nata Connect is no longer a static demonstration. It is a working Firebase-backe
 | Launch demo readiness | Improved | Empty states, first-time guidance, and honest roadmap messaging make the app understandable even before dense live marketplace activity |
 
 ### Latest product-design position
+
+The July 2, 2026 Recruiter Talent Pool and Private Casting CRM pass added
+private recruiter memory across auditions. Recruiters can now save applicants
+from the Decision Room, add bounded private notes and tags, revisit saved
+Talent at `/recruiter/talent-pool`, and keep future casting context organized
+without spreadsheets or off-platform notes. The feature stores only safe display
+snapshots plus recruiter-owned notes/tags, is protected by Firestore rules, and
+does not expose private Talent data, rank applicants, automate selection, or
+guarantee casting outcomes.
 
 The June 30, 2026 Talent Opportunity Radar and Career Command Center pass made
 the Talent experience more action-oriented. `/dashboard` now summarizes next
