@@ -1,5 +1,29 @@
 # Full App UX Polish Report
 
+## Application Tracking and Full Flow Polish - July 2, 2026
+
+**Goal:** Make Talent application tracking agree with Notifications and avoid
+misleading empty states when application data fails to refresh.
+
+Key improvements:
+
+- `getTalentApplications` now relies on the intended collection group query and
+  no longer falls back to a blocked all-auditions scan.
+- Audition detail hydration is optional per application, so one inaccessible or
+  legacy brief detail does not hide the whole tracker.
+- `/applications` shows a retryable error state with a Notifications link when
+  the critical application fetch fails.
+- Application focus, metrics, and status-board counts only render after a
+  successful application fetch.
+- Tracker grouping is centralized in `application-pipeline.ts`, covering
+  Active, Shortlisted, Completed, and All.
+- Unit and emulator tests now cover callback/final-round grouping, completed
+  states, fetch-failure empty-state protection, legacy records, and the exact
+  collection group query used by the tracker.
+
+See `APPLICATION_TRACKING_AND_FULL_FLOW_POLISH_REPORT.md` for the full change
+record.
+
 ## Recruiter Talent Pool and Private Casting CRM - July 2, 2026
 
 **Goal:** Help recruiters remember promising applicants across auditions through

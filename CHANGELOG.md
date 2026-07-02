@@ -1,5 +1,23 @@
 # Changelog
 
+### Application Tracking and Full Flow Polish
+
+- Fixed `/applications` data consistency by keeping the Talent application
+  tracker on the intended `collectionGroup('applications')` query and removing
+  the blocked all-auditions fallback.
+- Application detail hydration is now resilient per application: if an audition
+  detail cannot refresh, the application status still renders.
+- `/applications` no longer converts a failed application fetch into an empty
+  list. It now shows a retryable error state with a link to Notifications.
+- Status board metrics and tab counts are hidden until the application fetch
+  succeeds, preventing misleading zeroes.
+- Centralized application tracker grouping in `application-pipeline.ts`:
+  Active, Shortlisted, Completed, and All.
+- Added tests for callback/final-round grouping, completed grouping, failed
+  fetch empty-state protection, legacy application summaries, and the exact
+  Firestore collection group query used by the tracker.
+- Created `APPLICATION_TRACKING_AND_FULL_FLOW_POLISH_REPORT.md`.
+
 ### Recruiter Talent Pool and Private Casting CRM
 
 - Added `RecruiterTalentPoolEntry` and `TalentPoolStatus` to `app/lib/types.ts`

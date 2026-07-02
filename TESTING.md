@@ -1,5 +1,36 @@
 # Nata Connect development test cases
 
+## Application Tracking Consistency checks
+
+After updating application reads, notifications, status grouping, or Firestore
+rules, verify:
+
+- [ ] Talent submits an application and `/applications` shows it after refresh.
+- [ ] The "Application submitted" notification links to `/applications`.
+- [ ] Recruiter moves the applicant to Callback.
+- [ ] The "Callback requested" notification appears.
+- [ ] `/applications` shows the callback application under Shortlisted and All.
+- [ ] Final round also appears under Shortlisted and All.
+- [ ] Selected, rejected, and withdrawn applications appear under Completed and
+  All.
+- [ ] If application loading fails, the page shows a retryable error state and
+  a Notifications link, not "No applications yet".
+- [ ] Status metrics and tabs do not show misleading zeroes during a failed
+  application load.
+- [ ] Legacy applications without screening answers still render safely.
+- [ ] Talent cannot read another Talent user's application through the
+  collection group query.
+
+Run:
+
+```powershell
+npm run lint
+npm test
+npm run build
+npm run emulators:test
+git diff --check
+```
+
 ## Recruiter Talent Pool and Private Casting CRM checks
 
 After updating Talent Pool policy, Firestore services, recruiter applicant

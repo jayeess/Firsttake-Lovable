@@ -42,6 +42,48 @@ export const APPLICATION_STATUS_LABELS: Record<ApplicationStatus, string> = {
   WITHDRAWN: 'Withdrawn',
 };
 
+export type ApplicationTrackerView =
+  | 'ACTIVE'
+  | 'SHORTLISTED'
+  | 'COMPLETED'
+  | 'ALL';
+
+export const APPLICATION_TRACKER_VIEW_STATUSES: Record<
+  Exclude<ApplicationTrackerView, 'ALL'>,
+  ApplicationStatus[]
+> = {
+  ACTIVE: ['APPLIED', 'VIEWED', 'UNDER_REVIEW', 'MAYBE'],
+  SHORTLISTED: ['SHORTLISTED', 'CALLBACK', 'FINAL_ROUND'],
+  COMPLETED: ['SELECTED', 'REJECTED', 'WITHDRAWN'],
+};
+
+export const applicationMatchesTrackerView = (
+  application: Pick<Application, 'status' | 'recruiterStatus'>,
+  view: ApplicationTrackerView
+) =>
+  view === 'ALL' ||
+  APPLICATION_TRACKER_VIEW_STATUSES[view].includes(
+    getApplicationStatus(application)
+  );
+
+export const getApplicationTrackerViewCount = (
+  applications: Array<Pick<Application, 'status' | 'recruiterStatus'>>,
+  view: ApplicationTrackerView
+) =>
+  applications.filter((application) =>
+    applicationMatchesTrackerView(application, view)
+  ).length;
+
+export const shouldShowApplicationEmptyState = ({
+  loading,
+  error,
+  filteredCount,
+}: {
+  loading: boolean;
+  error: string | null | undefined;
+  filteredCount: number;
+}) => !loading && !error && filteredCount === 0;
+
 export type ApplicantSort =
   | 'NEWEST'
   | 'OLDEST'

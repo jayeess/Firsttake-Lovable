@@ -3,7 +3,7 @@
 **Telugu name:** నట కనెక్ట్  
 **Document date:** June 29, 2026
 **Repository:** `jayeess/Firsttake-Lovable`  
-**Current stage:** Recruiter Talent Pool and Private Casting CRM added;
+**Current stage:** Application tracking consistency and full-flow polish fixed;
 product is ready for controlled founder-led beta demos with role-specific
 screening questions for recruiters, Talent answer flow in the apply form,
 recruiter decision-room screening answer review, shareable casting opportunity
@@ -51,7 +51,7 @@ Nata Connect is no longer a static demonstration. It is a working Firebase-backe
 | Audition Share Kit and Public Opportunity Page | Implemented | Share readiness bands, structured opportunity context, safe share copy, owner tips, and public safety notes; no new public route or Firestore rule changes |
 | Audition creation | Working | Core fields and draft/publish states exist |
 | Audition discovery | Working | Search and filtering exist |
-| Applications | Working | Duplicate applications are prevented |
+| Applications | Hardened | Duplicate applications are prevented; Talent tracker now keeps notification, callback, shortlisted, completed, and retry states consistent |
 | Recruiter applicant review | Upgraded | Casting Slate, Decision Room, and private recruiter Talent Pool organize existing statuses, self-tape cues, notes, tags, and future-fit memory without ranking or automation |
 | Role separation | Working | Talent and recruiter routes are guarded |
 | Authentication | Working, recently improved | Tab-scoped sessions support different accounts |
@@ -82,6 +82,14 @@ Nata Connect is no longer a static demonstration. It is a working Firebase-backe
 | Launch demo readiness | Improved | Empty states, first-time guidance, and honest roadmap messaging make the app understandable even before dense live marketplace activity |
 
 ### Latest product-design position
+
+The July 2, 2026 Application Tracking and Full Flow Polish pass fixed a
+Talent-side consistency issue where Notifications could show application or
+callback activity while `/applications` showed a warning plus an empty state.
+The tracker now uses the intended collection group application query, keeps
+per-application audition detail refresh optional, shows retry copy instead of
+misleading empty states on fetch failure, and centralizes Active, Shortlisted,
+Completed, and All grouping.
 
 The July 2, 2026 Recruiter Talent Pool and Private Casting CRM pass added
 private recruiter memory across auditions. Recruiters can now save applicants

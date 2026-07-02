@@ -1,15 +1,18 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
+  applicationMatchesTrackerView,
   canRecruiterTransition,
   filterApplicants,
   getApplicationNextStep,
   getApplicationPackSummary,
   getApplicationStatus,
+  getApplicationTrackerViewCount,
   getDecisionSafetyCue,
   getPipelineCounts,
   getRecruiterNextAction,
   getTalentStageGuidance,
+  shouldShowApplicationEmptyState,
   sortApplicants,
   validateRecruiterReview,
   validateTalentVisibleNote,
@@ -279,4 +282,67 @@ test('pipeline counts and sorting use normalized statuses', () => {
     ),
     ['newer', 'older']
   );
+});
+
+test('application tracker groups callback, final round, and closed statuses correctly', () => {
+  const applications = [
+    { status: 'APPLIED' },
+    { status: 'VIEWED' },
+    { status: 'CALLBACK' },
+    { status: 'FINAL_ROUND' },
+    { status: 'SELECTED' },
+    { status: 'REJECTED' },
+    { status: 'WITHDRAWN' },
+  ] as const;
+
+  assert.equal(getApplicationTrackerViewCount(applications, 'ACTIVE'), 2);
+  assert.equal(getApplicationTrackerViewCount(applications, 'SHORTLISTED'), 2);
+  assert.equal(getApplicationTrackerViewCount(applications, 'COMPLETED'), 3);
+  assert.equal(getApplicationTrackerViewCount(applications, 'ALL'), 7);
+  assert.equal(
+    applicationMatchesTrackerView({ status: 'CALLBACK' }, 'SHORTLISTED'),
+    true
+  );
+  assert.equal(
+    applicationMatchesTrackerView({ status: 'FINAL_ROUND' }, 'SHORTLISTED'),
+    true
+  );
+  assert.equal(
+    applicationMatchesTrackerView({ status: 'REJECTED' }, 'COMPLETED'),
+    true
+  );
+});
+
+test('application fetch failure does not produce an empty state', () => {
+  assert.equal(
+    shouldShowApplicationEmptyState({
+      loading: false,
+      error: 'Failed to load talent applications',
+      filteredCount: 0,
+    }),
+    false
+  );
+  assert.equal(
+    shouldShowApplicationEmptyState({
+      loading: false,
+      error: '',
+      filteredCount: 0,
+    }),
+    true
+  );
+});
+
+test('legacy applications without screening answers still summarize safely', () => {
+  const summary = getApplicationPackSummary(
+    {
+      id: 'talent-a',
+      auditionId: 'audition-a',
+      talentId: 'talent-a',
+      status: 'CALLBACK',
+    },
+    0
+  );
+
+  assert.equal(summary.hasCoverMessage, false);
+  assert.equal(summary.hasSelfTape, false);
 });

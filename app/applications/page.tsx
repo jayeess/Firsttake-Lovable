@@ -15,10 +15,15 @@ import {
 import {
   APPLICATION_PIPELINE_STATUSES,
   APPLICATION_STATUS_LABELS,
+  APPLICATION_TRACKER_VIEW_STATUSES,
+  applicationMatchesTrackerView,
   getApplicationPackSummary,
   getApplicationStatus,
+  getApplicationTrackerViewCount,
   getDecisionSafetyCue,
   getTalentStageGuidance,
+  shouldShowApplicationEmptyState,
+  type ApplicationTrackerView,
 } from '@/app/lib/application-pipeline';
 import {
   formatDate,
@@ -54,10 +59,8 @@ import {
 } from '@/app/lib/casting-journey-policy';
 import { getTalentApplicationFocus } from '@/app/lib/talent-opportunity-radar-policy';
 
-type ApplicationView = 'ACTIVE' | 'SHORTLISTED' | 'COMPLETED' | 'ALL';
-
 const applicationViews: Array<{
-  value: ApplicationView;
+  value: ApplicationTrackerView;
   label: string;
   description: string;
   statuses: ApplicationStatus[] | null;
@@ -66,19 +69,19 @@ const applicationViews: Array<{
     value: 'ACTIVE',
     label: 'Active',
     description: 'In review or awaiting recruiter action',
-    statuses: ['APPLIED', 'VIEWED', 'UNDER_REVIEW', 'MAYBE'],
+    statuses: APPLICATION_TRACKER_VIEW_STATUSES.ACTIVE,
   },
   {
     value: 'SHORTLISTED',
     label: 'Shortlisted',
     description: 'Shortlist, callback, and final round',
-    statuses: ['SHORTLISTED', 'CALLBACK', 'FINAL_ROUND'],
+    statuses: APPLICATION_TRACKER_VIEW_STATUSES.SHORTLISTED,
   },
   {
     value: 'COMPLETED',
     label: 'Completed',
     description: 'Selected, closed, or withdrawn',
-    statuses: ['SELECTED', 'REJECTED', 'WITHDRAWN'],
+    statuses: APPLICATION_TRACKER_VIEW_STATUSES.COMPLETED,
   },
   {
     value: 'ALL',
@@ -99,31 +102,21 @@ const positiveTimeline: ApplicationStatus[] = [
 ];
 
 
-const emptyMessages: Record<ApplicationView, string> = {
+const emptyMessages: Record<ApplicationTrackerView, string> = {
   ACTIVE: 'No active applications right now.',
   SHORTLISTED: 'No shortlisted applications yet.',
   COMPLETED: 'No completed applications yet.',
   ALL: 'No applications yet. Apply to your first audition.',
 };
 
-const getViewCount = (
-  applications: Application[],
-  statuses: ApplicationStatus[] | null
-) =>
-  applications.filter((item) => {
-    const status = getApplicationStatus(item);
-    return !statuses || statuses.includes(status);
-  }).length;
-
 export default function ApplicationsPage() {
   const { user, userType } = useAuth();
   const [applications, setApplications] = useState<Application[]>([]);
-  const [view, setView] = useState<ApplicationView>('ACTIVE');
+  const [view, setView] = useState<ApplicationTrackerView>('ACTIVE');
   const [statusFilter, setStatusFilter] = useState<ApplicationStatus | 'ALL'>(
     'ALL'
   );
   const [error, setError] = useState('');
-  const [applicationsWarning, setApplicationsWarning] = useState('');
   const [loading, setLoading] = useState(true);
   const [reloadKey, setReloadKey] = useState(0);
   const [withdrawingId, setWithdrawingId] = useState('');
@@ -140,12 +133,7 @@ export default function ApplicationsPage() {
     }
 
     void Promise.all([
-      getTalentApplications(user.uid).catch(() => {
-        setApplicationsWarning(
-          'Some application details could not be refreshed. Your saved application records are still protected. Try again, or check back after a refresh.'
-        );
-        return [] as Application[];
-      }),
+      getTalentApplications(user.uid),
       getTalentProfile(user.uid).catch(() => null),
       getConversations().catch(() => ({ conversations: [] })),
     ])
@@ -166,24 +154,23 @@ export default function ApplicationsPage() {
       .finally(() => setLoading(false));
   }, [reloadKey, user, userType]);
 
-  const activeView = applicationViews.find((item) => item.value === view);
   const filtered = useMemo(
     () =>
       applications.filter((item) => {
         const status = getApplicationStatus(item);
         return (
-          (!activeView?.statuses || activeView.statuses.includes(status)) &&
+          applicationMatchesTrackerView(item, view) &&
           (statusFilter === 'ALL' || status === statusFilter)
         );
       }),
-    [activeView, applications, statusFilter]
+    [applications, statusFilter, view]
   );
-  const activeCount = getViewCount(applications, ['APPLIED', 'VIEWED', 'UNDER_REVIEW', 'MAYBE']);
-  const shortlistedCount = getViewCount(applications, [
-    'SHORTLISTED',
-    'CALLBACK',
-    'FINAL_ROUND',
-  ]);
+  const applicationsLoaded = !loading && !error;
+  const activeCount = getApplicationTrackerViewCount(applications, 'ACTIVE');
+  const shortlistedCount = getApplicationTrackerViewCount(
+    applications,
+    'SHORTLISTED'
+  );
   const selfTapeNeeds = applications.filter((application) => {
     const selfTapeStatus = getSelfTapeStatus(application, application.audition);
     return selfTapeStatus === 'missing' || selfTapeStatus === 'requested';
@@ -347,6 +334,7 @@ export default function ApplicationsPage() {
         </SafetyNotice>
       </div>
 
+      {applicationsLoaded && (
       <section className="mt-5 rounded-md border border-[#bad7d3] bg-[#edf7f5] p-4 shadow-sm sm:p-5">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
@@ -374,7 +362,9 @@ export default function ApplicationsPage() {
           </Link>
         </div>
       </section>
+      )}
 
+      {applicationsLoaded && (
       <section className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <MetricCard
           label="Active"
@@ -403,7 +393,9 @@ export default function ApplicationsPage() {
           icon={MessageSquare}
         />
       </section>
+      )}
 
+      {applicationsLoaded && (
       <section className="mt-6">
         <CinematicSectionHeader
           eyebrow="Casting status board"
@@ -411,7 +403,9 @@ export default function ApplicationsPage() {
           description="Filter by pipeline stage, submit requested self-tapes, and withdraw only when you are sure you no longer want the role."
         />
       </section>
+      )}
 
+      {applicationsLoaded && (
       <div className="mt-4 rounded-md border border-[#cbd6db] bg-white/95 p-3 shadow-sm sm:p-4">
         <div
           className="grid grid-cols-2 gap-1 rounded-md bg-[#f3f7f8] p-1 sm:grid-cols-4"
@@ -442,7 +436,7 @@ export default function ApplicationsPage() {
                         : 'bg-white text-[#657176]'
                     }`}
                   >
-                    {getViewCount(applications, item.statuses)}
+                    {getApplicationTrackerViewCount(applications, item.value)}
                   </span>
                 </span>
                 <span className="mt-1 block text-xs font-bold">
@@ -481,41 +475,30 @@ export default function ApplicationsPage() {
           </label>
         </div>
       </div>
+      )}
 
       {error && (
         <ErrorState
           title="Applications could not be loaded"
-          message="Some application details could not be refreshed. Your saved application records are still protected. Try again, or check back after a refresh."
+          message="We could not refresh your application tracker. Recent application activity may still be visible in Notifications while you retry."
           onRetry={() => {
             setLoading(true);
             setError('');
-            setApplicationsWarning('');
             setReloadKey((current) => current + 1);
           }}
+          secondaryHref="/notifications"
+          secondaryLabel="Check notifications"
         />
-      )}
-
-      {!error && applicationsWarning && (
-        <div className="mt-5 rounded-md border border-amber-200 bg-amber-50 p-4">
-          <p className="text-sm font-bold text-amber-800">{applicationsWarning}</p>
-          <button
-            type="button"
-            className="mt-2 text-sm font-bold text-amber-700 underline"
-            onClick={() => {
-              setLoading(true);
-              setApplicationsWarning('');
-              setReloadKey((current) => current + 1);
-            }}
-          >
-            Retry
-          </button>
-        </div>
       )}
 
       <div className="mt-6 space-y-4">
         {loading ? (
           <LoadingState label="Loading your applications..." />
-        ) : error ? null : filtered.length === 0 ? (
+        ) : error ? null : shouldShowApplicationEmptyState({
+          loading,
+          error,
+          filteredCount: filtered.length,
+        }) ? (
           <EmptyState
             title={statusFilter === 'ALL' ? emptyMessages[view] : 'No applications match this filter.'}
             message={
@@ -577,6 +560,12 @@ export default function ApplicationsPage() {
                   value={application.audition?.recruiterName ?? 'Recruiter'}
                 />
               </div>
+              {!application.audition && (
+                <p className="mt-4 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm font-bold leading-6 text-amber-900">
+                  The original audition details could not be refreshed, but
+                  your application status is still available here.
+                </p>
+              )}
               <div className="mt-3 flex flex-wrap items-center gap-1.5">
                 <span className="text-[10px] font-black uppercase tracking-wide text-[#7b8a90]">
                   Pack

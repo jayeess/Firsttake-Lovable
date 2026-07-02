@@ -8,11 +8,13 @@ import {
   type RulesTestEnvironment,
 } from '@firebase/rules-unit-testing';
 import {
+  collectionGroup,
   collection,
   deleteDoc,
   doc,
   getDoc,
   getDocs,
+  orderBy,
   query,
   serverTimestamp,
   setDoc,
@@ -1185,6 +1187,30 @@ test('Application owner and audition owner can read an application', async () =>
   await assertSucceeds(getDoc(doc(talentDb, path)));
   await assertSucceeds(getDoc(doc(ownerDb, path)));
   await assertFails(getDoc(doc(outsiderDb, path)));
+});
+
+test('Talent can query own applications using the tracker collection group pattern', async () => {
+  const db = environment.authenticatedContext('talent-a').firestore();
+  const applicationsQuery = query(
+    collectionGroup(db, 'applications'),
+    where('talentId', '==', 'talent-a'),
+    orderBy('createdAt', 'desc')
+  );
+
+  const snapshot = await assertSucceeds(getDocs(applicationsQuery));
+  assert.equal(snapshot.docs.length, 1);
+  assert.equal(snapshot.docs[0].id, 'talent-a');
+});
+
+test('Talent cannot query another Talent application through collection group', async () => {
+  const db = environment.authenticatedContext('talent-b').firestore();
+  const applicationsQuery = query(
+    collectionGroup(db, 'applications'),
+    where('talentId', '==', 'talent-a'),
+    orderBy('createdAt', 'desc')
+  );
+
+  await assertFails(getDocs(applicationsQuery));
 });
 
 test('audition owner can update allowed recruiter pipeline fields', async () => {

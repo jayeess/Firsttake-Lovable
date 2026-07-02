@@ -941,11 +941,10 @@ export const getTalentApplications = async (
           return null;
         }
 
-        const audition = await getAuditionById(auditionId);
         return {
           id: applicationDoc.id,
           auditionId,
-          audition,
+          audition: await getAuditionById(auditionId).catch(() => null),
           ...applicationDoc.data(),
         } as Application;
       })
@@ -954,62 +953,8 @@ export const getTalentApplications = async (
     return applicationResults.filter(
       (application): application is Application => application !== null
     );
-  } catch (collectionGroupError: unknown) {
-    try {
-      const db = getFirestoreDb();
-      const auditionsSnapshot = await getDocs(collection(db, 'auditions'));
-      const applicationResults = await Promise.all(
-        auditionsSnapshot.docs.map(async (auditionDoc) => {
-          const applicationSnapshot = await getDoc(
-            doc(db, 'auditions', auditionDoc.id, 'applications', talentId)
-          );
-
-          if (!applicationSnapshot.exists()) {
-            return null;
-          }
-
-          return {
-            id: applicationSnapshot.id,
-            auditionId: auditionDoc.id,
-            audition: {
-              id: auditionDoc.id,
-              ...auditionDoc.data(),
-            } as Audition,
-            ...applicationSnapshot.data(),
-          } as Application;
-        })
-      );
-
-      return applicationResults
-        .filter(
-          (application): application is Application => application !== null
-        )
-        .sort((first, second) => {
-          const firstCreatedAt =
-            !first.createdAt
-              ? 0
-              : first.createdAt instanceof Date
-              ? first.createdAt.getTime()
-              : first.createdAt.toMillis();
-          const secondCreatedAt =
-            !second.createdAt
-              ? 0
-              : second.createdAt instanceof Date
-              ? second.createdAt.getTime()
-              : second.createdAt.toMillis();
-          return secondCreatedAt - firstCreatedAt;
-        });
-    } catch (fallbackError: unknown) {
-      const primaryMessage = getErrorMessage(
-        collectionGroupError,
-        'Failed to load talent applications'
-      );
-      const fallbackMessage = getErrorMessage(
-        fallbackError,
-        'The compatibility query also failed'
-      );
-      throw new Error(`${primaryMessage} ${fallbackMessage}`);
-    }
+  } catch (error: unknown) {
+    throw new Error(getErrorMessage(error, 'Failed to load talent applications'));
   }
 };
 
