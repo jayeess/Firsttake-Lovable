@@ -1,5 +1,42 @@
 # Nata Connect development test cases
 
+## Recruiter Review and Talent Pool Save Flow checks
+
+After updating the Decision Room private review form, Talent Pool policy, or
+Talent Pool Firestore rules, verify:
+
+- [ ] Recruiter opens `/recruiter/auditions/[id]/applicants` and expands an
+  applicant.
+- [ ] Recruiter adds a private note, rating, internal tags, and a
+  Talent-visible note.
+- [ ] "Save private review" shows a loading state and then "Private review
+  saved."
+- [ ] A Talent-visible note with email, phone, WhatsApp, Telegram, or
+  off-platform instructions is blocked with clear guidance.
+- [ ] Normal offline context such as "offline studio callback" is allowed when
+  it is not asking the Talent to move communication off-platform.
+- [ ] Talent Pool tags are trimmed, split by comma, deduped, and empty values
+  are ignored.
+- [ ] Placeholder tags such as "tag" or "tags" are not saved.
+- [ ] Safe casting tags such as "callback", "Telugu speaker", "dancer",
+  "theatre", "voice artist", and "future fit" are accepted.
+- [ ] Unsafe Talent Pool note text shows the specific field that needs fixing.
+- [ ] Saving an already-saved Talent updates the existing Talent Pool entry.
+- [ ] `/recruiter/talent-pool` shows the saved or updated entry.
+- [ ] Talent users cannot read Talent Pool notes or private recruiter notes.
+- [ ] Unrelated recruiters cannot read or write another recruiter's Talent Pool
+  entry.
+
+Run:
+
+```powershell
+npm run lint
+npm test
+npm run build
+npm run emulators:test
+git diff --check
+```
+
 ## Application Tracking Consistency checks
 
 After updating application reads, notifications, status grouping, or Firestore

@@ -22,6 +22,7 @@ import {
   getRecruiterNextAction,
   sortApplicants,
   TALENT_VISIBLE_NOTE_MAX_LENGTH,
+  validateRecruiterReview,
   validateTalentVisibleNote,
   type ApplicantFilters,
   type ApplicantSort,
@@ -84,6 +85,7 @@ import { NextActionPanel, SafetyNotice } from '@/components/product-ui';
 import { getRecruiterJourneySummary } from '@/app/lib/casting-journey-policy';
 import {
   getTalentPoolGuidance,
+  getTalentPoolSaveErrorMessage,
   getTalentPoolStatusLabel,
   getTalentPoolStatusTone,
   TALENT_POOL_STATUSES,
@@ -795,6 +797,8 @@ function ApplicantCard({
   const [rating, setRating] = useState(application.recruiterRating ?? 0);
   const [talentNote, setTalentNote] = useState(application.talentNextStepNote ?? '');
   const [talentNoteError, setTalentNoteError] = useState('');
+  const [reviewError, setReviewError] = useState('');
+  const [reviewMessage, setReviewMessage] = useState('');
 
   const changeStatus = async (nextStatus: ApplicationStatus) => {
     const rejectionReason =
@@ -803,6 +807,48 @@ function ApplicantCard({
           undefined
         : undefined;
     await onUpdate({ status: nextStatus }, rejectionReason);
+  };
+
+  const handleSaveReview = async () => {
+    const normalizedTags = Array.from(
+      new Set(
+        tags
+          .split(',')
+          .map((tag) => tag.trim().replace(/\s+/g, ' '))
+          .filter(Boolean)
+      )
+    );
+    const review: RecruiterReviewInput = {
+      recruiterNote: note,
+      recruiterRating: rating || null,
+      internalTags: normalizedTags,
+      talentNextStepNote: talentNote,
+    };
+    const policyError = validateRecruiterReview(status, review);
+    if (policyError) {
+      setTalentNoteError(
+        policyError.toLocaleLowerCase().includes('contact details') ||
+          policyError.toLocaleLowerCase().includes('note must be')
+          ? policyError
+          : ''
+      );
+      setReviewError(policyError);
+      setReviewMessage('');
+      return;
+    }
+
+    setTalentNoteError('');
+    setReviewError('');
+    setReviewMessage('');
+    try {
+      await onUpdate(review);
+      setTags(normalizedTags.join(', '));
+      setReviewMessage('Private review saved.');
+    } catch (error: unknown) {
+      setReviewError(
+        getErrorMessage(error, 'We could not save this review. Please refresh and try again.')
+      );
+    }
   };
 
   return (
@@ -1260,29 +1306,22 @@ function ApplicantCard({
               <button
                 type="button"
                 disabled={busy || status === 'WITHDRAWN' || Boolean(talentNoteError)}
-                onClick={() => {
-                  if (talentNote.trim()) {
-                    const err = validateTalentVisibleNote(talentNote);
-                    if (err) {
-                      setTalentNoteError(err);
-                      return;
-                    }
-                  }
-                  setTalentNoteError('');
-                  void onUpdate({
-                    recruiterNote: note,
-                    recruiterRating: rating || null,
-                    internalTags: tags
-                      .split(',')
-                      .map((tag) => tag.trim())
-                      .filter(Boolean),
-                    talentNextStepNote: talentNote,
-                  });
-                }}
+                onClick={() => void handleSaveReview()}
                 className="primary-button mt-5 w-full disabled:opacity-50"
               >
                 {busy ? 'Saving review...' : 'Save private review'}
               </button>
+
+              {reviewError && (
+                <p className="mt-3 rounded-md border border-red-200 bg-red-50 p-3 text-sm font-bold text-red-700">
+                  {reviewError}
+                </p>
+              )}
+              {reviewMessage && (
+                <p className="mt-3 rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm font-bold text-emerald-800">
+                  {reviewMessage}
+                </p>
+              )}
 
               {status !== 'WITHDRAWN' && (
                 <div className="mt-4 rounded-md border border-[#d7e0e4] bg-[#f6f9fa] p-3 text-sm">
@@ -1374,7 +1413,7 @@ function TalentPoolPanel({
     setPoolError('');
     setPoolMessage('');
     try {
-      validateTalentPoolEntryInput({
+      const validated = validateTalentPoolEntryInput({
         status: poolStatus,
         tags: poolTags,
         privateNote: poolNote,
@@ -1387,16 +1426,16 @@ function TalentPoolPanel({
         sourceApplicationId: application.id,
         sourceAuditionId: audition?.id ?? application.auditionId,
         sourceAuditionTitleSnapshot: audition?.title,
-        status: poolStatus,
-        tags: poolTags,
-        privateNote: poolNote,
+        status: validated.status,
+        tags: validated.tags,
+        privateNote: validated.privateNote,
       });
       setEntry(savedEntry);
       setPoolTags(savedEntry.tags.join(', '));
       setPoolNote(savedEntry.privateNote ?? '');
       setPoolMessage(entry ? 'Talent Pool entry updated.' : 'Saved to Talent Pool.');
     } catch (error: unknown) {
-      setPoolError(getErrorMessage(error, 'Unable to save Talent Pool entry'));
+      setPoolError(getTalentPoolSaveErrorMessage(error));
     } finally {
       setPoolBusy(false);
     }
@@ -1511,6 +1550,9 @@ function TalentPoolPanel({
                   >
                     {getTalentPoolStatusLabel(entry.status)}
                   </span>
+                  <span className="text-xs font-bold text-[#657176]">
+                    Updated {formatTalentPoolPanelDate(entry)}
+                  </span>
                   <Link
                     href="/recruiter/talent-pool"
                     className="text-xs font-black text-[#008ca6] hover:underline"
@@ -1562,6 +1604,14 @@ function TalentPoolPanel({
       )}
     </section>
   );
+}
+
+function formatTalentPoolPanelDate(entry: RecruiterTalentPoolEntry) {
+  const value = entry.updatedAt ?? entry.createdAt;
+  if (!value) return 'recently';
+  if (value instanceof Date) return value.toLocaleDateString();
+  if (typeof value === 'string') return new Date(value).toLocaleDateString();
+  return value.toDate().toLocaleDateString();
 }
 
 function ReviewSection({

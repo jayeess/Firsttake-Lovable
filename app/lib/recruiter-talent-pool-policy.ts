@@ -3,6 +3,16 @@ import type { RecruiterTalentPoolEntry, TalentPoolStatus } from './types';
 export const TALENT_POOL_MAX_TAGS = 20;
 export const TALENT_POOL_MAX_TAG_LENGTH = 32;
 export const TALENT_POOL_MAX_NOTE_LENGTH = 1000;
+const PLACEHOLDER_TAGS = new Set([
+  'tag',
+  'tags',
+  'add tag',
+  'add tags',
+  'tag 1',
+  'tag1',
+  'example tag',
+  'enter tags',
+]);
 
 export const TALENT_POOL_STATUSES: TalentPoolStatus[] = [
   'SAVED',
@@ -82,6 +92,7 @@ export const normalizeTalentPoolTags = (tags: string[] | string | undefined) => 
   for (const rawTag of rawTags) {
     const tag = collapseWhitespace(rawTag);
     if (!tag) continue;
+    if (PLACEHOLDER_TAGS.has(tag.toLocaleLowerCase())) continue;
 
     const error = validateTalentPoolTag(tag);
     if (error) {
@@ -134,6 +145,21 @@ export const validateTalentPoolEntryInput = (input: TalentPoolInput) => {
     tags,
     privateNote,
   };
+};
+
+export const getTalentPoolSaveErrorMessage = (error: unknown) => {
+  const message = error instanceof Error ? error.message : String(error ?? '');
+  const lowerMessage = message.toLocaleLowerCase();
+
+  if (lowerMessage.includes('permission') || lowerMessage.includes('missing or insufficient')) {
+    return 'We could not save this Talent Pool entry for this recruiter account. Refresh, sign in again, and try once more.';
+  }
+
+  if (lowerMessage.includes('offline') && lowerMessage.includes('contact')) {
+    return 'Remove off-platform contact instructions before saving this Talent Pool note.';
+  }
+
+  return message || 'We could not save this entry. Please refresh and try again.';
 };
 
 export const getTalentPoolStatusLabel = (status: TalentPoolStatus) => {

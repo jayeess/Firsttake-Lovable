@@ -111,6 +111,8 @@ export const TALENT_VISIBLE_NOTE_MAX_LENGTH = 400;
 
 const CONTACT_DETAIL_PATTERN =
   /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b|(?:\+?\d[\s().-]*){8,}/i;
+const OFF_PLATFORM_CONTACT_PATTERN =
+  /\b(whatsapp|telegram|dm me|outside platform|off platform|phone number|mobile number)\b/i;
 
 export const validateTalentVisibleNote = (note: string): string | null => {
   const trimmed = note.trim();
@@ -119,6 +121,9 @@ export const validateTalentVisibleNote = (note: string): string | null => {
   }
   if (CONTACT_DETAIL_PATTERN.test(trimmed)) {
     return 'Remove contact details before saving. Keep all communication on-platform.';
+  }
+  if (OFF_PLATFORM_CONTACT_PATTERN.test(trimmed)) {
+    return 'Remove off-platform contact instructions before saving. Keep next steps inside Nata Connect messages.';
   }
   return null;
 };

@@ -230,6 +230,14 @@ test('validateTalentVisibleNote accepts valid notes and rejects violations', () 
     validateTalentVisibleNote('Call +91 98765 43210 to confirm') ?? '',
     /contact details/
   );
+  assert.match(
+    validateTalentVisibleNote('Send a WhatsApp message to confirm') ?? '',
+    /off-platform contact/
+  );
+  assert.equal(
+    validateTalentVisibleNote('Callback will be offline at the studio office.'),
+    null
+  );
 });
 
 test('validateRecruiterReview rejects invalid talentNextStepNote', () => {

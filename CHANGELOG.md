@@ -1,5 +1,26 @@
 # Changelog
 
+### Recruiter Review and Talent Pool Save Flow
+
+- Fixed Decision Room private review UX so recruiters get a clear success state
+  after saving private notes, ratings, tags, and Talent-visible notes.
+- Added client-side review validation before save, including clearer
+  Talent-visible note guidance for contact details and off-platform contact
+  instructions.
+- Improved Private Talent Pool save errors so validation and permission failures
+  show actionable messages instead of only "Unable to save Talent Pool entry".
+- Hardened Talent Pool tag normalization: comma splitting, trimming, dedupe,
+  empty tag removal, and placeholder tag filtering.
+- Updated Talent Pool saving to write a complete owned entry shape, keeping
+  duplicate saves as safe updates through deterministic entry IDs.
+- Allowed normal "offline office" context while continuing to block unsafe
+  off-platform contact pressure.
+- Updated Firestore rules to allow the intended `talentNextStepNote` review
+  field with a 400-character limit.
+- Added unit and emulator tests for Talent Pool validation, Talent-visible note
+  validation, and recruiter-owned application review writes.
+- Created `RECRUITER_REVIEW_AND_TALENT_POOL_SAVE_FIX_REPORT.md`.
+
 ### Application Tracking and Full Flow Polish
 
 - Fixed `/applications` data consistency by keeping the Talent application

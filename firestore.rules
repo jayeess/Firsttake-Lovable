@@ -568,6 +568,7 @@ service cloud.firestore {
               'lastStatusChange',
               'updatedAt',
               'recruiterNotes',
+              'talentNextStepNote',
               'rejectionReason'
             ])
           && (request.resource.data.status == resource.data.status
@@ -587,7 +588,8 @@ service cloud.firestore {
             == request.auth.uid
           && request.resource.data.get('recruiterRating', 1) >= 1
           && request.resource.data.get('recruiterRating', 5) <= 5
-          && request.resource.data.get('internalTags', []).size() <= 10;
+          && request.resource.data.get('internalTags', []).size() <= 10
+          && request.resource.data.get('talentNextStepNote', '').size() <= 400;
         allow delete: if false;
       }
     }

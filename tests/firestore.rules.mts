@@ -1226,6 +1226,18 @@ test('audition owner can update allowed recruiter pipeline fields', async () => 
       recruiterNote: 'Strong screen presence',
       recruiterRating: 4,
       internalTags: ['callback'],
+      talentNextStepNote: 'Please prepare the second scene for callback.',
+      updatedAt: serverTimestamp(),
+    })
+  );
+});
+
+test('application review rules reject oversized Talent-visible notes', async () => {
+  const db = environment.authenticatedContext('recruiter-a').firestore();
+  const ref = doc(db, 'auditions/pipeline-a/applications/talent-a');
+  await assertFails(
+    updateDoc(ref, {
+      talentNextStepNote: 'x'.repeat(401),
       updatedAt: serverTimestamp(),
     })
   );

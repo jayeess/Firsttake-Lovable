@@ -17,19 +17,16 @@ import type { RecruiterTalentPoolEntry } from '../app/lib/types.ts';
 
 test('normalizes and dedupes safe Talent Pool tags', () => {
   assert.deepEqual(
-    normalizeTalentPoolTags([
-      ' Telugu speaker ',
-      'dancer',
-      'telugu speaker',
-      'good   diction',
-    ]),
+    normalizeTalentPoolTags(
+      ' Telugu speaker, dancer, telugu speaker, good   diction, , tag, tags '
+    ),
     ['Telugu speaker', 'dancer', 'good diction']
   );
 });
 
 test('enforces tag count and tag length limits', () => {
   assert.throws(
-    () => normalizeTalentPoolTags(Array.from({ length: 21 }, (_, index) => `tag ${index}`)),
+    () => normalizeTalentPoolTags(Array.from({ length: 21 }, (_, index) => `pool-${index}`)),
     /20 tags or fewer/
   );
   assert.match(validateTalentPoolTag('a'.repeat(33)) ?? '', /32 characters/);
@@ -50,8 +47,36 @@ test('enforces private note length and unsafe language rules', () => {
 test('flags unsafe tags and notes without blocking safe casting language', () => {
   assert.match(validateTalentPoolTag('WhatsApp only') ?? '', /off-platform/i);
   assert.equal(validateTalentPoolTag('callback potential'), null);
+  assert.equal(validateTalentPoolTag('Telugu speaker'), null);
+  assert.equal(validateTalentPoolTag('future fit'), null);
   assert.equal(validateTalentPoolTag('Hyderabad'), null);
   assert.equal(getTalentPoolSafetyFlags('Please share OTP').length, 1);
+});
+
+test('offline office wording is allowed when it is not contact pressure', () => {
+  assert.equal(
+    validateTalentPoolNote('Check with him once at the offline office workshop.'),
+    null
+  );
+  assert.equal(
+    validateTalentPoolEntryInput({
+      status: 'SAVED',
+      tags: 'callback, Telugu speaker',
+      privateNote: 'Good availability for an offline office workshop.',
+    }).privateNote,
+    'Good availability for an offline office workshop.'
+  );
+});
+
+test('unsafe Talent Pool notes produce specific field guidance', () => {
+  assert.match(
+    validateTalentPoolNote('Ask for WhatsApp before callback') ?? '',
+    /private note/i
+  );
+  assert.match(
+    validateTalentPoolNote('Ask for WhatsApp before callback') ?? '',
+    /off-platform contact pressure/i
+  );
 });
 
 test('validates entry input and allowed statuses', () => {

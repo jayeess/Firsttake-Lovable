@@ -817,12 +817,12 @@ export const saveTalentToPool = async (
       tags: validated.tags,
       privateNote: validated.privateNote,
       createdAt: existing.exists()
-        ? (existing.data().createdAt as RecruiterTalentPoolEntry['createdAt'])
+        ? ((existing.data().createdAt as RecruiterTalentPoolEntry['createdAt'] | undefined) ?? now)
         : now,
       updatedAt: now,
     };
 
-    await setDoc(entryRef, entry, { merge: true });
+    await setDoc(entryRef, entry);
     return entry;
   } catch (error: unknown) {
     throw new Error(getErrorMessage(error, 'Failed to save Talent to pool'));

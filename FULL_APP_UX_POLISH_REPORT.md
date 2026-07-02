@@ -1,5 +1,30 @@
 # Full App UX Polish Report
 
+## Recruiter Review and Talent Pool Save Flow - July 2, 2026
+
+**Goal:** Make the recruiter Decision Room save flow feel reliable, clear, and
+production-ready for private review notes and Private Talent Pool saves.
+
+Key improvements:
+
+- Private review saves now show a local success message and field-specific
+  validation errors near the form.
+- Talent-visible notes block contact details and off-platform contact
+  instructions while allowing normal offline studio or office context.
+- Talent Pool saves now normalize tags before write, ignore placeholder tags,
+  preserve safe casting language, and show actionable validation or permission
+  messages.
+- Existing Talent Pool entries are updated through the same deterministic
+  recruiter/Talent entry ID and written with a complete current entry shape.
+- Talent Pool panels now show existing status and updated time, making the
+  saved state clearer in the applicant Decision Room.
+- Firestore rules and emulator tests now include the intended
+  `talentNextStepNote` application-review field without exposing private
+  recruiter notes to Talent.
+
+See `RECRUITER_REVIEW_AND_TALENT_POOL_SAVE_FIX_REPORT.md` for the full change
+record.
+
 ## Application Tracking and Full Flow Polish - July 2, 2026
 
 **Goal:** Make Talent application tracking agree with Notifications and avoid
